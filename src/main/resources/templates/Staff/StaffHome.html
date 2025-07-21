@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Home Page</title>
+    <link rel="stylesheet" th:href="@{/StaffHome.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="text-primary"><i class="fas fa-user-tie"></i> Staff Home Page</h1>
+        <h2 class="text-secondary">
+            Welcome,
+            <span th:text="${staff.getLastName()} + ' ' + ${staff.getFirstName()}"></span> |
+            <a class="text-info" th:href="@{/personal-page}"><i class="fas fa-user-circle"></i> Personal Page</a> |
+        </h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-primary w-100 p-3" th:href="@{/staff-home/teachers-list}">
+                <i class="fas fa-chalkboard-teacher icon"></i> Your Teachers List
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-success w-100 p-3" th:href="@{/staff-home/students-list}">
+                <i class="fas fa-user-graduate icon"></i> Your Students List
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-warning w-100 p-3" th:href="@{/staff-home/system-users-list}">
+                <i class="fas fa-users-cog icon"></i> System Users List
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-info w-100 p-3" th:href="@{/staff-home/classroom-list}">
+                <i class="fas fa-door-open icon"></i> Classroom List
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/class-allocation}">
+                <i class="fas fa-th-large icon"></i> Class Allocation
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/timetable-scheduling}">
+                <i class="fas fa-th-large icon"></i> Timetable Scheduling
+            </a>
+        </div>
+
+        <!-- Student Feedback -->
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/staff-home/student-feedback}">
+                <i class="fas fa-comments icon"></i> Student Feedback
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/staff-home/blogs}">
+                <i class="fas fa-comments icon"></i> Blogs
+            </a>
+        </div>
+
+        <div class="col-md-12">
+            <a class="btn btn-danger w-100 p-3" th:href="@{/staff-home/logout}">
+                <i class="fas fa-sign-out-alt icon"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Students List</title>
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="text-center text-primary">
+        <i class="fas fa-user-graduate"></i> Your Students List
+    </h1>
+
+    <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <form method="post" th:action="@{/search-students}">
+                <div class="input-group w-50">
+                    <select class="form-select" name="searchType">
+                        <option value="name">🔍 Search by Name</option>
+                        <option value="id">🔍 Search by ID</option>
+                    </select>
+                    <input class="form-control" name="keyword" placeholder="Enter keyword..." type="text">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+            <div>
+                <a class="btn btn-secondary mx-2" th:href="@{/staff-home}">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a class="btn btn-success mx-2" th:href="@{/staff-home/add-student}">
+                    <i class="fas fa-user-plus"></i> Add Student
+                </a>
+            </div>
+        </div>
+
+        <form class="d-flex align-items-center" method="get" th:action="@{/staff-home/students-list}">
+            <label class="me-2" for="pageSizeInput">📌 Show:</label>
+            <input class="form-control form-control-sm w-25" id="pageSizeInput" max="100" min="1"
+                   name="pageSize" th:value="${pageSize}" type="number">
+            <button class="btn btn-primary btn-sm ms-2" type="submit">
+                <i class="fas fa-check"></i> Apply
+            </button>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="studentTable">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Class</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Date of Birth</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${students}">
+                    <td class="text-center" th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                    <td th:text="${student.lastName}"></td> <!-- You may want to correct this if class info is available -->
+                    <td th:text="${student.email}"></td>
+                    <td class="text-center" th:text="${student.phoneNumber}"></td>
+                    <td class="text-center" th:text="${student.birthDate}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/edit-student/{id}(id=${student.id})}">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this student?');"
+                           th:href="@{/delete-your-student/{id}(id=${student.id})}">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <ul class="pagination justify-content-center">
+            <!-- First Page -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/your-students-list(page=1, pageSize=${pageSize})}">First</a>
+            </li>
+
+            <!-- Previous -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/your-students-list(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
+            </li>
+
+            <!-- Page numbers -->
+            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/your-students-list(page=${i}, pageSize=${pageSize})}"
+                       th:text="${i}"></a>
+                </li>
+            </th:block>
+
+            <!-- Next -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/your-students-list(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
+            </li>
+
+            <!-- Last -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/your-students-list(page=${totalPages}, pageSize=${pageSize})}">Last</a>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
