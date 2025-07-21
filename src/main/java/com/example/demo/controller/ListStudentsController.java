@@ -95,7 +95,7 @@ public class ListStudentsController {
 
         try {
             student.setPassword(generateRandomPassword(9));
-            String studentId = generateUniqueStudentId(student.getMajor().getMajorId());
+            String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId());
             student.setId(studentId);
             staffsService.addStudents(student);
             redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
