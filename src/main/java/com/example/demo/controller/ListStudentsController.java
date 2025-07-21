@@ -161,6 +161,8 @@ public class ListStudentsController {
         return name.matches(nameRegex);
     }
 
+
+
     private String generateRandomPassword(int length) {
         if (length < 8) {
             throw new IllegalArgumentException("Password length must be at least 8 characters for security.");
