@@ -2,22 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Add Student</title>
-    <link rel="stylesheet" th:href="@{/AddStudent.css}">
+    <title>Update Student</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/EditStudentForm.css}">
 </head>
 <body>
 <div class="container mt-5">
     <h1 class="text-center text-primary">
-        <i class="fas fa-user-plus"></i> Add New Student
+        <i class="fas fa-edit"></i> Update Student
     </h1>
+    <a class="btn btn-secondary" th:href="@{/staff-home/students-list}">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
 
-    <form class="mt-4" method="post" th:action="@{/staff-home/add-student}" th:object="${student}">
+    <!-- Update Student Form -->
+    <form class="mt-4" th:method="post" th:action="@{/staff-home/students-list/edit-student-form}" th:object="${student}">
+        <input type="hidden" name="_method" value="put"/>
+        <input type="hidden" th:field="*{id}"/>
+
         <!-- First Name -->
         <div class="mb-3">
             <label for="firstName" class="form-label">First Name:</label>
-            <input id="firstName" class="form-control" th:field="*{firstName}" required type="text">
+            <input id="firstName" class="form-control" th:field="*{firstName}" type="text" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name')}" th:text="${error}"></div>
         </div>
@@ -25,28 +32,23 @@
         <!-- Last Name -->
         <div class="mb-3">
             <label for="lastName" class="form-label">Last Name:</label>
-            <input id="lastName" class="form-control" th:field="*{lastName}" required type="text">
+            <input id="lastName" class="form-control" th:field="*{lastName}" type="text" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name')}" th:text="${error}"></div>
         </div>
 
         <!-- Email -->
         <div class="mb-3">
-            <label for="email" class="form-label">Email to contact:</label>
-            <input id="email" class="form-control" th:field="*{email}" required type="email">
-            <!-- Hiển thị lỗi nếu có -->
+            <label for="email" class="form-label">Email:</label>
+            <input id="email" class="form-control" th:field="*{email}" type="email" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email')}" th:text="${error}"></div>
-            <!-- Ghi chú nhỏ -->
-            <small class="form-text text-muted">
-                After completing the additional information, the system will automatically send an email containing the student's account information and login password.
-            </small>
         </div>
 
         <!-- Phone Number -->
         <div class="mb-3">
             <label for="phoneNumber" class="form-label">Phone Number:</label>
-            <input id="phoneNumber" class="form-control" th:field="*{phoneNumber}" required type="text">
+            <input id="phoneNumber" class="form-control" th:field="*{phoneNumber}" type="text" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone number')}" th:text="${error}"></div>
         </div>
@@ -54,14 +56,14 @@
         <!-- MIS ID -->
         <div class="mb-3">
             <label for="misId" class="form-label">MIS ID:</label>
-            <input id="misId" class="form-control" th:field="*{misId}" type="text">
+            <input id="misId" class="form-control" th:field="*{misId}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('misId')}" th:errors="*{misId}"></div>
         </div>
 
         <!-- Birth Date -->
         <div class="mb-3">
             <label for="birthDate" class="form-label">Birth Date:</label>
-            <input id="birthDate" class="form-control" th:field="*{birthDate}" type="date">
+            <input id="birthDate" class="form-control" th:field="*{birthDate}" type="date"/>
             <div class="text-danger" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Date of birth')}" th:text="${error}"></div>
         </div>
@@ -69,10 +71,13 @@
         <!-- Gender -->
         <div class="mb-3">
             <label for="gender" class="form-label">Gender:</label>
-            <select id="gender" class="form-control" th:field="*{gender}">
-                <option value="">Select gender</option>
-                <option th:each="gender : ${T(com.example.demo.entity.Gender).values()}"
-                        th:value="${gender}" th:text="${gender}"></option>
+            <select id="gender" class="form-control" th:field="*{gender}" required>
+                <option value="">Select Gender</option>
+                <option th:each="g : ${T(com.example.demo.entity.Gender).values()}"
+                        th:value="${g}"
+                        th:text="${g}"
+                        th:selected="${student.gender == g}">
+                </option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
         </div>
@@ -80,59 +85,56 @@
         <!-- Country -->
         <div class="mb-3">
             <label for="country" class="form-label">Country:</label>
-            <input id="country" class="form-control" th:field="*{country}" type="text">
+            <input id="country" class="form-control" th:field="*{country}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('country')}" th:errors="*{country}"></div>
         </div>
 
         <!-- Province -->
         <div class="mb-3">
             <label for="province" class="form-label">Province:</label>
-            <input id="province" class="form-control" th:field="*{province}" type="text">
+            <input id="province" class="form-control" th:field="*{province}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('province')}" th:errors="*{province}"></div>
         </div>
 
         <!-- City -->
         <div class="mb-3">
             <label for="city" class="form-label">City:</label>
-            <input id="city" class="form-control" th:field="*{city}" type="text">
+            <input id="city" class="form-control" th:field="*{city}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
         </div>
 
         <!-- District -->
         <div class="mb-3">
             <label for="district" class="form-label">District:</label>
-            <input id="district" class="form-control" th:field="*{district}" type="text">
+            <input id="district" class="form-control" th:field="*{district}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('district')}" th:errors="*{district}"></div>
         </div>
 
         <!-- Ward -->
         <div class="mb-3">
             <label for="ward" class="form-label">Ward:</label>
-            <input id="ward" class="form-control" th:field="*{ward}" type="text">
+            <input id="ward" class="form-control" th:field="*{ward}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('ward')}" th:errors="*{ward}"></div>
         </div>
 
         <!-- Street -->
         <div class="mb-3">
-            <label for="street" class="form-label">Street/House Number:</label>
-            <input id="street" class="form-control" th:field="*{street}" type="text">
+            <label for="street" class="form-label">Street / House Number:</label>
+            <input id="street" class="form-control" th:field="*{street}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></div>
         </div>
 
         <!-- Postal Code -->
         <div class="mb-3">
             <label for="postalCode" class="form-label">Postal Code:</label>
-            <input id="postalCode" class="form-control" th:field="*{postalCode}" type="text">
+            <input id="postalCode" class="form-control" th:field="*{postalCode}" type="text"/>
             <div class="text-danger" th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}"></div>
         </div>
 
         <div class="text-center">
             <button class="btn btn-success" type="submit">
-                <i class="fas fa-save"></i> Save Student
+                <i class="fas fa-save"></i> Save Changes
             </button>
-            <a class="btn btn-secondary" th:href="@{/staff-home/students-list}">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
         </div>
     </form>
 </div>

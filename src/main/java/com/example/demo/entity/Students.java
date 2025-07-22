@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @OnDelete(action = OnDeleteAction.CASCADE)
 
 public class Students extends Persons{
-    @Column(name = "Password", nullable = false, length = 255)
+    @Column(name = "Password", nullable = true, length = 255)
     private String password;
 
     @Column(nullable = false, updatable = false)

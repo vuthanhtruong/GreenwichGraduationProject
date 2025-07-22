@@ -1,7 +1,6 @@
-package com.example.demo.config;
+package com.example.demo.security;
 
 import com.example.demo.entity.Lecturers;
-import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Students;
 import jakarta.persistence.EntityManager;
