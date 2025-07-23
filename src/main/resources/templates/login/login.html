@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
     <link href="/login.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
@@ -10,24 +10,38 @@
 <body>
 <div class="container text-center">
     <h1><i class="fas fa-home"></i> Welcome to the Home Page</h1>
+
     <div class="login-form">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <form action="/login" method="POST">
-            <!-- Thêm mã CSRF tại đây -->
+            <!-- CSRF Token -->
             <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
             <div class="mb-3">
-                <label class="form-label" for="username"><i class="fas fa-user"></i> Username:</label>
-                <input class="form-control" id="username" name="username" required type="text">
+                <label class="form-label" for="username">
+                    <i class="fas fa-user"></i> Username:
+                </label>
+                <input type="text" id="username" name="username" class="form-control" required>
             </div>
+
             <div class="mb-3">
-                <label class="form-label" for="password"><i class="fas fa-lock"></i> Password:</label>
-                <input class="form-control" id="password" name="password" required type="password">
+                <label class="form-label" for="password">
+                    <i class="fas fa-lock"></i> Password:
+                </label>
+                <input type="password" id="password" name="password" class="form-control" required>
             </div>
-            <button class="btn btn-primary" type="submit"><i class="fas fa-arrow-right"></i> Login</button>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-arrow-right"></i> Login
+            </button>
         </form>
+
         <div class="forgot-password mt-3">
-            <a href="/auth/QuenMatKhau"><i class="fas fa-question-circle"></i> Forgot password?</a>
+            <a href="/auth/reset-password">
+                <i class="fas fa-question-circle"></i> Forgot password?
+            </a>
         </div>
-    </div>
+    </div> <!-- Close login-form -->
+</div> <!-- ✅ Close container text-center -->
 </body>
 </html>

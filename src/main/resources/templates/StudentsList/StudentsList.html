@@ -61,6 +61,7 @@
                     <th>Phone Number</th>
                     <th>Date of Birth</th>
                     <th>Gender</th>
+                    <th>Creator</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -72,6 +73,7 @@
                     <td class="text-center" th:text="${student.getPhoneNumber()}"></td>
                     <td class="text-center" th:text="${student.getBirthDate()}"></td>
                     <td class="text-center" th:text="${student.getGender()}"></td>
+                    <td class="text-center" th:text="${student.getCreator().getId()}"></td>
                     <td class="text-center">
                         <form th:action="@{/staff-home/students-list/edit-student-form}" method="post" style="display:inline;">
                             <input type="hidden" name="id" th:value="${student.getId()}" />

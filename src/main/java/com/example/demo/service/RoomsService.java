@@ -17,6 +17,7 @@ public interface RoomsService {
     void addOnlineRoom(OnlineRooms rooms);
     void addOfflineRoom(OfflineRooms rooms);
     Boolean existsOnlineRoomsById(String id);
+    Boolean existsOfflineRoomsById(String id);
     void deleteOnlineRoom(String id);
     void deleteOfflineRoom(String id);
 }

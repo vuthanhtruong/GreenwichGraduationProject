@@ -232,13 +232,21 @@ public class DemoApplication {
 
         Majors major1 = new Majors();
         major1.setMajorId("major001");
-        major1.setMajorName("Computer Science");
+        major1.setMajorName("Business Administration");
 
         Majors major2 = new Majors();
         major2.setMajorId("major002");
         major2.setMajorName("Information Technology");
 
-        majorsToAdd.addAll(List.of(major1, major2));
+        Majors major3 = new Majors();
+        major2.setMajorId("major003");
+        major2.setMajorName("Graphic Design");
+
+        Majors major4 = new Majors();
+        major2.setMajorId("major004");
+        major2.setMajorName("Marketing");
+
+        majorsToAdd.addAll(List.of(major1, major2, major3, major4));
 
         for (Majors major : majorsToAdd) {
             try {

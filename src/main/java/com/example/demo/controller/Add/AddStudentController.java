@@ -163,13 +163,16 @@ public class AddStudentController {
         String prefix;
         switch (majorId) {
             case "major001":
-                prefix = "GCH";
-                break;
-            case "major002":
                 prefix = "GBH";
                 break;
+            case "major002":
+                prefix = "GCH";
+                break;
             case "major003":
-                prefix = "GDT";
+                prefix = "GDH";
+                break;
+            case "major004":
+                prefix = "GKH";
                 break;
             default:
                 prefix = "GEN";

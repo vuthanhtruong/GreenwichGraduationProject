@@ -23,6 +23,11 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
     @Override
+    public Boolean existsOfflineRoomsById(String id) {
+        return entityManager.find(OfflineRooms.class, id) != null;
+    }
+
+    @Override
     public void deleteOnlineRoom(String id) {
         OnlineRooms rooms=entityManager.find(OnlineRooms.class, id);
         entityManager.remove(rooms);

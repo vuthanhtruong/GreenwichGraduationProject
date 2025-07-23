@@ -61,6 +61,7 @@
                     <th>Phone Number</th>
                     <th>Date of Birth</th>
                     <th>Gender</th>
+                    <th>Creator</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -72,6 +73,7 @@
                     <td class="text-center" th:text="${lecture.getPhoneNumber()}"></td>
                     <td class="text-center" th:text="${lecture.getBirthDate()}"></td>
                     <td class="text-center" th:text="${lecture.getGender()}"></td>
+                    <td class="text-center" th:text="${lecture.getCreator().getId()}"></td>
                     <td class="text-center">
                         <form th:action="@{/staff-home/lectures-list/edit-lecture-form}" method="post" style="display:inline;">
                             <input type="hidden" name="id" th:value="${lecture.getId()}" />

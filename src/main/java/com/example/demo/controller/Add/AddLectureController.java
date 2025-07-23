@@ -167,19 +167,21 @@ public class AddLectureController {
         String prefix;
         switch (majorId) {
             case "major001":
-                prefix = "TCH";
+                prefix = "TBH";
                 break;
             case "major002":
-                prefix = "TBH";
+                prefix = "TCH";
                 break;
             case "major003":
                 prefix = "TDT";
+                break;
+            case "major004":
+                prefix = "TKT";
                 break;
             default:
                 prefix = "TGN";
                 break;
         }
-
         // Extract year (last two digits) and date (MMdd) from createdDate
         String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2025 -> 25
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., July 23 -> 0723

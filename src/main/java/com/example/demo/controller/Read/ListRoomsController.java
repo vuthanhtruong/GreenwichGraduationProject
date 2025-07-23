@@ -34,7 +34,7 @@ public class ListRoomsController {
     }
 
     @GetMapping("/rooms-list")
-    public String DanhSachPhongHoc(
+    public String RoomsList(
             ModelMap model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int pageOffline,
