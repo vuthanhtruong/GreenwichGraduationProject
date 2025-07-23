@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Students;
+import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.Staffs;
 import com.example.demo.service.StaffsService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -20,23 +21,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home/students-list/")
-public class AddStudentController {
+@RequestMapping("/staff-home/lectures-list/")
+public class AddLectureController {
     private final StaffsService staffsService;
 
-    public AddStudentController(StaffsService staffsService) {
+    public AddLectureController(StaffsService staffsService) {
         this.staffsService = staffsService;
     }
 
-    @GetMapping("/add-student")
-    public String showAddStudentPage(Model model) {
-        model.addAttribute("student", new Students()); // Add a new Students object to the model
-        return "AddStudent";
+    @GetMapping("/add-lecture")
+    public String showAddlecturePage(Model model) {
+        model.addAttribute("lecture", new Staffs());
+        model.addAttribute("majors", staffsService.getMajors());
+        return "AddLecture";
     }
 
-    @PostMapping("/add-student")
-    public String addStudent(
-            @Valid @ModelAttribute("student") Students student,
+    @PostMapping("/add-lecture")
+    public String addlecture(
+            @Valid @ModelAttribute("lecture") Lecturers lecture,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -44,60 +46,62 @@ public class AddStudentController {
         List<String> errors = new ArrayList<>();
 
         // Perform all validations
-        validateStudent(student, bindingResult, errors);
+        validatelecture(lecture, bindingResult, errors);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            return "AddStudent";
+            model.addAttribute("majors", staffsService.getMajors());
+            return "Addlecture";
         }
 
         try {
             String randomPassword = generateRandomPassword(12);
-            student.setPassword(randomPassword);
-            String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId(), student.getCreatedDate());
-            student.setId(studentId);
-            staffsService.addStudents(student, randomPassword);
-            redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
-            return "redirect:/staff-home/students-list";
+            lecture.setPassword(randomPassword);
+            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
+            lecture.setId(lectureId);
+            staffsService.addLecturers(lecture, randomPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "lecture added successfully!");
+            return "redirect:/staff-home/lectures-list";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the student: " + e.getMessage());
+            errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
-            return "AddStudent";
+            model.addAttribute("majors", staffsService.getMajors());
+            return "Addlecture";
         }
     }
 
-    private void validateStudent(Students student, BindingResult bindingResult, List<String> errors) {
+    private void validatelecture(Lecturers lecture, BindingResult bindingResult, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
 
         // Custom validations
-        if (!isValidName(student.getFirstName())) {
+        if (!isValidName(lecture.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (!isValidName(student.getLastName())) {
+        if (!isValidName(lecture.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (student.getEmail() != null && staffsService.existsByEmail(student.getEmail())) {
+        if (lecture.getEmail() != null && staffsService.existsByEmail(lecture.getEmail())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (student.getPhoneNumber() != null && staffsService.existsByPhoneNumber(student.getPhoneNumber())) {
+        if (lecture.getPhoneNumber() != null && staffsService.existsByPhoneNumber(lecture.getPhoneNumber())) {
             errors.add("The phone number is already associated with another account.");
         }
 
-        if (student.getEmail() != null && !isValidEmail(student.getEmail())) {
+        if (lecture.getEmail() != null && !isValidEmail(lecture.getEmail())) {
             errors.add("Invalid email format.");
         }
 
-        if (student.getPhoneNumber() != null && !isValidPhoneNumber(student.getPhoneNumber())) {
+        if (lecture.getPhoneNumber() != null && !isValidPhoneNumber(lecture.getPhoneNumber())) {
             errors.add("Invalid phone number format.");
         }
 
-        if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
+        if (lecture.getBirthDate() != null && lecture.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
     }
@@ -153,43 +157,34 @@ public class AddStudentController {
                 .collect(Collectors.joining());
     }
 
-    private String generateUniqueStudentId(String majorId, LocalDate createdDate) {
+    private String generateUniquelectureId(String majorId, LocalDate createdDate) {
         String prefix;
         switch (majorId) {
             case "major001":
-                prefix = "GCH";
+                prefix = "TCH";
                 break;
             case "major002":
-                prefix = "GBH";
+                prefix = "TBH";
                 break;
             case "major003":
-                prefix = "GDT";
+                prefix = "TDT";
                 break;
             default:
-                prefix = "GEN";
+                prefix = "TGN";
                 break;
         }
 
         // Extract year (last two digits) and date (MMdd) from createdDate
-        String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2021 -> 21
-        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., April 23 -> 0423
+        String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2025 -> 25
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., July 23 -> 0723
 
-        String studentId;
+        String lectureId;
         SecureRandom random = new SecureRandom();
         do {
             // Generate 1 random digit to make total length 10 (3 prefix + 2 year + 4 date + 1 random)
             String randomDigit = String.valueOf(random.nextInt(10));
-            studentId = prefix + year + date + randomDigit;
-        } while (staffsService.existsPersonById(studentId));
-        return studentId;
-    }
-
-    private String generateRandomDigits(int length) {
-        SecureRandom random = new SecureRandom();
-        StringBuilder digits = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            digits.append(random.nextInt(10));
-        }
-        return digits.toString();
+            lectureId = prefix + year + date + randomDigit;
+        } while (staffsService.existsPersonById(lectureId));
+        return lectureId;
     }
 }

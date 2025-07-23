@@ -20,12 +20,13 @@ public interface StaffsDAO {
     boolean existsPersonById(String id);
     void deleteStudent(String id);
     void deleteLecturer(String id);
-    void updateLecturer(String id, Lecturers lecturer);
-    void updateStudent(String id,  Students student);
+    void updateLecturer(String id, Lecturers lecturer) throws MessagingException;
+    void updateStudent(String id,  Students student) throws MessagingException;
     Students getStudentById(String id);
     Lecturers getLecturerById(String id);
     boolean existsByEmailExcludingId(String email, String id);
     boolean existsByPhoneNumberExcludingId(String phoneNumber, String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
-    void sendEmailToNotifyLoginInformation(String recipientEmail, String subject, String htmlMessage, Students student) throws MessagingException;
+    List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize);
+
 }

@@ -117,10 +117,20 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver templateResolver11() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("classpath:/templates/ListStudents/");
+        resolver.setPrefix("classpath:/templates/StudentsList/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
         resolver.setOrder(11);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver12() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/LecturesList/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(12);
         resolver.setCheckExistence(true);
         return resolver;
     }

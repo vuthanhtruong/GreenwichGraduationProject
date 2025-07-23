@@ -18,13 +18,9 @@ import java.util.List;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
-    public void sendEmailToNotifyLoginInformation(String recipientEmail, String subject, String htmlMessage, Students student) throws MessagingException {
-        staffsDAO.sendEmailToNotifyLoginInformation(recipientEmail, subject, htmlMessage, student);
+    public List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize) {
+        return staffsDAO.getPaginatedLecturers(firstResult, pageSize);
     }
-
-    @Autowired
-    private JavaMailSender mailSender; // Không khai báo lại ở nơi khác
-
 
     @Override
     public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
@@ -52,12 +48,12 @@ public class StaffsServiceImpl implements StaffsService {
     }
 
     @Override
-    public void updateLecturer(String id, Lecturers lecturer) {
+    public void updateLecturer(String id, Lecturers lecturer) throws MessagingException{
         staffsDAO.updateLecturer(id, lecturer);
     }
 
     @Override
-    public void updateStudent(String id, Students student) {
+    public void updateStudent(String id, Students student) throws MessagingException {
         staffsDAO.updateStudent(id, student);
     }
 
