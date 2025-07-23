@@ -34,7 +34,7 @@ public class StudentDAOImpl implements StudentsDAO {
     private EntityManager entityManager;
 
     @Override
-    public List<Students> getAll() {
+    public List<Students> getStudents() {
         return entityManager.createQuery("from Students s", Students.class).getResultList();
     }
 

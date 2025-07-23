@@ -1,21 +1,10 @@
 package com.example.demo.controller;
-import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/staff-home/students-list")

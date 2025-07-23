@@ -5,7 +5,7 @@ import jakarta.mail.MessagingException;
 import java.util.List;
 
 public interface StudentsDAO {
-    List<Students> getAll();
+    List<Students> getStudents();
     Students addStudents(Students students, String randomPassword);
     long numberOfStudents();
     void deleteStudent(String id);
