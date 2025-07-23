@@ -5,7 +5,8 @@ import com.example.demo.entity.Majors;
 import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Students;
-import com.example.demo.service.EmailServiceForStudent;
+import com.example.demo.service.EmailServiceForLectureService;
+import com.example.demo.service.EmailServiceForStudentService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,11 +24,13 @@ import java.util.List;
 public class StudentDAOImpl implements StudentsDAO {
 
     private final JavaMailSenderImpl mailSender;
-    private final EmailServiceForStudent emailServiceForStudent;
+    private final EmailServiceForStudentService  emailServiceForStudentService;
+    private final EmailServiceForLectureService emailServiceForLectureService;
 
-    public StudentDAOImpl(JavaMailSenderImpl mailSender, EmailServiceForStudent emailServiceForStudent) {
+    public StudentDAOImpl(JavaMailSenderImpl mailSender, EmailServiceForLectureService emailService, EmailServiceForStudentService emailServiceForStudentService, EmailServiceForLectureService emailServiceForLectureService) {
         this.mailSender = mailSender;
-        this.emailServiceForStudent = emailServiceForStudent;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.emailServiceForLectureService = emailServiceForLectureService;
     }
 
     @PersistenceContext
@@ -57,7 +60,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
         try {
             String subject = "Your Student Account Information";
-            emailServiceForStudent.sendEmailToNotifyLoginInformation(students.getEmail(), subject, students, rawPassword);
+            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, students, rawPassword);
         } catch (Exception e) {
             System.err.println("Failed to schedule email to " + students.getEmail() + ": " + e.getMessage());
         }
@@ -162,7 +165,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
         entityManager.merge(existingStudent);
         String subject = "Your student account information after being edited";
-        emailServiceForStudent.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
+        emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
     }
 
     @Override

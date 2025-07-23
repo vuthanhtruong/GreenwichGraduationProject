@@ -5,7 +5,8 @@ import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
-import com.example.demo.service.EmailServiceForLecture;
+import com.example.demo.service.EmailServiceForLectureService;
+import com.example.demo.service.EmailServiceForStudentService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,11 +24,14 @@ import java.util.List;
 public class LecturesDAOImpl implements LecturesDAO {
 
     private final JavaMailSenderImpl mailSender;
-    private final EmailServiceForLecture emailServiceForTeacher;
+    private final EmailServiceForStudentService emailServiceForStudentService;
+    private final EmailServiceForLectureService emailServiceForLectureService;
 
-    public LecturesDAOImpl(JavaMailSenderImpl mailSender, EmailServiceForLecture emailServiceForTeacher) {
+
+    public LecturesDAOImpl(JavaMailSenderImpl mailSender, EmailServiceForStudentService emailServiceForStudentService, EmailServiceForLectureService emailServiceForLectureService) {
         this.mailSender = mailSender;
-        this.emailServiceForTeacher = emailServiceForTeacher;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.emailServiceForLectureService = emailServiceForLectureService;
     }
 
     @PersistenceContext
@@ -57,7 +61,7 @@ public class LecturesDAOImpl implements LecturesDAO {
 
         try {
             String subject = "Your Lecturer Account Information";
-            emailServiceForTeacher.sendEmailToNotifyLoginInformation(lecturers.getEmail(), subject, lecturers, rawPassword);
+            emailServiceForLectureService.sendEmailToNotifyLoginInformation(lecturers.getEmail(), subject, lecturers, rawPassword);
         } catch (Exception e) {
             System.err.println("Failed to schedule email to " + lecturers.getEmail() + ": " + e.getMessage());
         }
@@ -157,7 +161,7 @@ public class LecturesDAOImpl implements LecturesDAO {
         }
         entityManager.merge(existingLecturer);
         String subject = "Your lecturer account information after being edited";
-        emailServiceForTeacher.sendEmailToNotifyInformationAfterEditing(existingLecturer.getEmail(), subject, existingLecturer);
+        emailServiceForLectureService.sendEmailToNotifyInformationAfterEditing(existingLecturer.getEmail(), subject, existingLecturer);
     }
 
     @Override
