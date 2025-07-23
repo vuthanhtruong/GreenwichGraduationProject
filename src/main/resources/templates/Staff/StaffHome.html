@@ -69,9 +69,12 @@
         </div>
 
         <div class="col-md-12">
-            <a class="btn btn-danger w-100 p-3" th:href="@{/staff-home/logout}">
-                <i class="fas fa-sign-out-alt icon"></i> Logout
-            </a>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger w-100 p-3">
+                    <i class="fas fa-sign-out-alt icon"></i> Logout
+                </button>
+            </form>
         </div>
     </div>
 </div>
