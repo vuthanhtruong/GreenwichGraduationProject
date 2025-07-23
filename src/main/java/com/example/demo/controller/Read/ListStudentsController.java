@@ -1,35 +1,32 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Read;
 
-import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
+import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home")
-public class ListLecturesController {
+public class ListStudentsController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
 
-    public ListLecturesController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
         this.studentsService=studentsService;
         this.lecturesService = lecturesService;
     }
 
-    @GetMapping("/lectures-list")
-    public String listTeachers(
+    @GetMapping("/students-list")
+    public String listStudents(
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
@@ -45,29 +42,29 @@ public class ListLecturesController {
             }
             session.setAttribute("pageSize", pageSize);
 
-            Long totalTeachers = lecturesService.numberOfLecturers();
+            Long totalStudents = studentsService.numberOfStudents();
 
-            if (totalTeachers == 0) {
-                model.addAttribute("teachers", new ArrayList<>());
+            if (totalStudents == 0) {
+                model.addAttribute("students", new ArrayList<>());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                return "LecturesList";
+                return "StudentsList";
             }
 
-            int totalPages = (int) Math.ceil((double) totalTeachers / pageSize);
+            int totalPages = (int) Math.ceil((double) totalStudents / pageSize);
             if (page < 1) page = 1;
             if (page > totalPages) page = totalPages;
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Lecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
+            List<Students> students = studentsService.getPaginatedStudents(firstResult, pageSize);
 
-            model.addAttribute("teachers", teachers);
+            model.addAttribute("students", students);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            return "LecturesList";
+            return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());
             return "error";

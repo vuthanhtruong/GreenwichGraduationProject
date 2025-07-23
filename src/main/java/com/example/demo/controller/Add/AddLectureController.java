@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Add;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;

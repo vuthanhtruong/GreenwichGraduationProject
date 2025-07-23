@@ -13,6 +13,16 @@ import java.util.List;
 @Service
 public class RoomsServiceImpl implements RoomsService {
     @Override
+    public void deleteOnlineRoom(String id) {
+        roomsDAO.deleteOnlineRoom(id);
+    }
+
+    @Override
+    public void deleteOfflineRoom(String id) {
+        roomsDAO.deleteOfflineRoom(id);
+    }
+
+    @Override
     public Boolean existsOnlineRoomsById(String id) {
         return roomsDAO.existsOnlineRoomsById(id);
     }

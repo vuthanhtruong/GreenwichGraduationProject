@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Add;
 
 import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;

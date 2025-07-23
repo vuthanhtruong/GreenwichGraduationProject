@@ -8,6 +8,7 @@ import com.example.demo.entity.Staffs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,20 @@ import java.util.List;
 
 @Repository
 @Transactional
+@PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
+    @Override
+    public void deleteOnlineRoom(String id) {
+        OnlineRooms rooms=entityManager.find(OnlineRooms.class, id);
+        entityManager.remove(rooms);
+    }
+
+    @Override
+    public void deleteOfflineRoom(String id) {
+        OfflineRooms rooms=entityManager.find(OfflineRooms.class, id);
+        entityManager.remove(rooms);
+    }
+
     @Override
     public Boolean existsOnlineRoomsById(String id) {
 

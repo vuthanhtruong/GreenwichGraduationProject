@@ -1,7 +1,6 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Add;
 
 import com.example.demo.entity.OfflineRooms;
-import com.example.demo.entity.Staffs;
 import com.example.demo.service.RoomsService;
 import com.example.demo.service.StaffsService;
 import jakarta.validation.Valid;

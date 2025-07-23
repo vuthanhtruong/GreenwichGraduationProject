@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Read;
 
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;

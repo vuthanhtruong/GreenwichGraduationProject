@@ -1,12 +1,9 @@
-package com.example.demo.controller;
-
-import com.example.demo.entity.Lecturers;
-import com.example.demo.entity.Staffs;
+package com.example.demo.controller.Update;
+import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
-import lombok.extern.flogger.Flogger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,100 +19,98 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home/lectures-list")
-public class UpdateLectureController {
+@RequestMapping("/staff-home/students-list")
+public class UpdateStudentController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
 
-    public UpdateLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
         this.studentsService=studentsService;
         this.lecturesService = lecturesService;
     }
-
-    @PostMapping("/edit-lecture-form")
-    public String handleEditlecturePost(@RequestParam String id, Model model) {
-        Lecturers lecture = lecturesService.getLecturerById(id);
-        model.addAttribute("lecture", lecture);
+    @PostMapping("/edit-student-form")
+    public String handleEditStudentPost(@RequestParam String id, Model model) {
+        Students student = studentsService.getStudentById(id);
+        model.addAttribute("student", student);
         model.addAttribute("majors", staffsService.getMajors());
-        return "EditLectureForm";
+        return "EditStudentForm";
     }
 
-    @PutMapping("/edit-lecture-form")
-    public String updatelecture(
-            @Valid @ModelAttribute("lecture") Lecturers lecture,
+    @PutMapping("/edit-student-form")
+    public String updateStudent(
+            @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes,
-            ModelMap modelMap) {
+            RedirectAttributes redirectAttributes, ModelMap modelMap) {
 
         // Check if user is authenticated
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userDetails == null) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized access.");
-            return "redirect:/staff-home/lectures-list";
+            return "redirect:/staff-home/students-list";
         }
 
-        // Validate lecture data
+        // Validate student data
         List<String> errors = new ArrayList<>();
-        validatelecture(lecture, bindingResult, errors);
+        validateStudent(student, bindingResult, errors);
 
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
-            modelMap.addAttribute("majors", staffsService.getMajors());
             return "EditLectureForm";
         }
 
         try {
-            // Check if lecture exists
-            if (!staffsService.existsPersonById(lecture.getId())) {
-                redirectAttributes.addFlashAttribute("error", "lecture with ID " + lecture.getId() + " not found.");
-                return "redirect:/staff-home/lectures-list";
+            // Check if student exists
+            if (!staffsService.existsPersonById(student.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Student with ID " + student.getId() + " not found.");
+                return "redirect:/staff-home/students-list";
             }
-            // Update lecture
-            lecturesService.updateLecturer(lecture.getId(), lecture);
-            redirectAttributes.addFlashAttribute("successMessage", "lecture updated successfully!");
+            // Update student
+            studentsService.updateStudent(student.getId(), student);
+            redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
         } catch (DataAccessException e) {
-            redirectAttributes.addFlashAttribute("error", "Database error while updating lecture: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Unexpected error while updating lecture: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Unexpected error while updating student: " + e.getMessage());
         }
 
-        return "redirect:/staff-home/lectures-list";
+        return "redirect:/staff-home/students-list";
     }
 
-    private void validatelecture(Lecturers lecture, BindingResult bindingResult, List<String> errors) {
+    private void validateStudent(Students student, BindingResult bindingResult, List<String> errors) {
         // Annotation-based validation
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
 
         // Custom validations
-        if (!isValidName(lecture.getFirstName())) {
+        if (!isValidName(student.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (!isValidName(lecture.getLastName())) {
+        if (!isValidName(student.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (lecture.getEmail() != null && !isValidEmail(lecture.getEmail())) {
+        if (student.getEmail() != null && !isValidEmail(student.getEmail())) {
             errors.add("Invalid email format.");
         }
 
-        if (lecture.getPhoneNumber() != null && !isValidPhoneNumber(lecture.getPhoneNumber())) {
+        if (student.getPhoneNumber() != null && !isValidPhoneNumber(student.getPhoneNumber())) {
             errors.add("Invalid phone number format.");
         }
 
-        if (lecture.getBirthDate() != null && lecture.getBirthDate().isAfter(LocalDate.now())) {
+        if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
-        // Check for duplicate email/phone (excluding current lecture)
-        if (lecture.getEmail() != null && staffsService.existsByEmailExcludingId(lecture.getEmail(), lecture.getId())) {
+
+        // Check for duplicate email/phone (excluding current student)
+        if (student.getEmail() != null && staffsService.existsByEmailExcludingId(student.getEmail(), student.getId())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (lecture.getPhoneNumber() != null && staffsService.existsByPhoneNumberExcludingId(lecture.getPhoneNumber(), lecture.getId())) {
+        if (student.getPhoneNumber() != null && staffsService.existsByPhoneNumberExcludingId(student.getPhoneNumber(), student.getId())) {
             errors.add("The phone number is already associated with another account.");
         }
     }

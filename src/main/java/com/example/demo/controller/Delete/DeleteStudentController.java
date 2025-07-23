@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Delete;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
@@ -7,22 +7,22 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/staff-home/lectures-list")
-public class DeleteLectureController {
+@RequestMapping("/staff-home/students-list")
+public class DeleteStudentController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
 
-    public DeleteLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public DeleteStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
         this.studentsService=studentsService;
         this.lecturesService = lecturesService;
     }
 
-    @DeleteMapping("/delete-lecture/{id}")
-    public String deleteLecture(@PathVariable String id, RedirectAttributes redirectAttributes) {
-        lecturesService.deleteLecturer(id);
-        redirectAttributes.addFlashAttribute("message", "Delete lecture ID member: " + id);
-        return "redirect:/staff-home/lectures-list";
+    @DeleteMapping("/delete-student/{id}")
+    public String deleteStudent(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        studentsService.deleteStudent(id);
+        redirectAttributes.addFlashAttribute("message", "Delete student ID member: " + id);
+        return "redirect:/staff-home/students-list";
     }
 }
