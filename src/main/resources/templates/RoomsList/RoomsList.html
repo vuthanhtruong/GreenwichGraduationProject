@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Classroom List</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/ClassroomList.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+<h2 class="text-center mb-4">
+    <i class="fas fa-school"></i> Classroom List
+</h2>
+
+<!-- Toolbar -->
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <a class="btn btn-primary me-2" th:href="@{/staff-home/rooms-list/add-offline-room}">
+            <i class="fas fa-plus-circle"></i> Add Room
+        </a>
+        <a class="btn btn-success" th:href="@{/staff-home/rooms-list/add-online-room}">
+            <i class="fas fa-globe"></i> Add Online Room
+        </a>
+    </div>
+    <a class="btn btn-secondary" th:href="@{/staff-home}">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+</div>
+
+<!-- Search Form -->
+<form class="d-flex align-items-center mb-3" method="post" th:action="@{/SearchClassroomList}">
+    <select class="form-select me-2" name="searchType">
+        <option value="name">Search by Name</option>
+        <option value="id">Search by ID</option>
+    </select>
+    <input class="form-control me-2" name="keyword" placeholder="🔍 Enter keyword..." type="text">
+    <button class="btn btn-info" type="submit">
+        <i class="fas fa-search"></i> Search
+    </button>
+</form>
+
+<!-- Sort and Page Size -->
+<div class="d-flex mb-3">
+    <form action="/soft-rooms" class="me-3" method="get">
+        <label class="me-2">Sort:</label>
+        <select class="form-select" name="sortOrder" onchange="this.form.submit()">
+            <option selected value="">Default</option>
+            <option th:selected="${sortOrder == 'asc'}" value="asc">Create Time (Old → New)</option>
+            <option th:selected="${sortOrder == 'desc'}" value="desc">Create Time (New → Old)</option>
+        </select>
+    </form>
+    <form action="/ClassroomList" method="get">
+        <label class="me-2">Show:</label>
+        <select class="form-select" name="pageSize" onchange="this.form.submit()">
+            <option th:selected="${pageSize == 5}" value="5">5</option>
+            <option th:selected="${pageSize == 10}" value="10">10</option>
+            <option th:selected="${pageSize == 20}" value="20">20</option>
+        </select>
+    </form>
+</div>
+
+<!-- Delete Buttons -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <form method="get" onsubmit="return confirmDelete('offline');" th:action="@{/delete-all-offline-rooms}">
+        <button class="btn btn-warning w-100">
+            <i class="fas fa-trash"></i> Delete All Offline Classrooms
+        </button>
+    </form>
+    <form method="get" onsubmit="return confirmDelete('online');" th:action="@{/delete-all-online-rooms}">
+        <button class="btn btn-info w-100">
+            <i class="fas fa-trash"></i> Delete All Online Classrooms
+        </button>
+    </form>
+    <form method="get" onsubmit="return confirmDelete('all');" th:action="@{/delete-all-rooms}">
+        <button class="btn btn-danger w-100">
+            <i class="fas fa-trash"></i> Delete All Classrooms
+        </button>
+    </form>
+</div>
+
+<!-- Classroom Lists -->
+<div class="row mt-4">
+    <!-- Offline Classrooms -->
+    <div class="col-md-6">
+        <h3 class="text-center text-primary">
+            <i class="fas fa-chalkboard"></i> Offline Classrooms
+        </h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Classroom Name</th>
+                    <th>Created By</th>
+                    <th>Create Time</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room : ${rooms}">
+                    <td class="text-center" th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomName}"></td>
+                    <td th:text="${room.getCreator().getFirstName() + ' ' + room.getCreator().getLastName()}"></td>
+                    <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/ecdit-offline-rooms/{id}(id=${room.roomId})}">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete?');"
+                           th:href="@{/DeleteClassroom/{id}(id=${room.roomId})}">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Offline -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPageOffline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=1, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">First</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOffline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline - 1}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">«</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(1, totalPagesOffline)}">
+                <li class="page-item" th:classappend="${i == currentPageOffline} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/ClassroomList(pageOffline=${i}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}"
+                       th:text="${i}"></a>
+                </li>
+            </th:block>
+            <li class="page-item" th:classappend="${currentPageOffline == totalPagesOffline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline + 1}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">»</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOffline == totalPagesOffline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${totalPagesOffline}, pageOnline=${currentPageOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">Last</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Online Classrooms -->
+    <div class="col-md-6">
+        <h3 class="text-center text-success">
+            <i class="fas fa-laptop"></i> Online Classrooms
+        </h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Classroom Name</th>
+                    <th>Created By</th>
+                    <th>Create Time</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="room : ${roomsonline}">
+                    <td class="text-center" th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomName}"></td>
+                    <td th:text="${room.getCreator().getFirstName() + ' ' + room.getCreator().getLastName()}"></td>
+                    <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td class="text-center">
+                        <a class="btn btn-warning btn-sm" th:href="@{/edit-rooms-online/{id}(id=${room.roomId})}">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete?');"
+                           th:href="@{/DeleteClassroom/{id}(id=${room.roomId})}">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Online -->
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPageOnline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline}, pageOnline=1, pageSize=${pageSize}, sortOrder=${sortOrder})}">First</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOnline == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline}, pageOnline=${currentPageOnline - 1}, pageSize=${pageSize}, sortOrder=${sortOrder})}">«</a>
+            </li>
+            <th:block th:each="i : ${#numbers.sequence(1, totalPagesOnline)}">
+                <li class="page-item" th:classappend="${i == currentPageOnline} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/ClassroomList(pageOffline=${currentPageOffline}, pageOnline=${i}, pageSize=${pageSize}, sortOrder=${sortOrder})}"
+                       th:text="${i}"></a>
+                </li>
+            </th:block>
+            <li class="page-item" th:classappend="${currentPageOnline == totalPagesOnline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline}, pageOnline=${currentPageOnline + 1}, pageSize=${pageSize}, sortOrder=${sortOrder})}">»</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPageOnline == totalPagesOnline} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/ClassroomList(pageOffline=${currentPageOffline}, pageOnline=${totalPagesOnline}, pageSize=${pageSize}, sortOrder=${sortOrder})}">Last</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(type) {
+        let message = type === 'all' ? 'Are you sure you want to delete all classrooms?' :
+            'Are you sure you want to delete all ' + (type === 'offline' ? 'offline classrooms?' : 'online classrooms?');
+        return confirm(message);
+    }
+</script>
+</body>
+</html>

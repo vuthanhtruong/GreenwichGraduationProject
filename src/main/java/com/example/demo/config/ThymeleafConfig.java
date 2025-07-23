@@ -76,7 +76,7 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver templateResolver7() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("classpath:/templates/messages/");
+        resolver.setPrefix("classpath:/templates/RoomsList/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
         resolver.setOrder(7);
@@ -87,7 +87,7 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver templateResolver8() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("classpath:/templates/room/");
+        resolver.setPrefix("classpath:/templates/ClassesList/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
         resolver.setOrder(8);
