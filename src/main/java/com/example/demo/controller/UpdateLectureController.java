@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
 import lombok.extern.flogger.Flogger;
 import org.springframework.dao.DataAccessException;
@@ -23,14 +25,18 @@ import java.util.List;
 @RequestMapping("/staff-home/lectures-list")
 public class UpdateLectureController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public UpdateLectureController(StaffsService staffsService) {
+    public UpdateLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
 
     @PostMapping("/edit-lecture-form")
     public String handleEditlecturePost(@RequestParam String id, Model model) {
-        Lecturers lecture = staffsService.getLecturerById(id);
+        Lecturers lecture = lecturesService.getLecturerById(id);
         model.addAttribute("lecture", lecture);
         model.addAttribute("majors", staffsService.getMajors());
         return "EditLectureForm";
@@ -67,7 +73,7 @@ public class UpdateLectureController {
                 return "redirect:/staff-home/lectures-list";
             }
             // Update lecture
-            staffsService.updateLecturer(lecture.getId(), lecture);
+            lecturesService.updateLecturer(lecture.getId(), lecture);
             redirectAttributes.addFlashAttribute("successMessage", "lecture updated successfully!");
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating lecture: " + e.getMessage());

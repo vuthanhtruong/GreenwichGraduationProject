@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Students;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,9 +25,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/staff-home/students-list/")
 public class AddStudentController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public AddStudentController(StaffsService staffsService) {
+    public AddStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
 
     @GetMapping("/add-student")
@@ -56,7 +62,7 @@ public class AddStudentController {
             student.setPassword(randomPassword);
             String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId(), student.getCreatedDate());
             student.setId(studentId);
-            staffsService.addStudents(student, randomPassword);
+            studentsService.addStudents(student, randomPassword);
             redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
             return "redirect:/staff-home/students-list";
         } catch (Exception e) {

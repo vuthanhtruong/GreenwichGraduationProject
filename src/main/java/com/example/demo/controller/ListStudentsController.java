@@ -4,7 +4,9 @@ import com.example.demo.entity.Gender;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Students;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,9 +25,13 @@ import java.util.List;
 @RequestMapping("/staff-home")
 public class ListStudentsController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public ListStudentsController(StaffsService staffsService) {
+    public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
 
     @GetMapping("/students-list")
@@ -45,7 +51,7 @@ public class ListStudentsController {
             }
             session.setAttribute("pageSize", pageSize);
 
-            Long totalStudents = staffsService.numberOfStudents();
+            Long totalStudents = studentsService.numberOfStudents();
 
             if (totalStudents == 0) {
                 model.addAttribute("students", new ArrayList<>());
@@ -61,7 +67,7 @@ public class ListStudentsController {
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Students> students = staffsService.getPaginatedStudents(firstResult, pageSize);
+            List<Students> students = studentsService.getPaginatedStudents(firstResult, pageSize);
 
             model.addAttribute("students", students);
             model.addAttribute("currentPage", page);

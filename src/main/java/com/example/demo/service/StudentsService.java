@@ -1,10 +1,11 @@
-package com.example.demo.dao;
+package com.example.demo.service;
+
 import com.example.demo.entity.Students;
 import jakarta.mail.MessagingException;
 
 import java.util.List;
 
-public interface StudentsDAO {
+public interface StudentsService {
     List<Students> getAll();
     Students addStudents(Students students, String randomPassword);
     long numberOfStudents();

@@ -1,6 +1,9 @@
 package com.example.demo.controller;
+import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Students;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,16 +23,20 @@ import java.util.List;
 @RequestMapping("/staff-home/students-list")
 public class UpdateStudentController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public UpdateStudentController(StaffsService staffsService) {
+    public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
-
     @PostMapping("/edit-student-form")
     public String handleEditStudentPost(@RequestParam String id, Model model) {
-        Students student = staffsService.getStudentById(id);
+        Students student = studentsService.getStudentById(id);
         model.addAttribute("student", student);
-        return "EditStudentForm"; // Tên file HTML (Thymeleaf template) chứa form chỉnh sửa
+        model.addAttribute("majors", staffsService.getMajors());
+        return "EditStudentForm";
     }
 
     @PutMapping("/edit-student-form")
@@ -61,7 +68,7 @@ public class UpdateStudentController {
                 return "redirect:/staff-home/students-list";
             }
             // Update student
-            staffsService.updateStudent(student.getId(), student);
+            studentsService.updateStudent(student.getId(), student);
             redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());

@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,9 +19,13 @@ import java.util.List;
 @RequestMapping("/staff-home")
 public class ListLecturesController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public ListLecturesController(StaffsService staffsService) {
+    public ListLecturesController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
 
     @GetMapping("/lectures-list")
@@ -39,7 +45,7 @@ public class ListLecturesController {
             }
             session.setAttribute("pageSize", pageSize);
 
-            Long totalTeachers = staffsService.numberOfLecturers();
+            Long totalTeachers = lecturesService.numberOfLecturers();
 
             if (totalTeachers == 0) {
                 model.addAttribute("teachers", new ArrayList<>());
@@ -55,7 +61,7 @@ public class ListLecturesController {
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Lecturers> teachers = staffsService.getPaginatedLecturers(firstResult, pageSize);
+            List<Lecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
 
             model.addAttribute("teachers", teachers);
             model.addAttribute("currentPage", page);

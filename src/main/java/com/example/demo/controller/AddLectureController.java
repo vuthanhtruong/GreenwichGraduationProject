@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
+import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +26,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/staff-home/lectures-list/")
 public class AddLectureController {
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturesService;
 
-    public AddLectureController(StaffsService staffsService) {
+    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
+        this.studentsService=studentsService;
+        this.lecturesService = lecturesService;
     }
 
     @GetMapping("/add-lecture")
@@ -59,7 +65,7 @@ public class AddLectureController {
             lecture.setPassword(randomPassword);
             String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
             lecture.setId(lectureId);
-            staffsService.addLecturers(lecture, randomPassword);
+            lecturesService.addLecturers(lecture, randomPassword);
             redirectAttributes.addFlashAttribute("successMessage", "lecture added successfully!");
             return "redirect:/staff-home/lectures-list";
         } catch (Exception e) {
