@@ -9,9 +9,30 @@ import com.example.demo.service.RoomsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class RoomsServiceImpl implements RoomsService {
+    @Override
+    public String generateUniqueJitsiMeetLink(String roomId) {
+        return roomsDAO.generateUniqueJitsiMeetLink(roomId);
+    }
+
+    @Override
+    public String generateRandomPassword(int length) {
+        return roomsDAO.generateRandomPassword(length);
+    }
+
+    @Override
+    public String generateRandomString(int length) {
+        return roomsDAO.generateRandomString(length);
+    }
+
+    @Override
+    public boolean isJitsiLinkExists(String link) {
+        return roomsDAO.isJitsiLinkExists(link);
+    }
+
     @Override
     public Boolean existsOfflineRoomsById(String id) {
         return roomsDAO.existsOfflineRoomsById(id);

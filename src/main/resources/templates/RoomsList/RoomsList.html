@@ -6,6 +6,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/RoomsList.css}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Cắt ngắn link và thêm dấu chấm lửng */
+        .shortened-link {
+            display: inline-block;
+            max-width: 150px; /* Điều chỉnh độ dài tối đa */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </head>
 <body class="container mt-4">
 <!-- Hiển thị thông báo -->
@@ -106,15 +116,25 @@
                 <tr class="text-center">
                     <th>ID</th>
                     <th>Rooms Name</th>
+                    <th>Address Name</th>
                     <th>Created By</th>
                     <th>Create Time</th>
                     <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="room : ${rooms}">
+                <tr th:each="room, iterStat : ${rooms}">
                     <td class="text-center" th:text="${room.roomId}"></td>
                     <td th:text="${room.roomName}"></td>
+                    <td>
+                        <th:block th:if="${room.getAddress() != null and !#strings.isEmpty(room.getAddress())}">
+                            <a th:href="@{'https://www.google.com/maps/search/?api=1&query=' + ${encodedAddresses[iterStat.index]}}"
+                               target="_blank" th:text="${room.getAddress()}" title="Open in Google Maps"></a>
+                        </th:block>
+                        <th:block th:unless="${room.getAddress() != null and !#strings.isEmpty(room.getAddress())}">
+                            N/A
+                        </th:block>
+                    </td>
                     <td th:text="${room.getCreator().getFirstName() + ' ' + room.getCreator().getLastName()}"></td>
                     <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
                     <td class="text-center">
@@ -166,6 +186,7 @@
                 <tr class="text-center">
                     <th>ID</th>
                     <th>Rooms Name</th>
+                    <th>Link meet</th>
                     <th>Created By</th>
                     <th>Create Time</th>
                     <th>Action</th>
@@ -175,6 +196,16 @@
                 <tr th:each="room : ${roomsonline}">
                     <td class="text-center" th:text="${room.roomId}"></td>
                     <td th:text="${room.roomName}"></td>
+                    <td>
+                        <th:block th:if="${room.getLink() != null and !#strings.isEmpty(room.getLink())}">
+                            <a th:href="${room.getLink()}" target="_blank"
+                               th:text="'meet.jit.si/' + ${#strings.substringAfter(room.getLink(), 'https://meet.jit.si/')}"
+                               th:class="'shortened-link'" th:title="${room.getLink()}"></a>
+                        </th:block>
+                        <th:block th:unless="${room.getLink() != null and !#strings.isEmpty(room.getLink())}">
+                            N/A
+                        </th:block>
+                    </td>
                     <td th:text="${room.getCreator().getFirstName() + ' ' + room.getCreator().getLastName()}"></td>
                     <td class="text-center" th:text="${#temporals.format(room.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
                     <td class="text-center">

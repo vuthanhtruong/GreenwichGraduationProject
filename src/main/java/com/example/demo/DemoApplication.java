@@ -239,12 +239,12 @@ public class DemoApplication {
         major2.setMajorName("Information Technology");
 
         Majors major3 = new Majors();
-        major2.setMajorId("major003");
-        major2.setMajorName("Graphic Design");
+        major3.setMajorId("major003"); // Fixed: Use major3
+        major3.setMajorName("Graphic Design"); // Fixed: Use major3
 
         Majors major4 = new Majors();
-        major2.setMajorId("major004");
-        major2.setMajorName("Marketing");
+        major4.setMajorId("major004"); // Fixed: Use major4
+        major4.setMajorName("Marketing"); // Fixed: Use major4
 
         majorsToAdd.addAll(List.of(major1, major2, major3, major4));
 

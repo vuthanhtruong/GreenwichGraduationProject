@@ -1,17 +1,16 @@
-package com.example.demo.dao;
+package com.example.demo.service;
 
 import com.example.demo.entity.Classes;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
 
 import java.util.List;
 
-public interface ClassesDAO {
+public interface ClassesService {
     List<Classes> getClasses();
-    List<Classes> ClassesByMajor(Majors major);
     Classes getClassById(String id);
     Classes getClassByName(String name);
     void addClass(Classes c);
-    Classes updateClass(String id, Classes classObj);
     void deleteClass(String id);
+    List<Classes> ClassesByMajor(Majors major);
+    Classes updateClass(String id, Classes classObj);
 }

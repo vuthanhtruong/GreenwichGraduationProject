@@ -5,14 +5,19 @@ import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
 import com.example.demo.entity.Rooms;
 import com.example.demo.entity.Staffs;
+import com.example.demo.service.EmailServiceForLectureService;
+import com.example.demo.service.EmailServiceForStudentService;
+import com.example.demo.service.RoomsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +27,56 @@ import java.util.List;
 @Transactional
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
+    @Override
+    public String generateUniqueJitsiMeetLink(String roomId) {
+        String baseUrl = "https://meet.jit.si/";
+        // Use roomId as base, append random string for extra uniqueness
+        String jitsiRoomName = roomId != null ? roomId : "Room" + System.currentTimeMillis();
+        String uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4); // Add 4-char random suffix
+
+        // Check if link already exists in database
+        String jitsiLink = baseUrl + uniqueRoomName;
+        while (isJitsiLinkExists(jitsiLink)) {
+            uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4); // Generate new suffix
+            jitsiLink = baseUrl + uniqueRoomName;
+        }
+
+        // Add random password for security
+        String password = generateRandomPassword(8);
+        return jitsiLink + "#config.roomPassword=" + password;
+    }
+
+    @Override
+    public String generateRandomPassword(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            password.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return password.toString();
+    }
+
+    @Override
+    public String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder randomString = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            randomString.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return randomString.toString();
+    }
+
+    @Override
+    public boolean isJitsiLinkExists(String link) {
+        Long count = entityManager.createQuery(
+                        "SELECT COUNT(r) FROM OnlineRooms r WHERE r.link = :link", Long.class)
+                .setParameter("link", link)
+                .getSingleResult();
+        return count > 0;
+    }
+
     @Override
     public Boolean existsOfflineRoomsById(String id) {
         return entityManager.find(OfflineRooms.class, id) != null;
@@ -52,6 +107,10 @@ public class RoomsDAOImpl implements RoomsDAO {
         Staffs staff = entityManager.find(Staffs.class, username);
         rooms.setCreator(staff);
         rooms.setCreatedAt(LocalDateTime.now());
+        // Generate and check Jitsi Meet link
+        String jitsiLink = generateUniqueJitsiMeetLink(rooms.getRoomId());
+        rooms.setLink(jitsiLink);
+
         entityManager.persist(rooms);
     }
 

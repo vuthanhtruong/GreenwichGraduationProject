@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/staff-home")
@@ -62,6 +65,11 @@ public class ListRoomsController {
 
         List<OfflineRooms> offlineRooms = roomsService.getPaginatedOfflineRooms(firstOfflineResult, pageSize, validatedSortOrder);
 
+        // Encode addresses for offline rooms
+        List<String> encodedAddresses = offlineRooms.stream()
+                .map(room -> encodeAddress(room.getAddress()))
+                .collect(Collectors.toList());
+
         // Handle pagination for online rooms
         long totalOnlineRooms = roomsService.totalOnlineRooms();
         int totalOnlinePages = Math.max(1, (int) Math.ceil((double) totalOnlineRooms / pageSize));
@@ -72,6 +80,7 @@ public class ListRoomsController {
 
         // Add data to the model
         model.addAttribute("rooms", offlineRooms);
+        model.addAttribute("encodedAddresses", encodedAddresses);
         model.addAttribute("roomsonline", onlineRooms);
         model.addAttribute("currentPageOffline", pageOffline);
         model.addAttribute("totalPagesOffline", totalOfflinePages);
@@ -81,5 +90,16 @@ public class ListRoomsController {
         model.addAttribute("sortOrder", validatedSortOrder);
 
         return "RoomsList";
+    }
+
+    private String encodeAddress(String address) {
+        if (address == null || address.isEmpty()) {
+            return "";
+        }
+        try {
+            return URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+        } catch (Exception e) {
+            return address; // Fallback to raw address if encoding fails
+        }
     }
 }

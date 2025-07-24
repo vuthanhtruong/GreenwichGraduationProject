@@ -38,13 +38,6 @@
             <div class="text-danger" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></div>
         </div>
 
-        <!-- Link -->
-        <div class="mb-3">
-            <label for="link" class="form-label">Meeting Link:</label>
-            <input id="link" class="form-control" th:field="*{link}" type="text">
-            <div class="text fácil-danger" th:if="${#fields.hasErrors('link')}" th:errors="*{link}"></div>
-        </div>
-
         <div class="text-center">
             <button class="btn btn-success" type="submit">
                 <i class="fas fa-save"></i> Save Online Room

@@ -20,4 +20,8 @@ public interface RoomsService {
     Boolean existsOfflineRoomsById(String id);
     void deleteOnlineRoom(String id);
     void deleteOfflineRoom(String id);
+    boolean isJitsiLinkExists(String link);
+    String generateRandomPassword(int length);
+    String generateRandomString(int length);
+    String generateUniqueJitsiMeetLink(String roomId);
 }
