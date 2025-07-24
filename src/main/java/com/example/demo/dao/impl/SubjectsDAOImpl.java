@@ -17,8 +17,13 @@ import java.util.List;
 public class SubjectsDAOImpl implements SubjectsDAO {
     @Override
     public Subjects checkNameSubject(Subjects subject) {
-        return entityManager.createQuery("SELECT s FROM Subjects s WHERE s.subjectName = :name", Subjects.class).
-                setParameter("name",subject.getSubjectName()).getResultList().get(0);
+        if (subject == null || subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
+            return null;
+        }
+        List<Subjects> subjects = entityManager.createQuery("SELECT s FROM Subjects s WHERE s.subjectName = :name", Subjects.class)
+                .setParameter("name", subject.getSubjectName().trim())
+                .getResultList();
+        return subjects.isEmpty() ? null : subjects.get(0);
     }
 
     private StaffsService staffsService;

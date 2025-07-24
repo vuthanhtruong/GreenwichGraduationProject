@@ -2,11 +2,13 @@ package com.example.demo.controller.Add;
 
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
+import com.example.demo.entity.Rooms;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.RoomsService;
 import com.example.demo.service.StaffsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -21,6 +23,8 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home/rooms-list")
@@ -48,7 +52,11 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        if (result.hasErrors()) {
+        List<String> errors = new ArrayList<>();
+        validateOfflineRoom(offlineRoom, result, offlineRoom.getAddress(), errors);
+
+        if (!errors.isEmpty() || result.hasErrors()) {
+            model.addAttribute("editErrors", errors);
             return "AddOfflineRoom";
         }
 
@@ -56,15 +64,22 @@ public class AddRoomController {
             String roomId = generateUniqueRoomId(true); // true for offline
             offlineRoom.setRoomId(roomId);
             offlineRoom.setCreatedAt(LocalDateTime.now());
-            // Set creator from authenticated user
             String username = authentication.getName();
             Staffs creator = staffsService.getStaffs();
+            if (creator == null) {
+                model.addAttribute("errorMessage", "Authenticated staff not found.");
+                return "AddOfflineRoom";
+            }
             offlineRoom.setCreator(creator);
             roomsService.addOfflineRoom(offlineRoom);
-            redirectAttributes.addFlashAttribute("successMessage", "Offline room added successfully!");
+            redirectAttributes.addFlashAttribute("message", "Offline room added successfully!");
+            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
+        } catch (DataAccessException e) {
+            model.addAttribute("errorMessage", "Database error while adding offline room: " + e.getMessage());
+            return "AddOfflineRoom";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error adding offline room: " + e.getMessage());
+            model.addAttribute("errorMessage", "Unexpected error while adding offline room: " + e.getMessage());
             return "AddOfflineRoom";
         }
     }
@@ -82,7 +97,11 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        if (result.hasErrors()) {
+        List<String> errors = new ArrayList<>();
+        validateOnlineRoom(onlineRoom, result, onlineRoom.getLink(), errors);
+
+        if (!errors.isEmpty() || result.hasErrors()) {
+            model.addAttribute("editErrors", errors);
             return "AddOnlineRoom";
         }
 
@@ -90,15 +109,22 @@ public class AddRoomController {
             String roomId = generateUniqueRoomId(false); // false for online
             onlineRoom.setRoomId(roomId);
             onlineRoom.setCreatedAt(LocalDateTime.now());
-            // Set creator from authenticated user
             String username = authentication.getName();
             Staffs creator = staffsService.getStaffs();
+            if (creator == null) {
+                model.addAttribute("errorMessage", "Authenticated staff not found.");
+                return "AddOnlineRoom";
+            }
             onlineRoom.setCreator(creator);
             roomsService.addOnlineRoom(onlineRoom);
-            redirectAttributes.addFlashAttribute("successMessage", "Online room added successfully!");
+            redirectAttributes.addFlashAttribute("message", "Online room added successfully!");
+            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
+        } catch (DataAccessException e) {
+            model.addAttribute("errorMessage", "Database error while adding online room: " + e.getMessage());
+            return "AddOnlineRoom";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error adding online room: " + e.getMessage());
+            model.addAttribute("errorMessage", "Unexpected error while adding online room: " + e.getMessage());
             return "AddOnlineRoom";
         }
     }
@@ -106,14 +132,68 @@ public class AddRoomController {
     private String generateUniqueRoomId(boolean isOffline) {
         SecureRandom random = new SecureRandom();
         LocalDate currentDate = LocalDate.now();
-        String datePart = currentDate.format(DateTimeFormatter.ofPattern("yMMdd")); // e.g., 5240724 for 2025-07-24
+        String datePart = currentDate.format(DateTimeFormatter.ofPattern("yMMdd"));
         String prefix = isOffline ? "GWOFF" : "GWONL";
 
         String roomId;
         do {
-            String randomDigits = String.format("%02d", random.nextInt(100)); // 2-digit random number (00-99)
-            roomId = prefix + datePart + randomDigits; // e.g., GWOFF524072412 or GWONL524072412
-        } while (roomsService.existsOnlineRoomsById(roomId) || roomsService.existsOfflineRoomsById(roomId)); // Check both offline and online rooms
+            String randomDigits = String.format("%02d", random.nextInt(100));
+            roomId = prefix + datePart + randomDigits;
+        } while (roomsService.existsOnlineRoomsById(roomId) || roomsService.existsOfflineRoomsById(roomId));
         return roomId;
+    }
+
+    private void validateOfflineRoom(OfflineRooms formRoom, BindingResult bindingResult, String address, List<String> errors) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
+
+        if (!isValidName(formRoom.getRoomName())) {
+            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        Rooms existingRoomByName = roomsService.getByName(formRoom.getRoomName());
+        if (formRoom.getRoomName() != null && existingRoomByName != null) {
+            errors.add("Room name is already in use.");
+        }
+
+        if (address != null && !address.isEmpty() && !isValidAddress(address)) {
+            errors.add("Invalid address format.");
+        }
+    }
+
+    private void validateOnlineRoom(OnlineRooms formRoom, BindingResult bindingResult, String link, List<String> errors) {
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
+
+        if (!isValidName(formRoom.getRoomName())) {
+            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        Rooms existingRoomByName = roomsService.getByName(formRoom.getRoomName());
+        if (formRoom.getRoomName() != null && existingRoomByName != null) {
+            errors.add("Room name is already in use.");
+        }
+
+        if (link != null && !link.isEmpty() && !isValidLink(link)) {
+            errors.add("Invalid meeting link format. Must be a valid URL.");
+        }
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
+        return name.matches(nameRegex);
+    }
+
+    private boolean isValidLink(String link) {
+        return link != null && link.matches("^https?://[\\w\\-\\.]+\\.[a-zA-Z]{2,}(/.*)?$");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address != null && address.matches("^[\\p{L}0-9][\\p{L}0-9 ,\\-./]{0,99}$");
     }
 }

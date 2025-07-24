@@ -24,10 +24,19 @@
         <!-- CSRF Token -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-        <!-- Global Errors -->
+        <!-- Success/Error Messages -->
+        <div class="alert alert-success" th:if="${message != null and alertClass == 'alert-success'}" th:text="${message}"></div>
+        <div class="alert alert-danger" th:if="${message != null and alertClass == 'alert-danger'}" th:text="${message}"></div>
+        <div class="alert alert-danger" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
+        <div class="alert alert-danger" th:if="${editErrors != null}">
+            <ul>
+                <li th:each="error : ${editErrors}" th:text="${error}"></li>
+            </ul>
+        </div>
         <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}">
             <span th:text="${error}"></span>
         </div>
+
         <!-- Room Name -->
         <div class="mb-3">
             <label for="roomName" class="form-label">Room Name:</label>
@@ -56,13 +65,12 @@
 <!-- JavaScript: force input value to uppercase -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const ids = ["roomId", "roomName"];
-        ids.forEach(function (id) {
-            const input = document.getElementById(id);
+        const input = document.getElementById("roomName");
+        if (input) {
             input.addEventListener("input", function () {
                 this.value = this.value.toUpperCase();
             });
-        });
+        }
     });
 </script>
 

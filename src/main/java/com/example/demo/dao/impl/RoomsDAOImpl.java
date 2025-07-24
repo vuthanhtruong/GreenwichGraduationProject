@@ -1,10 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.RoomsDAO;
-import com.example.demo.entity.OfflineRooms;
-import com.example.demo.entity.OnlineRooms;
-import com.example.demo.entity.Rooms;
-import com.example.demo.entity.Staffs;
+import com.example.demo.entity.*;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.RoomsService;
@@ -27,6 +24,85 @@ import java.util.List;
 @Transactional
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
+    @Override
+    public Rooms getRoomById(String id) {
+        return entityManager.find(Rooms.class, id);
+    }
+
+    @Override
+    public Rooms getByName(String name) {
+        List<Rooms> rooms = entityManager.createQuery(
+                        "SELECT s FROM Rooms s WHERE s.roomName = :name", Rooms.class)
+                .setParameter("name", name)
+                .getResultList();
+
+        if (rooms.isEmpty()) {
+            return null; // Trả về null nếu không tìm thấy
+        }
+        return rooms.get(0); // Trả về phần tử đầu tiên nếu có
+    }
+
+    @Override
+    public Rooms updateOfflineRoom(String id, OfflineRooms room) {
+        if (room == null) {
+            throw new IllegalArgumentException("Room object cannot be null");
+        }
+
+        Rooms existingRoom = entityManager.find(Rooms.class, id);
+        if (existingRoom == null || !(existingRoom instanceof OfflineRooms)) {
+            throw new IllegalArgumentException("Offline room with ID " + id + " not found");
+        }
+
+        // Validate required fields
+        if (room.getRoomName() == null) {
+            throw new IllegalArgumentException("Room name cannot be null");
+        }
+        // Update fields from Rooms
+        existingRoom.setRoomName(room.getRoomName()); // Required field
+        if (room.getCreator() != null) {
+            existingRoom.setCreator(room.getCreator());
+        }
+        if (room.getCreatedAt() != null) {
+            existingRoom.setCreatedAt(room.getCreatedAt());
+        }
+
+        // Update OfflineRooms-specific fields
+        ((OfflineRooms) existingRoom).setAddress(room.getAddress());
+
+        return entityManager.merge(existingRoom);
+    }
+
+    @Override
+    public Rooms updateOnlineRoom(String id, OnlineRooms room) {
+        if (room == null) {
+            throw new IllegalArgumentException("Room object cannot be null");
+        }
+
+        Rooms existingRoom = entityManager.find(Rooms.class, id);
+        if (existingRoom == null || !(existingRoom instanceof OnlineRooms)) {
+            throw new IllegalArgumentException("Online room with ID " + id + " not found");
+        }
+
+        // Validate required fields
+        if (room.getRoomName() == null) {
+            throw new IllegalArgumentException("Room name cannot be null");
+        }
+
+        // Update fields from Rooms
+        existingRoom.setRoomName(room.getRoomName()); // Required field
+        if (room.getCreator() != null) {
+            existingRoom.setCreator(room.getCreator());
+        }
+        if (room.getCreatedAt() != null) {
+            existingRoom.setCreatedAt(room.getCreatedAt());
+        }
+
+        // Update OnlineRooms-specific fields
+        ((OnlineRooms) existingRoom).setLink(room.getLink());
+
+        return entityManager.merge(existingRoom);
+    }
+
     @Override
     public String generateUniqueJitsiMeetLink(String roomId) {
         String baseUrl = "https://meet.jit.si/";
@@ -107,10 +183,11 @@ public class RoomsDAOImpl implements RoomsDAO {
         Staffs staff = entityManager.find(Staffs.class, username);
         rooms.setCreator(staff);
         rooms.setCreatedAt(LocalDateTime.now());
-        // Generate and check Jitsi Meet link
-        String jitsiLink = generateUniqueJitsiMeetLink(rooms.getRoomId());
-        rooms.setLink(jitsiLink);
-
+        // Generate and check Jitsi Meet linki
+        if(rooms.getLink() == null || rooms.getLink().isEmpty()) {
+            String jitsiLink = generateUniqueJitsiMeetLink(rooms.getRoomId());
+            rooms.setLink(jitsiLink);
+        }
         entityManager.persist(rooms);
     }
 

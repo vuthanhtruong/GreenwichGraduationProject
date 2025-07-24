@@ -25,8 +25,14 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
         <!-- Success/Error Messages -->
-        <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
-        <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+        <div class="alert alert-success" th:if="${message != null and alertClass == 'alert-success'}" th:text="${message}"></div>
+        <div class="alert alert-danger" th:if="${message != null and alertClass == 'alert-danger'}" th:text="${message}"></div>
+        <div class="alert alert-danger" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
+        <div class="alert alert-danger" th:if="${editErrors != null}">
+            <ul>
+                <li th:each="error : ${editErrors}" th:text="${error}"></li>
+            </ul>
+        </div>
         <div class="alert alert-danger" th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}">
             <span th:text="${error}"></span>
         </div>
@@ -36,6 +42,13 @@
             <label for="roomName" class="form-label">Room Name:</label>
             <input id="roomName" class="form-control uppercase-input" th:field="*{roomName}" type="text">
             <div class="text-danger" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></div>
+        </div>
+
+        <!-- Link -->
+        <div class="mb-3">
+            <label for="link" class="form-label">Meeting Link:</label>
+            <input id="link" class="form-control" th:field="*{link}" type="text">
+            <div class="text-danger" th:if="${#fields.hasErrors('link')}" th:errors="*{link}"></div>
         </div>
 
         <div class="text-center">

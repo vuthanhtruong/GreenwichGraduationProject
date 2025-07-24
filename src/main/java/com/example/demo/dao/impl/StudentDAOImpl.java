@@ -163,9 +163,10 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student.getPassword() != null && !student.getPassword().isEmpty()) {
             existingStudent.setPassword(student.getPassword());
         }
-        entityManager.merge(existingStudent);
-        String subject = "Your student account information after being edited";
-        emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
+        if(entityManager.merge(existingStudent)!=null) {
+            String subject = "Your student account information after being edited";
+            emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
+        }
     }
 
     @Override

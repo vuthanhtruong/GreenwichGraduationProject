@@ -14,6 +14,26 @@ import java.util.UUID;
 @Service
 public class RoomsServiceImpl implements RoomsService {
     @Override
+    public Rooms getRoomById(String id) {
+        return roomsDAO.getRoomById(id);
+    }
+
+    @Override
+    public Rooms getByName(String name) {
+        return roomsDAO.getByName(name);
+    }
+
+    @Override
+    public Rooms updateOfflineRoom(String id, OfflineRooms room) {
+        return roomsDAO.updateOfflineRoom(id, room);
+    }
+
+    @Override
+    public Rooms updateOnlineRoom(String id, OnlineRooms room) {
+        return roomsDAO.updateOnlineRoom(id, room);
+    }
+
+    @Override
     public String generateUniqueJitsiMeetLink(String roomId) {
         return roomsDAO.generateUniqueJitsiMeetLink(roomId);
     }

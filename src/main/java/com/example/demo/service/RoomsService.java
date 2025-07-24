@@ -24,4 +24,8 @@ public interface RoomsService {
     String generateRandomPassword(int length);
     String generateRandomString(int length);
     String generateUniqueJitsiMeetLink(String roomId);
+    Rooms updateOfflineRoom(String id, OfflineRooms room);
+    Rooms updateOnlineRoom(String id, OnlineRooms room);
+    Rooms getByName(String name);
+    Rooms getRoomById(String id);
 }

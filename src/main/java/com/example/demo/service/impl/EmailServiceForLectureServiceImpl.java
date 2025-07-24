@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.EmailServiceForLectureDAO;
-import com.example.demo.dao.EmailServiceForStudentDAO;
 import com.example.demo.entity.Lecturers;
 import com.example.demo.service.EmailServiceForLectureService;
 import jakarta.mail.MessagingException;
