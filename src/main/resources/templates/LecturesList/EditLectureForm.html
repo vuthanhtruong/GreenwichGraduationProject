@@ -69,11 +69,12 @@
                 <option th:each="g : ${T(com.example.demo.entity.Gender).values()}"
                         th:value="${g}"
                         th:text="${g}"
-                        th:selected="${lecture.gender == g}">
+                        th:selected="${gender != null and g.name() == gender.name()}">
                 </option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
         </div>
+
 
         <!-- Country -->
         <div class="mb-3">
