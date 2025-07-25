@@ -18,44 +18,45 @@
     </a>
 </nav>
 <main class="container">
-    <!-- Thông báo lỗi -->
-    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></div>
+    <!-- Thông báo lỗi chung -->
+    <div class="alert alert-danger" th:if="${errors != null}" role="alert">
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}"></li>
+        </ul>
+    </div>
+    <!-- Thông báo thành công -->
     <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}" role="alert"></div>
+    <!-- Thông báo lỗi riêng (nếu có) -->
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></div>
 
-    <form method="post" th:action="@{/staff-home/syllabuses-list/add-syllabus}" th:object="${newSyllabus}" enctype="multipart/form-data">
+    <form method="post" th:action="@{/staff-home/major-subjects-list/syllabuses-list/add-syllabus}" th:object="${newSyllabus}" enctype="multipart/form-data">
         <div class="row g-3">
-            <!-- Subject ID -->
+            <!-- Subject ID (ẩn) -->
+            <input type="hidden" name="subjectId" th:value="${subject != null} ? ${subject.subjectId} : ''">
+            <!-- Subject ID (hiển thị readonly) -->
             <div class="col-md-3">
                 <label for="subjectId" class="form-label">Subject ID:</label>
                 <input id="subjectId" class="form-control" th:value="${subject != null} ? ${subject.subjectId} : ''" readonly type="text">
-                <input type="hidden" th:name="id" th:value="${subject != null} ? ${subject.subjectId} : ''">
             </div>
-
             <!-- Syllabus Name -->
             <div class="col-md-3">
                 <label for="syllabusName" class="form-label">Syllabus Name:</label>
                 <input id="syllabusName" class="form-control" th:field="*{syllabusName}" required type="text">
                 <div class="text-danger" th:if="${#fields.hasErrors('syllabusName')}" th:errors="*{syllabusName}"></div>
             </div>
-
             <!-- Status -->
             <div class="col-md-3">
                 <label for="status" class="form-label">Status:</label>
                 <input id="status" class="form-control" th:field="*{status}" type="text">
                 <div class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
             </div>
-
-            <!-- Thay đổi từ name="fileData" thành name="uploadFile" -->
+            <!-- Upload File -->
             <div class="col-md-3">
                 <label for="uploadFile" class="form-label">Upload File:</label>
                 <input id="uploadFile" class="form-control" type="file" name="uploadFile" required>
                 <div class="text-danger" th:if="${#fields.hasErrors('fileData')}" th:text="'Please select a file to upload.'"></div>
             </div>
         </div>
-
-        <!-- General Errors -->
-        <div class="text-danger mt-2" th:if="${errors != null}" th:each="error : ${errors}" th:text="${error}"></div>
-
         <div class="mt-3">
             <button class="btn btn-success" type="submit">
                 <i class="fas fa-save"></i> Save Syllabus
@@ -85,14 +86,20 @@
                 <td th:text="${syllabus.getCreator().getFullName()}"></td>
                 <td th:text="${syllabus.status != null} ? ${syllabus.status} : 'N/A'"></td>
                 <td>
-                    <a th:href="@{/staff-home/syllabuses-list/view-file/{id}(id=${syllabus.syllabusId})}"
-                       class="btn btn-info btn-sm me-1" target="_blank">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                    <a th:href="@{/staff-home/syllabuses-list/download-file/{id}(id=${syllabus.syllabusId})}"
-                       class="btn btn-success btn-sm">
-                        <i class="fas fa-download"></i> Download
-                    </a>
+                    <form th:action="@{/staff-home/major-subjects-list/syllabuses-list/view-file}" method="post" style="display:inline;">
+                        <input type="hidden" name="syllabusId" th:value="${syllabus.syllabusId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-info btn-sm me-1">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </form>
+                    <form th:action="@{/staff-home/major-subjects-list/syllabuses-list/download-file}" method="post" style="display:inline;">
+                        <input type="hidden" name="syllabusId" th:value="${syllabus.syllabusId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </form>
                 </td>
             </tr>
             <tr th:if="${syllabuses == null}">

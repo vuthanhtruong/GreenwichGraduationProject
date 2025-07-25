@@ -5,6 +5,8 @@ import com.example.demo.dao.SyllabusesDAO;
 import com.example.demo.entity.Subjects;
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.SyllabusesService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

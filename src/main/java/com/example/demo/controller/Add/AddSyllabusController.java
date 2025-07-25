@@ -6,6 +6,7 @@ import com.example.demo.entity.Subjects;
 import com.example.demo.service.SubjectsService;
 import com.example.demo.service.SyllabusesService;
 import com.example.demo.service.StaffsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -20,10 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home")
+@RequestMapping("/staff-home/major-subjects-list/")
 public class AddSyllabusController {
 
     private final SyllabusesService syllabusesService;
@@ -37,126 +41,147 @@ public class AddSyllabusController {
         this.subjectsService = subjectsService;
     }
 
-    @GetMapping("/syllabuses-list")
-    public String showSyllabusForm(Model model, @RequestParam(value = "subjectId", required = false) String subjectId) {
-        model.addAttribute("newSyllabus", new Syllabuses());
-        if (subjectId != null) {
-            Subjects subject = subjectsService.getSubjectById(subjectId);
-            model.addAttribute("subject", subject != null ? subject : new Subjects());
-            model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
-        } else {
-            model.addAttribute("subject", new Subjects());
-        }
-        return "SyllabusesList";
-    }
-
-    @GetMapping("/major-subjects-list/view-syllabus/{subjectId}")
-    public String viewSyllabusBySubject(@PathVariable("subjectId") String subjectId, Model model) {
-        Subjects subject = subjectsService.getSubjectById(subjectId);
-        if (subject == null) {
-            model.addAttribute("errorMessage", "Subject not found.");
-            model.addAttribute("subject", new Subjects());
-            model.addAttribute("newSyllabus", new Syllabuses());
-            return "SyllabusesList";
-        }
-        model.addAttribute("subject", subject);
-        model.addAttribute("newSyllabus", new Syllabuses());
-        model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
-        return "SyllabusesList";
-    }
-
     @PostMapping("/syllabuses-list/add-syllabus")
-    public String addSyllabus(@Valid @ModelAttribute("newSyllabus") Syllabuses syllabus,
-                              BindingResult result,
-                              @RequestParam("id") String subjectId,
-                              @RequestParam("uploadFile") MultipartFile file,
-                              Model model,
-                              RedirectAttributes redirectAttributes) throws IOException {
+    public String addSyllabus(
+            @Valid @ModelAttribute("newSyllabus") Syllabuses syllabus,
+            BindingResult result,
+            @RequestParam("subjectId") String subjectId,
+            @RequestParam("uploadFile") MultipartFile file,
+            Model model,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) throws IOException {
         Subjects subject = subjectsService.getSubjectById(subjectId);
-        if (subject == null) {
-            model.addAttribute("errorMessage", "Subject not found. Please select a subject.");
-            model.addAttribute("subject", new Subjects());
+        List<String> errors = new ArrayList<>();
+
+        // Perform all validations
+        validateSyllabus(syllabus, result, file, subject, errors);
+
+        if (!errors.isEmpty()) {
+            model.addAttribute("errors", errors);
+            model.addAttribute("subject", subject != null ? subject : new Subjects());
             model.addAttribute("newSyllabus", syllabus);
+            model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
             return "SyllabusesList";
         }
-
-        // Log received data for debugging
-        System.out.println("Received - Subject ID: " + subjectId);
-        System.out.println("Syllabus name: " + syllabus.getSyllabusName());
-        System.out.println("Status: " + syllabus.getStatus());
-        System.out.println("File name: " + (file != null ? file.getOriginalFilename() : "null"));
-        System.out.println("File size: " + (file != null ? file.getSize() : "null"));
-
-        // Set subject and creator before validation
-        syllabus.setSubject(subject);
-        Staffs creator = staffsService.getStaffs();
-        if (creator == null) {
-            model.addAttribute("errorMessage", "Cannot determine current staff. Please log in again.");
-            model.addAttribute("subject", subject);
-            model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
-            return "SyllabusesList";
-        }
-        syllabus.setCreator(creator);
-
-        // Validate file
-        if (file == null || file.isEmpty()) {
-            model.addAttribute("fileError", "Please select a file to upload.");
-            model.addAttribute("subject", subject);
-            model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
-            return "SyllabusesList";
-        }
-
-        // Restrict file type to PDF
-        if (!file.getContentType().equals("application/pdf")) {
-            model.addAttribute("fileError", "Only PDF files are allowed.");
-            model.addAttribute("subject", subject);
-            model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
-            return "SyllabusesList";
-        }
-
-        // Validate syllabus fields
-        if (result.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder("Please correct the following errors: ");
-            result.getFieldErrors().forEach(error ->
-                    errorMsg.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; "));
-            model.addAttribute("errorMessage", errorMsg.toString());
-            model.addAttribute("subject", subject);
-            model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
-            return "SyllabusesList";
-        }
-
-        // Set other properties
-        String syllabusId = "SYL" + UUID.randomUUID().toString().substring(0, 8);
-        syllabus.setSyllabusId(syllabusId);
-        syllabus.setFileData(file.getBytes());
 
         try {
+            // Set subject and creator
+            syllabus.setSubject(subject);
+            // Set other properties
+            String syllabusId = generateUniqueSyllabusId(subject.getMajor().getMajorId(), LocalDate.now());
+            syllabus.setSyllabusId(syllabusId);
+            syllabus.setFileData(file.getBytes());
+
             syllabusesService.addSyllabus(syllabus);
             redirectAttributes.addFlashAttribute("successMessage", "Syllabus added successfully!");
-            return "redirect:/staff-home/major-subjects-list/view-syllabus/" + subjectId;
+            session.setAttribute("currentSubjectId", subjectId);
+            return "redirect:/staff-home/major-subjects-list/syllabuses-list";
         } catch (Exception e) {
-            System.err.println("Error adding syllabus: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("errorMessage", "Failed to add syllabus: " + e.getMessage());
-            model.addAttribute("subject", subject);
+            errors.add("Failed to add syllabus: " + e.getMessage());
+            model.addAttribute("errors", errors);
+            model.addAttribute("subject", subject != null ? subject : new Subjects());
             model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("syllabuses", syllabusesService.getSyllabusesBySubject(subject));
+            model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
             return "SyllabusesList";
         }
     }
 
-    @GetMapping("/syllabuses-list/download-file/{id}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable("id") String syllabusId) {
+    private void validateSyllabus(Syllabuses syllabus, BindingResult result, MultipartFile file, Subjects subject, List<String> errors) {
+        // Annotation-based validation errors
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
+
+        // Custom validations
+        if (subject == null) {
+            errors.add("Subject not found. Please select a subject.");
+        }
+
+        if (file == null || file.isEmpty()) {
+            errors.add("Please select a file to upload.");
+        } else if (!file.getContentType().equals("application/pdf")) {
+            errors.add("Only PDF files are allowed.");
+        }
+
+        if (syllabus.getSyllabusName() == null || syllabus.getSyllabusName().trim().isEmpty()) {
+            errors.add("Syllabus name cannot be blank.");
+        } else if (!isValidSyllabusName(syllabus.getSyllabusName())) {
+            errors.add("Syllabus name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+    }
+
+    private boolean isValidSyllabusName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}\\p{N}][\\p{L}\\p{N} .'-]{1,99}$";
+        return name.matches(nameRegex);
+    }
+
+    private boolean isValidStatus(String status) {
+        String statusRegex = "^(Active|Inactive|Draft)$";
+        return status == null || status.matches(statusRegex);
+    }
+
+    private String generateUniqueSyllabusId(String majorId, LocalDate createdDate) {
+        String prefix;
+        switch (majorId) {
+            case "major001":
+                prefix = "SYLGBH";
+                break;
+            case "major002":
+                prefix = "SYLGCH";
+                break;
+            case "major003":
+                prefix = "SYLGDH";
+                break;
+            case "major004":
+                prefix = "SYLGKH";
+                break;
+            default:
+                prefix = "SYLGEN";
+                break;
+        }
+
+        // Extract year (last two digits) and date (MMdd) from createdDate
+        String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2025 -> 25
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., July 26 -> 0726
+
+        String syllabusId;
+        SecureRandom random = new SecureRandom();
+        do {
+            // Generate 1 random digit to make total length 10 (6 prefix + 2 year + 4 date + 1 random)
+            String randomDigit = String.valueOf(random.nextInt(10));
+            syllabusId = prefix + year + date + randomDigit;
+        } while (syllabusesService.getSyllabusById(syllabusId) != null);
+        return syllabusId;
+    }
+
+    @PostMapping("/syllabuses-list/view-file")
+    public ResponseEntity<byte[]> viewFile(@RequestParam("syllabusId") String syllabusId, HttpSession session) {
+        Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
+        String subjectId = (String) session.getAttribute("currentSubjectId");
+        if (syllabus == null || subjectId == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.builder("inline")
+                .filename(syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + ".pdf")
+                .build());
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(syllabus.getFileData());
+    }
+
+    @PostMapping("/syllabuses-list/download-file")
+    public ResponseEntity<byte[]> downloadFile(@RequestParam("syllabusId") String syllabusId) {
         Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
         if (syllabus == null || syllabus.getFileData() == null || syllabus.getFileData().length == 0) {
             return ResponseEntity.notFound().build();
         }
 
-        // Set headers for download
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         String fileName = syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + ".pdf";

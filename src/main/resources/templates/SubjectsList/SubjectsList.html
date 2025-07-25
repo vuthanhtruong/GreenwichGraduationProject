@@ -86,7 +86,7 @@
                             <i class="fas fa-trash-alt"></i> Delete
                         </button>
                     </form>
-                    <form th:action="@{/staff-home/major-subjects-list/view-syllabus/{id}(id=${subject.subjectId})}"
+                    <form th:action="@{/staff-home/major-subjects-list/view-syllabus}"
                           method="post"
                           th:id="'viewSyllabusForm-' + ${subject.subjectId}"
                           style="display:inline;">

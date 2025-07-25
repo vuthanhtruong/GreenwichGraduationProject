@@ -3,6 +3,8 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.SyllabusesDAO;
 import com.example.demo.entity.Subjects;
 import com.example.demo.entity.Syllabuses;
+import com.example.demo.service.StaffsService;
+import com.example.demo.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -12,6 +14,12 @@ import java.util.List;
 @Repository
 @Transactional
 public class SyllabusesDAOImpl implements SyllabusesDAO {
+    private StaffsService staffsService;
+
+    public SyllabusesDAOImpl(StaffsService staffsService) {
+        this.staffsService= staffsService;
+    }
+
     @Override
     public Syllabuses getSyllabusById(String syllabusId) {
         return entityManager.find(Syllabuses.class, syllabusId);
@@ -19,6 +27,7 @@ public class SyllabusesDAOImpl implements SyllabusesDAO {
 
     @Override
     public void addSyllabus(Syllabuses syllabus) {
+        syllabus.setCreator(staffsService.getStaffs());
         entityManager.persist(syllabus);
     }
 
