@@ -20,14 +20,14 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home")
-public class AddSubjectContrller {
+public class AddSubjectController {
     private final SubjectsService subjectsService;
     private final StaffsService staffsService;
+
     @Autowired
-    public AddSubjectContrller(SubjectsService subjectsService, StaffsService staffsService) {
+    public AddSubjectController(SubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
-
     }
 
     @PostMapping("/major-subjects-list/add-subject")
@@ -47,8 +47,8 @@ public class AddSubjectContrller {
             errors.add("Subject name already taken.");
         }
 
-        if (newSubject.getSubjectName() == null) {
-            errors.add("Subject name cannot be blank. ");
+        if (newSubject.getSubjectName() == null || newSubject.getSubjectName().trim().isEmpty()) {
+            errors.add("Subject name cannot be blank.");
         }
 
         if (!errors.isEmpty()) {
@@ -58,15 +58,21 @@ public class AddSubjectContrller {
         }
 
         try {
+            // Gán creator và major
+            newSubject.setCreator(staffsService.getStaffs());
+            newSubject.setMajor(staffsService.getMajors());
+
+            // Tạo ID duy nhất
             String subjectId = generateUniqueSubjectId(staffsService.getMajors().getMajorId(), LocalDate.now());
             newSubject.setSubjectId(subjectId);
+
             subjectsService.addSubject(newSubject);
             redirectAttributes.addFlashAttribute("successMessage", "Subject added successfully!");
             return "redirect:/staff-home/major-subjects-list";
         } catch (Exception e) {
             errors.add("Failed to add subject: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("subjects", subjectsService.getSubjects());
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
             return "SubjectsList";
         }
     }

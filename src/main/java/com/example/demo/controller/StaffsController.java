@@ -17,7 +17,7 @@ public class StaffsController {
     }
     @GetMapping("")
     public String getStaffHomeInfo(Model model) {
-
+        model.addAttribute("major", staffsService.getMajors().getMajorName());
         model.addAttribute("staff", staffsService.getStaffs());
         return "StaffHome";
     }

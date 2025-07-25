@@ -33,7 +33,8 @@ public class Syllabuses {
     private String filePath;
 
     @Lob
-    @Column(name = "FileData", nullable = true)
+    @Basic(fetch = FetchType.LAZY) // Lazy loading cho file lớn
+    @Column(name = "FileData", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] fileData;
 
     @Column(name = "Status", nullable = true, length = 50)

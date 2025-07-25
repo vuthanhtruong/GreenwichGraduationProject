@@ -10,11 +10,11 @@
 
 <div class="container mt-5">
     <div class="text-center mb-4">
-        <h1 class="text-primary"><i class="fas fa-user-tie"></i> Staff Home Page</h1>
+        <h1 class="text-primary"><i class="fas fa-user-tie"></i>Home Staff <span th:text="${major}"></span></h1>
         <h2 class="text-secondary">
             Welcome,
             <span th:text="${staff.getLastName()} + ' ' + ${staff.getFirstName()}"></span> |
-            <a class="text-info" th:href="@{/personal-page}"><i class="fas fa-user-circle"></i> Personal Page</a> |
+            <a class="text-info" th:href="@{/personal-page}"><i class="fas fa-user-circle"></i>Personal Page</a> |
         </h2>
     </div>
 
@@ -50,8 +50,8 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/class-allocation}">
-                <i class="fas fa-th-large icon"></i> Class Allocation
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/subject-syllabus}">
+                <i class="fas fa-th-large icon"></i> Subjet Syllabus
             </a>
         </div>
 
