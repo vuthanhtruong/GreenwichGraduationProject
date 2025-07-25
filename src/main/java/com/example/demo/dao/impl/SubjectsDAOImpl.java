@@ -2,6 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Majors;
+import com.example.demo.entity.Rooms;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
 import jakarta.persistence.EntityManager;
@@ -15,6 +16,48 @@ import java.util.List;
 @Repository
 @Transactional
 public class SubjectsDAOImpl implements SubjectsDAO {
+    @Override
+    public void deleteSubject(String id) {
+        Subjects subjects=entityManager.find(Subjects.class, id);
+        entityManager.remove(subjects);
+    }
+
+    @Override
+    public Subjects updateSubject(String id, Subjects subject) {
+        if (subject == null) {
+            throw new IllegalArgumentException("Subject object cannot be null");
+        }
+
+        Subjects existingSubject = entityManager.find(Subjects.class, id);
+        if (existingSubject == null) {
+            throw new IllegalArgumentException("Subject with ID " + id + " not found");
+        }
+
+        // Validate required fields
+        if (subject.getSubjectName() == null) {
+            throw new IllegalArgumentException("Subject name cannot be null");
+        }
+
+        // Update fields
+        existingSubject.setSubjectName(subject.getSubjectName()); // Required field, convert to uppercase
+        existingSubject.setTuition(subject.getTuition()); // Nullable field
+
+        return entityManager.merge(existingSubject);
+    }
+
+    @Override
+    public Subjects getSubjectByName(String subjectName) {
+        List<Subjects> subjects = entityManager.createQuery(
+                        "SELECT s FROM Subjects s WHERE s.subjectName = :name", Subjects.class)
+                .setParameter("name", subjectName)
+                .getResultList();
+
+        if (subjects.isEmpty()) {
+            return null; // Trả về null nếu không tìm thấy
+        }
+        return subjects.get(0);
+    }
+
     @Override
     public Subjects checkNameSubject(Subjects subject) {
         if (subject == null || subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
@@ -63,6 +106,6 @@ public class SubjectsDAOImpl implements SubjectsDAO {
 
     @Override
     public List<Subject> getSubjects() {
-        return List.of();
+        return entityManager.createQuery("SELECT s FROM Subjects s", Subject.class).getResultList();
     }
 }

@@ -33,7 +33,7 @@ public class UpdateRoomController {
         this.roomsService = roomsService;
     }
 
-    @GetMapping("/edit-offline-room")
+    @PostMapping("/edit-offline-room")
     public String showEditOfflineRoomForm(
             @RequestParam("id") String roomId,
             Model model,
@@ -55,7 +55,7 @@ public class UpdateRoomController {
         return "EditOfflineRoomForm";
     }
 
-    @GetMapping("/edit-online-room")
+    @PostMapping("/edit-online-room")
     public String showEditOnlineRoomForm(
             @RequestParam("id") String roomId,
             Model model,

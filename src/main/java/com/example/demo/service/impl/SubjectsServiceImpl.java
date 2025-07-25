@@ -12,6 +12,21 @@ import java.util.List;
 @Service
 public class SubjectsServiceImpl implements SubjectsService {
     @Override
+    public void deleteSubject(String id) {
+        subjectsDAO.deleteSubject(id);
+    }
+
+    @Override
+    public Subjects updateSubject(String id, Subjects subject) {
+        return subjectsDAO.updateSubject(id, subject);
+    }
+
+    @Override
+    public Subjects getSubjectByName(String subjectName) {
+        return subjectsDAO.getSubjectByName(subjectName);
+    }
+
+    @Override
     public Subjects checkNameSubject(Subjects subject) {
         return subjectsDAO.checkNameSubject(subject);
     }
