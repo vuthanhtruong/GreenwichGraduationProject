@@ -1,10 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.StudentsDAO;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Persons;
-import com.example.demo.entity.Staffs;
-import com.example.demo.entity.Students;
+import com.example.demo.entity.*;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.StudentsService;
@@ -18,11 +15,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
+
     @Override
     public Students dataStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

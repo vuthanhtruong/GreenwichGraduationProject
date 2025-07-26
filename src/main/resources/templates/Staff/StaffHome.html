@@ -7,251 +7,83 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="background-effects">
-    <div class="floating-shape shape-1"></div>
-    <div class="floating-shape shape-2"></div>
-    <div class="floating-shape shape-3"></div>
-    <div class="floating-shape shape-4"></div>
-    <div class="floating-shape shape-5"></div>
-</div>
 
-<div class="container">
-    <div class="glass-header">
-        <div class="header-glow"></div>
-        <h1 class="animated-title">
-            <span class="icon-wrapper">
-                <i class="fas fa-graduation-cap"></i>
-            </span>
-            <span class="title-text">
-                Staff Dashboard
-                <span class="major-badge" th:if="${major}" th:text="${major}"></span>
-            </span>
-        </h1>
-
-        <div class="welcome-section">
-            <div class="user-info">
-                <span class="welcome-text">Welcome back,</span>
-                <span class="user-name" th:text="${staff.getLastName()} + ' ' + ${staff.getFirstName()}"></span>
-            </div>
-
-            <div class="action-buttons">
-                <a class="action-btn profile-btn" th:href="@{/personal-page}">
-                    <i class="fas fa-user-circle"></i>
-                    <span>Profile</span>
-                    <div class="btn-glow"></div>
-                </a>
-
-                <form th:action="@{/logout}" method="post" style="display: inline;">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="action-btn logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                        <div class="btn-glow"></div>
-                    </button>
-                </form>
-            </div>
-        </div>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="text-primary"><i class="fas fa-user-tie"></i>Home Staff <span th:text="${major}"></span></h1>
+        <h2 class="text-secondary">
+            Welcome,
+            <span th:text="${staff.getLastName()} + ' ' + ${staff.getFirstName()}"></span> |
+            <a class="text-info" th:href="@{/personal-page}"><i class="fas fa-user-circle"></i>Personal Page</a> |
+        </h2>
     </div>
 
-    <div class="dashboard-grid">
-        <!-- Teachers Management -->
-        <div class="card-wrapper" data-category="management">
-            <div class="card-glow teachers-glow"></div>
-            <a class="dashboard-card teachers-card" th:href="@{/staff-home/lectures-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Management</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Teachers Hub</h3>
-                    <p class="card-description">Manage and coordinate your teaching staff efficiently</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-primary w-100 p-3" th:href="@{/staff-home/lectures-list}">
+                <i class="fas fa-chalkboard-teacher icon"></i> Your Teachers List
             </a>
         </div>
 
-        <!-- Students Management -->
-        <div class="card-wrapper" data-category="management">
-            <div class="card-glow students-glow"></div>
-            <a class="dashboard-card students-card" th:href="@{/staff-home/students-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-user-graduate"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Management</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Students Center</h3>
-                    <p class="card-description">Monitor and support student academic journey</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-success w-100 p-3" th:href="@{/staff-home/students-list}">
+                <i class="fas fa-user-graduate icon"></i> Your Students List
             </a>
         </div>
 
-        <!-- Subjects & Curriculum -->
-        <div class="card-wrapper" data-category="academic">
-            <div class="card-glow subjects-glow"></div>
-            <a class="dashboard-card subjects-card" th:href="@{/staff-home/major-subjects-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-book-open"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Academic</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Curriculum Hub</h3>
-                    <p class="card-description">Design and manage comprehensive course content</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-warning w-100 p-3" th:href="@{/staff-home/major-subjects-list}">
+                <i class="fas fa-users-cog icon"></i> Subjects and Syllabus
             </a>
         </div>
 
-        <!-- Class Scheduling -->
-        <div class="card-wrapper" data-category="scheduling">
-            <div class="card-glow classes-glow"></div>
-            <a class="dashboard-card classes-card" th:href="@{/staff-home/classes-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-calendar-alt"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Scheduling</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Smart Scheduler</h3>
-                    <p class="card-description">Optimize class timetables and resource allocation</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-info w-100 p-3" th:href="@{/staff-home/classes-list}">
+                <i class="fas fa-door-open icon"></i> classes Arrangement
             </a>
         </div>
 
-        <!-- Room Management -->
-        <div class="card-wrapper" data-category="facilities">
-            <div class="card-glow rooms-glow"></div>
-            <a class="dashboard-card rooms-card" th:href="@{/staff-home/rooms-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-door-open"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Facilities</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Space Manager</h3>
-                    <p class="card-description">Control and monitor classroom resources</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-info w-100 p-3" th:href="@{/staff-home/rooms-list}">
+                <i class="fas fa-door-open icon"></i> Rooms List
             </a>
         </div>
 
-        <!-- Subject Syllabus -->
-        <div class="card-wrapper" data-category="academic">
-            <div class="card-glow syllabus-glow"></div>
-            <a class="dashboard-card syllabus-card" th:href="@{/staff-home/subject-syllabus}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-file-alt"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Academic</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Syllabus Library</h3>
-                    <p class="card-description">Access detailed course structures and requirements</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/subject-syllabus}">
+                <i class="fas fa-th-large icon"></i> Subjet Syllabus
             </a>
         </div>
 
-        <!-- Messages -->
-        <div class="card-wrapper" data-category="communication">
-            <div class="card-glow messages-glow"></div>
-            <a class="dashboard-card messages-card" th:href="@{/staff-home/messages-list}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-envelope"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Communication</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Message Center</h3>
-                    <p class="card-description">Stay connected with internal communications</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/staff-home/messages-list}">
+                <i class="fas fa-th-large icon"></i> Messages
             </a>
         </div>
 
         <!-- Student Feedback -->
-        <div class="card-wrapper" data-category="feedback">
-            <div class="card-glow feedback-glow"></div>
-            <a class="dashboard-card feedback-card" th:href="@{/staff-home/student-feedback}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-comments"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Feedback</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Feedback Portal</h3>
-                    <p class="card-description">Collect and analyze student evaluations</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/staff-home/student-feedback}">
+                <i class="fas fa-comments icon"></i> Student Feedback
             </a>
         </div>
 
-        <!-- Educational Blogs -->
-        <div class="card-wrapper" data-category="content">
-            <div class="card-glow blogs-glow"></div>
-            <a class="dashboard-card blogs-card" th:href="@{/staff-home/blogs}">
-                <div class="card-header">
-                    <div class="icon-container">
-                        <i class="fas fa-blog"></i>
-                        <div class="icon-bg"></div>
-                    </div>
-                    <div class="card-category">Content</div>
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title">Knowledge Hub</h3>
-                    <p class="card-description">Share insights and educational content</p>
-                </div>
-                <div class="card-footer">
-                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
-                </div>
-                <div class="card-shine"></div>
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/staff-home/blogs}">
+                <i class="fas fa-comments icon"></i> Blogs
             </a>
+        </div>
+
+        <div class="col-md-12">
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger w-100 p-3">
+                    <i class="fas fa-sign-out-alt icon"></i> Logout
+                </button>
+            </form>
         </div>
     </div>
 </div>
+
 </body>
 </html>

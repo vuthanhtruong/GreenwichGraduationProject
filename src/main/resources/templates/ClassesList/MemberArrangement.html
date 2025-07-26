@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Arrangement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/ClassesList.css}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .error {
+            color: red;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<header class="text-center">
+    <h1><i class="fas fa-chalkboard-teacher"></i> Member Arrangement for Class: <span th:text="${class?.nameClass} ?: 'N/A'"></span></h1>
+</header>
+<nav class="mb-3 d-flex justify-content-end">
+    <a class="btn btn-secondary" th:href="@{/staff-home/classes-list}">
+        <i class="fas fa-arrow-left"></i> Back to Classes List
+    </a>
+</nav>
+<main class="container">
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${errorMessage}" class="error">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- Danh sách sinh viên trong lớp -->
+    <div class="section">
+        <h2>Students in Class</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>MIS ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${studentsInClass}" th:if="${studentsInClass != null}">
+                <!--/*@thymesVar id="fullName" type=""*/-->
+                <td th:text="${student.fullName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.misId}"></td>
+            </tr>
+            <tr th:if="${studentsInClass == null or studentsInClass.isEmpty()}">
+                <td colspan="3">No students in this class.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Danh sách giảng viên trong lớp -->
+    <div class="section">
+        <h2>Lecturers in Class</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="lecturer : ${lecturersInClass}" th:if="${lecturersInClass != null}">
+                <td th:text="${lecturer.fullName}"></td>
+                <td th:text="${lecturer.email}"></td>
+                <td th:text="${lecturer.type}"></td>
+            </tr>
+            <tr th:if="${lecturersInClass == null or lecturersInClass.isEmpty()}">
+                <td colspan="3">No lecturers in this class.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Danh sách sinh viên ngoài lớp -->
+    <div class="section">
+        <h2>Students Not in Class</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>MIS ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${studentsNotInClass}" th:if="${studentsNotInClass != null}">
+                <td th:text="${student.fullName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.misId}"></td>
+            </tr>
+            <tr th:if="${studentsNotInClass == null or studentsNotInClass.isEmpty()}">
+                <td colspan="3">No students available outside this class.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Danh sách giảng viên ngoài lớp -->
+    <div class="section">
+        <h2>Lecturers Not in Class</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="lecturer : ${lecturersNotInClass}" th:if="${lecturersNotInClass != null}">
+                <td th:text="${lecturer.fullName}"></td>
+                <td th:text="${lecturer.email}"></td>
+                <td th:text="${lecturer.type}"></td>
+            </tr>
+            <tr th:if="${lecturersNotInClass == null or lecturersNotInClass.isEmpty()}">
+                <td colspan="3">No lecturers available outside this class.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</body>
+</html>

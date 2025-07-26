@@ -1,4 +1,5 @@
 package com.example.demo.dao;
+import com.example.demo.entity.Classes;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Students;
 import jakarta.mail.MessagingException;

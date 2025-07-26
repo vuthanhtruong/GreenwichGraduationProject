@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Home Page</title>
+    <link rel="stylesheet" th:href="@{/StudentHome.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="text-primary"><i class="fas fa-user-graduate"></i> Student Home <span th:text="${major}"></span></h1>
+        <h2 class="text-secondary">
+            Welcome,
+            <span th:text="${student.getLastName()} + ' ' + ${student.getFirstName()}"></span>
+            <a class="text-info" th:href="@{/personal-page}"><i class="fas fa-user-circle"></i> Personal Page</a> |
+        </h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-primary w-100 p-3" th:href="@{/student-home/classes-list}">
+                <i class="fas fa-chalkboard icon"></i> Classes List
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-success w-100 p-3" th:href="@{/student-home/timetable}">
+                <i class="fas fa-calendar-alt icon"></i> Timetable
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-warning w-100 p-3" th:href="@{/student-home/blogs}">
+                <i class="fas fa-blog icon"></i> Blog
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-info w-100 p-3" th:href="@{/student-home/messages}">
+                <i class="fas fa-envelope icon"></i> Messages
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-secondary w-100 p-3" th:href="@{/student-home/news}">
+                <i class="fas fa-newspaper icon"></i> News
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-dark w-100 p-3" th:href="@{/student-home/personal}">
+                <i class="fas fa-user icon"></i> Personal
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-primary w-100 p-3" th:href="@{/student-home/transcript}">
+                <i class="fas fa-file-alt icon"></i> Transcript
+            </a>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <a class="btn btn-outline-success w-100 p-3" th:href="@{/student-home/attendance}">
+                <i class="fas fa-check-circle icon"></i> Attendance
+            </a>
+        </div>
+
+        <div class="col-md-12">
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-danger w-100 p-3">
+                    <i class="fas fa-sign-out-alt icon"></i> Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

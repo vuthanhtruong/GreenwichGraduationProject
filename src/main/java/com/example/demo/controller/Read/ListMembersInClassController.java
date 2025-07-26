@@ -1,0 +1,94 @@
+package com.example.demo.controller.Read;
+
+import com.example.demo.entity.Classes;
+import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.Lecturers_Classes;
+import com.example.demo.entity.Students;
+import com.example.demo.entity.Students_Classes;
+import com.example.demo.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpSession;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Controller
+@RequestMapping("/staff-home/classes-list")
+@PreAuthorize("hasRole('STAFF')")
+public class ListMembersInClassController {
+
+    private final Students_ClassesService studentsClassesService;
+    private final Lecturers_ClassesService lecturersClassesService;
+    private final ClassesService classesService;
+    private final StudentsService studentsService;
+    private final LecturesService lecturersService;
+
+    @Autowired
+    public ListMembersInClassController(Students_ClassesService studentsClassesService,
+                                        Lecturers_ClassesService lecturersClassesService,
+                                        ClassesService classesService,
+                                        StudentsService studentsService,
+                                        LecturesService lecturersService) {
+        this.studentsClassesService = studentsClassesService;
+        this.lecturersClassesService = lecturersClassesService;
+        this.classesService = classesService;
+        this.studentsService = studentsService;
+        this.lecturersService = lecturersService;
+    }
+
+    @PostMapping("/member-arrangement")
+    public String memberArrangement(@RequestParam("id") String classId,
+                                    Model model, HttpSession session) {
+        Classes selectedClass = classesService.getClassById(classId);
+        if (selectedClass == null) {
+            model.addAttribute("errorMessage", "Class not found.");
+            return "MemberArrangement";
+        }
+
+        // Lưu classId vào session
+        session.setAttribute("currentClassId", classId);
+
+        // Lấy danh sách sinh viên và giảng viên
+        List<Students_Classes> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
+        List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
+        List<Lecturers_Classes> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
+        List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
+
+        // Debug: In ra kích thước danh sách
+        System.out.println("Class ID: " + classId);
+        System.out.println("studentsInClassRecords size: " + studentsInClassRecords.size());
+        System.out.println("studentsNotInClass size: " + studentsNotInClass.size());
+        System.out.println("lecturersInClassRecords size: " + lecturersInClassRecords.size());
+        System.out.println("lecturersNotInClass size: " + lecturersNotInClass.size());
+
+        // Ánh xạ sang Students và Lecturers
+        List<Students> studentsInClass = studentsInClassRecords.stream()
+                .map(Students_Classes::getStudent)
+                .filter(student -> student != null)
+                .collect(Collectors.toList());
+        List<Lecturers> lecturersInClass = lecturersInClassRecords.stream()
+                .map(Lecturers_Classes::getLecturer)
+                .filter(lecturer -> lecturer != null)
+                .collect(Collectors.toList());
+
+        // Debug: In ra kích thước danh sách sau ánh xạ
+        System.out.println("studentsInClass size: " + studentsInClass.size());
+        System.out.println("lecturersInClass size: " + lecturersInClass.size());
+
+        // Thêm dữ liệu vào model
+        model.addAttribute("class", selectedClass);
+        model.addAttribute("studentsInClass", studentsInClass.isEmpty() ? Collections.emptyList() : studentsInClass);
+        model.addAttribute("studentsNotInClass", studentsNotInClass.isEmpty() ? Collections.emptyList() : studentsNotInClass);
+        model.addAttribute("lecturersInClass", lecturersInClass.isEmpty() ? Collections.emptyList() : lecturersInClass);
+        model.addAttribute("lecturersNotInClass", lecturersNotInClass.isEmpty() ? Collections.emptyList() : lecturersNotInClass);
+
+        return "MemberArrangement";
+    }
+}
