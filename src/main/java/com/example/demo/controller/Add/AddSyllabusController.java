@@ -108,10 +108,13 @@ public class AddSyllabusController {
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     "text/plain",
                     "application/vnd.ms-powerpoint",
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "application/zip",
+                    "application/x-zip-compressed",
+                    "application/octet-stream" // Fallback for some ZIP files
             );
             if (!allowedTypes.contains(file.getContentType())) {
-                errors.add("Only PDF, DOC, DOCX, TXT, PPT, or PPTX files are allowed.");
+                errors.add("Only PDF, DOC, DOCX, TXT, PPT, PPTX, or ZIP files are allowed.");
             }
         }
 
@@ -186,6 +189,7 @@ public class AddSyllabusController {
                 .headers(headers)
                 .body(syllabus.getFileData());
     }
+
     private String getFileExtension(String contentType) {
         switch (contentType) {
             case "application/pdf":
@@ -200,6 +204,10 @@ public class AddSyllabusController {
                 return ".ppt";
             case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
                 return ".pptx";
+            case "application/zip":
+            case "application/x-zip-compressed":
+            case "application/octet-stream": // Fallback for ZIP
+                return ".zip";
             default:
                 return "";
         }

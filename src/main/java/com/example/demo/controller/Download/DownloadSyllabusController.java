@@ -46,6 +46,7 @@ public class DownloadSyllabusController {
                 .headers(headers)
                 .body(syllabus.getFileData());
     }
+
     private String getFileExtension(String contentType) {
         switch (contentType) {
             case "application/pdf":
@@ -60,6 +61,10 @@ public class DownloadSyllabusController {
                 return ".ppt";
             case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
                 return ".pptx";
+            case "application/zip":
+            case "application/x-zip-compressed":
+            case "application/octet-stream": // Fallback for ZIP
+                return ".zip";
             default:
                 return "";
         }

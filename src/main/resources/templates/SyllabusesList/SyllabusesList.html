@@ -53,7 +53,7 @@
             <!-- Upload File -->
             <div class="col-md-3">
                 <label for="uploadFile" class="form-label">Upload File:</label>
-                <input id="uploadFile" class="form-control" type="file" name="uploadFile" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx" required>
+                <input id="uploadFile" class="form-control" type="file" name="uploadFile" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" required>
                 <div class="text-danger" th:if="${#fields.hasErrors('fileData')}" th:text="'Please select a valid file to upload.'"></div>
             </div>
         </div>
@@ -94,6 +94,7 @@
                         <span th:case="'text/plain'">Text</span>
                         <span th:case="'application/vnd.ms-powerpoint'">PowerPoint</span>
                         <span th:case="'application/vnd.openxmlformats-officedocument.presentationml.presentation'">PowerPoint</span>
+                        <span th:case="'application/zip'">ZIP</span>
                         <span th:case="*">N/A</span>
                     </div>
                 </td>
