@@ -186,26 +186,6 @@ public class AddSyllabusController {
                 .headers(headers)
                 .body(syllabus.getFileData());
     }
-
-    @PostMapping("/syllabuses-list/download-file")
-    public ResponseEntity<byte[]> downloadFile(@RequestParam("syllabusId") String syllabusId) {
-        Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
-        if (syllabus == null || syllabus.getFileData() == null || syllabus.getFileData().length == 0) {
-            return ResponseEntity.notFound().build();
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(syllabus.getFileType()));
-        String fileName = syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + getFileExtension(syllabus.getFileType());
-        headers.setContentDisposition(ContentDisposition.builder("attachment")
-                .filename(fileName)
-                .build());
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(syllabus.getFileData());
-    }
-
     private String getFileExtension(String contentType) {
         switch (contentType) {
             case "application/pdf":

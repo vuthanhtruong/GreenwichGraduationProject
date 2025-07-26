@@ -76,6 +76,7 @@
                 <th>Syllabus Name</th>
                 <th>Creator</th>
                 <th>Status</th>
+                <th>File Type</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -85,6 +86,17 @@
                 <td th:text="${syllabus.getSyllabusName()}"></td>
                 <td th:text="${syllabus.getCreator().getFullName()}"></td>
                 <td th:text="${syllabus.status != null} ? ${syllabus.status} : 'N/A'"></td>
+                <td>
+                    <div th:switch="${syllabus.fileType}">
+                        <span th:case="'application/pdf'">PDF</span>
+                        <span th:case="'application/msword'">Word</span>
+                        <span th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'">Word</span>
+                        <span th:case="'text/plain'">Text</span>
+                        <span th:case="'application/vnd.ms-powerpoint'">PowerPoint</span>
+                        <span th:case="'application/vnd.openxmlformats-officedocument.presentationml.presentation'">PowerPoint</span>
+                        <span th:case="*">N/A</span>
+                    </div>
+                </td>
                 <td>
                     <form th:action="@{/staff-home/major-subjects-list/syllabuses-list/view-file}" method="post" style="display:inline;">
                         <input type="hidden" name="syllabusId" th:value="${syllabus.syllabusId}" />
@@ -103,7 +115,7 @@
                 </td>
             </tr>
             <tr th:if="${syllabuses == null}">
-                <td colspan="5" class="text-center">No syllabuses available for this subject.</td>
+                <td colspan="6" class="text-center">No syllabuses available for this subject.</td>
             </tr>
             </tbody>
         </table>
