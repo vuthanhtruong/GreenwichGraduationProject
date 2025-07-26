@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/staff-home/major-subjects-list/")
@@ -71,6 +72,7 @@ public class AddSyllabusController {
             String syllabusId = generateUniqueSyllabusId(subject.getMajor().getMajorId(), LocalDate.now());
             syllabus.setSyllabusId(syllabusId);
             syllabus.setFileData(file.getBytes());
+            syllabus.setFileType(file.getContentType());
 
             syllabusesService.addSyllabus(syllabus);
             redirectAttributes.addFlashAttribute("successMessage", "Syllabus added successfully!");
@@ -99,8 +101,18 @@ public class AddSyllabusController {
 
         if (file == null || file.isEmpty()) {
             errors.add("Please select a file to upload.");
-        } else if (!file.getContentType().equals("application/pdf")) {
-            errors.add("Only PDF files are allowed.");
+        } else {
+            Set<String> allowedTypes = Set.of(
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "text/plain",
+                    "application/vnd.ms-powerpoint",
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            );
+            if (!allowedTypes.contains(file.getContentType())) {
+                errors.add("Only PDF, DOC, DOCX, TXT, PPT, or PPTX files are allowed.");
+            }
         }
 
         if (syllabus.getSyllabusName() == null || syllabus.getSyllabusName().trim().isEmpty()) {
@@ -161,14 +173,14 @@ public class AddSyllabusController {
     public ResponseEntity<byte[]> viewFile(@RequestParam("syllabusId") String syllabusId, HttpSession session) {
         Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
         String subjectId = (String) session.getAttribute("currentSubjectId");
-        if (syllabus == null || subjectId == null) {
+        if (syllabus == null || subjectId == null || syllabus.getFileData() == null) {
             return ResponseEntity.notFound().build();
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentType(MediaType.parseMediaType(syllabus.getFileType()));
         headers.setContentDisposition(ContentDisposition.builder("inline")
-                .filename(syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + ".pdf")
+                .filename(syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + getFileExtension(syllabus.getFileType()))
                 .build());
         return ResponseEntity.ok()
                 .headers(headers)
@@ -183,8 +195,8 @@ public class AddSyllabusController {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        String fileName = syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + ".pdf";
+        headers.setContentType(MediaType.parseMediaType(syllabus.getFileType()));
+        String fileName = syllabus.getSyllabusName().replaceAll("[^a-zA-Z0-9.-]", "_") + getFileExtension(syllabus.getFileType());
         headers.setContentDisposition(ContentDisposition.builder("attachment")
                 .filename(fileName)
                 .build());
@@ -192,5 +204,24 @@ public class AddSyllabusController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(syllabus.getFileData());
+    }
+
+    private String getFileExtension(String contentType) {
+        switch (contentType) {
+            case "application/pdf":
+                return ".pdf";
+            case "application/msword":
+                return ".doc";
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                return ".docx";
+            case "text/plain":
+                return ".txt";
+            case "application/vnd.ms-powerpoint":
+                return ".ppt";
+            case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                return ".pptx";
+            default:
+                return "";
+        }
     }
 }

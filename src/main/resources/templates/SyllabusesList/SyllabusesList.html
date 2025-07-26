@@ -53,8 +53,8 @@
             <!-- Upload File -->
             <div class="col-md-3">
                 <label for="uploadFile" class="form-label">Upload File:</label>
-                <input id="uploadFile" class="form-control" type="file" name="uploadFile" required>
-                <div class="text-danger" th:if="${#fields.hasErrors('fileData')}" th:text="'Please select a file to upload.'"></div>
+                <input id="uploadFile" class="form-control" type="file" name="uploadFile" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('fileData')}" th:text="'Please select a valid file to upload.'"></div>
             </div>
         </div>
         <div class="mt-3">

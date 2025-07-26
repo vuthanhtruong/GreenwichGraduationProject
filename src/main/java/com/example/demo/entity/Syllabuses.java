@@ -29,6 +29,9 @@ public class Syllabuses {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Column(name = "file_type")
+    private String fileType; // New field to store MIME type
+
     @Column(name = "FilePath", nullable = true, length = 500)
     private String filePath;
 
