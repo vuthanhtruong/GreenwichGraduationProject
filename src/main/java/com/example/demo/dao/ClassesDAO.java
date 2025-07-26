@@ -14,4 +14,6 @@ public interface ClassesDAO {
     void addClass(Classes c);
     Classes updateClass(String id, Classes classObj);
     void deleteClass(String id);
+    void deleteClassBySubject(Subjects subject);
+    void SetNullWhenDeletingSubject(Subjects subject);
 }

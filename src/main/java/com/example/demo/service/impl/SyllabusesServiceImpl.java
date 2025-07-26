@@ -13,6 +13,11 @@ import java.util.List;
 @Service
 public class SyllabusesServiceImpl implements SyllabusesService {
     @Override
+    public void deleteSyllabusBySubject(Subjects subject) {
+        syllabusesDAO.deleteSyllabusBySubject(subject);
+    }
+
+    @Override
     public Syllabuses getSyllabusById(String syllabusId) {
         return syllabusesDAO.getSyllabusById(syllabusId);
     }

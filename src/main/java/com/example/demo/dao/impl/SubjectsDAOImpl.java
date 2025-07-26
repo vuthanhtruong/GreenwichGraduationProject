@@ -4,7 +4,10 @@ import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Rooms;
 import com.example.demo.entity.Subjects;
+import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.SubjectsService;
+import com.example.demo.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -19,6 +22,8 @@ public class SubjectsDAOImpl implements SubjectsDAO {
     @Override
     public void deleteSubject(String id) {
         Subjects subjects=entityManager.find(Subjects.class, id);
+        syllabusesService.deleteSyllabusBySubject(subjects);
+        classesService.SetNullWhenDeletingSubject(subjects);
         entityManager.remove(subjects);
     }
 
@@ -70,9 +75,13 @@ public class SubjectsDAOImpl implements SubjectsDAO {
     }
 
     private StaffsService staffsService;
+    private SyllabusesService syllabusesService;
+    private ClassesService  classesService;
 
-    public SubjectsDAOImpl(StaffsService staffsService) {
+    public SubjectsDAOImpl(StaffsService staffsService,SyllabusesService syllabusesService,ClassesService  classesService) {
         this.staffsService = staffsService;
+        this.syllabusesService = syllabusesService;
+        this.classesService = classesService;
     }
 
     @Override

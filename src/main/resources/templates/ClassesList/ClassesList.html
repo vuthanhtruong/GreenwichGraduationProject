@@ -92,7 +92,7 @@
                     <label for="editSubjectId" class="form-label">Subject:</label>
                     <select id="editSubjectId" name="subjectId" class="form-control" required>
                         <option value="">Select subject</option>
-                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == editClass.subject.subjectId}"></option>
+                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == editClass?.subject?.subjectId}"></option>
                     </select>
                     <div class="text-danger" th:if="${editErrors != null and editErrors.contains('Subject is required.')}" th:text="'Subject is required.'"></div>
                     <div class="text-danger" th:if="${editErrors != null and editErrors.contains('Invalid subject selected.')}" th:text="'Invalid subject selected.'"></div>
@@ -129,7 +129,7 @@
             <tr th:each="class : ${classes}">
                 <td th:text="${class.getClassId()}"></td>
                 <td th:text="${class.getNameClass()}"></td>
-                <td th:text="${class.getSubject().getSubjectName() + ' ' +class.getSubject().getSubjectId()}"></td>
+                <td th:text="${class?.subject != null} ? ${class.subject.subjectName + ' ' + class.subject.subjectId} : 'N/A'"></td>
                 <td th:text="${class.getSlotQuantity()}"></td>
                 <td>
                     <a class="btn btn-info btn-sm" th:href="@{/classroom/{id}(id=${class.classId})}">

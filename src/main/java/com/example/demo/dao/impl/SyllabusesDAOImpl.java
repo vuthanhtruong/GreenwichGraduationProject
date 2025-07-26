@@ -14,6 +14,15 @@ import java.util.List;
 @Repository
 @Transactional
 public class SyllabusesDAOImpl implements SyllabusesDAO {
+    @Override
+    public void deleteSyllabusBySubject(Subjects subject) {
+        List<Syllabuses> syllabusesList=entityManager.createQuery("select s from Syllabuses s where s.subject=:subject",Syllabuses.class).
+                setParameter("subject",subject).getResultList();
+        for (Syllabuses syllabuses : syllabusesList) {
+            entityManager.remove(syllabuses);
+        }
+    }
+
     private StaffsService staffsService;
 
     public SyllabusesDAOImpl(StaffsService staffsService) {

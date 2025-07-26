@@ -4,6 +4,8 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.ClassesDAO;
 import com.example.demo.entity.Classes;
 import com.example.demo.entity.Majors;
+import com.example.demo.entity.Subjects;
+import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.StaffsService;
@@ -20,6 +22,24 @@ import java.util.List;
 @Repository
 @Transactional
 public class ClassesDAOImpl implements ClassesDAO {
+    @Override
+    public void SetNullWhenDeletingSubject(Subjects subject) {
+        List<Classes> ClassesList=entityManager.createQuery("select s from Classes s where s.subject=:subject",Classes.class).
+                setParameter("subject",subject).getResultList();
+        for (Classes Classes : ClassesList) {
+            Classes.setSubject(null);
+            entityManager.merge(Classes);
+        }
+    }
+
+    @Override
+    public void deleteClassBySubject(Subjects subject) {
+        List<Classes> ClassesList=entityManager.createQuery("select s from Classes s where s.subject=:subject",Classes.class).
+                setParameter("subject",subject).getResultList();
+        for (Classes Classes : ClassesList) {
+            entityManager.remove(Classes);
+        }
+    }
 
     private StaffsService staffsService;
 

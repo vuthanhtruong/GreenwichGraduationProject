@@ -4,12 +4,25 @@ import com.example.demo.dao.ClassesDAO;
 import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Classes;
 import com.example.demo.entity.Majors;
+import com.example.demo.entity.Subjects;
 import com.example.demo.service.ClassesService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class ClassesServiceImpl implements ClassesService {
+
+
+    @Override
+    public void deleteClassBySubject(Subjects subject) {
+        classesDAO.deleteClassBySubject(subject);
+    }
+
+    @Override
+    public void SetNullWhenDeletingSubject(Subjects subject) {
+        classesDAO.SetNullWhenDeletingSubject(subject);
+    }
+
     @Override
     public List<Classes> ClassesByMajor(Majors major) {
         return classesDAO.ClassesByMajor(major);

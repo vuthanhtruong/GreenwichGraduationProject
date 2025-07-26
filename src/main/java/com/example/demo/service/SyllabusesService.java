@@ -10,4 +10,5 @@ public interface SyllabusesService {
     List<Syllabuses> getSyllabusesBySubject(Subjects subject);
     void addSyllabus(Syllabuses syllabus);
     Syllabuses getSyllabusById(String syllabusId);
+    void  deleteSyllabusBySubject(Subjects subject);
 }

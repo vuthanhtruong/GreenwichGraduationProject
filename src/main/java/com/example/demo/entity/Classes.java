@@ -9,18 +9,18 @@ public class Classes {
     @Column(name = "ClassID")
     private String classId;
 
-    @Column(name = "NameClass", nullable = false)
+    @Column(name = "NameClass", nullable = true)
     private String nameClass;
 
     @Column(name = "SlotQuantity")
     private Integer slotQuantity;
 
     @ManyToOne
-    @JoinColumn(name = "SubjectID", nullable = false)
+    @JoinColumn(name = "SubjectID", nullable = true)
     private Subjects subject;
 
     @ManyToOne
-    @JoinColumn(name = "Creator", nullable = false)
+    @JoinColumn(name = "Creator", nullable = true)
     private Staffs creator;
 
     @Column(name = "CreatedAt")
