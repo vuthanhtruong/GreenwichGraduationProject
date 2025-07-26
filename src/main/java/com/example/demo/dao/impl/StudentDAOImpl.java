@@ -7,6 +7,7 @@ import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Students;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
+import com.example.demo.service.StudentsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,6 +23,21 @@ import java.util.List;
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
+    @Override
+    public Students dataStudent() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Students students = entityManager.find(Students.class, username);
+        return students;
+    }
+
+    @Override
+    public Majors getMajors() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Students students = entityManager.find(Students.class, username);
+        return students.getMajor();
+    }
 
     private final JavaMailSenderImpl mailSender;
     private final EmailServiceForStudentService  emailServiceForStudentService;

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.Majors;
 import com.example.demo.entity.Students;
 import jakarta.mail.MessagingException;
 
@@ -13,4 +14,6 @@ public interface StudentsService {
     void updateStudent(String id, Students student) throws MessagingException;
     Students getStudentById(String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
+    Majors getMajors();
+    Students dataStudent();
 }
