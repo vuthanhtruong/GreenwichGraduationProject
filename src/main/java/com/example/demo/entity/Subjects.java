@@ -22,6 +22,9 @@ public class Subjects {
     @Column(name = "Tuition", nullable = true)
     private Double tuition;
 
+    @Column(name = "Semester", nullable = true, length = 50)
+    private String semester;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
