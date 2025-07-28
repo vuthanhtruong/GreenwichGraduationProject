@@ -36,13 +36,6 @@ public class AddSubjectController {
         this.staffsService = staffsService;
     }
 
-    @GetMapping("/major-subjects-list")
-    public String showSubjectsList(Model model) {
-        model.addAttribute("newSubject", new Subjects());
-        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
-        model.addAttribute("semesters", Arrays.asList(Semester.values()));
-        return "SubjectsList";
-    }
 
     @PostMapping("/major-subjects-list/add-subject")
     public String addSubject(
