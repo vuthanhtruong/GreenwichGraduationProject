@@ -6,9 +6,12 @@ import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +24,7 @@ public class ListStudentsController {
 
     public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
     }
 
@@ -69,5 +72,17 @@ public class ListStudentsController {
             model.addAttribute("error", e.getMessage());
             return "error";
         }
+    }
+
+    @GetMapping("/students-list/avatar/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getStudentAvatar(@PathVariable String id) {
+        Students student = studentsService.getStudentById(id);
+        if (student != null && student.getAvatar() != null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG) // Adjust based on your avatar format (JPEG, PNG, etc.)
+                    .body(student.getAvatar());
+        }
+        return ResponseEntity.notFound().build();
     }
 }

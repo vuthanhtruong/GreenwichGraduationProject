@@ -1,10 +1,14 @@
 package com.example.demo.controller.Add;
 
+import com.example.demo.entity.Gender;
 import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
+import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,8 +16,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,16 +34,21 @@ public class AddStudentController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
+    private final ResourceLoader resourceLoader;
+    private final PersonsService personsService;
 
-    public AddStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public AddStudentController(StaffsService staffsService, LecturesService lecturesService,
+                                StudentsService studentsService, ResourceLoader resourceLoader, PersonsService personsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
+        this.resourceLoader = resourceLoader;
+        this.personsService = personsService;
     }
 
     @GetMapping("/add-student")
     public String showAddStudentPage(Model model) {
-        model.addAttribute("student", new Students()); // Add a new Students object to the model
+        model.addAttribute("student", new Students());
         return "AddStudent";
     }
 
@@ -44,13 +56,14 @@ public class AddStudentController {
     public String addStudent(
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         List<String> errors = new ArrayList<>();
 
         // Perform all validations
-        validateStudent(student, bindingResult, errors);
+        validateStudent(student, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
@@ -60,19 +73,30 @@ public class AddStudentController {
         try {
             String randomPassword = generateRandomPassword(12);
             student.setPassword(randomPassword);
-            String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId(), student.getCreatedDate());
+            String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId(),
+                    student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
+
+            // Handle avatar upload
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                byte[] avatarBytes = avatarFile.getBytes();
+                student.setAvatar(avatarBytes);
+            }
+
             studentsService.addStudents(student, randomPassword);
             redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
             return "redirect:/staff-home/students-list";
+        } catch (IOException e) {
+            errors.add("Failed to process avatar: " + e.getMessage());
+            model.addAttribute("errors", errors);
+            return "AddStudent";
         } catch (Exception e) {
             errors.add("An error occurred while adding the student: " + e.getMessage());
             model.addAttribute("errors", errors);
             return "AddStudent";
         }
     }
-
-    private void validateStudent(Students student, BindingResult bindingResult, List<String> errors) {
+    private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -87,11 +111,11 @@ public class AddStudentController {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (student.getEmail() != null && staffsService.existsByEmail(student.getEmail())) {
+        if (student.getEmail() != null && personsService.existsByEmail(student.getEmail())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (student.getPhoneNumber() != null && staffsService.existsByPhoneNumber(student.getPhoneNumber())) {
+        if (student.getPhoneNumber() != null && personsService.existsByPhoneNumber(student.getPhoneNumber())) {
             errors.add("The phone number is already associated with another account.");
         }
 
@@ -106,10 +130,26 @@ public class AddStudentController {
         if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
+
+        // Validate avatar file
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (!contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
+        }
+
+        // Ensure gender is provided for default avatar
+        if (student.getGender() == null) {
+            errors.add("Gender is required to assign a default avatar.");
+        }
     }
 
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.)[A-Za-z0-9-]+$";
         return email != null && email.matches(emailRegex);
     }
 
@@ -179,26 +219,15 @@ public class AddStudentController {
                 break;
         }
 
-        // Extract year (last two digits) and date (MMdd) from createdDate
-        String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2021 -> 21
-        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., April 23 -> 0423
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
 
         String studentId;
         SecureRandom random = new SecureRandom();
         do {
-            // Generate 1 random digit to make total length 10 (3 prefix + 2 year + 4 date + 1 random)
             String randomDigit = String.valueOf(random.nextInt(10));
             studentId = prefix + year + date + randomDigit;
-        } while (staffsService.existsPersonById(studentId));
+        } while (personsService.existsPersonById(studentId));
         return studentId;
-    }
-
-    private String generateRandomDigits(int length) {
-        SecureRandom random = new SecureRandom();
-        StringBuilder digits = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            digits.append(random.nextInt(10));
-        }
-        return digits.toString();
     }
 }

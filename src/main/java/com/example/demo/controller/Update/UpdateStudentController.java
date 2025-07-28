@@ -1,9 +1,14 @@
 package com.example.demo.controller.Update;
+
+import com.example.demo.entity.Gender;
 import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
+import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,10 +17,13 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -24,17 +32,27 @@ public class UpdateStudentController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
+    private final ResourceLoader resourceLoader;
+    private final PersonsService personsService;
 
-    public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService,
+                                   StudentsService studentsService, ResourceLoader resourceLoader, PersonsService personsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
+        this.resourceLoader = resourceLoader;
+        this.personsService = personsService;
     }
+
     @PostMapping("/edit-student-form")
     public String handleEditStudentPost(@RequestParam String id, Model model) {
         Students student = studentsService.getStudentById(id);
+        if (student == null) {
+            return "redirect:/staff-home/students-list?error=Student+not+found";
+        }
         model.addAttribute("student", student);
         model.addAttribute("majors", staffsService.getMajors());
+        model.addAttribute("genders", Arrays.asList(Gender.values()));
         return "EditStudentForm";
     }
 
@@ -42,7 +60,9 @@ public class UpdateStudentController {
     public String updateStudent(
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes, ModelMap modelMap) {
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            RedirectAttributes redirectAttributes,
+            ModelMap modelMap) {
 
         // Check if user is authenticated
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -53,22 +73,41 @@ public class UpdateStudentController {
 
         // Validate student data
         List<String> errors = new ArrayList<>();
-        validateStudent(student, bindingResult, errors);
+        validateStudent(student, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
-            return "EditLectureForm";
+            modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
+            modelMap.addAttribute("majors", staffsService.getMajors());
+            return "EditStudentForm";
         }
 
         try {
             // Check if student exists
-            if (!staffsService.existsPersonById(student.getId())) {
-                redirectAttributes.addFlashAttribute("error", "Student with ID " + student.getId() + " not found.");
+            if (!personsService.existsPersonById(student.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Person with ID " + student.getId() + " not found.");
                 return "redirect:/staff-home/students-list";
             }
+
+            // Handle avatar upload
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                byte[] avatarBytes = avatarFile.getBytes();
+                student.setAvatar(avatarBytes);
+            } else {
+                // Retain existing avatar
+                Students existingStudent = studentsService.getStudentById(student.getId());
+                student.setAvatar(existingStudent.getAvatar());
+            }
+
             // Update student
             studentsService.updateStudent(student.getId(), student);
             redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
+        } catch (IOException e) {
+            errors.add("Failed to process avatar: " + e.getMessage());
+            modelMap.addAttribute("errors", errors);
+            modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
+            modelMap.addAttribute("majors", staffsService.getMajors());
+            return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
         } catch (Exception e) {
@@ -78,7 +117,7 @@ public class UpdateStudentController {
         return "redirect:/staff-home/students-list";
     }
 
-    private void validateStudent(Students student, BindingResult bindingResult, List<String> errors) {
+    private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -105,12 +144,23 @@ public class UpdateStudentController {
             errors.add("Date of birth must be in the past.");
         }
 
+        // Validate avatar file
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (!contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
+        }
+
         // Check for duplicate email/phone (excluding current student)
-        if (student.getEmail() != null && staffsService.existsByEmailExcludingId(student.getEmail(), student.getId())) {
+        if (student.getEmail() != null && personsService.existsByEmailExcludingId(student.getEmail(), student.getId())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (student.getPhoneNumber() != null && staffsService.existsByPhoneNumberExcludingId(student.getPhoneNumber(), student.getId())) {
+        if (student.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(student.getPhoneNumber(), student.getId())) {
             errors.add("The phone number is already associated with another account.");
         }
     }

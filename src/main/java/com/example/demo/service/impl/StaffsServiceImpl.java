@@ -19,31 +19,6 @@ import java.util.List;
 public class StaffsServiceImpl implements StaffsService {
 
     @Override
-    public boolean existsByPhoneNumberExcludingId(String phoneNumber, String id) {
-        return staffsDAO.existsByPhoneNumberExcludingId(phoneNumber, id);
-    }
-
-    @Override
-    public boolean existsByEmailExcludingId(String email, String id) {
-        return staffsDAO.existsByEmailExcludingId(email, id);
-    }
-
-    @Override
-    public boolean existsPersonById(String id) {
-        return staffsDAO.existsPersonById(id);
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return staffsDAO.existsByEmail(email);
-    }
-
-    @Override
-    public boolean existsByPhoneNumber(String phoneNumber) {
-        return staffsDAO.existsByPhoneNumber(phoneNumber);
-    }
-
-    @Override
     public Majors getMajors() {
         return staffsDAO.getMajors();
     }

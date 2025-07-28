@@ -1,14 +1,20 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.EmailServiceForStudentDAO;
+import com.example.demo.entity.Gender;
 import com.example.demo.entity.Students;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
+
+import java.util.Base64;
+import java.io.IOException;
 
 @Repository
 public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO {
@@ -16,7 +22,35 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     @Autowired
     private JavaMailSender mailSender;
 
-    private String generateEmailTemplate(Students student, String title, String subtitle, String mainMessage, boolean includeCredentials, String studentId, String rawPassword) {
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    private String getAvatarBase64(Students student) throws IOException {
+        if (student.getAvatar() != null) {
+            // Encode the student's avatar as Base64
+            return Base64.getEncoder().encodeToString(student.getAvatar());
+        } else {
+            // Use default avatar based on gender
+            String defaultAvatarPath = student.getGender() == Gender.MALE ?
+                    "classpath:static/DefaultAvatar/Student_Boy.png" :
+                    "classpath:static/DefaultAvatar/Student_Girl.png";
+            Resource resource = resourceLoader.getResource(defaultAvatarPath);
+            return Base64.getEncoder().encodeToString(resource.getInputStream().readAllBytes());
+        }
+    }
+
+    private String generateEmailTemplate(Students student, String title, String subtitle, String mainMessage,
+                                         boolean includeCredentials, String studentId, String rawPassword) {
+        String avatarBase64;
+        try {
+            avatarBase64 = getAvatarBase64(student);
+        } catch (IOException e) {
+            // Fallback to a placeholder if avatar loading fails
+            avatarBase64 = "";
+        }
+
+        String avatarMimeType = student.getAvatar() != null ? "image/jpeg" : "image/png"; // Adjust based on your avatar format
+
         return String.format(
                 "<html>" +
                         "<head>" +
@@ -31,6 +65,7 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                         ".university-logo { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 15px; }" +
                         ".header h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.5px; }" +
                         ".header p { font-size: 16px; opacity: 0.9; font-weight: 300; }" +
+                        ".avatar-img { width: 100px; height: 100px; object-fit: cover; border-radius: 50%%; margin: 20px auto; display: block; border: 2px solid #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }" +
                         ".content { padding: 40px 30px; }" +
                         ".welcome-message { text-align: center; margin-bottom: 35px; }" +
                         ".welcome-message h2 { color: #2c3e50; font-size: 24px; margin-bottom: 12px; font-weight: 600; }" +
@@ -83,18 +118,19 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                         "<div class='content'>" +
                         "<div class='welcome-message'>" +
                         "<h2>Hello %s!</h2>" +
+                        "<img class='avatar-img' src='data:%s;base64,%s' alt='Student Avatar' />" +
                         "<p>%s</p>" +
                         "</div>" +
-                        "%s" + // Credentials section (optional)
+                        "%s" +
                         "<div class='alert-box'>" +
                         "<div class='alert-title'>⚠️ Important %s</div>" +
                         "<div class='alert-content'>" +
                         "<ul>" +
-                        "%s" + // Alert items
+                        "%s" +
                         "</ul>" +
                         "</div>" +
                         "</div>" +
-                        "%s" + // Next steps (optional)
+                        "%s" +
                         "<div class='info-section'>" +
                         "<div class='info-card'>" +
                         "<h3>👤 Personal Information</h3>" +
@@ -149,6 +185,8 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                 title,
                 subtitle,
                 student.getFullName(),
+                avatarMimeType,
+                avatarBase64,
                 mainMessage,
                 includeCredentials ?
                         "<div class='credentials-section'>" +

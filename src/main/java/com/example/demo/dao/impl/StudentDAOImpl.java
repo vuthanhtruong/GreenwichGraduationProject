@@ -111,14 +111,6 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
 
-        // Validate required fields
-        if (student.getEmail() == null) {
-            throw new IllegalArgumentException("Email cannot be null");
-        }
-        if (student.getPhoneNumber() == null) {
-            throw new IllegalArgumentException("Phone number cannot be null");
-        }
-
         // Update fields from Persons (only if non-null)
         if (student.getFirstName() != null) {
             existingStudent.setFirstName(student.getFirstName());
@@ -126,8 +118,12 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student.getLastName() != null) {
             existingStudent.setLastName(student.getLastName());
         }
-        existingStudent.setEmail(student.getEmail()); // Required field
-        existingStudent.setPhoneNumber(student.getPhoneNumber()); // Required field
+        if (student.getEmail() != null) {
+            existingStudent.setEmail(student.getEmail());
+        }
+        if (student.getPhoneNumber() != null) {
+            existingStudent.setPhoneNumber(student.getPhoneNumber());
+        }
         if (student.getBirthDate() != null) {
             existingStudent.setBirthDate(student.getBirthDate());
         }
@@ -161,6 +157,9 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student.getPostalCode() != null) {
             existingStudent.setPostalCode(student.getPostalCode());
         }
+        if (student.getAvatar() != null) {
+            existingStudent.setAvatar(student.getAvatar());
+        }
 
         // Update Students-specific fields (only if non-null)
         if (student.getMisId() != null) {
@@ -178,7 +177,8 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student.getPassword() != null && !student.getPassword().isEmpty()) {
             existingStudent.setPassword(student.getPassword());
         }
-        if(entityManager.merge(existingStudent)!=null) {
+
+        if (entityManager.merge(existingStudent) != null) {
             String subject = "Your student account information after being edited";
             emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
         }

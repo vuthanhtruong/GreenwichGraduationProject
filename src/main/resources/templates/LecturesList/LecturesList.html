@@ -56,6 +56,7 @@
                 <thead class="table-dark">
                 <tr class="text-center">
                     <th>lecture ID</th>
+                    <th>Avatar</th>
                     <th>Full Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
@@ -68,6 +69,12 @@
                 <tbody>
                 <tr th:each="lecture : ${teachers}">
                     <td class="text-center" th:text="${lecture.getId()}"></td>
+                    <td class="text-center">
+                        <img class="avatar-img"
+                             th:src="${lecture.avatar != null} ? ${'data:image/jpeg;base64,' + #strings.toString(lecture.avatar)} :
+                                      (${lecture.gender.name() == 'MALE'} ? '@{/DefaultAvatar/Teacher_Male.png}' : '@{/DefaultAvatar/Teacher_Female.png}')"
+                             alt="Lecture Avatar"/>
+                    </td>
                     <td th:text="${lecture.getFirstName() + ' ' + lecture.getLastName()}"></td>
                     <td th:text="${lecture.getEmail()}"></td>
                     <td class="text-center" th:text="${lecture.getPhoneNumber()}"></td>

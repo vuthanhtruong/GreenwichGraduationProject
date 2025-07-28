@@ -2,6 +2,7 @@ package com.example.demo.controller.Update;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.service.LecturesService;
+import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -25,15 +27,17 @@ public class UpdateLectureController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
+    private final PersonsService personsService;
 
-    public UpdateLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public UpdateLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
+        this.personsService = personsService;
     }
 
     @PostMapping("/edit-lecture-form")
-    public String handleEditlecturePost(@RequestParam String id, Model model) {
+    public String handleEditLecturePost(@RequestParam String id, Model model) {
         Lecturers lecture = lecturesService.getLecturerById(id);
         model.addAttribute("lecture", lecture);
         model.addAttribute("majors", staffsService.getMajors());
@@ -41,9 +45,10 @@ public class UpdateLectureController {
     }
 
     @PutMapping("/edit-lecture-form")
-    public String updatelecture(
+    public String updateLecture(
             @Valid @ModelAttribute("lecture") Lecturers lecture,
             BindingResult bindingResult,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
             RedirectAttributes redirectAttributes,
             ModelMap modelMap) {
 
@@ -56,7 +61,7 @@ public class UpdateLectureController {
 
         // Validate lecture data
         List<String> errors = new ArrayList<>();
-        validatelecture(lecture, bindingResult, errors);
+        validateLecture(lecture, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
@@ -66,13 +71,23 @@ public class UpdateLectureController {
 
         try {
             // Check if lecture exists
-            if (!staffsService.existsPersonById(lecture.getId())) {
-                redirectAttributes.addFlashAttribute("error", "lecture with ID " + lecture.getId() + " not found.");
+            if (!personsService.existsPersonById(lecture.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Lecture with ID " + lecture.getId() + " not found.");
                 return "redirect:/staff-home/lectures-list";
             }
+
+            // Handle avatar update
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                lecture.setAvatar(avatarFile.getBytes());
+            } else {
+                // Retain existing avatar if no new file is uploaded
+                Lecturers existingLecture = lecturesService.getLecturerById(lecture.getId());
+                lecture.setAvatar(existingLecture.getAvatar());
+            }
+
             // Update lecture
             lecturesService.updateLecturer(lecture.getId(), lecture);
-            redirectAttributes.addFlashAttribute("successMessage", "lecture updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Lecture updated successfully!");
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating lecture: " + e.getMessage());
         } catch (Exception e) {
@@ -82,7 +97,7 @@ public class UpdateLectureController {
         return "redirect:/staff-home/lectures-list";
     }
 
-    private void validatelecture(Lecturers lecture, BindingResult bindingResult, List<String> errors) {
+    private void validateLecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -108,13 +123,24 @@ public class UpdateLectureController {
         if (lecture.getBirthDate() != null && lecture.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
+
         // Check for duplicate email/phone (excluding current lecture)
-        if (lecture.getEmail() != null && staffsService.existsByEmailExcludingId(lecture.getEmail(), lecture.getId())) {
+        if (lecture.getEmail() != null && personsService.existsByEmailExcludingId(lecture.getEmail(), lecture.getId())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (lecture.getPhoneNumber() != null && staffsService.existsByPhoneNumberExcludingId(lecture.getPhoneNumber(), lecture.getId())) {
+        if (lecture.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(lecture.getPhoneNumber(), lecture.getId())) {
             errors.add("The phone number is already associated with another account.");
+        }
+
+        // Validate avatar file
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file (e.g., JPEG, PNG).");
+            } else if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
         }
     }
 

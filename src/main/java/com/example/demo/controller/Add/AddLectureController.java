@@ -3,6 +3,7 @@ package com.example.demo.controller.Add;
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.LecturesService;
+import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.SecureRandom;
@@ -28,55 +31,63 @@ public class AddLectureController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
+    private final PersonsService personsService;
 
-    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
+        this.personsService = personsService;
     }
 
     @GetMapping("/add-lecture")
-    public String showAddlecturePage(Model model) {
-        model.addAttribute("lecture", new Staffs());
+    public String showAddLecturePage(Model model) {
+        model.addAttribute("lecture", new Lecturers());
         model.addAttribute("majors", staffsService.getMajors());
         return "AddLecture";
     }
 
     @PostMapping("/add-lecture")
-    public String addlecture(
+    public String addLecture(
             @Valid @ModelAttribute("lecture") Lecturers lecture,
             BindingResult bindingResult,
+            @RequestParam("avatar") MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         List<String> errors = new ArrayList<>();
 
         // Perform all validations
-        validatelecture(lecture, bindingResult, errors);
+        validateLecture(lecture, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getMajors());
-            return "Addlecture";
+            return "AddLecture";
         }
 
         try {
+            // Handle avatar upload
+            if (!avatarFile.isEmpty()) {
+                lecture.setAvatar(avatarFile.getBytes());
+            }
+
             String randomPassword = generateRandomPassword(12);
             lecture.setPassword(randomPassword);
-            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
+            String lectureId = generateUniqueLectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
             lecture.setId(lectureId);
             lecturesService.addLecturers(lecture, randomPassword);
-            redirectAttributes.addFlashAttribute("successMessage", "lecture added successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
             return "redirect:/staff-home/lectures-list";
         } catch (Exception e) {
             errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getMajors());
-            return "Addlecture";
+            return "AddLecture";
         }
     }
 
-    private void validatelecture(Lecturers lecture, BindingResult bindingResult, List<String> errors) {
+    private void validateLecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -91,11 +102,11 @@ public class AddLectureController {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (lecture.getEmail() != null && staffsService.existsByEmail(lecture.getEmail())) {
+        if (lecture.getEmail() != null && personsService.existsByEmail(lecture.getEmail())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (lecture.getPhoneNumber() != null && staffsService.existsByPhoneNumber(lecture.getPhoneNumber())) {
+        if (lecture.getPhoneNumber() != null && personsService.existsByPhoneNumber(lecture.getPhoneNumber())) {
             errors.add("The phone number is already associated with another account.");
         }
 
@@ -109,6 +120,16 @@ public class AddLectureController {
 
         if (lecture.getBirthDate() != null && lecture.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
+        }
+
+        // Validate avatar file
+        if (!avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file (e.g., JPEG, PNG).");
+            } else if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
         }
     }
 
@@ -163,7 +184,7 @@ public class AddLectureController {
                 .collect(Collectors.joining());
     }
 
-    private String generateUniquelectureId(String majorId, LocalDate createdDate) {
+    private String generateUniqueLectureId(String majorId, LocalDate createdDate) {
         String prefix;
         switch (majorId) {
             case "major001":
@@ -182,17 +203,15 @@ public class AddLectureController {
                 prefix = "TGN";
                 break;
         }
-        // Extract year (last two digits) and date (MMdd) from createdDate
-        String year = String.format("%02d", createdDate.getYear() % 100); // e.g., 2025 -> 25
-        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth()); // e.g., July 23 -> 0723
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
 
         String lectureId;
         SecureRandom random = new SecureRandom();
         do {
-            // Generate 1 random digit to make total length 10 (3 prefix + 2 year + 4 date + 1 random)
             String randomDigit = String.valueOf(random.nextInt(10));
             lectureId = prefix + year + date + randomDigit;
-        } while (staffsService.existsPersonById(lectureId));
+        } while (personsService.existsPersonById(lectureId));
         return lectureId;
     }
 }

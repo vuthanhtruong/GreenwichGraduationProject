@@ -50,27 +50,37 @@ public class Persons {
     private String voiceData;
 
     @Column(name = "Country", nullable = true, length = 100)
-    private String country; // Country
+    private String country;
 
     @Column(name = "Province", nullable = true, length = 100)
-    private String province; // Tỉnh/Bang
+    private String province;
 
     @Column(name = "City", nullable = true, length = 100)
-    private String city; // Thành phố
+    private String city;
 
     @Column(name = "District", nullable = true, length = 100)
-    private String district; // Quận/Huyện
+    private String district;
 
     @Column(name = "Ward", nullable = true, length = 100)
-    private String ward; // Xã/Phường
+    private String ward;
 
     @Column(name = "Street", nullable = true, length = 255)
-    private String street; // Đường, số nhà
+    private String street;
 
     @Column(name = "PostalCode", nullable = true, length = 20)
-    private String postalCode; // Mã bưu điện
+    private String postalCode;
+
+    @Lob
+    @Column(name = "Avatar", nullable = true, columnDefinition = "LONGBLOB")
+    private byte[] avatar;
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+    }
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null; // Avatar exists, no default needed
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Student_Boy.png" : "/DefaultAvatar/Student_Girl.png";
     }
 }
