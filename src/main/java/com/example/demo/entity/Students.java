@@ -45,5 +45,10 @@ public class Students extends Persons{
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
     }
-
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null; // Avatar exists, no default needed
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Student_Boy.png" : "/DefaultAvatar/Student_Girl.png";
+    }
 }

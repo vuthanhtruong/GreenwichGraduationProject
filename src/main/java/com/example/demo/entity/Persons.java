@@ -77,10 +77,5 @@ public class Persons {
     public String getFullName() {
         return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
     }
-    public String getDefaultAvatarPath() {
-        if (getAvatar() != null) {
-            return null; // Avatar exists, no default needed
-        }
-        return getGender() == Gender.MALE ? "/DefaultAvatar/Student_Boy.png" : "/DefaultAvatar/Student_Girl.png";
-    }
+
 }

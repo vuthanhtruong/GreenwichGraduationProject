@@ -104,7 +104,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getPhoneNumber() == null) {
             throw new IllegalArgumentException("Phone number cannot be null");
         }
-
         // Update fields from Persons (only if non-null)
         if (lecturer.getFirstName() != null) {
             existingLecturer.setFirstName(lecturer.getFirstName());
@@ -112,8 +111,12 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getLastName() != null) {
             existingLecturer.setLastName(lecturer.getLastName());
         }
-        existingLecturer.setEmail(lecturer.getEmail()); // Required field
-        existingLecturer.setPhoneNumber(lecturer.getPhoneNumber()); // Required field
+        if(lecturer.getEmail() != null) {
+            existingLecturer.setEmail(lecturer.getEmail());
+        }
+        if(lecturer.getPhoneNumber() != null) {
+            existingLecturer.setPhoneNumber(lecturer.getPhoneNumber());
+        }
         if (lecturer.getBirthDate() != null) {
             existingLecturer.setBirthDate(lecturer.getBirthDate());
         }
@@ -158,6 +161,9 @@ public class LecturesDAOImpl implements LecturesDAO {
         }
         if (lecturer.getPassword() != null && !lecturer.getPassword().isEmpty()) {
             existingLecturer.setPassword(lecturer.getPassword());
+        }
+        if (lecturer.getAvatar() != null) {
+            existingLecturer.setAvatar(lecturer.getAvatar());
         }
         entityManager.merge(existingLecturer);
         String subject = "Your lecturer account information after being edited";

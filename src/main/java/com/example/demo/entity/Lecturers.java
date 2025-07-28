@@ -34,4 +34,10 @@ public class Lecturers extends Employes {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
     }
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null; // Avatar exists, no default needed
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
+    }
 }

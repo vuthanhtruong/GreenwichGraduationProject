@@ -5,6 +5,14 @@
     <title>Your lectures List</title>
     <link rel="stylesheet" th:href="@{/StudentsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .avatar-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-4">
@@ -70,10 +78,10 @@
                 <tr th:each="lecture : ${teachers}">
                     <td class="text-center" th:text="${lecture.getId()}"></td>
                     <td class="text-center">
-                        <img class="avatar-img"
-                             th:src="${lecture.avatar != null} ? ${'data:image/jpeg;base64,' + #strings.toString(lecture.avatar)} :
-                                      (${lecture.gender.name() == 'MALE'} ? '@{/DefaultAvatar/Teacher_Male.png}' : '@{/DefaultAvatar/Teacher_Female.png}')"
-                             alt="Lecture Avatar"/>
+                        <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecture.id}}"
+                             class="avatar-img" alt="lecture Avatar"/>
+                        <img th:if="${lecture.avatar == null}" th:src="${lecture.defaultAvatarPath}"
+                             class="avatar-img" alt="Default Avatar"/>
                     </td>
                     <td th:text="${lecture.getFirstName() + ' ' + lecture.getLastName()}"></td>
                     <td th:text="${lecture.getEmail()}"></td>

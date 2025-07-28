@@ -2,15 +2,16 @@ package com.example.demo.controller.Read;
 
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.Staffs;
+import com.example.demo.entity.Students;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,5 +73,16 @@ public class ListLecturesController {
             model.addAttribute("error", e.getMessage());
             return "error";
         }
+    }
+    @GetMapping("/lectures-list/avatar/{id}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getlectureAvatar(@PathVariable String id) {
+        Lecturers lectures = lecturesService.getLecturerById(id);
+        if (lectures != null && lectures.getAvatar() != null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG) // Adjust based on your avatar format (JPEG, PNG, etc.)
+                    .body(lectures.getAvatar());
+        }
+        return ResponseEntity.notFound().build();
     }
 }

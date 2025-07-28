@@ -64,14 +64,6 @@ public class UpdateStudentController {
             RedirectAttributes redirectAttributes,
             ModelMap modelMap) {
 
-        // Check if user is authenticated
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userDetails == null) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized access.");
-            return "redirect:/staff-home/students-list";
-        }
-
-        // Validate student data
         List<String> errors = new ArrayList<>();
         validateStudent(student, bindingResult, avatarFile, errors);
 

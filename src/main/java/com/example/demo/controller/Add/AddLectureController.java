@@ -1,7 +1,6 @@
 package com.example.demo.controller.Add;
 
 import com.example.demo.entity.Lecturers;
-import com.example.demo.entity.Staffs;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
@@ -10,14 +9,11 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,45 +37,53 @@ public class AddLectureController {
     }
 
     @GetMapping("/add-lecture")
-    public String showAddLecturePage(Model model) {
-        model.addAttribute("lecture", new Lecturers());
+    public String showAddlecturePage(Model model) {
+        model.addAttribute("lecture", new Lecturers()); // Fixed: Use Lecturers instead of Staffs
         model.addAttribute("majors", staffsService.getMajors());
         return "AddLecture";
     }
 
     @PostMapping("/add-lecture")
-    public String addLecture(
+    public String addlecture(
             @Valid @ModelAttribute("lecture") Lecturers lecture,
             BindingResult bindingResult,
-            @RequestParam("avatar") MultipartFile avatarFile,
+            @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         List<String> errors = new ArrayList<>();
-
         // Perform all validations
-        validateLecture(lecture, bindingResult, avatarFile, errors);
+        validatelecture(lecture, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getMajors());
             return "AddLecture";
         }
 
         try {
-            // Handle avatar upload
-            if (!avatarFile.isEmpty()) {
-                lecture.setAvatar(avatarFile.getBytes());
-            }
-
             String randomPassword = generateRandomPassword(12);
             lecture.setPassword(randomPassword);
-            String lectureId = generateUniqueLectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
+            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
             lecture.setId(lectureId);
+
+            // Handle avatar upload
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                byte[] avatarBytes = avatarFile.getBytes();
+                lecture.setAvatar(avatarBytes);
+                System.out.println("Avatar bytes set: " + avatarBytes.length);
+            }
+
             lecturesService.addLecturers(lecture, randomPassword);
             redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
             return "redirect:/staff-home/lectures-list";
+        } catch (IOException e) {
+            System.err.println("IOException during avatar processing: " + e.getMessage());
+            errors.add("Failed to process avatar: " + e.getMessage());
+            model.addAttribute("errors", errors);
+            model.addAttribute("majors", staffsService.getMajors());
+            return "AddLecture";
         } catch (Exception e) {
+            System.err.println("Error adding lecture: " + e.getMessage());
             errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getMajors());
@@ -87,7 +91,7 @@ public class AddLectureController {
         }
     }
 
-    private void validateLecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
+    private void validatelecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -123,11 +127,12 @@ public class AddLectureController {
         }
 
         // Validate avatar file
-        if (!avatarFile.isEmpty()) {
+        if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                errors.add("Avatar must be an image file (e.g., JPEG, PNG).");
-            } else if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+            if (!contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
                 errors.add("Avatar file size must not exceed 5MB.");
             }
         }
@@ -184,7 +189,7 @@ public class AddLectureController {
                 .collect(Collectors.joining());
     }
 
-    private String generateUniqueLectureId(String majorId, LocalDate createdDate) {
+    private String generateUniquelectureId(String majorId, LocalDate createdDate) {
         String prefix;
         switch (majorId) {
             case "major001":

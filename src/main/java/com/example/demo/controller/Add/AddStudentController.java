@@ -149,7 +149,7 @@ public class AddStudentController {
     }
 
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.)[A-Za-z0-9-]+$";
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return email != null && email.matches(emailRegex);
     }
 

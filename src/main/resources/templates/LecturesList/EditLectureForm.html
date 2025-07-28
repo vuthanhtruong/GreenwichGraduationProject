@@ -12,9 +12,7 @@
             height: 100px;
             object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #ffffff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -32,17 +30,19 @@
         <input type="hidden" name="_method" value="put"/>
         <input type="hidden" th:field="*{id}"/>
 
-        <!-- Avatar Display and Upload -->
+        <!-- Current Avatar -->
         <div class="mb-3 text-center">
-            <label class="form-label">Current Avatar:</label>
-            <div>
-                <img class="avatar-img"
-                     th:src="${lecture.avatar != null} ? 'data:image/jpeg;base64,' + ${#strings.toString(lecture.avatar)} : (${lecture.gender} == T(com.example.demo.entity.Gender).MALE ? '/DefaultAvatar/Teacher_Male.png' : '/DefaultAvatar/Teacher_Female.png')"
-                     alt="Lecture Avatar"/>
-            </div>
-            <label for="avatar" class="form-label">Upload New Avatar:</label>
-            <input id="avatar" class="form-control" type="file" name="avatar" accept="image/*">
-            <small class="form-text text-muted">Upload an image (JPEG, PNG, max 5MB). Leave blank to keep current avatar.</small>
+            <label class="form-label">Current Avatar:</label><br/>
+            <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecture.id}}"
+                 class="avatar-img" alt="Lecture Avatar"/>
+            <img th:if="${lecture.avatar == null}" th:src="${lecture.defaultAvatarPath}"
+                 class="avatar-img" alt="Default Avatar"/>
+        </div>
+
+        <!-- Avatar Upload -->
+        <div class="mb-3">
+            <label for="avatarFile" class="form-label">Upload New Avatar (Optional):</label>
+            <input id="avatarFile" class="form-control" type="file" name="avatarFile" accept="image/*"/>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Avatar')}" th:text="${error}"></div>
         </div>
 
@@ -94,7 +94,7 @@
                 <option th:each="g : ${T(com.example.demo.entity.Gender).values()}"
                         th:value="${g}"
                         th:text="${g}"
-                        th:selected="${gender != null and g.name() == gender.name()}">
+                        th:selected="${g == lecture.gender}">
                 </option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
