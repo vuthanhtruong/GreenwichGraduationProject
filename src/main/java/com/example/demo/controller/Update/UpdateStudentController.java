@@ -6,6 +6,7 @@ import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -62,7 +63,7 @@ public class UpdateStudentController {
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             RedirectAttributes redirectAttributes,
-            ModelMap modelMap) {
+            ModelMap modelMap, HttpSession httpSession) {
 
         List<String> errors = new ArrayList<>();
         validateStudent(student, bindingResult, avatarFile, errors);
@@ -71,6 +72,7 @@ public class UpdateStudentController {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("majors", staffsService.getMajors());
+            httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/"+student.getId());
             return "EditStudentForm";
         }
 
@@ -78,6 +80,7 @@ public class UpdateStudentController {
             // Check if student exists
             if (!personsService.existsPersonById(student.getId())) {
                 redirectAttributes.addFlashAttribute("error", "Person with ID " + student.getId() + " not found.");
+                httpSession.removeAttribute("avatarStudent");
                 return "redirect:/staff-home/students-list";
             }
 

@@ -6,6 +6,7 @@ import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -58,7 +59,8 @@ public class AddStudentController {
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) { // Thêm HttpSession
 
         List<String> errors = new ArrayList<>();
 
@@ -67,6 +69,15 @@ public class AddStudentController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            // Lưu avatarFile vào session nếu có
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    session.setAttribute("tempAvatar", avatarFile.getBytes());
+                    session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
+                } catch (IOException e) {
+                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                }
+            }
             return "AddStudent";
         }
 
@@ -81,9 +92,15 @@ public class AddStudentController {
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 byte[] avatarBytes = avatarFile.getBytes();
                 student.setAvatar(avatarBytes);
+            } else if (session.getAttribute("tempAvatar") != null) {
+                // Sử dụng avatar từ session nếu không có file mới
+                student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
 
             studentsService.addStudents(student, randomPassword);
+            // Xóa dữ liệu tạm sau khi lưu thành công
+            session.removeAttribute("tempAvatar");
+            session.removeAttribute("tempAvatarName");
             redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
             return "redirect:/staff-home/students-list";
         } catch (IOException e) {
@@ -96,6 +113,7 @@ public class AddStudentController {
             return "AddStudent";
         }
     }
+
     private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {

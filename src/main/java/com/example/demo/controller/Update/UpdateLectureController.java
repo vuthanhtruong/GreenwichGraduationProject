@@ -6,6 +6,7 @@ import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -54,6 +56,7 @@ public class UpdateLectureController {
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
+            HttpSession session,
             ModelMap modelMap) {
 
         List<String> errors = new ArrayList<>();
@@ -64,6 +67,7 @@ public class UpdateLectureController {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("majors", staffsService.getMajors());
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
+            session.setAttribute("avatarLecture", "/staff-home/lectures-list/avatar/"+lecture.getId());
             return "EditLectureForm";
         }
 
@@ -71,13 +75,13 @@ public class UpdateLectureController {
             // Check if lecture exists
             if (!personsService.existsPersonById(lecture.getId())) {
                 redirectAttributes.addFlashAttribute("error", "Lecture with ID " + lecture.getId() + " not found.");
+                session.removeAttribute("avatar");
                 return "redirect:/staff-home/lectures-list";
             }
             // Handle avatar upload
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 byte[] avatarBytes = avatarFile.getBytes();
                 lecture.setAvatar(avatarBytes);
-                System.out.println("Avatar bytes set: " + avatarBytes.length);
             } else {
                 // Retain existing avatar
                 Lecturers existingLecture = lecturesService.getLecturerById(lecture.getId());

@@ -5,6 +5,7 @@ import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,21 +50,34 @@ public class AddLectureController {
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
         List<String> errors = new ArrayList<>();
         // Perform all validations
         validatelecture(lecture, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
+            System.out.println("Validation errors: " + errors);
             model.addAttribute("errors", errors);
+            model.addAttribute("majors", staffsService.getMajors());
+            // Lưu avatarFile vào session nếu có
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    session.setAttribute("tempAvatar", avatarFile.getBytes());
+                    session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
+                } catch (IOException e) {
+                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                }
+            }
             return "AddLecture";
         }
 
         try {
             String randomPassword = generateRandomPassword(12);
             lecture.setPassword(randomPassword);
-            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(), lecture.getCreatedDate());
+            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(),
+                    lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
             lecture.setId(lectureId);
 
             // Handle avatar upload
@@ -71,9 +85,15 @@ public class AddLectureController {
                 byte[] avatarBytes = avatarFile.getBytes();
                 lecture.setAvatar(avatarBytes);
                 System.out.println("Avatar bytes set: " + avatarBytes.length);
+            } else if (session.getAttribute("tempAvatar") != null) {
+                lecture.setAvatar((byte[]) session.getAttribute("tempAvatar"));
+                System.out.println("Using temp avatar from session");
             }
 
             lecturesService.addLecturers(lecture, randomPassword);
+            // Xóa dữ liệu tạm sau khi lưu thành công
+            session.removeAttribute("tempAvatar");
+            session.removeAttribute("tempAvatarName");
             redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
             return "redirect:/staff-home/lectures-list";
         } catch (IOException e) {

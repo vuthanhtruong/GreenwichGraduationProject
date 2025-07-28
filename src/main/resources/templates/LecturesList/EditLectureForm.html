@@ -33,9 +33,12 @@
         <!-- Current Avatar -->
         <div class="mb-3 text-center">
             <label class="form-label">Current Avatar:</label><br/>
+            <img th:if="${session.avatarLecture != null}"
+                 th:src="@{${session.avatarLecture}}"
+                 class="avatar-img" alt="Avatar from Session"/>
             <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecture.id}}"
                  class="avatar-img" alt="Lecture Avatar"/>
-            <img th:if="${lecture.avatar == null}" th:src="${lecture.defaultAvatarPath}"
+            <img th:if="${lecture.avatar == null && session.avatarLecture == null}" th:src="${lecture.defaultAvatarPath}"
                  class="avatar-img" alt="Default Avatar"/>
         </div>
 
@@ -91,7 +94,7 @@
             <label for="gender" class="form-label">Gender:</label>
             <select id="gender" class="form-control" th:field="*{gender}" required>
                 <option value="">Select Gender</option>
-                <option th:each="g : ${T(com.example.demo.entity.Gender).values()}"
+                <option th:each="g : ${genders}"
                         th:value="${g}"
                         th:text="${g}"
                         th:selected="${g == lecture.gender}">
