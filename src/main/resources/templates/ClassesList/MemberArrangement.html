@@ -16,14 +16,21 @@
             color: red;
             margin-bottom: 20px;
         }
+        .success {
+            color: green;
+            margin-bottom: 20px;
+        }
         .section {
             margin-bottom: 30px;
+        }
+        .checkbox-column {
+            width: 50px;
         }
     </style>
 </head>
 <body>
 <header class="text-center">
-    <h1><i class="fas fa-chalkboard-teacher"></i> Member Arrangement for Class: <span th:text="${class?.nameClass} ?: 'N/A'"></span></h1>
+    <h1><i class="fas fa-chalkboard-teacher"></i> Member Arrangement for Class: <span th:text="${class != null} ? ${class.nameClass} : 'N/A'"></span></h1>
 </header>
 <nav class="mb-3 d-flex justify-content-end">
     <a class="btn btn-secondary" th:href="@{/staff-home/classes-list}">
@@ -31,9 +38,12 @@
     </a>
 </nav>
 <main class="container">
-    <!-- Hiển thị thông báo lỗi nếu có -->
+    <!-- Hiển thị thông báo -->
     <div th:if="${errorMessage}" class="error">
         <p th:text="${errorMessage}"></p>
+    </div>
+    <div th:if="${successMessage}" class="success">
+        <p th:text="${successMessage}"></p>
     </div>
 
     <!-- Danh sách sinh viên trong lớp -->
@@ -49,7 +59,6 @@
             </thead>
             <tbody>
             <tr th:each="student : ${studentsInClass}" th:if="${studentsInClass != null}">
-                <!--/*@thymesVar id="fullName" type=""*/-->
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
@@ -85,9 +94,141 @@
         </table>
     </div>
 
-    <!-- Danh sách sinh viên ngoài lớp -->
+    <!-- Danh sách sinh viên trượt môn và đã nộp học phí -->
     <div class="section">
-        <h2>Students Not in Class</h2>
+        <h2>Students Failed Subject and Paid</h2>
+        <form method="post" th:action="@{/staff-home/classes-list/add-students}" th:if="${class != null}">
+            <input type="hidden" name="classId" th:value="${class.getClassId()}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th class="checkbox-column">Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>MIS ID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsFailedPaid}" th:if="${studentsFailedPaid != null}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td th:text="${student.fullName}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td th:text="${student.misId}"></td>
+                </tr>
+                <tr th:if="${studentsFailedPaid == null or studentsFailedPaid.isEmpty()}">
+                    <td colspan="4">No students failed this subject and paid.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success" th:disabled="${studentsFailedPaid == null or studentsFailedPaid.isEmpty()}">
+                <i class="fas fa-plus"></i> Add Selected Students
+            </button>
+        </form>
+    </div>
+
+    <!-- Danh sách sinh viên chưa học môn và đã nộp học phí -->
+    <div class="section">
+        <h2>Students Not Taken Subject and Paid</h2>
+        <form method="post" th:action="@{/staff-home/classes-list/add-students}" th:if="${class != null}">
+            <input type="hidden" name="classId" th:value="${class.getClassId()}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th class="checkbox-column">Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>MIS ID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsNotTakenPaid}" th:if="${studentsNotTakenPaid != null}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td th:text="${student.fullName}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td th:text="${student.misId}"></td>
+                </tr>
+                <tr th:if="${studentsNotTakenPaid == null or studentsNotTakenPaid.isEmpty()}">
+                    <td colspan="4">No students not taken this subject and paid.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success" th:disabled="${studentsNotTakenPaid == null or studentsNotTakenPaid.isEmpty()}">
+                <i class="fas fa-plus"></i> Add Selected Students
+            </button>
+        </form>
+    </div>
+
+    <!-- Danh sách sinh viên đã học xong kỳ trước -->
+    <div class="section">
+        <h2>Students Completed Previous Semester</h2>
+        <form method="post" th:action="@{/staff-home/classes-list/add-students}" th:if="${class != null}">
+            <input type="hidden" name="classId" th:value="${class.getClassId()}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th class="checkbox-column">Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>MIS ID</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsCompletedPrevSemester}" th:if="${studentsCompletedPrevSemester != null}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td th:text="${student.fullName}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td th:text="${student.misId}"></td>
+                </tr>
+                <tr th:if="${studentsCompletedPrevSemester == null or studentsCompletedPrevSemester.isEmpty()}">
+                    <td colspan="4">No students completed the previous semester.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success" th:disabled="${studentsCompletedPrevSemester == null or studentsCompletedPrevSemester.isEmpty()}">
+                <i class="fas fa-plus"></i> Add Selected Students
+            </button>
+        </form>
+    </div>
+
+    <!-- Danh sách giảng viên ngoài lớp -->
+    <div class="section">
+        <h2>Lecturers Not in Class</h2>
+        <form method="post" th:action="@{/staff-home/classes-list/add-lecturers}" th:if="${class != null}">
+            <input type="hidden" name="classId" th:value="${class.getClassId()}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                <tr>
+                    <th class="checkbox-column">Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lecturer : ${lecturersNotInClass}" th:if="${lecturersNotInClass != null}">
+                    <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}" /></td>
+                    <td th:text="${lecturer.fullName}"></td>
+                    <td th:text="${lecturer.email}"></td>
+                    <td th:text="${lecturer.type}"></td>
+                </tr>
+                <tr th:if="${lecturersNotInClass == null or lecturersNotInClass.isEmpty()}">
+                    <td colspan="4">No lecturers available outside this class.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success" th:disabled="${lecturersNotInClass == null or lecturersNotInClass.isEmpty()}">
+                <i class="fas fa-plus"></i> Add Selected Lecturers
+            </button>
+        </form>
+    </div>
+
+    <!-- Danh sách sinh viên trượt môn và chưa nộp học phí -->
+    <div class="section">
+        <h2>Students Failed Subject and Not Paid</h2>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
@@ -97,37 +238,61 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="student : ${studentsNotInClass}" th:if="${studentsNotInClass != null}">
+            <tr th:each="student : ${studentsFailedNotPaid}" th:if="${studentsFailedNotPaid != null}">
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
             </tr>
-            <tr th:if="${studentsNotInClass == null or studentsNotInClass.isEmpty()}">
-                <td colspan="3">No students available outside this class.</td>
+            <tr th:if="${studentsFailedNotPaid == null or studentsFailedNotPaid.isEmpty()}">
+                <td colspan="3">No students failed this subject and not paid.</td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Danh sách giảng viên ngoài lớp -->
+    <!-- Danh sách sinh viên chưa học môn và chưa nộp học phí -->
     <div class="section">
-        <h2>Lecturers Not in Class</h2>
+        <h2>Students Not Taken Subject and Not Paid</h2>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Type</th>
+                <th>MIS ID</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="lecturer : ${lecturersNotInClass}" th:if="${lecturersNotInClass != null}">
-                <td th:text="${lecturer.fullName}"></td>
-                <td th:text="${lecturer.email}"></td>
-                <td th:text="${lecturer.type}"></td>
+            <tr th:each="student : ${studentsNotTakenNotPaid}" th:if="${studentsNotTakenNotPaid != null}">
+                <td th:text="${student.fullName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.misId}"></td>
             </tr>
-            <tr th:if="${lecturersNotInClass == null or lecturersNotInClass.isEmpty()}">
-                <td colspan="3">No lecturers available outside this class.</td>
+            <tr th:if="${studentsNotTakenNotPaid == null or studentsNotTakenNotPaid.isEmpty()}">
+                <td colspan="3">No students not taken this subject and not paid.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Danh sách sinh viên đang học môn -->
+    <div class="section">
+        <h2>Students Currently Taking Subject</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>MIS ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${studentsCurrentlyTaking}" th:if="${studentsCurrentlyTaking != null}">
+                <td th:text="${student.fullName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.misId}"></td>
+            </tr>
+            <tr th:if="${studentsCurrentlyTaking == null or studentsCurrentlyTaking.isEmpty()}">
+                <td colspan="3">No students currently taking this subject.</td>
             </tr>
             </tbody>
         </table>

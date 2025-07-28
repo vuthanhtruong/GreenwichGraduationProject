@@ -46,6 +46,16 @@
                     <input id="tuition" class="form-control" th:field="*{tuition}" type="number" step="0.01" min="0">
                     <div class="text-danger" th:if="${#fields.hasErrors('tuition')}" th:errors="*{tuition}"></div>
                 </div>
+
+                <!-- Semester -->
+                <div class="col-md-3">
+                    <label for="semester" class="form-label">Semester:</label>
+                    <select id="semester" class="form-select" th:field="*{semester}">
+                        <option value="">Select Semester</option>
+                        <option th:each="semester : ${semesters}" th:value="${semester}" th:text="${semester}"></option>
+                    </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}"></div>
+                </div>
             </div>
 
             <!-- General Errors -->

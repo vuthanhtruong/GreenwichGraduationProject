@@ -1,13 +1,12 @@
 package com.example.demo.controller.Update;
 
+import com.example.demo.entity.Semester;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.StudentsService;
 import com.example.demo.service.SubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -31,14 +31,17 @@ public class UpdateSubjectController {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }
+
     @PostMapping("/major-subjects-list/edit-subject-form")
     public String showEditSubjectForm(@RequestParam("id") String id, Model model) {
         Subjects subject = subjectsService.getSubjectById(id);
         if (subject == null) {
-            model.addAttribute("errorMessage", "Subject not found");
+            model.addAttribute("message", "Subject not found");
+            model.addAttribute("alertClass", "alert-danger");
             return "redirect:/staff-home/major-subjects-list";
         }
         model.addAttribute("subject", subject);
+        model.addAttribute("semesters", Arrays.asList(Semester.values()));
         return "EditSubjectForm";
     }
 
@@ -62,12 +65,14 @@ public class UpdateSubjectController {
         if (!editErrors.isEmpty() || bindingResult.hasErrors()) {
             model.addAttribute("editErrors", editErrors);
             model.addAttribute("subject", formSubject);
+            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "EditSubjectForm";
         }
 
         try {
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
             existingSubject.setTuition(formSubject.getTuition());
+            existingSubject.setSemester(formSubject.getSemester());
             subjectsService.updateSubject(id, existingSubject);
             redirectAttributes.addFlashAttribute("message", "Subject updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
@@ -81,6 +86,7 @@ public class UpdateSubjectController {
 
         return "redirect:/staff-home/major-subjects-list";
     }
+
     private void validateSubject(Subjects subject, BindingResult bindingResult, List<String> errors) {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -104,7 +110,4 @@ public class UpdateSubjectController {
         String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
         return name.matches(nameRegex);
     }
-
-
-
 }

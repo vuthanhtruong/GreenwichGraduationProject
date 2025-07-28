@@ -1,13 +1,16 @@
 package com.example.demo.controller.Add;
 
+import com.example.demo.entity.Semester;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,11 +19,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home")
+@PreAuthorize("hasRole('STAFF')")
 public class AddSubjectController {
+
     private final SubjectsService subjectsService;
     private final StaffsService staffsService;
 
@@ -28,6 +34,14 @@ public class AddSubjectController {
     public AddSubjectController(SubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
+    }
+
+    @GetMapping("/major-subjects-list")
+    public String showSubjectsList(Model model) {
+        model.addAttribute("newSubject", new Subjects());
+        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+        model.addAttribute("semesters", Arrays.asList(Semester.values()));
+        return "SubjectsList";
     }
 
     @PostMapping("/major-subjects-list/add-subject")
@@ -54,6 +68,7 @@ public class AddSubjectController {
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }
 
@@ -73,6 +88,7 @@ public class AddSubjectController {
             errors.add("Failed to add subject: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }
     }

@@ -9,4 +9,5 @@ import java.util.List;
 public interface Lecturers_ClassesDAO {
     List<Lecturers_Classes> listLecturersInClass(Classes classes);
     List<Lecturers> listLecturersNotInClass(Classes classes);
+    void addLecturerToClass(Lecturers_Classes lecturerClass);
 }

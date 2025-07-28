@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.Collections;
@@ -61,12 +62,13 @@ public class ListMembersInClassController {
         List<Lecturers_Classes> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
         List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
 
-        // Debug: In ra kích thước danh sách
-        System.out.println("Class ID: " + classId);
-        System.out.println("studentsInClassRecords size: " + studentsInClassRecords.size());
-        System.out.println("studentsNotInClass size: " + studentsNotInClass.size());
-        System.out.println("lecturersInClassRecords size: " + lecturersInClassRecords.size());
-        System.out.println("lecturersNotInClass size: " + lecturersNotInClass.size());
+        // Lấy danh sách theo yêu cầu
+        List<Students> studentsFailedNotPaid = studentsClassesService.listStudentsFailedSubjectAndNotPaid(selectedClass);
+        List<Students> studentsFailedPaid = studentsClassesService.listStudentsFailedSubjectAndPaid(selectedClass);
+        List<Students> studentsNotTakenPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, true);
+        List<Students> studentsNotTakenNotPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, false);
+        List<Students> studentsCurrentlyTaking = studentsClassesService.listStudentsCurrentlyTakingSubject(selectedClass);
+        List<Students> studentsCompletedPrevSemester = studentsClassesService.listStudentsCompletedPreviousSemester(selectedClass);
 
         // Ánh xạ sang Students và Lecturers
         List<Students> studentsInClass = studentsInClassRecords.stream()
@@ -78,17 +80,99 @@ public class ListMembersInClassController {
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
 
-        // Debug: In ra kích thước danh sách sau ánh xạ
-        System.out.println("studentsInClass size: " + studentsInClass.size());
-        System.out.println("lecturersInClass size: " + lecturersInClass.size());
-
         // Thêm dữ liệu vào model
         model.addAttribute("class", selectedClass);
         model.addAttribute("studentsInClass", studentsInClass.isEmpty() ? Collections.emptyList() : studentsInClass);
         model.addAttribute("studentsNotInClass", studentsNotInClass.isEmpty() ? Collections.emptyList() : studentsNotInClass);
         model.addAttribute("lecturersInClass", lecturersInClass.isEmpty() ? Collections.emptyList() : lecturersInClass);
         model.addAttribute("lecturersNotInClass", lecturersNotInClass.isEmpty() ? Collections.emptyList() : lecturersNotInClass);
+        model.addAttribute("studentsFailedNotPaid", studentsFailedNotPaid.isEmpty() ? Collections.emptyList() : studentsFailedNotPaid);
+        model.addAttribute("studentsFailedPaid", studentsFailedPaid.isEmpty() ? Collections.emptyList() : studentsFailedPaid);
+        model.addAttribute("studentsNotTakenPaid", studentsNotTakenPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenPaid);
+        model.addAttribute("studentsNotTakenNotPaid", studentsNotTakenNotPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenNotPaid);
+        model.addAttribute("studentsCurrentlyTaking", studentsCurrentlyTaking.isEmpty() ? Collections.emptyList() : studentsCurrentlyTaking);
+        model.addAttribute("studentsCompletedPrevSemester", studentsCompletedPrevSemester.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemester);
+        model.addAttribute("addStudentForm", new Object());
+        model.addAttribute("addLecturerForm", new Object());
 
         return "MemberArrangement";
+    }
+
+    @PostMapping("/add-students")
+    public String addStudentsToClass(@RequestParam("classId") String classId,
+                                     @RequestParam(value = "studentIds", required = false) List<String> studentIds,
+                                     RedirectAttributes redirectAttributes) {
+        Classes selectedClass = classesService.getClassById(classId);
+        if (selectedClass == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
+            return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
+        }
+
+        if (studentIds == null || studentIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No students selected.");
+            return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
+        }
+
+        try {
+            for (String studentId : studentIds) {
+                Students student = studentsService.getStudentById(studentId);
+                if (student != null) {
+                    // Kiểm tra xem sinh viên đã có trong lớp chưa
+                    boolean alreadyInClass = studentsClassesService.listStudentsInClass(selectedClass)
+                            .stream()
+                            .anyMatch(sc -> sc.getStudent().getId().equals(studentId));
+                    if (!alreadyInClass) {
+                        Students_Classes studentClass = new Students_Classes();
+                        studentClass.setClassEntity(selectedClass);
+                        studentClass.setStudent(student);
+                        studentsClassesService.addStudentToClass(studentClass);
+                    }
+                }
+            }
+            redirectAttributes.addFlashAttribute("successMessage", "Students added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to add students: " + e.getMessage());
+        }
+
+        return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
+    }
+
+    @PostMapping("/add-lecturers")
+    public String addLecturersToClass(@RequestParam("classId") String classId,
+                                      @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
+                                      RedirectAttributes redirectAttributes) {
+        Classes selectedClass = classesService.getClassById(classId);
+        if (selectedClass == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
+            return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
+        }
+
+        if (lecturerIds == null || lecturerIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No lecturers selected.");
+            return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
+        }
+
+        try {
+            for (String lecturerId : lecturerIds) {
+                Lecturers lecturer = lecturersService.getLecturerById(lecturerId);
+                if (lecturer != null) {
+                    // Kiểm tra xem giảng viên đã có trong lớp chưa
+                    boolean alreadyInClass = lecturersClassesService.listLecturersInClass(selectedClass)
+                            .stream()
+                            .anyMatch(lc -> lc.getLecturer().getId().equals(lecturerId));
+                    if (!alreadyInClass) {
+                        Lecturers_Classes lecturerClass = new Lecturers_Classes();
+                        lecturerClass.setClassEntity(selectedClass);
+                        lecturerClass.setLecturer(lecturer);
+                        lecturersClassesService.addLecturerToClass(lecturerClass);
+                    }
+                }
+            }
+            redirectAttributes.addFlashAttribute("successMessage", "Lecturers added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to add lecturers: " + e.getMessage());
+        }
+
+        return "redirect:/staff-home/classes-list/member-arrangement?id=" + classId;
     }
 }

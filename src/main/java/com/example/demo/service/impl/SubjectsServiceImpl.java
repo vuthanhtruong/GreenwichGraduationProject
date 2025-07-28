@@ -4,21 +4,29 @@ import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.SubjectsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.security.auth.Subject;
 import java.util.List;
 
 @Service
 public class SubjectsServiceImpl implements SubjectsService {
-    @Override
-    public void deleteSubject(String id) {
-        subjectsDAO.deleteSubject(id);
+
+    private final SubjectsDAO subjectsDAO;
+
+    @Autowired
+    public SubjectsServiceImpl(SubjectsDAO subjectsDAO) {
+        this.subjectsDAO = subjectsDAO;
     }
 
     @Override
-    public Subjects updateSubject(String id, Subjects subject) {
-        return subjectsDAO.updateSubject(id, subject);
+    public void addSubject(Subjects subject) {
+        subjectsDAO.addSubject(subject);
+    }
+
+    @Override
+    public Subjects getSubjectById(String subjectId) {
+        return subjectsDAO.getSubjectById(subjectId);
     }
 
     @Override
@@ -32,33 +40,22 @@ public class SubjectsServiceImpl implements SubjectsService {
     }
 
     @Override
-    public Subjects getSubjectById(String subjectId) {
-        return subjectsDAO.getSubjectById(subjectId);
+    public List<Subjects> subjectsByMajor(Majors major) {
+        return subjectsDAO.subjectsByMajor(major);
     }
 
     @Override
-    public void addSubject(Subjects subject) {
-        subjectsDAO.addSubject(subject);
-    }
-
-    @Override
-    public Subject getSubjectBySubjectId(String subjectId) {
-        return subjectsDAO.getSubjectBySubjectId(subjectId);
-    }
-
-    private final SubjectsDAO subjectsDAO;
-
-    public SubjectsServiceImpl(SubjectsDAO subjectsDAO) {
-        this.subjectsDAO = subjectsDAO;
-    }
-
-    @Override
-    public List<Subject> getSubjects() {
+    public List<Subjects> getSubjects() {
         return subjectsDAO.getSubjects();
     }
 
     @Override
-    public List<Subject> subjectsByMajor(Majors major) {
-        return subjectsDAO.subjectsByMajor(major);
+    public Subjects updateSubject(String id, Subjects subject) {
+        return subjectsDAO.updateSubject(id, subject);
+    }
+
+    @Override
+    public void deleteSubject(String id) {
+        subjectsDAO.deleteSubject(id);
     }
 }

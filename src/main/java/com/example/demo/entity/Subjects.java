@@ -23,7 +23,8 @@ public class Subjects {
     private Double tuition;
 
     @Column(name = "Semester", nullable = true, length = 50)
-    private String semester;
+    @Enumerated(EnumType.STRING)
+    private Semester semester;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)

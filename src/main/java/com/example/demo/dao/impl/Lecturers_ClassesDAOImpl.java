@@ -28,21 +28,26 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     @Override
     public List<Lecturers_Classes> listLecturersInClass(Classes classes) {
         return entityManager.createQuery(
-                        "SELECT lc FROM Lecturers_Classes lc WHERE lc.classEntity = :class and lc.lecturer.majorManagement=:major",
+                        "SELECT lc FROM Lecturers_Classes lc WHERE lc.classEntity = :class AND lc.lecturer.majorManagement = :major",
                         Lecturers_Classes.class)
                 .setParameter("class", classes)
-                .setParameter("major",staffsService.getMajors())
+                .setParameter("major", staffsService.getMajors())
                 .getResultList();
     }
 
     @Override
     public List<Lecturers> listLecturersNotInClass(Classes classes) {
         return entityManager.createQuery(
-                        "SELECT l FROM Lecturers l WHERE l.majorManagement=:major and l.id NOT IN " +
+                        "SELECT l FROM Lecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
                                 "(SELECT lc.lecturer.id FROM Lecturers_Classes lc WHERE lc.classEntity = :class)",
                         Lecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getMajors())
                 .getResultList();
+    }
+
+    @Override
+    public void addLecturerToClass(Lecturers_Classes lecturerClass) {
+        entityManager.persist(lecturerClass);
     }
 }
