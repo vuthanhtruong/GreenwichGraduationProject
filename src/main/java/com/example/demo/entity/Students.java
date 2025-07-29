@@ -26,17 +26,17 @@ public class Students extends Persons{
     @Column(name = "MIS_ID", length = 50)
     private String misId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CreatorID", nullable = true) // Sử dụng cột CreatorID thay vì ID
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CampusID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Campuses campus;  // Liên kết với Employee (có thể NULL)
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Majors major;

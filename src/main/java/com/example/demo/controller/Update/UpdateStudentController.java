@@ -52,7 +52,6 @@ public class UpdateStudentController {
             return "redirect:/staff-home/students-list?error=Student+not+found";
         }
         model.addAttribute("student", student);
-        model.addAttribute("majors", staffsService.getMajors());
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         return "EditStudentForm";
     }
@@ -71,7 +70,6 @@ public class UpdateStudentController {
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            modelMap.addAttribute("majors", staffsService.getMajors());
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/"+student.getId());
             return "EditStudentForm";
         }

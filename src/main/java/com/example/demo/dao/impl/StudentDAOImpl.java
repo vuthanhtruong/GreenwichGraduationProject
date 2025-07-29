@@ -168,9 +168,6 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student.getCampus() != null) {
             existingStudent.setCampus(student.getCampus());
         }
-        if (student.getMajor() != null) {
-            existingStudent.setMajor(student.getMajor());
-        }
         if (student.getCreator() != null) {
             existingStudent.setCreator(student.getCreator());
         }

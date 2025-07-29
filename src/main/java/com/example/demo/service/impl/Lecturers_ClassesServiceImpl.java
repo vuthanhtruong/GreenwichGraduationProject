@@ -12,8 +12,8 @@ import java.util.List;
 @Service
 public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     @Override
-    public void addLecturerToClass(Lecturers_Classes lecturerClass) {
-        lecturers_classesDAO.addLecturerToClass(lecturerClass);
+    public void addLecturersToClass(Classes classes, List<String> lecturerIds) {
+        lecturers_classesDAO.addLecturersToClass(classes, lecturerIds);
     }
 
     @Override

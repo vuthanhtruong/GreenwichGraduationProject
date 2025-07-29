@@ -26,6 +26,12 @@
         .checkbox-column {
             width: 50px;
         }
+        .avatar-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -52,6 +58,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
+                <th style="width: 80px;">Avatar</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>MIS ID</th>
@@ -59,12 +66,18 @@
             </thead>
             <tbody>
             <tr th:each="student : ${studentsInClass}" th:if="${studentsInClass != null}">
+                <td class="text-center">
+                    <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                         class="avatar-img" alt="Student Avatar"/>
+                    <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                         class="avatar-img" alt="Default Avatar"/>
+                </td>
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
             </tr>
             <tr th:if="${studentsInClass == null or studentsInClass.isEmpty()}">
-                <td colspan="3">No students in this class.</td>
+                <td colspan="4">No students in this class.</td>
             </tr>
             </tbody>
         </table>
@@ -76,6 +89,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
+                <th style="width: 80px;">Avatar</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Type</th>
@@ -83,12 +97,18 @@
             </thead>
             <tbody>
             <tr th:each="lecturer : ${lecturersInClass}" th:if="${lecturersInClass != null}">
+                <td class="text-center">
+                    <img th:if="${lecturer.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecturer.id}}"
+                         class="avatar-img" alt="Lecturer Avatar"/>
+                    <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}"
+                         class="avatar-img" alt="Default Avatar"/>
+                </td>
                 <td th:text="${lecturer.fullName}"></td>
                 <td th:text="${lecturer.email}"></td>
                 <td th:text="${lecturer.type}"></td>
             </tr>
             <tr th:if="${lecturersInClass == null or lecturersInClass.isEmpty()}">
-                <td colspan="3">No lecturers in this class.</td>
+                <td colspan="4">No lecturers in this class.</td>
             </tr>
             </tbody>
         </table>
@@ -104,6 +124,7 @@
                 <thead class="table-dark">
                 <tr>
                     <th class="checkbox-column">Select</th>
+                    <th style="width: 80px;">Avatar</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>MIS ID</th>
@@ -112,12 +133,18 @@
                 <tbody>
                 <tr th:each="student : ${studentsFailedPaid}" th:if="${studentsFailedPaid != null}">
                     <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td class="text-center">
+                        <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                             class="avatar-img" alt="Student Avatar"/>
+                        <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                             class="avatar-img" alt="Default Avatar"/>
+                    </td>
                     <td th:text="${student.fullName}"></td>
                     <td th:text="${student.email}"></td>
                     <td th:text="${student.misId}"></td>
                 </tr>
                 <tr th:if="${studentsFailedPaid == null or studentsFailedPaid.isEmpty()}">
-                    <td colspan="4">No students failed this subject and paid.</td>
+                    <td colspan="5">No students failed this subject and paid.</td>
                 </tr>
                 </tbody>
             </table>
@@ -137,6 +164,7 @@
                 <thead class="table-dark">
                 <tr>
                     <th class="checkbox-column">Select</th>
+                    <th style="width: 80px;">Avatar</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>MIS ID</th>
@@ -145,12 +173,18 @@
                 <tbody>
                 <tr th:each="student : ${studentsNotTakenPaid}" th:if="${studentsNotTakenPaid != null}">
                     <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td class="text-center">
+                        <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                             class="avatar-img" alt="Student Avatar"/>
+                        <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                             class="avatar-img" alt="Default Avatar"/>
+                    </td>
                     <td th:text="${student.fullName}"></td>
                     <td th:text="${student.email}"></td>
                     <td th:text="${student.misId}"></td>
                 </tr>
                 <tr th:if="${studentsNotTakenPaid == null or studentsNotTakenPaid.isEmpty()}">
-                    <td colspan="4">No students not taken this subject and paid.</td>
+                    <td colspan="5">No students not taken this subject and paid.</td>
                 </tr>
                 </tbody>
             </table>
@@ -170,6 +204,7 @@
                 <thead class="table-dark">
                 <tr>
                     <th class="checkbox-column">Select</th>
+                    <th CVD style="width: 80px;">Avatar</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>MIS ID</th>
@@ -178,12 +213,18 @@
                 <tbody>
                 <tr th:each="student : ${studentsCompletedPrevSemester}" th:if="${studentsCompletedPrevSemester != null}">
                     <td><input type="checkbox" name="studentIds" th:value="${student.id}" /></td>
+                    <td class="text-center">
+                        <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                             class="avatar-img" alt="Student Avatar"/>
+                        <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                             class="avatar-img" alt="Default Avatar"/>
+                    </td>
                     <td th:text="${student.fullName}"></td>
                     <td th:text="${student.email}"></td>
                     <td th:text="${student.misId}"></td>
                 </tr>
                 <tr th:if="${studentsCompletedPrevSemester == null or studentsCompletedPrevSemester.isEmpty()}">
-                    <td colspan="4">No students completed the previous semester.</td>
+                    <td colspan="5">No students completed the previous semester.</td>
                 </tr>
                 </tbody>
             </table>
@@ -203,6 +244,7 @@
                 <thead class="table-dark">
                 <tr>
                     <th class="checkbox-column">Select</th>
+                    <th style="width: 80px;">Avatar</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Type</th>
@@ -211,12 +253,18 @@
                 <tbody>
                 <tr th:each="lecturer : ${lecturersNotInClass}" th:if="${lecturersNotInClass != null}">
                     <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}" /></td>
+                    <td class="text-center">
+                        <img th:if="${lecturer.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecturer.id}}"
+                             class="avatar-img" alt="Lecturer Avatar"/>
+                        <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}"
+                             class="avatar-img" alt="Default Avatar"/>
+                    </td>
                     <td th:text="${lecturer.fullName}"></td>
                     <td th:text="${lecturer.email}"></td>
                     <td th:text="${lecturer.type}"></td>
                 </tr>
                 <tr th:if="${lecturersNotInClass == null or lecturersNotInClass.isEmpty()}">
-                    <td colspan="4">No lecturers available outside this class.</td>
+                    <td colspan="5">No lecturers available outside this class.</td>
                 </tr>
                 </tbody>
             </table>
@@ -232,6 +280,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
+                <th style="width: 80px;">Avatar</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>MIS ID</th>
@@ -239,12 +288,18 @@
             </thead>
             <tbody>
             <tr th:each="student : ${studentsFailedNotPaid}" th:if="${studentsFailedNotPaid != null}">
+                <td class="text-center">
+                    <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                         class="avatar-img" alt="Student Avatar"/>
+                    <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                         class="avatar-img" alt="Default Avatar"/>
+                </td>
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
             </tr>
             <tr th:if="${studentsFailedNotPaid == null or studentsFailedNotPaid.isEmpty()}">
-                <td colspan="3">No students failed this subject and not paid.</td>
+                <td colspan="4">No students failed this subject and not paid.</td>
             </tr>
             </tbody>
         </table>
@@ -256,6 +311,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
+                <th style="width: 80px;">Avatar</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>MIS ID</th>
@@ -263,12 +319,18 @@
             </thead>
             <tbody>
             <tr th:each="student : ${studentsNotTakenNotPaid}" th:if="${studentsNotTakenNotPaid != null}">
+                <td class="text-center">
+                    <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                         class="avatar-img" alt="Student Avatar"/>
+                    <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                         class="avatar-img" alt="Default Avatar"/>
+                </td>
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
             </tr>
             <tr th:if="${studentsNotTakenNotPaid == null or studentsNotTakenNotPaid.isEmpty()}">
-                <td colspan="3">No students not taken this subject and not paid.</td>
+                <td colspan="4">No students not taken this subject and not paid.</td>
             </tr>
             </tbody>
         </table>
@@ -280,6 +342,7 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
             <tr>
+                <th style="width: 80px;">Avatar</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>MIS ID</th>
@@ -287,12 +350,18 @@
             </thead>
             <tbody>
             <tr th:each="student : ${studentsCurrentlyTaking}" th:if="${studentsCurrentlyTaking != null}">
+                <td class="text-center">
+                    <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                         class="avatar-img" alt="Student Avatar"/>
+                    <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                         class="avatar-img" alt="Default Avatar"/>
+                </td>
                 <td th:text="${student.fullName}"></td>
                 <td th:text="${student.email}"></td>
                 <td th:text="${student.misId}"></td>
             </tr>
             <tr th:if="${studentsCurrentlyTaking == null or studentsCurrentlyTaking.isEmpty()}">
-                <td colspan="3">No students currently taking this subject.</td>
+                <td colspan="4">No students currently taking this subject.</td>
             </tr>
             </tbody>
         </table>

@@ -137,6 +137,13 @@
                     </a>
                 </td>
                 <td>
+                    <form th:action="@{/staff-home/classes-list/timetable}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${class.classId}"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Timetable
+                        </button>
+                    </form>
                     <form th:action="@{/staff-home/classes-list/member-arrangement}" method="post" style="display:inline;">
                         <input type="hidden" name="id" th:value="${class.classId}"/>
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>

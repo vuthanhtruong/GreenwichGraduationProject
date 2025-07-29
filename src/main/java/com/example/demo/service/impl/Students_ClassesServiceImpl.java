@@ -13,8 +13,8 @@ import java.util.List;
 @Service
 public class Students_ClassesServiceImpl implements Students_ClassesService {
     @Override
-    public void addStudentToClass(Students_Classes studentClass) {
-        studentsClassesDAO.addStudentToClass(studentClass);
+    public void addStudentsToClass(Classes classes, List<String> studentIds) {
+        studentsClassesDAO.addStudentsToClass(classes, studentIds);
     }
 
     private final Students_ClassesDAO studentsClassesDAO;

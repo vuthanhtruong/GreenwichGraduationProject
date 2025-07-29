@@ -45,7 +45,6 @@ public class UpdateLectureController {
     public String handleEditlecturePost(@RequestParam String id, Model model) {
         Lecturers lecture = lecturesService.getLecturerById(id);
         model.addAttribute("lecture", lecture);
-        model.addAttribute("majors", staffsService.getMajors());
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         return "EditLectureForm";
     }
@@ -65,7 +64,6 @@ public class UpdateLectureController {
         if (!errors.isEmpty()) {
             System.out.println("Validation errors: " + errors);
             modelMap.addAttribute("errors", errors);
-            modelMap.addAttribute("majors", staffsService.getMajors());
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             session.setAttribute("avatarLecture", "/staff-home/lectures-list/avatar/"+lecture.getId());
             return "EditLectureForm";

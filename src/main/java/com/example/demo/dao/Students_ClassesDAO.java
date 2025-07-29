@@ -14,5 +14,5 @@ public interface Students_ClassesDAO {
     List<Students> listStudentsNotTakenSubject(Classes classes, boolean hasPaid);
     List<Students> listStudentsCurrentlyTakingSubject(Classes classes);
     List<Students> listStudentsCompletedPreviousSemester(Classes classes);
-    void addStudentToClass(Students_Classes studentClass);
+    void addStudentsToClass(Classes classes, List<String> studentIds);
 }

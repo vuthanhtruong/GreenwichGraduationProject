@@ -1,3 +1,4 @@
+
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -41,10 +42,4 @@ public class Students_Classes {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
-
-    @Embeddable
-    public static class StudentsClassesId {
-        private String studentId;
-        private String classId;
-    }
 }

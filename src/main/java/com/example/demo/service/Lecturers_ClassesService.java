@@ -9,5 +9,5 @@ import java.util.List;
 public interface Lecturers_ClassesService {
     List<Lecturers_Classes> listLecturersInClass(Classes classes);
     List<Lecturers> listLecturersNotInClass(Classes classes);
-    void addLecturerToClass(Lecturers_Classes lecturerClass);
+    void addLecturersToClass(Classes classes, List<String> lecturerIds);
 }

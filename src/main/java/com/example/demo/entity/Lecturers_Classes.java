@@ -41,10 +41,4 @@ public class Lecturers_Classes {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
-
-    @Embeddable
-    public static class LecturersClassesId {
-        private String lecturerId;
-        private String classId;
-    }
 }

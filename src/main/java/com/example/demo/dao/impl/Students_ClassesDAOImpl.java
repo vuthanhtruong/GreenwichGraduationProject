@@ -1,26 +1,40 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.Students_ClassesDAO;
-import com.example.demo.entity.Classes;
-import com.example.demo.entity.Semester;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Students_Classes;
+import com.example.demo.entity.*;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @Transactional
 public class Students_ClassesDAOImpl implements Students_ClassesDAO {
+    @Override
+    public void addStudentsToClass(Classes classes, List<String> studentIds) {
+        for (String studentId : studentIds) {
+            Students student = studentsService.getStudentById(studentId);
+            Students_Classes studentClass = new Students_Classes();
+            StudentsClassesId id = new StudentsClassesId(studentId, classes.getClassId());
+            studentClass.setId(id);
+            studentClass.setClassEntity(classes);
+            studentClass.setStudent(student);
+            studentClass.setCreatedAt(LocalDateTime.now());
+            studentClass.setAddedBy(staffsService.getStaffs());
+            entityManager.persist(studentClass);
+        }
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private StaffsService staffsService;
+    private StudentsService  studentsService;
 
     public Students_ClassesDAOImpl(StaffsService staffsService) {
         this.staffsService = staffsService;
@@ -123,11 +137,6 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                 .setParameter("subjectId", classes.getSubject().getSubjectId())
                 .setParameter("major", staffsService.getMajors())
                 .getResultList();
-    }
-
-    @Override
-    public void addStudentToClass(Students_Classes studentClass) {
-        entityManager.persist(studentClass);
     }
 
     private Semester getPreviousSemester(Semester currentSemester) {

@@ -153,9 +153,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getCampus() != null) {
             existingLecturer.setCampus(lecturer.getCampus());
         }
-        if (lecturer.getMajorManagement() != null) {
-            existingLecturer.setMajorManagement(lecturer.getMajorManagement());
-        }
         if (lecturer.getCreator() != null) {
             existingLecturer.setCreator(lecturer.getCreator());
         }
