@@ -1,68 +1,86 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.StudentsDAO;
-import com.example.demo.entity.*;
+import com.example.demo.entity.Majors;
+import com.example.demo.entity.Persons;
+import com.example.demo.entity.Staffs;
+import com.example.demo.entity.Students;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
-import com.example.demo.service.StudentsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final EmailServiceForStudentService emailServiceForStudentService;
+    private final EmailServiceForLectureService emailServiceForLectureService;
+
+    public StudentDAOImpl(EmailServiceForStudentService emailServiceForStudentService,
+                          EmailServiceForLectureService emailServiceForLectureService) {
+        if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
+            throw new IllegalArgumentException("Email services cannot be null");
+        }
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.emailServiceForLectureService = emailServiceForLectureService;
+    }
+
     @Override
     public Students dataStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException("Authentication required");
+        }
         String username = authentication.getName();
-        Students students = entityManager.find(Students.class, username);
-        return students;
+        Students student = entityManager.find(Students.class, username);
+        if (student == null) {
+            throw new IllegalArgumentException("Student not found for username: " + username);
+        }
+        return student;
     }
 
     @Override
     public Majors getMajors() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException("Authentication required");
+        }
         String username = authentication.getName();
-        Students students = entityManager.find(Students.class, username);
-        return students.getMajor();
+        Students student = entityManager.find(Students.class, username);
+        if (student == null || student.getMajor() == null) {
+            throw new IllegalArgumentException("Major not found for student: " + username);
+        }
+        return student.getMajor();
     }
-
-    private final JavaMailSenderImpl mailSender;
-    private final EmailServiceForStudentService  emailServiceForStudentService;
-    private final EmailServiceForLectureService emailServiceForLectureService;
-
-    public StudentDAOImpl(JavaMailSenderImpl mailSender, EmailServiceForLectureService emailService, EmailServiceForStudentService emailServiceForStudentService, EmailServiceForLectureService emailServiceForLectureService) {
-        this.mailSender = mailSender;
-        this.emailServiceForStudentService = emailServiceForStudentService;
-        this.emailServiceForLectureService = emailServiceForLectureService;
-    }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     public List<Students> getStudents() {
-        return entityManager.createQuery("from Students s", Students.class).getResultList();
+        return entityManager.createQuery("FROM Students s", Students.class).getResultList();
     }
 
     @Override
     public Students addStudents(Students students, String randomPassword) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            throw new SecurityException("Authentication required");
+        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
 
         Persons user = entityManager.find(Persons.class, username);
-        if (!(user instanceof Staffs)) {
+        if (user == null || !(user instanceof Staffs)) {
             throw new SecurityException("Only staff members can add students.");
         }
         Staffs staff = (Staffs) user;
@@ -70,12 +88,11 @@ public class StudentDAOImpl implements StudentsDAO {
         students.setMajor(staff.getMajorManagement());
         students.setCreator(staff);
 
-        String rawPassword = randomPassword;
         Students savedStudent = entityManager.merge(students);
 
         try {
             String subject = "Your Student Account Information";
-            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, students, rawPassword);
+            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, students, randomPassword);
         } catch (Exception e) {
             System.err.println("Failed to schedule email to " + students.getEmail() + ": " + e.getMessage());
         }
@@ -85,8 +102,14 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public long numberOfStudents() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException("Authentication required");
+        }
         String username = authentication.getName();
         Staffs staff = entityManager.find(Staffs.class, username);
+        if (staff == null || staff.getMajorManagement() == null) {
+            throw new IllegalArgumentException("Staff or major not found for username: " + username);
+        }
 
         return (Long) entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s WHERE s.major.id = :staffmajor")
@@ -97,13 +120,16 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public void deleteStudent(String id) {
         Students student = entityManager.find(Students.class, id);
+        if (student == null) {
+            throw new IllegalArgumentException("Student with ID " + id + " not found");
+        }
         entityManager.remove(student);
     }
 
     @Override
     public void updateStudent(String id, Students student) throws MessagingException {
-        if (student == null) {
-            throw new IllegalArgumentException("Student object cannot be null");
+        if (student == null || id == null) {
+            throw new IllegalArgumentException("Student object or ID cannot be null");
         }
 
         Students existingStudent = entityManager.find(Students.class, id);
@@ -111,74 +137,11 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
 
-        // Update fields from Persons (only if non-null)
-        if (student.getFirstName() != null) {
-            existingStudent.setFirstName(student.getFirstName());
-        }
-        if (student.getLastName() != null) {
-            existingStudent.setLastName(student.getLastName());
-        }
-        if (student.getEmail() != null) {
-            existingStudent.setEmail(student.getEmail());
-        }
-        if (student.getPhoneNumber() != null) {
-            existingStudent.setPhoneNumber(student.getPhoneNumber());
-        }
-        if (student.getBirthDate() != null) {
-            existingStudent.setBirthDate(student.getBirthDate());
-        }
-        if (student.getGender() != null) {
-            existingStudent.setGender(student.getGender());
-        }
-        if (student.getFaceData() != null) {
-            existingStudent.setFaceData(student.getFaceData());
-        }
-        if (student.getVoiceData() != null) {
-            existingStudent.setVoiceData(student.getVoiceData());
-        }
-        if (student.getCountry() != null) {
-            existingStudent.setCountry(student.getCountry());
-        }
-        if (student.getProvince() != null) {
-            existingStudent.setProvince(student.getProvince());
-        }
-        if (student.getCity() != null) {
-            existingStudent.setCity(student.getCity());
-        }
-        if (student.getDistrict() != null) {
-            existingStudent.setDistrict(student.getDistrict());
-        }
-        if (student.getWard() != null) {
-            existingStudent.setWard(student.getWard());
-        }
-        if (student.getStreet() != null) {
-            existingStudent.setStreet(student.getStreet());
-        }
-        if (student.getPostalCode() != null) {
-            existingStudent.setPostalCode(student.getPostalCode());
-        }
-        if (student.getAvatar() != null) {
-            existingStudent.setAvatar(student.getAvatar());
-        }
+        updateStudentFields(existingStudent, student);
+        entityManager.merge(existingStudent);
 
-        // Update Students-specific fields (only if non-null)
-        if (student.getMisId() != null) {
-            existingStudent.setMisId(student.getMisId());
-        }
-        if (student.getCampus() != null) {
-            existingStudent.setCampus(student.getCampus());
-        }
-        if (student.getCreator() != null) {
-            existingStudent.setCreator(student.getCreator());
-        }
-        if (student.getPassword() != null && !student.getPassword().isEmpty()) {
-            existingStudent.setPassword(student.getPassword());
-        }
-
-        if (entityManager.merge(existingStudent) != null) {
-            String subject = "Your student account information after being edited";
-            emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
-        }
+        String subject = "Your student account information after being edited";
+        emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
     }
 
     @Override
@@ -188,9 +151,16 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
+            throw new SecurityException("Authentication required");
+        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
         Persons user = entityManager.find(Persons.class, username);
+        if (user == null || !(user instanceof Staffs)) {
+            throw new SecurityException("Only staff members can access paginated students.");
+        }
         Staffs staff = (Staffs) user;
         Majors majors = staff.getMajorManagement();
 
@@ -200,5 +170,28 @@ public class StudentDAOImpl implements StudentsDAO {
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
+    }
+
+    private void updateStudentFields(Students existing, Students updated) {
+        if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
+        if (updated.getLastName() != null) existing.setLastName(updated.getLastName());
+        if (updated.getEmail() != null) existing.setEmail(updated.getEmail());
+        if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
+        if (updated.getBirthDate() != null) existing.setBirthDate(updated.getBirthDate());
+        if (updated.getGender() != null) existing.setGender(updated.getGender());
+        if (updated.getFaceData() != null) existing.setFaceData(updated.getFaceData());
+        if (updated.getVoiceData() != null) existing.setVoiceData(updated.getVoiceData());
+        if (updated.getCountry() != null) existing.setCountry(updated.getCountry());
+        if (updated.getProvince() != null) existing.setProvince(updated.getProvince());
+        if (updated.getCity() != null) existing.setCity(updated.getCity());
+        if (updated.getDistrict() != null) existing.setDistrict(updated.getDistrict());
+        if (updated.getWard() != null) existing.setWard(updated.getWard());
+        if (updated.getStreet() != null) existing.setStreet(updated.getStreet());
+        if (updated.getPostalCode() != null) existing.setPostalCode(updated.getPostalCode());
+        if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
+        if (updated.getMisId() != null) existing.setMisId(updated.getMisId());
+        if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
+        if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
+        if (updated.getPassword() != null && !updated.getPassword().isEmpty()) existing.setPassword(updated.getPassword());
     }
 }

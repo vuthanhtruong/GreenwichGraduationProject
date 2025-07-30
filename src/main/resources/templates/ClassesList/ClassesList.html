@@ -119,6 +119,7 @@
             <tr>
                 <th>ID Class</th>
                 <th>Class Name</th>
+                <th>Subject ID</th>
                 <th>Subject Name</th>
                 <th>Total Slot</th>
                 <th>Classroom</th>
@@ -129,7 +130,8 @@
             <tr th:each="class : ${classes}">
                 <td th:text="${class.getClassId()}"></td>
                 <td th:text="${class.getNameClass()}"></td>
-                <td th:text="${class?.subject != null} ? ${class.subject.subjectName + ' ' + class.subject.subjectId} : 'N/A'"></td>
+                <td th:text="${class?.subject != null} ? ${ class.subject.subjectId} : 'N/A'"></td>
+                <td th:text="${class?.subject != null} ? ${class.subject.subjectName} : 'N/A'"></td>
                 <td th:text="${class.getSlotQuantity()}"></td>
                 <td>
                     <a class="btn btn-info btn-sm" th:href="@{/classroom/{id}(id=${class.classId})}">
@@ -149,6 +151,13 @@
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <button type="submit" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Member Arrangement
+                        </button>
+                    </form>
+                    <form th:action="@{/staff-home/classes-list/enter-transcript}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${class.classId}"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Enter Transcript
                         </button>
                     </form>
                     <form th:action="@{/staff-home/classes-list/edit-class-form}" method="post" style="display:inline;">

@@ -62,7 +62,6 @@ public class ListMembersInClassController {
         List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
         List<Lecturers_Classes> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
         List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
-
         // Lấy danh sách theo yêu cầu
         List<Students> studentsFailedNotPaid = studentsClassesService.listStudentsFailedSubjectAndNotPaid(selectedClass);
         List<Students> studentsFailedPaid = studentsClassesService.listStudentsFailedSubjectAndPaid(selectedClass);

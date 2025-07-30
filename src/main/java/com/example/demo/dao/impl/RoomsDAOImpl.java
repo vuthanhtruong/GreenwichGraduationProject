@@ -1,51 +1,57 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.RoomsDAO;
-import com.example.demo.entity.*;
+import com.example.demo.entity.OfflineRooms;
+import com.example.demo.entity.OnlineRooms;
+import com.example.demo.entity.Rooms;
+import com.example.demo.entity.Staffs;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.RoomsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 @Transactional
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Override
     public Rooms getRoomById(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Room ID cannot be null");
+        }
         return entityManager.find(Rooms.class, id);
     }
 
     @Override
     public Rooms getByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
         List<Rooms> rooms = entityManager.createQuery(
                         "SELECT s FROM Rooms s WHERE s.roomName = :name", Rooms.class)
-                .setParameter("name", name)
+                .setParameter("name", name.trim())
                 .getResultList();
-
-        if (rooms.isEmpty()) {
-            return null; // Trả về null nếu không tìm thấy
-        }
-        return rooms.get(0); // Trả về phần tử đầu tiên nếu có
+        return rooms.isEmpty() ? null : rooms.get(0);
     }
 
     @Override
     public Rooms updateOfflineRoom(String id, OfflineRooms room) {
-        if (room == null) {
-            throw new IllegalArgumentException("Room object cannot be null");
+        if (room == null || id == null) {
+            throw new IllegalArgumentException("Room object or ID cannot be null");
         }
 
         Rooms existingRoom = entityManager.find(Rooms.class, id);
@@ -53,20 +59,13 @@ public class RoomsDAOImpl implements RoomsDAO {
             throw new IllegalArgumentException("Offline room with ID " + id + " not found");
         }
 
-        // Validate required fields
         if (room.getRoomName() == null) {
             throw new IllegalArgumentException("Room name cannot be null");
         }
-        // Update fields from Rooms
-        existingRoom.setRoomName(room.getRoomName()); // Required field
-        if (room.getCreator() != null) {
-            existingRoom.setCreator(room.getCreator());
-        }
-        if (room.getCreatedAt() != null) {
-            existingRoom.setCreatedAt(room.getCreatedAt());
-        }
 
-        // Update OfflineRooms-specific fields
+        existingRoom.setRoomName(room.getRoomName());
+        if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
+        if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
         ((OfflineRooms) existingRoom).setAddress(room.getAddress());
 
         return entityManager.merge(existingRoom);
@@ -74,8 +73,8 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public Rooms updateOnlineRoom(String id, OnlineRooms room) {
-        if (room == null) {
-            throw new IllegalArgumentException("Room object cannot be null");
+        if (room == null || id == null) {
+            throw new IllegalArgumentException("Room object or ID cannot be null");
         }
 
         Rooms existingRoom = entityManager.find(Rooms.class, id);
@@ -83,21 +82,13 @@ public class RoomsDAOImpl implements RoomsDAO {
             throw new IllegalArgumentException("Online room with ID " + id + " not found");
         }
 
-        // Validate required fields
         if (room.getRoomName() == null) {
             throw new IllegalArgumentException("Room name cannot be null");
         }
 
-        // Update fields from Rooms
-        existingRoom.setRoomName(room.getRoomName()); // Required field
-        if (room.getCreator() != null) {
-            existingRoom.setCreator(room.getCreator());
-        }
-        if (room.getCreatedAt() != null) {
-            existingRoom.setCreatedAt(room.getCreatedAt());
-        }
-
-        // Update OnlineRooms-specific fields
+        existingRoom.setRoomName(room.getRoomName());
+        if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
+        if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
         ((OnlineRooms) existingRoom).setLink(room.getLink());
 
         return entityManager.merge(existingRoom);
@@ -106,18 +97,15 @@ public class RoomsDAOImpl implements RoomsDAO {
     @Override
     public String generateUniqueJitsiMeetLink(String roomId) {
         String baseUrl = "https://meet.jit.si/";
-        // Use roomId as base, append random string for extra uniqueness
-        String jitsiRoomName = roomId != null ? roomId : "Room" + System.currentTimeMillis();
-        String uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4); // Add 4-char random suffix
-
-        // Check if link already exists in database
+        String jitsiRoomName = (roomId != null && !roomId.trim().isEmpty()) ? roomId.trim() : "Room" + System.currentTimeMillis();
+        String uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
         String jitsiLink = baseUrl + uniqueRoomName;
+
         while (isJitsiLinkExists(jitsiLink)) {
-            uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4); // Generate new suffix
+            uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
             jitsiLink = baseUrl + uniqueRoomName;
         }
 
-        // Add random password for security
         String password = generateRandomPassword(8);
         return jitsiLink + "#config.roomPassword=" + password;
     }
@@ -146,6 +134,9 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public boolean isJitsiLinkExists(String link) {
+        if (link == null) {
+            return false;
+        }
         Long count = entityManager.createQuery(
                         "SELECT COUNT(r) FROM OnlineRooms r WHERE r.link = :link", Long.class)
                 .setParameter("link", link)
@@ -155,56 +146,89 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public Boolean existsOfflineRoomsById(String id) {
+        if (id == null) {
+            return false;
+        }
         return entityManager.find(OfflineRooms.class, id) != null;
     }
 
     @Override
     public void deleteOnlineRoom(String id) {
-        OnlineRooms rooms=entityManager.find(OnlineRooms.class, id);
-        entityManager.remove(rooms);
+        if (id == null) {
+            throw new IllegalArgumentException("Room ID cannot be null");
+        }
+        OnlineRooms room = entityManager.find(OnlineRooms.class, id);
+        if (room != null) {
+            entityManager.remove(room);
+        }
     }
 
     @Override
     public void deleteOfflineRoom(String id) {
-        OfflineRooms rooms=entityManager.find(OfflineRooms.class, id);
-        entityManager.remove(rooms);
+        if (id == null) {
+            throw new IllegalArgumentException("Room ID cannot be null");
+        }
+        OfflineRooms room = entityManager.find(OfflineRooms.class, id);
+        if (room != null) {
+            entityManager.remove(room);
+        }
     }
 
     @Override
     public Boolean existsOnlineRoomsById(String id) {
-
+        if (id == null) {
+            return false;
+        }
         return entityManager.find(OnlineRooms.class, id) != null;
     }
 
     @Override
-    public void addOnlineRoom(OnlineRooms rooms) {
+    public void addOnlineRoom(OnlineRooms room) {
+        if (room == null) {
+            throw new IllegalArgumentException("Room object cannot be null");
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException("Authentication required");
+        }
         String username = authentication.getName();
         Staffs staff = entityManager.find(Staffs.class, username);
-        rooms.setCreator(staff);
-        rooms.setCreatedAt(LocalDateTime.now());
-        // Generate and check Jitsi Meet linki
-        if(rooms.getLink() == null || rooms.getLink().isEmpty()) {
-            String jitsiLink = generateUniqueJitsiMeetLink(rooms.getRoomId());
-            rooms.setLink(jitsiLink);
+        if (staff == null) {
+            throw new IllegalArgumentException("Staff not found for username: " + username);
         }
-        entityManager.persist(rooms);
+
+        room.setCreator(staff);
+        room.setCreatedAt(LocalDateTime.now());
+        if (room.getLink() == null || room.getLink().isEmpty()) {
+            room.setLink(generateUniqueJitsiMeetLink(room.getRoomId()));
+        }
+        entityManager.persist(room);
     }
 
     @Override
-    public void addOfflineRoom(OfflineRooms rooms) {
+    public void addOfflineRoom(OfflineRooms room) {
+        if (room == null) {
+            throw new IllegalArgumentException("Room object cannot be null");
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new SecurityException("Authentication required");
+        }
         String username = authentication.getName();
         Staffs staff = entityManager.find(Staffs.class, username);
-        rooms.setRoomName(rooms.getRoomName().toUpperCase());
-        rooms.setCreator(staff);
-        rooms.setCreatedAt(LocalDateTime.now());
-        entityManager.persist(rooms);
+        if (staff == null) {
+            throw new IllegalArgumentException("Staff not found for username: " + username);
+        }
+
+        room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);
+        room.setCreator(staff);
+        room.setCreatedAt(LocalDateTime.now());
+        entityManager.persist(room);
     }
 
     @Override
     public List<OfflineRooms> getPaginatedOfflineRooms(int firstResult, int pageSize, String sortOrder) {
-        String query = "from OfflineRooms" + (sortOrder != null ? " ORDER BY createdAt " + sortOrder : "");
+        String query = "FROM OfflineRooms" + (sortOrder != null && !sortOrder.trim().isEmpty() ? " ORDER BY createdAt " + sortOrder : "");
         return entityManager.createQuery(query, OfflineRooms.class)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -213,7 +237,7 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public List<OnlineRooms> getPaginatedOnlineRooms(int firstResult, int pageSize, String sortOrder) {
-        String query = "from OnlineRooms" + (sortOrder != null ? " ORDER BY createdAt " + sortOrder : "");
+        String query = "FROM OnlineRooms" + (sortOrder != null && !sortOrder.trim().isEmpty() ? " ORDER BY createdAt " + sortOrder : "");
         return entityManager.createQuery(query, OnlineRooms.class)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -222,34 +246,26 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public List<Rooms> getRooms() {
-        List<Rooms> rooms = entityManager.createQuery("from Rooms", Rooms.class).getResultList();
-        return rooms;
+        return entityManager.createQuery("FROM Rooms", Rooms.class).getResultList();
     }
 
     @Override
     public List<OnlineRooms> getOnlineRooms() {
-        List<OnlineRooms>  rooms = entityManager.createQuery("from OnlineRooms", OnlineRooms.class).getResultList();
-        return rooms;
+        return entityManager.createQuery("FROM OnlineRooms", OnlineRooms.class).getResultList();
     }
 
     @Override
     public List<OfflineRooms> getOfflineRooms() {
-        List<OfflineRooms> offlineRooms=entityManager.createQuery("from OfflineRooms", OfflineRooms.class).getResultList();
-        return offlineRooms;
+        return entityManager.createQuery("FROM OfflineRooms", OfflineRooms.class).getResultList();
     }
 
     @Override
     public long totalOfflineRooms() {
-        long count=entityManager.createQuery("select count(*) from OfflineRooms").getResultList().size();
-        return count;
+        return (Long) entityManager.createQuery("SELECT COUNT(r) FROM OfflineRooms r").getSingleResult();
     }
 
     @Override
     public long totalOnlineRooms() {
-        long count=entityManager.createQuery("select count(*) from OnlineRooms").getResultList().size();
-        return count;
+        return (Long) entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r").getSingleResult();
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 }
