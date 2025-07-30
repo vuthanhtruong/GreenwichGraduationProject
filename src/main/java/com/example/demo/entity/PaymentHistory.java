@@ -44,10 +44,6 @@ public class PaymentHistory {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public enum Status {
-        SUCCESS, PENDING, FAILED
-    }
-
     // Constructors
     public PaymentHistory() {}
 

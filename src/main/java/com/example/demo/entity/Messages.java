@@ -14,18 +14,17 @@ import java.time.LocalDateTime;
 @Setter
 public class Messages {
 
-    @EmbeddedId
-    private MessagesId id;
+    @Id
+    @Column(name = "MessageID", nullable = false)
+    private String messageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("messageSenderId")
-    @JoinColumn(name = "MessageSenderID")
+    @JoinColumn(name = "MessageSenderID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Persons sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("messageRecipientId")
-    @JoinColumn(name = "MessageRecipientID")
+    @JoinColumn(name = "MessageRecipientID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Persons recipient;
 
@@ -40,10 +39,15 @@ public class Messages {
     @Column(name = "Text", nullable = true, length = 1000)
     private String text;
 
-    @Embeddable
-    public static class MessagesId {
-        private String messageSenderId;
-        private String messageRecipientId;
-        private LocalDateTime datetime;
+    public Messages() {}
+
+    public Messages(String messageId, Persons sender, Persons recipient, LocalDateTime datetime) {
+        if (sender == null || recipient == null || datetime == null) {
+            throw new IllegalArgumentException("Sender, recipient, and datetime cannot be null");
+        }
+        this.messageId = messageId;
+        this.sender = sender;
+        this.recipient = recipient;
+        this.datetime = datetime;
     }
 }

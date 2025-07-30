@@ -17,7 +17,10 @@ public class SubmissionDocuments {
     private String submissionDocumentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SubmissionID", nullable = false)
+    @JoinColumns({
+            @JoinColumn(name = "SubmissionID", referencedColumnName = "SubmittedBy", nullable = false),
+            @JoinColumn(name = "AssignmentSubmitSlotID", referencedColumnName = "AssignmentSubmitSlotID", nullable = false)
+    })
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Submissions submission;
 

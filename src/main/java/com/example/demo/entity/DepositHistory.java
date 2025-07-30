@@ -45,10 +45,6 @@ public class DepositHistory {
     @Column(name = "Description", nullable = true, length = 1000)
     private String description;
 
-    public enum Status {
-        SUCCESS, PENDING, FAILED
-    }
-
     // Constructors
     public DepositHistory() {}
 

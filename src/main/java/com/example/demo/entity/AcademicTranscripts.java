@@ -9,23 +9,22 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "AcademicTranscript")
+@Table(name = "AcademicTranscripts")
 @Getter
 @Setter
-public class AcademicTranscript {
+public class AcademicTranscripts {
 
-    @EmbeddedId
-    private AcademicTranscriptId id;
+    @Id
+    @Column(name = "TranscriptID", nullable = false)
+    private String transcriptId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("numberId")
-    @JoinColumn(name = "NumberID")
+    @JoinColumn(name = "NumberID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("subjectId")
-    @JoinColumn(name = "SubjectID")
+    @JoinColumn(name = "SubjectID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Subjects subject;
 
@@ -44,21 +43,27 @@ public class AcademicTranscript {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Column(name = "Grade", nullable = true, length = 10)
+    @Enumerated(EnumType.STRING)
+    private Grades grade;
+
     @Column(name = "Score", nullable = true)
     private Double score;
-
-    @Column(name = "Grade", nullable = true, length = 10)
-    private String grade;
-
-    @Column(name = "Status", nullable = true, length = 50)
-    private String status;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Embeddable
-    public static class AcademicTranscriptId {
-        private String numberId;
-        private String subjectId;
+    public AcademicTranscripts() {}
+
+    public AcademicTranscripts(String transcriptId, Students student, Subjects subject, Grades grade, LocalDateTime createdAt, Staffs creator) {
+        this.transcriptId = transcriptId;
+        this.student = student;
+        this.subject = subject;
+        this.grade = grade;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        if (creator == null) {
+            throw new IllegalArgumentException("Creator cannot be null");
+        }
+        this.creator = creator;
     }
 }

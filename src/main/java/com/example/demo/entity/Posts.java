@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Posts")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 public class Posts {
