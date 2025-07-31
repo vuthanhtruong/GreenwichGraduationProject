@@ -1,12 +1,11 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.StudentsDAO;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Persons;
-import com.example.demo.entity.Staffs;
-import com.example.demo.entity.Students;
+import com.example.demo.entity.*;
+import com.example.demo.service.AccountBalancesService;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
+import com.example.demo.service.StaffsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,25 +15,31 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
 
+    private final StaffsService staffsService;
     @PersistenceContext
     private EntityManager entityManager;
 
     private final EmailServiceForStudentService emailServiceForStudentService;
     private final EmailServiceForLectureService emailServiceForLectureService;
+    private final AccountBalancesService  accountBalancesService;
 
     public StudentDAOImpl(EmailServiceForStudentService emailServiceForStudentService,
-                          EmailServiceForLectureService emailServiceForLectureService) {
+                          EmailServiceForLectureService emailServiceForLectureService, AccountBalancesService accountBalancesService, StaffsService staffsService) {
+        this.accountBalancesService = accountBalancesService;
         if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
         this.emailServiceForStudentService = emailServiceForStudentService;
         this.emailServiceForLectureService = emailServiceForLectureService;
+        this.staffsService = staffsService;
     }
 
     @Override
@@ -72,23 +77,18 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public Students addStudents(Students students, String randomPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
-            throw new SecurityException("Authentication required");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
 
-        Persons user = entityManager.find(Persons.class, username);
-        if (user == null || !(user instanceof Staffs)) {
-            throw new SecurityException("Only staff members can add students.");
-        }
-        Staffs staff = (Staffs) user;
+        Staffs staff = staffsService.getStaffs();
         students.setCampus(staff.getCampus());
         students.setMajor(staff.getMajorManagement());
         students.setCreator(staff);
-
         Students savedStudent = entityManager.merge(students);
+        AccountBalances accountBalances = new AccountBalances();
+        accountBalances.setBalance(0.000000);
+        accountBalances.setStudent(savedStudent);
+        accountBalances.setStudentId(accountBalances.getStudent().getId());
+        accountBalances.setLastUpdated(LocalDateTime.now());
+        accountBalancesService.createAccountBalances(accountBalances);
 
         try {
             String subject = "Your Student Account Information";

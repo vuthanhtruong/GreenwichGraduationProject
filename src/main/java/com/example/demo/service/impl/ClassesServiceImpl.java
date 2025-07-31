@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.ClassesDAO;
-import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Classes;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Subjects;

@@ -7,6 +7,7 @@ import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
+import com.example.demo.service.StaffsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,6 +23,7 @@ import java.util.List;
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
 
+    private final StaffsService staffsService;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -29,12 +31,13 @@ public class LecturesDAOImpl implements LecturesDAO {
     private final EmailServiceForStudentService emailServiceForStudentService;
 
     public LecturesDAOImpl(EmailServiceForLectureService emailServiceForLectureService,
-                           EmailServiceForStudentService emailServiceForStudentService) {
+                           EmailServiceForStudentService emailServiceForStudentService, StaffsService staffsService) {
         if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
         this.emailServiceForLectureService = emailServiceForLectureService;
         this.emailServiceForStudentService = emailServiceForStudentService;
+        this.staffsService = staffsService;
     }
 
     @Override
@@ -44,18 +47,8 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public Lecturers addLecturers(Lecturers lecturers, String randomPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
-            throw new SecurityException("Authentication required");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
 
-        Persons user = entityManager.find(Persons.class, username);
-        if (user == null || !(user instanceof Staffs)) {
-            throw new SecurityException("Only staff members can add lecturers.");
-        }
-        Staffs staff = (Staffs) user;
+        Staffs staff = staffsService.getStaffs();
         lecturers.setCampus(staff.getCampus());
         lecturers.setMajorManagement(staff.getMajorManagement());
         lecturers.setCreator(staff);
@@ -73,12 +66,7 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public long numberOfLecturers() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
+        Staffs staff = staffsService.getStaffs();
         if (staff == null) {
             throw new IllegalArgumentException("Staff not found");
         }
@@ -125,17 +113,8 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
-            throw new SecurityException("Authentication required");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        Persons user = entityManager.find(Persons.class, username);
-        if (user == null || !(user instanceof Staffs)) {
-            throw new SecurityException("Only staff members can access paginated lecturers.");
-        }
-        Staffs staff = (Staffs) user;
+
+        Staffs staff = staffsService.getStaffs();
         Majors majors = staff.getMajorManagement();
 
         return entityManager.createQuery(
