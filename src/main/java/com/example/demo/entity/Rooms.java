@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 
-public class Rooms {
+public abstract class Rooms {
     @Id
     @Column(name = "RoomID")
     private String roomId;

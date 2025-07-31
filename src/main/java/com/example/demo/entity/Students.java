@@ -51,4 +51,12 @@ public class Students extends Persons{
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Student_Boy.png" : "/DefaultAvatar/Student_Girl.png";
     }
+    @Override
+    public String getRoleType() {
+        return "STUDENT";
+    }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 }

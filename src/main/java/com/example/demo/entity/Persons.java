@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Persons {
+public abstract class Persons {
 
     @Id
     @Column(name = "ID")
@@ -77,5 +77,7 @@ public class Persons {
     public String getFullName() {
         return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
     }
+    public abstract String getRoleType();
+    public abstract String getPassword();
 
 }

@@ -24,4 +24,13 @@ public class Employes extends Persons {
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
 
+    @Override
+    public String getRoleType() {
+        throw new UnsupportedOperationException("Employes must be either Staffs or Lecturers");
+    }
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
 }

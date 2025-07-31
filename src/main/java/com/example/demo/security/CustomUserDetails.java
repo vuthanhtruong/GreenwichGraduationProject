@@ -1,6 +1,9 @@
 package com.example.demo.security;
 
 import com.example.demo.entity.Persons;
+import com.example.demo.entity.Students;
+import com.example.demo.entity.Staffs;
+import com.example.demo.entity.Lecturers;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,20 +27,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        // Assuming password is stored in the respective subclass (Students, Staffs, Lecturers)
-        if (person instanceof com.example.demo.entity.Students) {
-            return ((com.example.demo.entity.Students) person).getPassword();
-        } else if (person instanceof com.example.demo.entity.Staffs) {
-            return ((com.example.demo.entity.Staffs) person).getPassword();
-        } else if (person instanceof com.example.demo.entity.Lecturers) {
-            return ((com.example.demo.entity.Lecturers) person).getPassword();
-        }
-        return null;
+        return person.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return person.getId(); // Using email as username
+        return person.getId();
     }
 
     @Override

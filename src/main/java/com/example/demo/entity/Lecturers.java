@@ -40,4 +40,12 @@ public class Lecturers extends Employes {
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
     }
+    @Override
+    public String getRoleType() {
+        return "LECTURER";
+    }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 }

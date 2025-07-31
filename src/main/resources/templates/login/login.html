@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Login</title>
     <link href="/login.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
 <div class="container text-center">
@@ -12,7 +13,13 @@
 
     <div class="login-form">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
-        <form action="/login" method="POST">
+        <div th:if="${param.error}" class="alert alert-danger">
+            Invalid username or password.
+        </div>
+        <div th:if="${param.logout}" class="alert alert-success">
+            You have been logged out successfully.
+        </div>
+        <form th:action="@{/login}" method="post">
             <!-- CSRF Token -->
             <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 
@@ -30,6 +37,13 @@
                 <input type="password" id="password" name="password" class="form-control" required>
             </div>
 
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
+                <label class="form-check-label" for="remember-me">
+                    <i class="fas fa-check"></i> Remember Me
+                </label>
+            </div>
+
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-arrow-right"></i> Login
             </button>
@@ -40,7 +54,7 @@
                 <i class="fas fa-question-circle"></i> Forgot password?
             </a>
         </div>
-    </div> <!-- Close login-form -->
-</div> <!-- ✅ Close container text-center -->
+    </div>
+</div>
 </body>
 </html>

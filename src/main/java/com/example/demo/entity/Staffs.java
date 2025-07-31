@@ -26,4 +26,12 @@ public class Staffs extends Employes{
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
     }
+    @Override
+    public String getRoleType() {
+        return "STAFF";
+    }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 }
