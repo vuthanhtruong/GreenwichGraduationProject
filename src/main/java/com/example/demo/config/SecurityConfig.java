@@ -28,6 +28,10 @@ public class SecurityConfig {
                         .requestMatchers("/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/teacher-home/**").hasRole("LECTURER")
+
+                        .requestMatchers("/api/student-home/**").hasRole("STUDENT")
+                        .requestMatchers("/api/staff-home/**").hasRole("STAFF")
+                        .requestMatchers("/api/teacher-home/**").hasRole("LECTURER")
                         .requestMatchers("/login", "/resources/**", "/css/**", "/js/**", "/*.css").permitAll()
                         .anyRequest().authenticated()
                 )
