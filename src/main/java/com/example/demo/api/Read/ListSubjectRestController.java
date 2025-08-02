@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 @RestController
-@RequestMapping("/staff-home")
+@RequestMapping("/api/staff-home")
 @PreAuthorize("hasRole('STAFF')")
 public class ListSubjectRestController {
 

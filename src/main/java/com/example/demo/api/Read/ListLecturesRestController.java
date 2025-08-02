@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/staff-home")
+@RequestMapping("/api/staff-home")
 public class ListLecturesRestController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
