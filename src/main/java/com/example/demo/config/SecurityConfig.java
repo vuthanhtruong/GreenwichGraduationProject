@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.security.CustomUserDetailsService;
+import com.example.demo.security.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,11 +15,13 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService,
+                          CustomOAuth2UserService customOAuth2UserService) {
         this.userDetailsService = userDetailsService;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
@@ -28,11 +31,10 @@ public class SecurityConfig {
                         .requestMatchers("/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/teacher-home/**").hasRole("LECTURER")
-
                         .requestMatchers("/api/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/api/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/api/teacher-home/**").hasRole("LECTURER")
-                        .requestMatchers("/login", "/resources/**", "/css/**", "/js/**", "/*.css").permitAll()
+                        .requestMatchers("/login", "/resources/**", "/css/**", "/js/**", "/*.css", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -40,11 +42,21 @@ public class SecurityConfig {
                         .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOAuth2UserService)
+                        )
+                        .successHandler(customAuthenticationSuccessHandler())
+                        .failureHandler((request, response, exception) -> {
+                            response.sendRedirect("/login?error");
+                        })
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true) // Explicitly invalidate session
-                        .deleteCookies("JSESSIONID") // Remove session cookie
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
 
@@ -54,7 +66,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
         return (request, response, authentication) -> {
-            // Redirect based on user role
+
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
                 response.sendRedirect("/student-home");
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
@@ -62,7 +74,7 @@ public class SecurityConfig {
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
                 response.sendRedirect("/teacher-home");
             } else {
-                response.sendRedirect("/"); // Fallback redirect
+                response.sendRedirect("/login?error=no_role");
             }
         };
     }

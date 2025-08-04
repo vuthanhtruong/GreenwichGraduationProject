@@ -101,16 +101,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public long numberOfStudents() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
-        if (staff == null || staff.getMajorManagement() == null) {
-            throw new IllegalArgumentException("Staff or major not found for username: " + username);
-        }
-
+        Staffs staff = staffsService.getStaffs();
         return (Long) entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s WHERE s.major.id = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement().getMajorId())
