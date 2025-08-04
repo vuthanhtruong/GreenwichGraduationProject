@@ -14,6 +14,6 @@ public interface StudentsDAO {
     void updateStudent(String id, Students student) throws MessagingException;
     Students getStudentById(String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
-    Majors getMajors();
-    Students dataStudent();
+    Majors getStudentMajor();
+    Students getStudent();
 }

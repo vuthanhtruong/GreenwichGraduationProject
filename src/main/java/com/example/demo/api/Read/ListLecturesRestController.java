@@ -34,7 +34,7 @@ public class ListLecturesRestController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize) {
         try {
-            staffsService.getStaffs(); // Check for staff authentication
+            staffsService.getStaff(); // Check for staff authentication
 
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("pageSize");

@@ -19,8 +19,8 @@ public class StudentController {
 
     @GetMapping("")
     public String getStaffHomeInfo(Model model) {
-        model.addAttribute("major", studentsService.getMajors().getMajorName());
-        model.addAttribute("student", studentsService.dataStudent());
+        model.addAttribute("major", studentsService.getStudentMajor().getMajorName());
+        model.addAttribute("student", studentsService.getStudent());
         return "StudentHome";
     }
 }

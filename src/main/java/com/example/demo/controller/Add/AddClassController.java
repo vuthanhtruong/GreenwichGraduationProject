@@ -71,8 +71,8 @@ public class AddClassController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getMajors()));
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             return "ClassesList";
         }
 
@@ -84,7 +84,7 @@ public class AddClassController {
             newClass.setSubject(subject);
 
             // Generate class ID and set other fields
-            String majorId = staffsService.getMajors() != null ? staffsService.getMajors().getMajorId() : "default";
+            String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
             String classId = generateUniqueClassId(majorId, LocalDateTime.now());
             newClass.setClassId(classId);
             newClass.setCreatedAt(LocalDateTime.now());
@@ -96,8 +96,8 @@ public class AddClassController {
         } catch (Exception e) {
             errors.add("Failed to add class: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getMajors()));
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             return "ClassesList";
         }
     }

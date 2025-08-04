@@ -99,7 +99,7 @@ public class UpdateStudentController {
             errors.add("Failed to process avatar: " + e.getMessage());
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            modelMap.addAttribute("majors", staffsService.getMajors());
+            modelMap.addAttribute("majors", staffsService.getStaffMajor());
             return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());

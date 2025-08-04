@@ -49,11 +49,11 @@ public class AddSubjectRestController {
 
         try {
             // Set creator and major
-            newSubject.setCreator(staffsService.getStaffs());
-            newSubject.setMajor(staffsService.getMajors());
+            newSubject.setCreator(staffsService.getStaff());
+            newSubject.setMajor(staffsService.getStaffMajor());
 
             // Generate unique ID
-            String subjectId = generateUniqueSubjectId(staffsService.getMajors().getMajorId(), LocalDate.now());
+            String subjectId = generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());
             newSubject.setSubjectId(subjectId);
 
             subjectsService.addSubject(newSubject);

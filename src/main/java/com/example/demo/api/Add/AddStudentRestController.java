@@ -63,7 +63,7 @@ public class AddStudentRestController {
         try {
             String randomPassword = generateRandomPassword(12);
             student.setPassword(randomPassword);
-            String studentId = generateUniqueStudentId(staffsService.getMajors().getMajorId(),
+            String studentId = generateUniqueStudentId(staffsService.getStaffMajor().getMajorId(),
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
 

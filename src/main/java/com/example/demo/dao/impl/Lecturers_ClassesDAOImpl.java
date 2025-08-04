@@ -34,7 +34,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
             lecturerClass.setClassEntity(classes);
             lecturerClass.setLecturer(lecturer);
             lecturerClass.setCreatedAt(LocalDateTime.now());
-            lecturerClass.setAddedBy(staffsService.getStaffs());
+            lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
         }
     }
@@ -55,7 +55,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
                         "SELECT lc FROM Lecturers_Classes lc WHERE lc.classEntity = :class AND lc.lecturer.majorManagement = :major",
                         Lecturers_Classes.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getMajors())
+                .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }
 
@@ -66,7 +66,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
                                 "(SELECT lc.lecturer.id FROM Lecturers_Classes lc WHERE lc.classEntity = :class)",
                         Lecturers.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getMajors())
+                .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }
 

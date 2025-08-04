@@ -40,7 +40,7 @@ public class AddLectureController {
     @GetMapping("/add-lecture")
     public String showAddlecturePage(Model model) {
         model.addAttribute("lecture", new Lecturers()); // Fixed: Use Lecturers instead of Staffs
-        model.addAttribute("majors", staffsService.getMajors());
+        model.addAttribute("majors", staffsService.getStaffMajor());
         return "AddLecture";
     }
 
@@ -60,7 +60,7 @@ public class AddLectureController {
         if (!errors.isEmpty()) {
             System.out.println("Validation errors: " + errors);
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getMajors());
+            model.addAttribute("majors", staffsService.getStaffMajor());
             // Lưu avatarFile vào session nếu có
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
@@ -76,7 +76,7 @@ public class AddLectureController {
         try {
             String randomPassword = generateRandomPassword(12);
             lecture.setPassword(randomPassword);
-            String lectureId = generateUniquelectureId(staffsService.getMajors().getMajorId(),
+            String lectureId = generateUniquelectureId(staffsService.getStaffMajor().getMajorId(),
                     lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
             lecture.setId(lectureId);
 
@@ -100,13 +100,13 @@ public class AddLectureController {
             System.err.println("IOException during avatar processing: " + e.getMessage());
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getMajors());
+            model.addAttribute("majors", staffsService.getStaffMajor());
             return "AddLecture";
         } catch (Exception e) {
             System.err.println("Error adding lecture: " + e.getMessage());
             errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getMajors());
+            model.addAttribute("majors", staffsService.getStaffMajor());
             return "AddLecture";
         }
     }

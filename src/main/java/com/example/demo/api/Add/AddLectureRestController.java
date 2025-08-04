@@ -58,7 +58,7 @@ public class AddLectureRestController {
         try {
             String randomPassword = generateRandomPassword(12);
             lecture.setPassword(randomPassword);
-            String lectureId = generateUniqueLectureId(staffsService.getMajors().getMajorId(),
+            String lectureId = generateUniqueLectureId(staffsService.getStaffMajor().getMajorId(),
                     lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
             lecture.setId(lectureId);
 

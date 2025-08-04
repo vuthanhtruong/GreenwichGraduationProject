@@ -65,7 +65,7 @@ public class AddRoomController {
             offlineRoom.setRoomId(roomId);
             offlineRoom.setCreatedAt(LocalDateTime.now());
             String username = authentication.getName();
-            Staffs creator = staffsService.getStaffs();
+            Staffs creator = staffsService.getStaff();
             if (creator == null) {
                 model.addAttribute("errorMessage", "Authenticated staff not found.");
                 return "AddOfflineRoom";
@@ -110,7 +110,7 @@ public class AddRoomController {
             onlineRoom.setRoomId(roomId);
             onlineRoom.setCreatedAt(LocalDateTime.now());
             String username = authentication.getName();
-            Staffs creator = staffsService.getStaffs();
+            Staffs creator = staffsService.getStaff();
             if (creator == null) {
                 model.addAttribute("errorMessage", "Authenticated staff not found.");
                 return "AddOnlineRoom";

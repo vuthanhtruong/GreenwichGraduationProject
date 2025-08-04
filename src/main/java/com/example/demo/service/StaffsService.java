@@ -8,7 +8,7 @@ import jakarta.mail.MessagingException;
 import java.util.List;
 
 public interface StaffsService {
-    Staffs getStaffs();
-    Majors getMajors();
+    Staffs getStaff();
+    Majors getStaffMajor();
     List<Classes> getClasses();
 }

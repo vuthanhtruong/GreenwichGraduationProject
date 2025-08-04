@@ -35,7 +35,7 @@ public class ListStudentsController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize) {
         try {
-            Staffs staffs = staffsService.getStaffs();
+            Staffs staffs = staffsService.getStaff();
 
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("pageSize");

@@ -30,7 +30,7 @@ public class ListSubjectController {
     @GetMapping("/major-subjects-list")
     public String showSubjectsList(Model model) {
         model.addAttribute("newSubject", new Subjects());
-        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         model.addAttribute("semesters", Arrays.asList(Semester.values()));
         return "SubjectsList";
     }

@@ -70,7 +70,7 @@ public class ClassesDAOImpl implements ClassesDAO {
 
     @Override
     public void addClass(Classes c) {
-        c.setCreator(staffsService.getStaffs());
+        c.setCreator(staffsService.getStaff());
         c.setCreatedAt(LocalDateTime.now());
         entityManager.persist(c);
     }

@@ -38,8 +38,8 @@ public class SubjectsDAOImpl implements SubjectsDAO {
         if (subject == null) {
             throw new IllegalArgumentException("Subject object cannot be null");
         }
-        subject.setCreator(staffsService.getStaffs());
-        subject.setMajor(staffsService.getMajors());
+        subject.setCreator(staffsService.getStaff());
+        subject.setMajor(staffsService.getStaffMajor());
         entityManager.persist(subject);
     }
 

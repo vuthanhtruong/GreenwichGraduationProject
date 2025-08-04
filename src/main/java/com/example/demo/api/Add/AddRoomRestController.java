@@ -55,7 +55,7 @@ public class AddRoomRestController {
             offlineRoom.setRoomId(roomId);
             offlineRoom.setCreatedAt(LocalDateTime.now());
             String username = authentication.getName();
-            Staffs creator = staffsService.getStaffs();
+            Staffs creator = staffsService.getStaff();
             if (creator == null) {
                 errors.add("Authenticated staff not found.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
@@ -95,7 +95,7 @@ public class AddRoomRestController {
             onlineRoom.setRoomId(roomId);
             onlineRoom.setCreatedAt(LocalDateTime.now());
             String username = authentication.getName();
-            Staffs creator = staffsService.getStaffs();
+            Staffs creator = staffsService.getStaff();
             if (creator == null) {
                 errors.add("Authenticated staff not found.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);

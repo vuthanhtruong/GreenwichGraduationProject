@@ -19,8 +19,8 @@ import java.util.List;
 public class StaffsServiceImpl implements StaffsService {
 
     @Override
-    public Majors getMajors() {
-        return staffsDAO.getMajors();
+    public Majors getStaffMajor() {
+        return staffsDAO.getStaffMajor();
     }
     private final StaffsDAO staffsDAO;
 
@@ -28,8 +28,8 @@ public class StaffsServiceImpl implements StaffsService {
         this.staffsDAO = staffsDAO;
     }
     @Override
-    public Staffs getStaffs() {
-        return staffsDAO.getStaffs();
+    public Staffs getStaff() {
+        return staffsDAO.getStaff();
     }
 
     @Override

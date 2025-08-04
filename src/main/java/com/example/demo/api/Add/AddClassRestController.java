@@ -77,7 +77,7 @@ public class AddClassRestController {
             newClass.setSubject(subject);
 
             // Generate class ID and set other fields
-            String majorId = staffsService.getMajors() != null ? staffsService.getMajors().getMajorId() : "default";
+            String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
             String classId = generateUniqueClassId(majorId, LocalDateTime.now());
             newClass.setClassId(classId);
             newClass.setCreatedAt(LocalDateTime.now());

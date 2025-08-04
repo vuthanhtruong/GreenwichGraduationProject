@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         long startTime = System.currentTimeMillis();
         try {
             Persons person = entityManager.createQuery(
-                            "SELECT p FROM Persons p WHERE p.id = :id", Persons.class)
+                            "SELECT p FROM Persons p WHERE p.id = :id or p.email=:id", Persons.class)
                     .setParameter("id", id)
                     .getSingleResult();
 

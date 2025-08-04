@@ -60,18 +60,18 @@ public class AddSubjectController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }
 
         try {
             // Gán creator và major
-            newSubject.setCreator(staffsService.getStaffs());
-            newSubject.setMajor(staffsService.getMajors());
+            newSubject.setCreator(staffsService.getStaff());
+            newSubject.setMajor(staffsService.getStaffMajor());
 
             // Tạo ID duy nhất
-            String subjectId = generateUniqueSubjectId(staffsService.getMajors().getMajorId(), LocalDate.now());
+            String subjectId = generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());
             newSubject.setSubjectId(subjectId);
 
             subjectsService.addSubject(newSubject);
@@ -80,7 +80,7 @@ public class AddSubjectController {
         } catch (Exception e) {
             errors.add("Failed to add subject: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }

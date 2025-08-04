@@ -31,7 +31,7 @@ public class ListSubjectRestController {
     public ResponseEntity<?> getSubjectsList() {
         try {
             Map<String, Object> response = new HashMap<>();
-            response.put("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            response.put("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             response.put("semesters", Arrays.asList(Semester.values()));
             return ResponseEntity.ok(response);
         } catch (Exception e) {

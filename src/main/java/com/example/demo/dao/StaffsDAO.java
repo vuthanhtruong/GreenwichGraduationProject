@@ -7,7 +7,7 @@ import com.example.demo.entity.Staffs;
 import java.util.List;
 
 public interface StaffsDAO {
-    Staffs getStaffs();
-    Majors getMajors();
+    Staffs getStaff();
+    Majors getStaffMajor();
     List<Classes> getClasses();
 }

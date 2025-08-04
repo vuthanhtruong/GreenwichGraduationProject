@@ -50,7 +50,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             studentClass.setClassEntity(classes);
             studentClass.setStudent(student);
             studentClass.setCreatedAt(LocalDateTime.now());
-            studentClass.setAddedBy(staffsService.getStaffs());
+            studentClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(studentClass);
         }
     }
@@ -60,7 +60,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         if (classes == null) {
             return List.of();
         }
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }
@@ -77,7 +77,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         if (classes == null) {
             return List.of();
         }
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }
@@ -96,7 +96,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             return List.of();
         }
         String subjectId = classes.getSubject().getSubjectId();
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }
@@ -121,7 +121,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             return List.of();
         }
         String subjectId = classes.getSubject().getSubjectId();
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }
@@ -146,7 +146,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             return List.of();
         }
         String subjectId = classes.getSubject().getSubjectId();
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }
@@ -192,7 +192,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             return List.of();
         }
         String subjectId = classes.getSubject().getSubjectId();
-        Majors major = staffsService.getMajors();
+        Majors major = staffsService.getStaffMajor();
         if (major == null) {
             return List.of();
         }

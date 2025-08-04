@@ -43,7 +43,7 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public Students dataStudent() {
+    public Students getStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new SecurityException("Authentication required");
@@ -57,7 +57,7 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public Majors getMajors() {
+    public Majors getStudentMajor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new SecurityException("Authentication required");
@@ -78,7 +78,7 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public Students addStudents(Students students, String randomPassword) {
 
-        Staffs staff = staffsService.getStaffs();
+        Staffs staff = staffsService.getStaff();
         students.setCampus(staff.getCampus());
         students.setMajor(staff.getMajorManagement());
         students.setCreator(staff);
@@ -101,7 +101,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public long numberOfStudents() {
-        Staffs staff = staffsService.getStaffs();
+        Staffs staff = staffsService.getStaff();
         return (Long) entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s WHERE s.major.id = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement().getMajorId())
@@ -142,17 +142,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
-            throw new SecurityException("Authentication required");
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        Persons user = entityManager.find(Persons.class, username);
-        if (user == null || !(user instanceof Staffs)) {
-            throw new SecurityException("Only staff members can access paginated students.");
-        }
-        Staffs staff = (Staffs) user;
+        Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
 
         return entityManager.createQuery(

@@ -48,7 +48,7 @@ public class LecturesDAOImpl implements LecturesDAO {
     @Override
     public Lecturers addLecturers(Lecturers lecturers, String randomPassword) {
 
-        Staffs staff = staffsService.getStaffs();
+        Staffs staff = staffsService.getStaff();
         lecturers.setCampus(staff.getCampus());
         lecturers.setMajorManagement(staff.getMajorManagement());
         lecturers.setCreator(staff);
@@ -66,7 +66,7 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public long numberOfLecturers() {
-        Staffs staff = staffsService.getStaffs();
+        Staffs staff = staffsService.getStaff();
         if (staff == null) {
             throw new IllegalArgumentException("Staff not found");
         }
@@ -114,7 +114,7 @@ public class LecturesDAOImpl implements LecturesDAO {
     @Override
     public List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize) {
 
-        Staffs staff = staffsService.getStaffs();
+        Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
 
         return entityManager.createQuery(

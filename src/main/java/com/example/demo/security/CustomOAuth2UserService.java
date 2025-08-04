@@ -24,8 +24,6 @@ import java.util.Collections;
 @Service
 public class CustomOAuth2UserService extends OidcUserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomOAuth2UserService.class);
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -34,20 +32,17 @@ public class CustomOAuth2UserService extends OidcUserService {
     @Cacheable(value = "oauth2Users", key = "#userRequest.clientRegistration.registrationId + ':' + #userRequest.accessToken.tokenValue")
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         long startTime = System.currentTimeMillis();
-        logger.info("Starting OIDC user load for provider: {}", userRequest.getClientRegistration().getRegistrationId());
+
 
         try {
             OidcUser oidcUser = super.loadUser(userRequest);
-            logger.info("OIDC user attributes: {}", oidcUser.getAttributes());
+
             String email = oidcUser.getAttribute("email");
 
             if (email == null || email.isEmpty()) {
-                logger.error("Email not found from OIDC provider");
+
                 throw new OAuth2AuthenticationException("Email not found from OIDC provider");
             }
-
-            logger.info("Retrieved email: {}", email);
-
             try {
                 Persons person = entityManager.createQuery(
                                 "SELECT p FROM Persons p WHERE p.email = :email", Persons.class)
@@ -67,22 +62,19 @@ public class CustomOAuth2UserService extends OidcUserService {
                         oidcUser.getUserInfo(),
                         "email"
                 );
-
-                logger.info("Loaded OIDC user with email: {} and role: {}, took {} ms", email, role, System.currentTimeMillis() - startTime);
                 return user;
             } catch (NoResultException e) {
-                logger.warn("No account found with email: {}", email);
                 DefaultOidcUser user = new DefaultOidcUser(
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_STUDENT")),
                         oidcUser.getIdToken(),
                         oidcUser.getUserInfo(),
                         "email"
                 );
-                logger.info("Assigned default role ROLE_STUDENT for email: {}", email);
+
                 return user;
             }
         } catch (Exception e) {
-            logger.error("Error loading OIDC user: {}", e.getMessage(), e);
+
             throw new OAuth2AuthenticationException("Failed to load OIDC user: " + e.getMessage());
         }
     }

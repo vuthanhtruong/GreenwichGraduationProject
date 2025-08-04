@@ -12,13 +12,13 @@ import java.util.List;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
-    public Students dataStudent() {
-        return studentsDAO.dataStudent();
+    public Students getStudent() {
+        return studentsDAO.getStudent();
     }
 
     @Override
-    public Majors getMajors() {
-        return studentsDAO.getMajors();
+    public Majors getStudentMajor() {
+        return studentsDAO.getStudentMajor();
     }
 
     private final StudentsDAO studentsDAO;

@@ -44,7 +44,7 @@ public class UpdateClassController {
             RedirectAttributes redirectAttributes) {
         // Security check
 
-        Staffs user = staffsService.getStaffs();
+        Staffs user = staffsService.getStaff();
         if (!(user instanceof Staffs)) {
             redirectAttributes.addFlashAttribute("errors", List.of("Only staff members can edit classes."));
             return "redirect:/staff-home/classes-list";
@@ -57,8 +57,8 @@ public class UpdateClassController {
         }
 
         model.addAttribute("class", editClass);
-        model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getMajors()));
-        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+        model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         return "EditFormClass";
     }
 
@@ -75,8 +75,8 @@ public class UpdateClassController {
         if (!editErrors.isEmpty() || bindingResult.hasErrors()) {
             model.addAttribute("editErrors", editErrors);
             model.addAttribute("class", classObj);
-            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getMajors()));
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getMajors()));
+            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             return "ClassesList";
         }
 

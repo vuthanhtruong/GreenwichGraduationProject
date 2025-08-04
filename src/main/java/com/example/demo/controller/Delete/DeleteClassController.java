@@ -38,7 +38,7 @@ public class DeleteClassController {
             RedirectAttributes redirectAttributes) {
         // Security check
 
-        Staffs user = staffsService.getStaffs();
+        Staffs user = staffsService.getStaff();
         if (!(user instanceof Staffs)) {
             redirectAttributes.addFlashAttribute("errors", List.of("Only staff members can delete classes."));
             return "redirect:/staff-home/classes-list";

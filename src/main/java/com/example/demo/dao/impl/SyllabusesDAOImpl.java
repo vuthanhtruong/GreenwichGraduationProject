@@ -36,7 +36,7 @@ public class SyllabusesDAOImpl implements SyllabusesDAO {
 
     @Override
     public void addSyllabus(Syllabuses syllabus) {
-        syllabus.setCreator(staffsService.getStaffs());
+        syllabus.setCreator(staffsService.getStaff());
         entityManager.persist(syllabus);
     }
 
