@@ -1,6 +1,5 @@
 package com.example.demo.controller.Update;
 
-import com.example.demo.entity.Semester;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;

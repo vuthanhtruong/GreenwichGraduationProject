@@ -1,6 +1,8 @@
 package com.example.demo.entity;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "classes")
 public class Classes {
@@ -14,6 +16,10 @@ public class Classes {
 
     @Column(name = "SlotQuantity")
     private Integer slotQuantity;
+
+    @Column(name = "Session", nullable = true)
+    @Enumerated(EnumType.STRING)
+    private Sessions session;
 
     @ManyToOne
     @JoinColumn(name = "SubjectID", nullable = true)
@@ -30,10 +36,11 @@ public class Classes {
     public Classes() {
     }
 
-    public Classes(String classId, String nameClass, Integer slotQuantity, Subjects subject, Staffs creator, LocalDateTime createdAt) {
+    public Classes(String classId, String nameClass, Integer slotQuantity, Sessions session, Subjects subject, Staffs creator, LocalDateTime createdAt) {
         this.classId = classId;
         this.nameClass = nameClass;
         this.slotQuantity = slotQuantity;
+        this.session = session;
         this.subject = subject;
         this.creator = creator;
         this.createdAt = createdAt;
@@ -62,6 +69,14 @@ public class Classes {
 
     public void setSlotQuantity(Integer slotQuantity) {
         this.slotQuantity = slotQuantity;
+    }
+
+    public Sessions getSession() {
+        return session;
+    }
+
+    public void setSession(Sessions session) {
+        this.session = session;
     }
 
     public Subjects getSubject() {

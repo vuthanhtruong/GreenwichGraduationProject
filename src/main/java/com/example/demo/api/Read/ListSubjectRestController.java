@@ -1,7 +1,5 @@
 package com.example.demo.api.Read;
 
-import com.example.demo.entity.Semester;
-import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;

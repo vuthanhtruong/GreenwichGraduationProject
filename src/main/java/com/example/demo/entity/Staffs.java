@@ -17,11 +17,6 @@ public class Staffs extends Employes{
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CampusID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Campuses campus;  // Liên kết với Employee (có thể NULL)
-
     public void setPassword(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);

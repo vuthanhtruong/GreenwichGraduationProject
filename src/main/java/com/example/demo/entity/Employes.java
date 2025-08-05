@@ -16,6 +16,11 @@ import java.time.LocalDate;
 @OnDelete(action = OnDeleteAction.CASCADE)
 public class Employes extends Persons {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CampusID", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Campuses campus;  // Liên kết với Employee (có thể NULL)
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
