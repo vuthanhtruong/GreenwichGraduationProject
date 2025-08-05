@@ -41,6 +41,7 @@ public class StaffsDAOImpl implements StaffsDAO {
                 .setParameter("username", authentication.getName())
                 .setMaxResults(1)
                 .getSingleResult();
+
     }
     @Override
     public List<Classes> getClasses() {
