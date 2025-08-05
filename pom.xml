@@ -84,6 +84,7 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
 
+
         <!-- Database -->
         <dependency>
             <groupId>com.mysql</groupId>

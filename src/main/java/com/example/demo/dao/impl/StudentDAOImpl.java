@@ -103,8 +103,8 @@ public class StudentDAOImpl implements StudentsDAO {
     public long numberOfStudents() {
         Staffs staff = staffsService.getStaff();
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(s) FROM Students s WHERE s.major.id = :staffmajor")
-                .setParameter("staffmajor", staff.getMajorManagement().getMajorId())
+                        "SELECT COUNT(s) FROM Students s WHERE s.major = :staffmajor")
+                .setParameter("staffmajor", staff.getMajorManagement())
                 .getSingleResult();
     }
 

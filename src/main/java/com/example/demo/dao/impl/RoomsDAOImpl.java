@@ -8,6 +8,7 @@ import com.example.demo.entity.Staffs;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.RoomsService;
+import com.example.demo.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -25,8 +26,14 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
 
+    private final StaffsService staffsService;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    public RoomsDAOImpl(StaffsService staffsService) {
+        this.staffsService = staffsService;
+    }
 
     @Override
     public Rooms getRoomById(String id) {
@@ -184,19 +191,7 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public void addOnlineRoom(OnlineRooms room) {
-        if (room == null) {
-            throw new IllegalArgumentException("Room object cannot be null");
-        }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
-        if (staff == null) {
-            throw new IllegalArgumentException("Staff not found for username: " + username);
-        }
-
+       Staffs staff=staffsService.getStaff();
         room.setCreator(staff);
         room.setCreatedAt(LocalDateTime.now());
         if (room.getLink() == null || room.getLink().isEmpty()) {
@@ -207,19 +202,7 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public void addOfflineRoom(OfflineRooms room) {
-        if (room == null) {
-            throw new IllegalArgumentException("Room object cannot be null");
-        }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
-        if (staff == null) {
-            throw new IllegalArgumentException("Staff not found for username: " + username);
-        }
-
+        Staffs staff=staffsService.getStaff();
         room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);
         room.setCreator(staff);
         room.setCreatedAt(LocalDateTime.now());
