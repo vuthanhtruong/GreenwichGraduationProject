@@ -29,30 +29,19 @@ public class StaffsDAOImpl implements StaffsDAO {
 
     @Override
     public Majors getStaffMajor() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        Staffs staff=entityManager.createQuery(
-                                "SELECT s FROM Staffs s WHERE s.email = :username or s.id= :username",
-                                Staffs.class)
-                        .setParameter("username", username)
-                        .setMaxResults(1)
-                        .getSingleResult();
-        return staff.getMajorManagement();
+        return getStaff().getMajorManagement();
     }
 
     @Override
     public Staffs getStaff() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        Staffs staff = entityManager.createQuery(
+        return entityManager.createQuery(
                         "SELECT s FROM Staffs s WHERE s.email = :username or s.id= :username",
                         Staffs.class)
-                .setParameter("username", username)
+                .setParameter("username", authentication.getName())
                 .setMaxResults(1)
                 .getSingleResult();
-        return staff;
     }
-
     @Override
     public List<Classes> getClasses() {
         return List.of();

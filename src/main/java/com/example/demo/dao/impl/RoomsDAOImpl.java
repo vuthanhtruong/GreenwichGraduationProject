@@ -1,4 +1,5 @@
-package com.example.demo.dao.impl;
+
+        package com.example.demo.dao.impl;
 
 import com.example.demo.dao.RoomsDAO;
 import com.example.demo.entity.OfflineRooms;
@@ -8,14 +9,18 @@ import com.example.demo.entity.Staffs;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.RoomsService;
+import com.example.demo.service.StaffsService;
+import com.example.demo.service.GoogleCalendarService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,8 +30,16 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
 
+    private static final Logger logger = LoggerFactory.getLogger(RoomsDAOImpl.class);
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private StaffsService staffsService;
+
+    @Autowired
+    private GoogleCalendarService googleCalendarService;
 
     @Override
     public Rooms getRoomById(String id) {
@@ -95,19 +108,28 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public String generateUniqueJitsiMeetLink(String roomId) {
-        String baseUrl = "https://meet.jit.si/";
-        String jitsiRoomName = (roomId != null && !roomId.trim().isEmpty()) ? roomId.trim() : "Room" + System.currentTimeMillis();
-        String uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
-        String jitsiLink = baseUrl + uniqueRoomName;
-
-        while (isJitsiLinkExists(jitsiLink)) {
-            uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
-            jitsiLink = baseUrl + uniqueRoomName;
+    public String generateUniqueGoogleMeetLink(String roomId) throws IOException {
+        try {
+            // Validate roomId
+            String safeRoomId = (roomId != null && !roomId.trim().isEmpty()) ? roomId.trim() : "room-" + System.currentTimeMillis();
+            String meetLink = googleCalendarService.createMeetingEvent(safeRoomId);
+            int attempts = 0;
+            int maxAttempts = 5; // Limit retries to avoid infinite loops
+            while (isMeetLinkExists(meetLink) && attempts < maxAttempts) {
+                safeRoomId = "room-" + System.currentTimeMillis() + generateRandomString(3);
+                meetLink = googleCalendarService.createMeetingEvent(safeRoomId);
+                attempts++;
+            }
+            if (isMeetLinkExists(meetLink)) {
+                logger.error("Failed to generate unique Google Meet link after {} attempts for roomId: {}", maxAttempts, safeRoomId);
+                throw new IOException("Unable to generate unique Google Meet link");
+            }
+            logger.info("Generated Google Meet link: {} for roomId: {}", meetLink, safeRoomId);
+            return meetLink;
+        } catch (IOException e) {
+            logger.error("Failed to generate Google Meet link for roomId: {}", roomId, e);
+            throw e;
         }
-
-        String password = generateRandomPassword(8);
-        return jitsiLink + "#config.roomPassword=" + password;
     }
 
     @Override
@@ -123,7 +145,7 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public String generateRandomString(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String characters = "abcdefghijklmnopqrstuvwxyz";
         SecureRandom random = new SecureRandom();
         StringBuilder randomString = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -133,9 +155,10 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public boolean isJitsiLinkExists(String link) {
-        if (link == null) {
-            return false;
+    public boolean isMeetLinkExists(String link) {
+        if (link == null || link.trim().isEmpty() || link.contains("meet.jit.si")) {
+            logger.warn("Invalid or Jitsi link detected: {}", link);
+            return true; // Treat invalid/Jitsi links as existing to force regeneration
         }
         Long count = entityManager.createQuery(
                         "SELECT COUNT(r) FROM OnlineRooms r WHERE r.link = :link", Long.class)
@@ -183,26 +206,28 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public void addOnlineRoom(OnlineRooms room) {
+    public void addOnlineRoom(OnlineRooms room) throws IOException {
         if (room == null) {
             throw new IllegalArgumentException("Room object cannot be null");
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
+        Staffs staff = staffsService.getStaff();
         if (staff == null) {
-            throw new IllegalArgumentException("Staff not found for username: " + username);
+            throw new IllegalArgumentException("Staff not found");
         }
 
         room.setCreator(staff);
         room.setCreatedAt(LocalDateTime.now());
-        if (room.getLink() == null || room.getLink().isEmpty()) {
-            room.setLink(generateUniqueJitsiMeetLink(room.getRoomId()));
+        if (room.getLink() == null || room.getLink().isEmpty() || room.getLink().contains("meet.jit.si")) {
+            try {
+                String meetLink = generateUniqueGoogleMeetLink(room.getRoomId());
+                room.setLink(meetLink);
+            } catch (IOException e) {
+                logger.error("Failed to add online room due to Google Meet link generation error for roomId: {}", room.getRoomId(), e);
+                throw e;
+            }
         }
         entityManager.persist(room);
+        logger.info("Persisted online room with ID: {} and link: {}", room.getRoomId(), room.getLink());
     }
 
     @Override
@@ -210,14 +235,9 @@ public class RoomsDAOImpl implements RoomsDAO {
         if (room == null) {
             throw new IllegalArgumentException("Room object cannot be null");
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Staffs staff = entityManager.find(Staffs.class, username);
+        Staffs staff = staffsService.getStaff();
         if (staff == null) {
-            throw new IllegalArgumentException("Staff not found for username: " + username);
+            throw new IllegalArgumentException("Staff not found");
         }
 
         room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);

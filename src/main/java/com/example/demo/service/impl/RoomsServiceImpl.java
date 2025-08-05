@@ -8,6 +8,7 @@ import com.example.demo.entity.Rooms;
 import com.example.demo.service.RoomsService;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,8 +35,8 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public String generateUniqueJitsiMeetLink(String roomId) {
-        return roomsDAO.generateUniqueJitsiMeetLink(roomId);
+    public String generateUniqueGoogleMeetLink(String roomId) throws IOException {
+        return roomsDAO.generateUniqueGoogleMeetLink(roomId);
     }
 
     @Override
@@ -49,8 +50,8 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public boolean isJitsiLinkExists(String link) {
-        return roomsDAO.isJitsiLinkExists(link);
+    public boolean isMeetLinkExists(String link) {
+        return roomsDAO.isMeetLinkExists(link);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public void addOnlineRoom(OnlineRooms rooms) {
+    public void addOnlineRoom(OnlineRooms rooms) throws IOException {
         roomsDAO.addOnlineRoom(rooms);
     }
 
