@@ -35,8 +35,8 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public String generateUniqueGoogleMeetLink(String roomId) throws IOException {
-        return roomsDAO.generateUniqueGoogleMeetLink(roomId);
+    public String generateUniqueJitsiMeetLink(String roomId) throws IOException {
+        return roomsDAO.generateUniqueJitsiMeetLink(roomId);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public boolean isMeetLinkExists(String link) {
-        return roomsDAO.isMeetLinkExists(link);
+    public boolean isJitsiLinkExists(String link) {
+        return roomsDAO.isJitsiLinkExists(link);
     }
 
     @Override

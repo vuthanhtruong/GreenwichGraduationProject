@@ -21,10 +21,10 @@ public interface RoomsService {
     Boolean existsOfflineRoomsById(String id);
     void deleteOnlineRoom(String id);
     void deleteOfflineRoom(String id);
-    boolean isMeetLinkExists(String link);
+    boolean isJitsiLinkExists(String link);
     String generateRandomPassword(int length);
     String generateRandomString(int length);
-    String generateUniqueGoogleMeetLink(String roomId) throws IOException;
+    String generateUniqueJitsiMeetLink(String roomId) throws IOException;
     Rooms updateOfflineRoom(String id, OfflineRooms room);
     Rooms updateOnlineRoom(String id, OnlineRooms room);
     Rooms getByName(String name);
