@@ -111,7 +111,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                         Students.class)
                 .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("failedGrade", Grades.NOT_PASS)
+                .setParameter("failedGrade", Grades.REFER)
                 .getResultList();
     }
 
@@ -136,7 +136,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                         Students.class)
                 .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("failedGrade", Grades.NOT_PASS)
+                .setParameter("failedGrade", Grades.REFER)
                 .getResultList();
     }
 

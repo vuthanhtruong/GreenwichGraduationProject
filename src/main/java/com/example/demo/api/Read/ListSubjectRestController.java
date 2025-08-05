@@ -30,7 +30,6 @@ public class ListSubjectRestController {
         try {
             Map<String, Object> response = new HashMap<>();
             response.put("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            response.put("semesters", Arrays.asList(Semester.values()));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
