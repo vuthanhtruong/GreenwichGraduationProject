@@ -187,7 +187,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         if (classes == null || classes.getSubject() == null || classes.getSubject().getSemester() == null) {
             return List.of();
         }
-        Semester prevSemester = getPreviousSemester(classes.getSubject().getSemester());
+        Integer prevSemester = getPreviousSemester(classes.getSubject().getSemester());
         if (prevSemester == null) {
             return List.of();
         }
@@ -210,14 +210,10 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                 .getResultList();
     }
 
-    private Semester getPreviousSemester(Semester currentSemester) {
+    private Integer getPreviousSemester(Integer currentSemester) {
         if (currentSemester == null) {
             return null;
         }
-        int currentOrdinal = currentSemester.ordinal();
-        if (currentOrdinal == 0) {
-            return null; // SEMESTER_1 has no previous semester
-        }
-        return Semester.values()[currentOrdinal - 1];
+        return currentSemester > 1 ? currentSemester - 1 : null; // No previous semester if current is 1 or less
     }
 }

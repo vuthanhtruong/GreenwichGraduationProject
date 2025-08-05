@@ -52,7 +52,7 @@
                     <label for="semester" class="form-label">Semester:</label>
                     <select id="semester" class="form-select" th:field="*{semester}">
                         <option value="">Select Semester</option>
-                        <option th:each="semester : ${semesters}" th:value="${semester}" th:text="${semester}"></option>
+                        <option th:each="i : ${#numbers.sequence(1, 8)}" th:value="${i}" th:text="${i}" th:selected="${subject.semester == i}"></option>
                     </select>
                     <div class="text-danger" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}"></div>
                 </div>

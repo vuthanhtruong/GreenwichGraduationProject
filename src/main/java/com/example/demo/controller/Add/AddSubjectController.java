@@ -59,7 +59,6 @@ public class AddSubjectController {
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }
 
@@ -79,7 +78,6 @@ public class AddSubjectController {
             errors.add("Failed to add subject: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "SubjectsList";
         }
     }

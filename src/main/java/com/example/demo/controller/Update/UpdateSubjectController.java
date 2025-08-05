@@ -40,7 +40,6 @@ public class UpdateSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
         model.addAttribute("subject", subject);
-        model.addAttribute("semesters", Arrays.asList(Semester.values()));
         return "EditSubjectForm";
     }
 
@@ -64,7 +63,6 @@ public class UpdateSubjectController {
         if (!editErrors.isEmpty() || bindingResult.hasErrors()) {
             model.addAttribute("editErrors", editErrors);
             model.addAttribute("subject", formSubject);
-            model.addAttribute("semesters", Arrays.asList(Semester.values()));
             return "EditSubjectForm";
         }
 
