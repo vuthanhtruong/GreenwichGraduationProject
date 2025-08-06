@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Posts {
+public abstract class Posts {
 
     @Id
     @Column(name = "PostID")
@@ -29,4 +29,13 @@ public class Posts {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    public Posts() {}
+
+    public Posts(String postId, Notifications notification, String title, LocalDateTime createdAt) {
+        this.postId = postId;
+        this.notification = notification;
+        this.title = title;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+    }
 }

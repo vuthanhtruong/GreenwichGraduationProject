@@ -29,11 +29,6 @@ public class LecturerEvaluations {
     private Lecturers lecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ReceiverID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs receiver;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NotificationID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Notifications notification;
@@ -48,4 +43,16 @@ public class LecturerEvaluations {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    public LecturerEvaluations() {}
+
+    public LecturerEvaluations(String lecturerEvaluationId, Students reviewer, Lecturers lecturer, Notifications notification, Classes classEntity, String text, LocalDateTime createdAt) {
+        this.lecturerEvaluationId = lecturerEvaluationId;
+        this.reviewer = reviewer;
+        this.lecturer = lecturer;
+        this.notification = notification;
+        this.classEntity = classEntity;
+        this.text = text;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+    }
 }

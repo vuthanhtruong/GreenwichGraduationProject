@@ -9,10 +9,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PaymentHistory")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Getter
 @Setter
-public class PaymentHistory {
+public abstract class PaymentHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,11 +23,6 @@ public class PaymentHistory {
     @JoinColumn(name = "StudentID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SubjectID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Subjects subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RemainingAccountBalance", nullable = false)
@@ -44,17 +39,15 @@ public class PaymentHistory {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    // Constructors
     public PaymentHistory() {}
 
-    public PaymentHistory(String paymentHistoryId, Students student, Subjects subject, AccountBalances accountBalance,
+    public PaymentHistory(String paymentHistoryId, Students student, AccountBalances accountBalance,
                           LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
         this.paymentHistoryId = paymentHistoryId;
         this.student = student;
-        this.subject = subject;
         this.accountBalance = accountBalance;
         this.paymentTime = paymentTime;
-        this.createdAt = createdAt;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.status = status;
     }
 }

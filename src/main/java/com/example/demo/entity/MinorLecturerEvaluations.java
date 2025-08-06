@@ -29,11 +29,6 @@ public class MinorLecturerEvaluations {
     private MinorLecturers minorLecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ReceiverID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private DeputyStaffs receiver;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NotificationID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Notifications notification;
@@ -51,11 +46,10 @@ public class MinorLecturerEvaluations {
 
     public MinorLecturerEvaluations() {}
 
-    public MinorLecturerEvaluations(String minorLecturerEvaluationId, Students reviewer, MinorLecturers minorLecturer, DeputyStaffs receiver, Notifications notification, MinorClasses minorClass, String text, LocalDateTime createdAt) {
+    public MinorLecturerEvaluations(String minorLecturerEvaluationId, Students reviewer, MinorLecturers minorLecturer, Notifications notification, MinorClasses minorClass, String text, LocalDateTime createdAt) {
         this.minorLecturerEvaluationId = minorLecturerEvaluationId;
         this.reviewer = reviewer;
         this.minorLecturer = minorLecturer;
-        this.receiver = receiver;
         this.notification = notification;
         this.minorClass = minorClass;
         this.text = text;
