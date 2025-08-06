@@ -37,14 +37,14 @@ public class Students_MinorClasses {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs addedBy;
+    private DeputyStaffs addedBy;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
     public Students_MinorClasses() {}
 
-    public Students_MinorClasses(Students student, MinorClasses minorClass, Staffs addedBy, LocalDateTime createdAt) {
+    public Students_MinorClasses(Students student, MinorClasses minorClass, DeputyStaffs addedBy, LocalDateTime createdAt) {
         this.id = new StudentsMinorClassesId(student.getId(), minorClass.getMinorClassId());
         this.student = student;
         this.minorClass = minorClass;

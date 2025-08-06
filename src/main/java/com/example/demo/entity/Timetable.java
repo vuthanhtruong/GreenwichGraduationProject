@@ -10,9 +10,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "Timetable")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Timetable {
+public abstract class Timetable {
 
     @Id
     @Column(name = "TimetableID")
@@ -24,19 +25,9 @@ public class Timetable {
     private Rooms room;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Classes classEntity;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SlotID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Slots slot;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs creator;
 
     @Column(name = "DayOfTheWeek", nullable = true, length = 20)
     @Enumerated(EnumType.STRING)
@@ -44,4 +35,14 @@ public class Timetable {
 
     @Column(name = "Date", nullable = true)
     private LocalDate date;
+
+    public Timetable() {}
+
+    public Timetable(String timetableId, Rooms room, Slots slot, DayOfWeek dayOfTheWeek, LocalDate date) {
+        this.timetableId = timetableId;
+        this.room = room;
+        this.slot = slot;
+        this.dayOfTheWeek = dayOfTheWeek;
+        this.date = date;
+    }
 }

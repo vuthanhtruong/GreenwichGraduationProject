@@ -174,7 +174,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         return entityManager.createQuery(
                         "SELECT s FROM Students s WHERE s.id IN " +
                                 "(SELECT sc.student.id FROM Students_Classes sc WHERE sc.classEntity = :class) " +
-                                "AND EXISTS (SELECT t FROM Timetable t WHERE t.classEntity = :class " +
+                                "AND EXISTS (SELECT t FROM MajorTimetable t WHERE t.classEntity = :class " +
                                 "AND (t.date >= :currentDate OR t.dayOfTheWeek IS NOT NULL))",
                         Students.class)
                 .setParameter("class", classes)
