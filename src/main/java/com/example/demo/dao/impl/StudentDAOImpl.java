@@ -45,29 +45,17 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public Students getStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Students student = entityManager.find(Students.class, username);
-        if (student == null) {
-            throw new IllegalArgumentException("Student not found for username: " + username);
-        }
-        return student;
+        return entityManager.createQuery(
+                        "SELECT s FROM Students s WHERE s.email = :username or s.id= :username",
+                        Students.class)
+                .setParameter("username", authentication.getName())
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     @Override
     public Majors getStudentMajor() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new SecurityException("Authentication required");
-        }
-        String username = authentication.getName();
-        Students student = entityManager.find(Students.class, username);
-        if (student == null || student.getMajor() == null) {
-            throw new IllegalArgumentException("Major not found for student: " + username);
-        }
-        return student.getMajor();
+        return getStudent().getMajor();
     }
 
     @Override

@@ -15,7 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class Lecturers extends Employes {
 
     @Column(name = "Type", nullable = true, length = 50)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private EmploymentTypes employmentTypes;
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
@@ -29,16 +30,19 @@ public class Lecturers extends Employes {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
     }
+
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null; // Avatar exists, no default needed
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
     }
+
     @Override
     public String getRoleType() {
         return "LECTURER";
     }
+
     @Override
     public String getPassword() {
         return password;

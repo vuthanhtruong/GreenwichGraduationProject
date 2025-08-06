@@ -281,7 +281,7 @@ public class DemoApplication {
         staff1.setId("staff001");
         staff1.setFirstName("John");
         staff1.setLastName("Doe");
-        staff1.setEmail("john.doe@example.com");
+        staff1.setEmail("vuthanhtruong1280@gmail.com");
         staff1.setPhoneNumber("0391234567");
         staff1.setBirthDate(LocalDate.of(1985, 5, 15));
         staff1.setGender(Gender.MALE);
