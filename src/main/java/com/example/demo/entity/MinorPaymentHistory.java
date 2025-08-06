@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "MinorPaymentHistory")
+@PrimaryKeyJoinColumn(name = "PaymentHistoryID")
 @Getter
 @Setter
 public class MinorPaymentHistory extends PaymentHistory {
@@ -21,9 +22,9 @@ public class MinorPaymentHistory extends PaymentHistory {
 
     public MinorPaymentHistory() {}
 
-    public MinorPaymentHistory(String minorPaymentHistoryId, Students student, MinorSubjects minorSubject, AccountBalances accountBalance,
+    public MinorPaymentHistory(String paymentHistoryId, Students student, MinorSubjects minorSubject, AccountBalances accountBalance,
                                LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
-        super(minorPaymentHistoryId, student, accountBalance, paymentTime, createdAt, status);
+        super(paymentHistoryId, student, accountBalance, paymentTime, createdAt, status);
         this.minorSubject = minorSubject;
     }
 }

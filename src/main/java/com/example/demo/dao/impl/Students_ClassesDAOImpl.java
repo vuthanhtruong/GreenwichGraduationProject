@@ -105,7 +105,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                                 "(SELECT at.student.id FROM AcademicTranscripts at WHERE at.subject.subjectId = :subjectId " +
                                 "AND at.grade = :failedGrade) " +
                                 "AND s.id NOT IN (SELECT ph.student.id FROM MajorPaymentHistory ph " +
-                                "WHERE ph.subject.subjectId = :subjectId AND ph.status = 'SUCCESS') " +
+                                "WHERE ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED') " +
                                 "AND s.id NOT IN (SELECT sc.student.id FROM Students_Classes sc " +
                                 "WHERE sc.classEntity.subject.subjectId = :subjectId)",
                         Students.class)
@@ -130,7 +130,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                                 "(SELECT at.student.id FROM AcademicTranscripts at WHERE at.subject.subjectId = :subjectId " +
                                 "AND at.grade = :failedGrade) " +
                                 "AND s.id IN (SELECT ph.student.id FROM MajorPaymentHistory ph " +
-                                "WHERE ph.subject.subjectId = :subjectId AND ph.status = 'SUCCESS') " +
+                                "WHERE ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED') " +
                                 "AND s.id NOT IN (SELECT sc.student.id FROM Students_Classes sc " +
                                 "WHERE sc.classEntity.subject.subjectId = :subjectId)",
                         Students.class)
@@ -151,8 +151,8 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             return List.of();
         }
         String paymentCondition = hasPaid ?
-                "AND s.id IN (SELECT ph.student.id FROM PaymentHistory ph WHERE ph.subject.subjectId = :subjectId AND ph.status = 'SUCCESS')" :
-                "AND s.id NOT IN (SELECT ph.student.id FROM PaymentHistory ph WHERE ph.subject.subjectId = :subjectId AND ph.status = 'SUCCESS')";
+                "AND s.id IN (SELECT ph.student.id FROM MajorPaymentHistory ph WHERE ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED')" :
+                "AND s.id NOT IN (SELECT ph.student.id FROM MajorPaymentHistory ph WHERE ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED')";
         return entityManager.createQuery(
                         "SELECT s FROM Students s WHERE s.major = :major AND s.id NOT IN " +
                                 "(SELECT at.student.id FROM AcademicTranscripts at WHERE at.subject.subjectId = :subjectId) " +

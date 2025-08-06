@@ -9,7 +9,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PaymentHistory")
+@Table(name = "MajorPaymentHistory")
+@PrimaryKeyJoinColumn(name = "PaymentHistoryID")
 @Getter
 @Setter
 public class MajorPaymentHistory extends PaymentHistory {

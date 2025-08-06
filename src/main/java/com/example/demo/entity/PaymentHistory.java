@@ -9,7 +9,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "PaymentHistory")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 public abstract class PaymentHistory {
