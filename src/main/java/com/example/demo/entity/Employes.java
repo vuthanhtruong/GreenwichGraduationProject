@@ -21,11 +21,6 @@ public class Employes extends Persons {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Campuses campus;  // Liên kết với Employee (có thể NULL)
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "MajorID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Majors majorManagement;
-
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
 

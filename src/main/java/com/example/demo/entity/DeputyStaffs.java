@@ -8,28 +8,25 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
-@Table(name = "Staffs")
-@PrimaryKeyJoinColumn(name = "ID") // Liên kết với khóa chính từ Person
+@Table(name = "DeputyStaffs")
+@PrimaryKeyJoinColumn(name = "ID")
 @Getter
 @Setter
-public class Staffs extends Employes{
+public class DeputyStaffs extends Employes {
 
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "MajorID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Majors majorManagement;
 
     public void setPassword(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);
     }
+
     @Override
     public String getRoleType() {
-        return "STAFF";
+        return "DEPUTY_STAFF";
     }
+
     @Override
     public String getPassword() {
         return password;

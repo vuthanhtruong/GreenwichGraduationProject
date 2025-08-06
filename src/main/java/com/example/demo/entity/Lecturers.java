@@ -21,6 +21,11 @@ public class Lecturers extends Employes {
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "MajorID", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Majors majorManagement;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
