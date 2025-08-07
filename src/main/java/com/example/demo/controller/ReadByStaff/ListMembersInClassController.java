@@ -1,4 +1,4 @@
-package com.example.demo.controller.Read;
+package com.example.demo.controller.ReadByStaff;
 
 import com.example.demo.entity.Classes;
 import com.example.demo.entity.Lecturers;

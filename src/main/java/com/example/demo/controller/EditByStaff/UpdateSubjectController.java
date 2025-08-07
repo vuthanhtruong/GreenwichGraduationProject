@@ -1,4 +1,4 @@
-package com.example.demo.controller.Update;
+package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller

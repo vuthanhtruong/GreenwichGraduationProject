@@ -9,8 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableCaching
 public class CacheConfig {
+
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("totalTuition");
+        ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager("totalTuition", "oauth2Users", "users");
+        System.out.println("CacheManager initialized with caches: " + cacheManager.getCacheNames());
+        return cacheManager;
     }
 }

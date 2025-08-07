@@ -25,14 +25,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private EntityManager entityManager;
 
     @Override
-    @Transactional
-    @Cacheable(value = "users", key = "#id")
-    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+    @Transactional(readOnly = true)
+    @Cacheable(value = "users", key = "#username")
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         long startTime = System.currentTimeMillis();
         try {
             Persons person = entityManager.createQuery(
-                            "SELECT p FROM Persons p WHERE p.id = :id or p.email=:id", Persons.class)
-                    .setParameter("id", id)
+                            "SELECT p FROM Persons p WHERE p.id = :username OR p.email = :username", Persons.class)
+                    .setParameter("username", username)
+                    .setHint("jakarta.persistence.cache.storeMode", "REFRESH")
                     .getSingleResult();
 
             String role = switch (person) {
@@ -42,11 +43,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                 default -> throw new IllegalStateException("Unknown person type: " + person.getClass());
             };
 
-            logger.info("Load user {} took {} ms", id, System.currentTimeMillis() - startTime);
+            logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - startTime);
             return new CustomUserDetails(person, role);
         } catch (NoResultException e) {
-            logger.warn("User not found with id: {}", id);
-            throw new UsernameNotFoundException("User not found with id: " + id);
+            logger.warn("User not found with username: {}", username);
+            throw new UsernameNotFoundException("User not found with username: " + username);
         }
     }
 }

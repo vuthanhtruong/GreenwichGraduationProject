@@ -1,4 +1,4 @@
-package com.example.demo.controller.Delete;
+package com.example.demo.controller.DeleteByStaff;
 
 import ch.qos.logback.core.model.Model;
 import com.example.demo.service.RoomsService;

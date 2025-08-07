@@ -209,7 +209,7 @@ public class DemoApplication {
         staff1.setStreet("123 Tran Duy Hung");
         staff1.setPostalCode("100000");
         staff1.setCreatedDate(LocalDate.now());
-        staff1.setPassword(passwordEncoder.encode("Staff123")); // Encode password
+        staff1.setPassword("Staff123"); // Encode password
         staff1.setMajorManagement(computerScience);
 
         Staffs staff2 = new Staffs();
@@ -228,7 +228,7 @@ public class DemoApplication {
         staff2.setStreet("45 Le Loi");
         staff2.setPostalCode("700000");
         staff2.setCreatedDate(LocalDate.now());
-        staff2.setPassword(passwordEncoder.encode("Staff123")); // Encode password
+        staff2.setPassword("Staff123"); // Encode password
         staff2.setMajorManagement(informationTechnology);
 
         staffsToAdd.addAll(List.of(staff1, staff2));

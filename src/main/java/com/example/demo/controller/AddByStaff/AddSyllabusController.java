@@ -1,7 +1,6 @@
-package com.example.demo.controller.Add;
+package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.Syllabuses;
-import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.SubjectsService;
 import com.example.demo.service.SyllabusesService;

@@ -1,7 +1,6 @@
-package com.example.demo.controller.Update;
+package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.Classes;
-import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.ClassesService;
@@ -10,9 +9,6 @@ import com.example.demo.service.SubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

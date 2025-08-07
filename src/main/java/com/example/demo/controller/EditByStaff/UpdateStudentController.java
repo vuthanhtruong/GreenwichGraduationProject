@@ -1,4 +1,4 @@
-package com.example.demo.controller.Update;
+package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.Gender;
 import com.example.demo.entity.Students;
@@ -8,11 +8,8 @@ import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;

@@ -1,4 +1,4 @@
-package com.example.demo.controller.Add;
+package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;

@@ -1,4 +1,4 @@
-package com.example.demo.controller.Read;
+package com.example.demo.controller.ReadByStaff;
 
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/staff-home")

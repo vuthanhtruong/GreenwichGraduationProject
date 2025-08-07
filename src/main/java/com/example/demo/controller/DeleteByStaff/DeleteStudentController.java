@@ -1,4 +1,4 @@
-package com.example.demo.controller.Delete;
+package com.example.demo.controller.DeleteByStaff;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;

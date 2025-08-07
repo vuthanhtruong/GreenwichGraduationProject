@@ -1,19 +1,16 @@
-package com.example.demo.controller.Delete;
+package com.example.demo.controller.DeleteByStaff;
 
 
 import com.example.demo.entity.Classes;
-import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;

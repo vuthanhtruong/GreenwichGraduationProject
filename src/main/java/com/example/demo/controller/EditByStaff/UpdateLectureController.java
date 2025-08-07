@@ -1,4 +1,4 @@
-package com.example.demo.controller.Update;
+package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.Gender;
 import com.example.demo.entity.Lecturers;
@@ -9,14 +9,11 @@ import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 

@@ -1,4 +1,4 @@
-package com.example.demo.controller.Add;
+package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.Subjects;
 import com.example.demo.service.StaffsService;
@@ -17,7 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
