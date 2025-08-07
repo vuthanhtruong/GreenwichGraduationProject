@@ -1,10 +1,4 @@
 package com.example.demo.service.impl;
-
-import com.example.demo.dao.EmployesDAO;
-import com.example.demo.dao.StaffsDAO;
-import com.example.demo.dto.EmployesDTO;
-import com.example.demo.dto.MajorsDTO;
-import com.example.demo.dto.RoomsDTO;
 import com.example.demo.entity.Employes;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Rooms;
@@ -25,8 +19,4 @@ public class EmployesServiceImpl implements EmployesService {
         return List.of();
     }
 
-    @Override
-    public Majors getMajors(EmployesDTO employesDTO) {
-        return null;
-    }
 }
