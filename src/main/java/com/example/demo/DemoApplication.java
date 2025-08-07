@@ -13,25 +13,25 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.demo.entity.Notifications;
 
 @SpringBootApplication
 public class DemoApplication {
 
     public static void main(String[] args) {
-        // Khởi động ứng dụng và lấy ApplicationContext
+        // Start the application and get ApplicationContext
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
 
-        // Lấy EntityManagerFactory và PasswordEncoder từ context
+        // Get EntityManagerFactory and PasswordEncoder from context
         EntityManagerFactory entityManagerFactory = context.getBean(EntityManagerFactory.class);
         PasswordEncoder passwordEncoder = context.getBean(PasswordEncoder.class);
 
-        // Tạo EntityManager duy nhất
+        // Create a single EntityManager
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
-            // Thêm các sự kiện mặc định
+            // Add default events
             entityManager.getTransaction().begin();
-            addDefaultEvents(entityManager);
             entityManager.getTransaction().commit();
         } catch (Exception e) {
             if (entityManager.getTransaction().isActive()) {
@@ -41,7 +41,7 @@ public class DemoApplication {
         }
 
         try {
-            // Thêm các slot mặc định
+            // Add default slots
             entityManager.getTransaction().begin();
             addDefaultSlots(entityManager);
             entityManager.getTransaction().commit();
@@ -53,7 +53,7 @@ public class DemoApplication {
         }
 
         try {
-            // Thêm các major mặc định
+            // Add default majors
             entityManager.getTransaction().begin();
             addDefaultMajors(entityManager);
             entityManager.getTransaction().commit();
@@ -65,7 +65,7 @@ public class DemoApplication {
         }
 
         try {
-            // Thêm các tài khoản Staffs mặc định
+            // Add default staff accounts
             entityManager.getTransaction().begin();
             addDefaultStaffs(entityManager, passwordEncoder);
             entityManager.getTransaction().commit();
@@ -75,102 +75,12 @@ public class DemoApplication {
             }
             e.printStackTrace();
         } finally {
-            // Đóng EntityManager
+            // Close EntityManager
             entityManager.close();
         }
     }
 
-    // Thêm các sự kiện mặc định vào database nếu chưa có
-    private static void addDefaultEvents(EntityManager entityManager) {
-        List<Notifications> eventsToAdd = new ArrayList<>();
-
-        Notifications event1 = new Notifications();
-        event1.setNotificationId("event001");
-        event1.setTitle("Default Event");
-        event1.setDescription("Default event description");
-        event1.setNotificationDate(LocalDateTime.of(2025, 3, 3, 0, 0, 0));
-        event1.setNotificationType("DEFAULT");
-
-        Notifications event2 = new Notifications();
-        event2.setNotificationId("event002");
-        event2.setTitle("New Message");
-        event2.setDescription("You have a new message from another user.");
-        event2.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event2.setNotificationType("MESSAGE");
-
-        Notifications event3 = new Notifications();
-        event3.setNotificationId("event003");
-        event3.setTitle("New Feedback");
-        event3.setDescription("You have new feedback from a student.");
-        event3.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event3.setNotificationType("FEEDBACK");
-
-        Notifications event4 = new Notifications();
-        event4.setNotificationId("event004");
-        event4.setTitle("New Post");
-        event4.setDescription("A new post has been made in your classroom.");
-        event4.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event4.setNotificationType("POST");
-
-        Notifications event5 = new Notifications();
-        event5.setNotificationId("event005");
-        event5.setTitle("New Document");
-        event5.setDescription("A new document has been shared with you.");
-        event5.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event5.setNotificationType("DOCUMENT");
-
-        Notifications event6 = new Notifications();
-        event6.setNotificationId("event006");
-        event6.setTitle("New Comment");
-        event6.setDescription("Someone has commented on your post.");
-        event6.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event6.setNotificationType("COMMENT");
-
-        Notifications event7 = new Notifications();
-        event7.setNotificationId("event007");
-        event7.setTitle("New Blog Post");
-        event7.setDescription("A new blog post has been published.");
-        event7.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event7.setNotificationType("BLOG");
-
-        Notifications event8 = new Notifications();
-        event8.setNotificationId("event008");
-        event8.setTitle("Schedule Notification");
-        event8.setDescription("You have a new notification related to your schedule.");
-        event8.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event8.setNotificationType("SCHEDULE_NOTIFICATION");
-
-        Notifications event9 = new Notifications();
-        event9.setNotificationId("event009");
-        event9.setTitle("Added to Classroom");
-        event9.setDescription("You have been added to a new classroom.");
-        event9.setNotificationDate(LocalDateTime.of(2025, 3, 3, 20, 57, 47));
-        event9.setNotificationType("CLASSROOM_JOIN");
-
-        Notifications event10 = new Notifications();
-        event10.setNotificationId("event010");
-        event10.setTitle("System Event");
-        event10.setDescription("Default system event.");
-        event10.setNotificationDate(LocalDateTime.of(2025, 3, 3, 0, 0, 0));
-        event10.setNotificationType("SYSTEM_EVENT");
-
-        eventsToAdd.addAll(List.of(event1, event2, event3, event4, event5, event6, event7, event8, event9, event10));
-
-        for (Notifications event : eventsToAdd) {
-            try {
-                Notifications existingEvent = entityManager.createQuery(
-                                "SELECT e FROM Notifications e WHERE e.notificationId = :id", Notifications.class)
-                        .setParameter("id", event.getNotificationId())
-                        .getSingleResult();
-                System.out.println("Sự kiện đã tồn tại: " + event.getTitle());
-            } catch (NoResultException e) {
-                entityManager.persist(event);
-                System.out.println("Đã thêm sự kiện: " + event.getTitle());
-            }
-        }
-    }
-
-    // Thêm các slot mặc định vào database nếu chưa có
+    // Add default slots to the database if they don't exist
     private static void addDefaultSlots(EntityManager entityManager) {
         List<Slots> slotsToAdd = new ArrayList<>();
 
@@ -226,7 +136,7 @@ public class DemoApplication {
         }
     }
 
-    // Thêm các major mặc định vào database nếu chưa có
+    // Add default majors to the database if they don't exist
     private static void addDefaultMajors(EntityManager entityManager) {
         List<Majors> majorsToAdd = new ArrayList<>();
 
@@ -239,12 +149,12 @@ public class DemoApplication {
         major2.setMajorName("Information Technology");
 
         Majors major3 = new Majors();
-        major3.setMajorId("major003"); // Fixed: Use major3
-        major3.setMajorName("Graphic Design"); // Fixed: Use major3
+        major3.setMajorId("major003");
+        major3.setMajorName("Graphic Design");
 
         Majors major4 = new Majors();
-        major4.setMajorId("major004"); // Fixed: Use major4
-        major4.setMajorName("Marketing"); // Fixed: Use major4
+        major4.setMajorId("major004");
+        major4.setMajorName("Marketing");
 
         majorsToAdd.addAll(List.of(major1, major2, major3, major4));
 
@@ -262,20 +172,26 @@ public class DemoApplication {
         }
     }
 
-    // Thêm các tài khoản Staffs mặc định vào database nếu chưa có
+    // Add default staff accounts to the database if they don't exist
     private static void addDefaultStaffs(EntityManager entityManager, PasswordEncoder passwordEncoder) {
         List<Staffs> staffsToAdd = new ArrayList<>();
 
-        // Lấy các Majors từ database để gán
-        Majors computerScience = entityManager.createQuery(
-                        "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                .setParameter("id", "major001")
-                .getSingleResult();
-
-        Majors informationTechnology = entityManager.createQuery(
-                        "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                .setParameter("id", "major002")
-                .getSingleResult();
+        // Retrieve Majors from the database with error handling
+        Majors computerScience = null;
+        Majors informationTechnology = null;
+        try {
+            computerScience = entityManager.createQuery(
+                            "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
+                    .setParameter("id", "major001")
+                    .getSingleResult();
+            informationTechnology = entityManager.createQuery(
+                            "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
+                    .setParameter("id", "major002")
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            System.err.println("Error: Required major not found. Ensure majors are added before staffs.");
+            return; // Exit if majors are not found
+        }
 
         Staffs staff1 = new Staffs();
         staff1.setId("staff001");
@@ -293,7 +209,7 @@ public class DemoApplication {
         staff1.setStreet("123 Tran Duy Hung");
         staff1.setPostalCode("100000");
         staff1.setCreatedDate(LocalDate.now());
-        staff1.setPassword("Staff123");
+        staff1.setPassword(passwordEncoder.encode("Staff123")); // Encode password
         staff1.setMajorManagement(computerScience);
 
         Staffs staff2 = new Staffs();
@@ -312,7 +228,7 @@ public class DemoApplication {
         staff2.setStreet("45 Le Loi");
         staff2.setPostalCode("700000");
         staff2.setCreatedDate(LocalDate.now());
-        staff2.setPassword("Staff123");
+        staff2.setPassword(passwordEncoder.encode("Staff123")); // Encode password
         staff2.setMajorManagement(informationTechnology);
 
         staffsToAdd.addAll(List.of(staff1, staff2));

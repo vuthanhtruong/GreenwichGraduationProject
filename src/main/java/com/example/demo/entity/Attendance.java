@@ -31,7 +31,7 @@ public class Attendance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TimetableID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorTimetable timetable;
+    private Timetable timetable;
 
     @Column(name = "Status", nullable = true, length = 50)
     private String status;

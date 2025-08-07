@@ -1,32 +1,23 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+public enum Notifications {
+    NOTIFICATION_001("Default event description"),
+    NOTIFICATION_002("You have a new message from another user."),
+    NOTIFICATION_003("You have new feedback from a student."),
+    NOTIFICATION_004("A new post has been made in your classroom."),
+    NOTIFICATION_005("A new document has been shared with you."),
+    NOTIFICATION_006("Someone has commented on your post."),
+    NOTIFICATION_007("A new blog post has been published."),
+    NOTIFICATION_008("You have a new notification related to your schedule."),
+    NOTIFICATION_009("You have been added to a new classroom."),
+    NOTIFICATION_010("Default system event.");
+    private final String description;
 
-import java.time.LocalDateTime;
+    Notifications(String description) {
+        this.description = description;
+    }
 
-@Entity
-@Table(name = "Notifications")
-@Getter
-@Setter
-public class Notifications {
-
-    @Id
-    @Column(name = "NotificationID")
-    private String notificationId;
-
-    @Column(name = "Title", nullable = true, length = 255)
-    private String title;
-
-    @Column(name = "Description", nullable = true, length = 1000)
-    private String description;
-
-    @Column(name = "NotificationDate", nullable = false)
-    private LocalDateTime notificationDate;
-
-    @Column(name = "NotificationType", nullable = true, length = 50)
-    private String notificationType;
-
-
+    public String getDescription() {
+        return description;
+    }
 }

@@ -30,9 +30,8 @@ public class Students_Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Classes classEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "NotificationID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Notification", nullable = true)
     private Notifications notification;
 
     @ManyToOne(fetch = FetchType.LAZY)

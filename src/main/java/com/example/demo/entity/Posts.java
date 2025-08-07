@@ -19,9 +19,8 @@ public abstract class Posts {
     @Column(name = "PostID")
     private String postId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "NotificationID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Notification", nullable = true)
     private Notifications notification;
 
     @Column(name = "Title", nullable = true, length = 255)

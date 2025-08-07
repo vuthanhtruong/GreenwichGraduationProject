@@ -28,9 +28,8 @@ public class Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Posts post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "NotificationID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Notification", nullable = true)
     private Notifications notification;
 
     @Column(name = "Content", nullable = true, length = 1000)

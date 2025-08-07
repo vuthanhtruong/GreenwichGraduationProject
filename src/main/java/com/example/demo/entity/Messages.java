@@ -31,9 +31,8 @@ public class Messages {
     @Column(name = "Datetime", nullable = false)
     private LocalDateTime datetime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "NotificationID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Notification", nullable = true)
     private Notifications notification;
 
     @Column(name = "Text", nullable = true, length = 1000)
