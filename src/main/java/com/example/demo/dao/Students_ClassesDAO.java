@@ -13,6 +13,7 @@ public interface Students_ClassesDAO {
     List<Students> listStudentsFailedSubjectAndPaid(Classes classes);
     List<Students> listStudentsNotTakenSubject(Classes classes, boolean hasPaid);
     List<Students> listStudentsCurrentlyTakingSubject(Classes classes);
-    List<Students> listStudentsCompletedPreviousSemester(Classes classes);
+    List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(Classes classes);
+    List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(Classes classes);
     void addStudentsToClass(Classes classes, List<String> studentIds);
 }

@@ -13,6 +13,16 @@ import java.util.List;
 @Service
 public class Students_ClassesServiceImpl implements Students_ClassesService {
     @Override
+    public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(Classes classes) {
+        return studentsClassesDAO.listStudentsCompletedPreviousSemesterWithSufficientBalance(classes);
+    }
+
+    @Override
+    public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(Classes classes) {
+        return studentsClassesDAO.listStudentsCompletedPreviousSemesterWithInsufficientBalance(classes);
+    }
+
+    @Override
     public void addStudentsToClass(Classes classes, List<String> studentIds) {
         studentsClassesDAO.addStudentsToClass(classes, studentIds);
     }
@@ -54,8 +64,5 @@ public class Students_ClassesServiceImpl implements Students_ClassesService {
         return studentsClassesDAO.listStudentsCurrentlyTakingSubject(classes);
     }
 
-    @Override
-    public List<Students> listStudentsCompletedPreviousSemester(Classes classes) {
-        return studentsClassesDAO.listStudentsCompletedPreviousSemester(classes);
-    }
+
 }

@@ -68,7 +68,8 @@ public class ListMembersInClassController {
         List<Students> studentsNotTakenPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, true);
         List<Students> studentsNotTakenNotPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, false);
         List<Students> studentsCurrentlyTaking = studentsClassesService.listStudentsCurrentlyTakingSubject(selectedClass);
-        List<Students> studentsCompletedPrevSemester = studentsClassesService.listStudentsCompletedPreviousSemester(selectedClass);
+        List<Students> studentsCompletedPrevSemesterWithSufficientBalance = studentsClassesService.listStudentsCompletedPreviousSemesterWithSufficientBalance(selectedClass);
+        List<Students> studentsCompletedPrevSemesterWithInsufficientBalance = studentsClassesService.listStudentsCompletedPreviousSemesterWithInsufficientBalance(selectedClass);
 
         // Ánh xạ sang Students và Lecturers
         List<Students> studentsInClass = studentsInClassRecords.stream()
@@ -91,7 +92,8 @@ public class ListMembersInClassController {
         model.addAttribute("studentsNotTakenPaid", studentsNotTakenPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenPaid);
         model.addAttribute("studentsNotTakenNotPaid", studentsNotTakenNotPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenNotPaid);
         model.addAttribute("studentsCurrentlyTaking", studentsCurrentlyTaking.isEmpty() ? Collections.emptyList() : studentsCurrentlyTaking);
-        model.addAttribute("studentsCompletedPrevSemester", studentsCompletedPrevSemester.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemester);
+        model.addAttribute("studentsCompletedPrevSemesterWithSufficientBalance", studentsCompletedPrevSemesterWithSufficientBalance.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemesterWithSufficientBalance);
+        model.addAttribute("studentsCompletedPrevSemesterWithInsufficientBalance", studentsCompletedPrevSemesterWithInsufficientBalance.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemesterWithInsufficientBalance);
         model.addAttribute("addStudentForm", new Object());
         model.addAttribute("addLecturerForm", new Object());
 
@@ -126,7 +128,8 @@ public class ListMembersInClassController {
         List<Students> studentsNotTakenPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, true);
         List<Students> studentsNotTakenNotPaid = studentsClassesService.listStudentsNotTakenSubject(selectedClass, false);
         List<Students> studentsCurrentlyTaking = studentsClassesService.listStudentsCurrentlyTakingSubject(selectedClass);
-        List<Students> studentsCompletedPrevSemester = studentsClassesService.listStudentsCompletedPreviousSemester(selectedClass);
+        List<Students> studentsCompletedPrevSemesterWithSufficientBalance = studentsClassesService.listStudentsCompletedPreviousSemesterWithSufficientBalance(selectedClass);
+        List<Students> studentsCompletedPrevSemesterWithInsufficientBalance = studentsClassesService.listStudentsCompletedPreviousSemesterWithInsufficientBalance(selectedClass);
 
         // Ánh xạ sang Students và Lecturers
         List<Students> studentsInClass = studentsInClassRecords.stream()
@@ -149,9 +152,9 @@ public class ListMembersInClassController {
         model.addAttribute("studentsNotTakenPaid", studentsNotTakenPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenPaid);
         model.addAttribute("studentsNotTakenNotPaid", studentsNotTakenNotPaid.isEmpty() ? Collections.emptyList() : studentsNotTakenNotPaid);
         model.addAttribute("studentsCurrentlyTaking", studentsCurrentlyTaking.isEmpty() ? Collections.emptyList() : studentsCurrentlyTaking);
-        model.addAttribute("studentsCompletedPrevSemester", studentsCompletedPrevSemester.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemester);
+        model.addAttribute("studentsCompletedPrevSemesterWithSufficientBalance", studentsCompletedPrevSemesterWithSufficientBalance.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemesterWithSufficientBalance);
+        model.addAttribute("studentsCompletedPrevSemesterWithInsufficientBalance", studentsCompletedPrevSemesterWithInsufficientBalance.isEmpty() ? Collections.emptyList() : studentsCompletedPrevSemesterWithInsufficientBalance);
 
         return "MemberArrangement";
     }
-
 }
