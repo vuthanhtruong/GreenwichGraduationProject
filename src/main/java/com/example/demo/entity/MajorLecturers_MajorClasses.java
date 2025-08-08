@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "Lecturers_Classes")
 @Getter
 @Setter
-public class Lecturers_MajorClasses {
+public class MajorLecturers_MajorClasses {
 
     @EmbeddedId
     private LecturersClassesId id;
