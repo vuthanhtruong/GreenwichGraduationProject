@@ -1,9 +1,6 @@
 package com.example.demo.security;
 
 import com.example.demo.entity.Persons;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Staffs;
-import com.example.demo.entity.Lecturers;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

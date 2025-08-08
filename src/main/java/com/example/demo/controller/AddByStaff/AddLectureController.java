@@ -1,6 +1,6 @@
 package com.example.demo.controller.AddByStaff;
 
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
@@ -39,14 +39,14 @@ public class AddLectureController {
 
     @GetMapping("/add-lecture")
     public String showAddlecturePage(Model model) {
-        model.addAttribute("lecture", new Lecturers()); // Fixed: Use Lecturers instead of Staffs
+        model.addAttribute("lecture", new MajorLecturers()); // Fixed: Use Lecturers instead of Staffs
         model.addAttribute("majors", staffsService.getStaffMajor());
         return "AddLecture";
     }
 
     @PostMapping("/add-lecture")
     public String addlecture(
-            @Valid @ModelAttribute("lecture") Lecturers lecture,
+            @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
@@ -111,7 +111,7 @@ public class AddLectureController {
         }
     }
 
-    private void validatelecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
+    private void validatelecture(MajorLecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));

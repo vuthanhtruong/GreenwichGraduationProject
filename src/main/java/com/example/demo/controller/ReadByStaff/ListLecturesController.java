@@ -1,6 +1,6 @@
 package com.example.demo.controller.ReadByStaff;
 
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.StaffsService;
@@ -61,7 +61,7 @@ public class ListLecturesController {
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Lecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
+            List<MajorLecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
 
             model.addAttribute("teachers", teachers);
             model.addAttribute("currentPage", page);
@@ -76,7 +76,7 @@ public class ListLecturesController {
     @GetMapping("/lectures-list/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getlectureAvatar(@PathVariable String id) {
-        Lecturers lectures = lecturesService.getLecturerById(id);
+        MajorLecturers lectures = lecturesService.getLecturerById(id);
         if (lectures != null && lectures.getAvatar() != null) {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG) // Adjust based on your avatar format (JPEG, PNG, etc.)

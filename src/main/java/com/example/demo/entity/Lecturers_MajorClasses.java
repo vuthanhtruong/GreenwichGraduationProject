@@ -21,7 +21,7 @@ public class Lecturers_MajorClasses {
     @MapsId("lecturerId")
     @JoinColumn(name = "LecturerID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Lecturers lecturer;
+    private MajorLecturers lecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("classId")

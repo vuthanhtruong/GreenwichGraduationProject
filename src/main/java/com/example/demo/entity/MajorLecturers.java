@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @PrimaryKeyJoinColumn(name = "ID")
 @Getter
 @Setter
-public class Lecturers extends Employes {
+public class MajorLecturers extends Employes {
 
     @Column(name = "Type", nullable = true, length = 50)
     @Enumerated(EnumType.STRING)

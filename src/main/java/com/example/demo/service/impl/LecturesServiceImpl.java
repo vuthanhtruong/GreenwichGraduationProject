@@ -1,7 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.LecturesDAO;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
@@ -18,12 +18,12 @@ public class LecturesServiceImpl implements LecturesService {
     }
 
     @Override
-    public List<Lecturers> getLecturers() {
+    public List<MajorLecturers> getLecturers() {
         return lecturesDAO.getLecturers();
     }
 
     @Override
-    public Lecturers addLecturers(Lecturers lecturers, String randomPassword) {
+    public MajorLecturers addLecturers(MajorLecturers lecturers, String randomPassword) {
         return lecturesDAO.addLecturers(lecturers, randomPassword);
     }
 
@@ -38,17 +38,17 @@ public class LecturesServiceImpl implements LecturesService {
     }
 
     @Override
-    public void updateLecturer(String id, Lecturers lecturer) throws MessagingException {
+    public void updateLecturer(String id, MajorLecturers lecturer) throws MessagingException {
         lecturesDAO.updateLecturer(id, lecturer);
     }
 
     @Override
-    public Lecturers getLecturerById(String id) {
+    public MajorLecturers getLecturerById(String id) {
         return lecturesDAO.getLecturerById(id);
     }
 
     @Override
-    public List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize) {
+    public List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize) {
         return lecturesDAO.getPaginatedLecturers(firstResult, pageSize);
     }
 }

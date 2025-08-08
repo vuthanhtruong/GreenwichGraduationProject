@@ -3,7 +3,7 @@ package com.example.demo.security;
 import com.example.demo.entity.Persons;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Staffs;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             String role = switch (person) {
                 case Students s -> "ROLE_STUDENT";
                 case Staffs s -> "ROLE_STAFF";
-                case Lecturers l -> "ROLE_LECTURER";
+                case MajorLecturers l -> "ROLE_LECTURER";
                 default -> throw new IllegalStateException("Unknown person type: " + person.getClass());
             };
 

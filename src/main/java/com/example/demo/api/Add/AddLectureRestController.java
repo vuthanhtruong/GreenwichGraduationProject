@@ -1,6 +1,6 @@
 package com.example.demo.api.Add;
 
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
@@ -38,12 +38,12 @@ public class AddLectureRestController {
 
     @GetMapping("/add-lecture")
     public ResponseEntity<?> getAddLectureForm() {
-        return ResponseEntity.ok(new Lecturers());
+        return ResponseEntity.ok(new MajorLecturers());
     }
 
     @PostMapping("/add-lecture")
     public ResponseEntity<?> addLecture(
-            @Valid @ModelAttribute("lecture") Lecturers lecture,
+            @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             HttpSession session) {
 
@@ -86,7 +86,7 @@ public class AddLectureRestController {
         }
     }
 
-    private void validateLecture(Lecturers lecture, List<String> errors, MultipartFile avatarFile) {
+    private void validateLecture(MajorLecturers lecture, List<String> errors, MultipartFile avatarFile) {
         // Custom validations
         if (!isValidName(lecture.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");

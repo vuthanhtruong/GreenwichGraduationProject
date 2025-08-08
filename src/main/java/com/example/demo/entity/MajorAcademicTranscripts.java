@@ -22,7 +22,7 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Marker", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Lecturers marker;
+    private MajorLecturers marker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)

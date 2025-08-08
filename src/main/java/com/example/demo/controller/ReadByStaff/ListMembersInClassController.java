@@ -1,7 +1,7 @@
 package com.example.demo.controller.ReadByStaff;
 
 import com.example.demo.entity.MajorClasses;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Students_MajorClasses;
@@ -61,7 +61,7 @@ public class ListMembersInClassController {
         List<Students_MajorClasses> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
         List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
         List<Lecturers_MajorClasses> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
-        List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
+        List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
         // Lấy danh sách theo yêu cầu
         List<Students> studentsFailedNotPaid = studentsClassesService.listStudentsFailedSubjectAndNotPaid(selectedClass);
         List<Students> studentsFailedPaid = studentsClassesService.listStudentsFailedSubjectAndPaid(selectedClass);
@@ -76,7 +76,7 @@ public class ListMembersInClassController {
                 .map(Students_MajorClasses::getStudent)
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
-        List<Lecturers> lecturersInClass = lecturersInClassRecords.stream()
+        List<MajorLecturers> lecturersInClass = lecturersInClassRecords.stream()
                 .map(Lecturers_MajorClasses::getLecturer)
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
@@ -120,7 +120,7 @@ public class ListMembersInClassController {
         List<Students_MajorClasses> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
         List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
         List<Lecturers_MajorClasses> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
-        List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
+        List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
 
         // Lấy danh sách theo yêu cầu
         List<Students> studentsFailedNotPaid = studentsClassesService.listStudentsFailedSubjectAndNotPaid(selectedClass);
@@ -136,7 +136,7 @@ public class ListMembersInClassController {
                 .map(Students_MajorClasses::getStudent)
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
-        List<Lecturers> lecturersInClass = lecturersInClassRecords.stream()
+        List<MajorLecturers> lecturersInClass = lecturersInClassRecords.stream()
                 .map(Lecturers_MajorClasses::getLecturer)
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());

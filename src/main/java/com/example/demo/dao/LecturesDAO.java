@@ -1,15 +1,15 @@
 package com.example.demo.dao;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import jakarta.mail.MessagingException;
 
 import java.util.List;
 
 public interface LecturesDAO {
-    List<Lecturers> getLecturers();
-    Lecturers addLecturers(Lecturers lecturers, String randomPassword);
+    List<MajorLecturers> getLecturers();
+    MajorLecturers addLecturers(MajorLecturers lecturers, String randomPassword);
     long numberOfLecturers();
     void deleteLecturer(String id);
-    void updateLecturer(String id, Lecturers lecturer) throws MessagingException;
-    Lecturers getLecturerById(String id);
-    List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize);
+    void updateLecturer(String id, MajorLecturers lecturer) throws MessagingException;
+    MajorLecturers getLecturerById(String id);
+    List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize);
 }

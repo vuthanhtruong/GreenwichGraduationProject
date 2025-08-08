@@ -2,7 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.Lecturers_ClassesDAO;
 import com.example.demo.entity.MajorClasses;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.LecturersClassesId;
 import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.service.LecturesService;
@@ -42,7 +42,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     @Override
     public void addLecturersToClass(MajorClasses classes, List<String> lecturerIds) {
         for (String lecturerId : lecturerIds) {
-            Lecturers lecturer = lecturesService.getLecturerById(lecturerId);
+            MajorLecturers lecturer = lecturesService.getLecturerById(lecturerId);
             Lecturers_MajorClasses lecturerClass = new Lecturers_MajorClasses();
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
@@ -75,11 +75,11 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     }
 
     @Override
-    public List<Lecturers> listLecturersNotInClass(MajorClasses classes) {
+    public List<MajorLecturers> listLecturersNotInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT l FROM Lecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
+                        "SELECT l FROM MajorLecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
                                 "(SELECT lc.lecturer.id FROM Lecturers_MajorClasses lc WHERE lc.classEntity = :class)",
-                        Lecturers.class)
+                        MajorLecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();

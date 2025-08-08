@@ -2,7 +2,7 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dao.Lecturers_ClassesDAO;
 import com.example.demo.entity.MajorClasses;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.service.Lecturers_ClassesService;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     }
 
     @Override
-    public List<Lecturers> listLecturersNotInClass(MajorClasses classes) {
+    public List<MajorLecturers> listLecturersNotInClass(MajorClasses classes) {
         return lecturers_classesDAO.listLecturersNotInClass(classes);
     }
 

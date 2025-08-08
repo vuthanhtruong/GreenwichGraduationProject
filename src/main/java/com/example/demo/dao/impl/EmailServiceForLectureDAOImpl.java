@@ -1,7 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.EmailServiceForLectureDAO;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class EmailServiceForLectureDAOImpl implements EmailServiceForLectureDAO 
     @Autowired
     private JavaMailSender mailSender;
 
-    private String generateEmailTemplate(Lecturers teacher, String title, String subtitle, String mainMessage, boolean includeCredentials, String teacherId, String rawPassword) {
+    private String generateEmailTemplate(MajorLecturers teacher, String title, String subtitle, String mainMessage, boolean includeCredentials, String teacherId, String rawPassword) {
         return String.format(
                 "<html>" +
                         "<head>" +
@@ -199,7 +199,7 @@ public class EmailServiceForLectureDAOImpl implements EmailServiceForLectureDAO 
 
     @Async("emailTaskExecutor")
     @Override
-    public void sendEmailToNotifyLoginInformation(String to, String subject, Lecturers teacher, String rawPassword) throws MessagingException {
+    public void sendEmailToNotifyLoginInformation(String to, String subject, MajorLecturers teacher, String rawPassword) throws MessagingException {
         String htmlMessage = generateEmailTemplate(
                 teacher,
                 "Teacher Account Created",
@@ -220,7 +220,7 @@ public class EmailServiceForLectureDAOImpl implements EmailServiceForLectureDAO 
 
     @Async("emailTaskExecutor")
     @Override
-    public void sendEmailToNotifyInformationAfterEditing(String to, String subject, Lecturers teacher) throws MessagingException {
+    public void sendEmailToNotifyInformationAfterEditing(String to, String subject, MajorLecturers teacher) throws MessagingException {
         String htmlMessage = generateEmailTemplate(
                 teacher,
                 "Teacher Account Updated",

@@ -6,8 +6,6 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "SubmissionFeedbacks")
 @Getter
@@ -21,7 +19,7 @@ public class SubmissionFeedbacks {
     @MapsId("announcerId")
     @JoinColumn(name = "AnnouncerID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Lecturers announcer;
+    private MajorLecturers announcer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("submissionId")
@@ -41,7 +39,7 @@ public class SubmissionFeedbacks {
 
     public SubmissionFeedbacks() {}
 
-    public SubmissionFeedbacks(Lecturers announcer, Submissions submission) {
+    public SubmissionFeedbacks(MajorLecturers announcer, Submissions submission) {
         if (announcer == null || submission == null) {
             throw new IllegalArgumentException("Announcer and submission cannot be null");
         }

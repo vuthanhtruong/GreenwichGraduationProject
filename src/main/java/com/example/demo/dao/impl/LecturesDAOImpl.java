@@ -1,9 +1,8 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.LecturesDAO;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
@@ -12,9 +11,6 @@ import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -41,19 +37,19 @@ public class LecturesDAOImpl implements LecturesDAO {
     }
 
     @Override
-    public List<Lecturers> getLecturers() {
-        return entityManager.createQuery("FROM Lecturers l", Lecturers.class).getResultList();
+    public List<MajorLecturers> getLecturers() {
+        return entityManager.createQuery("FROM MajorLecturers l", MajorLecturers.class).getResultList();
     }
 
     @Override
-    public Lecturers addLecturers(Lecturers lecturers, String randomPassword) {
+    public MajorLecturers addLecturers(MajorLecturers lecturers, String randomPassword) {
 
         Staffs staff = staffsService.getStaff();
         lecturers.setCampus(staff.getCampus());
         lecturers.setMajorManagement(staff.getMajorManagement());
         lecturers.setCreator(staff);
 
-        Lecturers savedLecturer = entityManager.merge(lecturers);
+        MajorLecturers savedLecturer = entityManager.merge(lecturers);
 
         try {
             String subject = "Your Lecturer Account Information";
@@ -72,14 +68,14 @@ public class LecturesDAOImpl implements LecturesDAO {
         }
 
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(l) FROM Lecturers l WHERE l.majorManagement.id = :staffmajor")
+                        "SELECT COUNT(l) FROM MajorLecturers l WHERE l.majorManagement.id = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement().getMajorId())
                 .getSingleResult();
     }
 
     @Override
     public void deleteLecturer(String id) {
-        Lecturers lecturer = entityManager.find(Lecturers.class, id);
+        MajorLecturers lecturer = entityManager.find(MajorLecturers.class, id);
         if (lecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
@@ -87,12 +83,12 @@ public class LecturesDAOImpl implements LecturesDAO {
     }
 
     @Override
-    public void updateLecturer(String id, Lecturers lecturer) throws MessagingException {
+    public void updateLecturer(String id, MajorLecturers lecturer) throws MessagingException {
         if (lecturer == null || id == null) {
             throw new IllegalArgumentException("Lecturer object or ID cannot be null");
         }
 
-        Lecturers existingLecturer = entityManager.find(Lecturers.class, id);
+        MajorLecturers existingLecturer = entityManager.find(MajorLecturers.class, id);
         if (existingLecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
@@ -107,31 +103,31 @@ public class LecturesDAOImpl implements LecturesDAO {
     }
 
     @Override
-    public Lecturers getLecturerById(String id) {
-        return entityManager.find(Lecturers.class, id);
+    public MajorLecturers getLecturerById(String id) {
+        return entityManager.find(MajorLecturers.class, id);
     }
 
     @Override
-    public List<Lecturers> getPaginatedLecturers(int firstResult, int pageSize) {
+    public List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize) {
 
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
 
         return entityManager.createQuery(
-                        "SELECT s FROM Lecturers s WHERE s.majorManagement = :staffmajor", Lecturers.class)
+                        "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor", MajorLecturers.class)
                 .setParameter("staffmajor", majors)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
     }
 
-    private void validateLecturer(Lecturers lecturer) {
+    private void validateLecturer(MajorLecturers lecturer) {
         if (lecturer.getEmail() == null || lecturer.getPhoneNumber() == null) {
             throw new IllegalArgumentException("Email and phone number are required");
         }
     }
 
-    private void updateLecturerFields(Lecturers existing, Lecturers updated) {
+    private void updateLecturerFields(MajorLecturers existing, MajorLecturers updated) {
         if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
         if (updated.getLastName() != null) existing.setLastName(updated.getLastName());
         if (updated.getEmail() != null) existing.setEmail(updated.getEmail());

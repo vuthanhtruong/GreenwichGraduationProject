@@ -1,7 +1,7 @@
 package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.Gender;
-import com.example.demo.entity.Lecturers;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
@@ -40,7 +40,7 @@ public class UpdateLectureController {
 
     @PostMapping("/edit-lecture-form")
     public String handleEditlecturePost(@RequestParam String id, Model model) {
-        Lecturers lecture = lecturesService.getLecturerById(id);
+        MajorLecturers lecture = lecturesService.getLecturerById(id);
         model.addAttribute("lecture", lecture);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         return "EditLectureForm";
@@ -48,7 +48,7 @@ public class UpdateLectureController {
 
     @PutMapping("/edit-lecture-form")
     public String updatelecture(
-            @Valid @ModelAttribute("lecture") Lecturers lecture,
+            @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
@@ -79,7 +79,7 @@ public class UpdateLectureController {
                 lecture.setAvatar(avatarBytes);
             } else {
                 // Retain existing avatar
-                Lecturers existingLecture = lecturesService.getLecturerById(lecture.getId());
+                MajorLecturers existingLecture = lecturesService.getLecturerById(lecture.getId());
                 lecture.setAvatar(existingLecture.getAvatar());
             }
             // Update lecture
@@ -99,7 +99,7 @@ public class UpdateLectureController {
         return "redirect:/staff-home/lectures-list";
     }
 
-    private void validatelecture(Lecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
+    private void validatelecture(MajorLecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));

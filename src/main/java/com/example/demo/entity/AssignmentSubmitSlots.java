@@ -18,7 +18,7 @@ public class AssignmentSubmitSlots extends Posts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Lecturers creator;
+    private MajorLecturers creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
