@@ -11,10 +11,12 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
     private final Persons person;
     private final String role;
+    private final String password;
 
-    public CustomUserDetails(Persons person, String role) {
+    public CustomUserDetails(Persons person, String role, String password) {
         this.person = person;
         this.role = role;
+        this.password = password;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return person.getPassword();
+        return password;
     }
 
     @Override

@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .tokenRepository(persistentTokenRepository())
                         .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 days
                         .key("your-secret-key-1234567890") // Replace with a secure random key
-                        .userDetailsService(userDetailsService) // Fixed naming mismatch
+                        .userDetailsService(userDetailsService)
                         .useSecureCookie(true)
                 );
 
@@ -102,7 +102,7 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        tokenRepository.setCreateTableOnStartup(false); // Disable automatic table creation
+        tokenRepository.setCreateTableOnStartup(true); // Enable automatic table creation
         return tokenRepository;
     }
 }

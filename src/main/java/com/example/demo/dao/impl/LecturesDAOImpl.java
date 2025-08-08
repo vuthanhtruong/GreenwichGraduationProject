@@ -1,6 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.LecturesDAO;
+import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
@@ -27,7 +28,8 @@ public class LecturesDAOImpl implements LecturesDAO {
     private final EmailServiceForStudentService emailServiceForStudentService;
 
     public LecturesDAOImpl(EmailServiceForLectureService emailServiceForLectureService,
-                           EmailServiceForStudentService emailServiceForStudentService, StaffsService staffsService) {
+                           EmailServiceForStudentService emailServiceForStudentService,
+                           StaffsService staffsService) {
         if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
@@ -43,13 +45,18 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public MajorLecturers addLecturers(MajorLecturers lecturers, String randomPassword) {
-
         Staffs staff = staffsService.getStaff();
         lecturers.setCampus(staff.getCampus());
         lecturers.setMajorManagement(staff.getMajorManagement());
         lecturers.setCreator(staff);
-
         MajorLecturers savedLecturer = entityManager.merge(lecturers);
+
+        // Create and save Authenticators entity for the lecturer
+        Authenticators authenticators = new Authenticators();
+        authenticators.setPersonId(savedLecturer.getId());
+        authenticators.setPerson(savedLecturer);
+        authenticators.setPassword(randomPassword);
+        entityManager.persist(authenticators);
 
         try {
             String subject = "Your Lecturer Account Information";
@@ -79,6 +86,7 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
+        // The Authenticators entity will be automatically deleted due to OnDeleteAction.CASCADE
         entityManager.remove(lecturer);
     }
 
@@ -94,7 +102,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         }
 
         validateLecturer(lecturer);
-
         updateLecturerFields(existingLecturer, lecturer);
         entityManager.merge(existingLecturer);
 
@@ -109,7 +116,6 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize) {
-
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
 
@@ -134,8 +140,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
         if (updated.getBirthDate() != null) existing.setBirthDate(updated.getBirthDate());
         if (updated.getGender() != null) existing.setGender(updated.getGender());
-        if (updated.getFaceData() != null) existing.setFaceData(updated.getFaceData());
-        if (updated.getVoiceData() != null) existing.setVoiceData(updated.getVoiceData());
         if (updated.getCountry() != null) existing.setCountry(updated.getCountry());
         if (updated.getProvince() != null) existing.setProvince(updated.getProvince());
         if (updated.getCity() != null) existing.setCity(updated.getCity());
@@ -145,7 +149,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (updated.getPostalCode() != null) existing.setPostalCode(updated.getPostalCode());
         if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
         if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
-        if (updated.getPassword() != null && !updated.getPassword().isEmpty()) existing.setPassword(updated.getPassword());
         if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
     }
 }

@@ -42,14 +42,6 @@ public abstract class Persons {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Lob
-    @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
-    private String faceData;
-
-    @Lob
-    @Column(name = "VoiceData", columnDefinition = "LONGTEXT", nullable = true)
-    private String voiceData;
-
     @Column(name = "Country", nullable = true, length = 100)
     private String country;
 
@@ -79,6 +71,5 @@ public abstract class Persons {
         return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
     }
     public abstract String getRoleType();
-    public abstract String getPassword();
 
 }

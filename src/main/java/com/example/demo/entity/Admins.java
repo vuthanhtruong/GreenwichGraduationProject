@@ -13,21 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Setter
 public class Admins extends Persons {
 
-    @Column(name = "Password", nullable = false, length = 255)
-    private String password;
-
-    public void setPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        this.password = passwordEncoder.encode(password);
-    }
+    @Lob
+    @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
+    private String faceData;
 
     @Override
     public String getRoleType() {
         return "ADMIN";
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

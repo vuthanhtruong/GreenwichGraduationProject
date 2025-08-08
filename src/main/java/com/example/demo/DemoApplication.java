@@ -36,6 +36,7 @@ public class DemoApplication {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
+            System.err.println("Failed to add default events: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -48,6 +49,7 @@ public class DemoApplication {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
+            System.err.println("Failed to add default slots: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -60,6 +62,7 @@ public class DemoApplication {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
+            System.err.println("Failed to add default majors: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -72,6 +75,7 @@ public class DemoApplication {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
+            System.err.println("Failed to add default staffs: " + e.getMessage());
             e.printStackTrace();
         } finally {
             // Close EntityManager
@@ -208,7 +212,6 @@ public class DemoApplication {
         staff1.setStreet("123 Tran Duy Hung");
         staff1.setPostalCode("100000");
         staff1.setCreatedDate(LocalDate.now());
-        staff1.setPassword("Staff123"); // Encode password
         staff1.setMajorManagement(computerScience);
 
         Staffs staff2 = new Staffs();
@@ -227,7 +230,6 @@ public class DemoApplication {
         staff2.setStreet("45 Le Loi");
         staff2.setPostalCode("700000");
         staff2.setCreatedDate(LocalDate.now());
-        staff2.setPassword("Staff123"); // Encode password
         staff2.setMajorManagement(informationTechnology);
 
         staffsToAdd.addAll(List.of(staff1, staff2));
@@ -240,8 +242,19 @@ public class DemoApplication {
                         .getSingleResult();
                 System.out.println("Staff đã tồn tại: " + staff.getId());
             } catch (NoResultException e) {
-                entityManager.persist(staff);
-                System.out.println("Đã thêm Staff: " + staff.getId());
+                try {
+                    entityManager.persist(staff);
+                    // Create and save Authenticators entity for the staff
+                    Authenticators authenticators = new Authenticators();
+                    authenticators.setPersonId(staff.getId());
+                    authenticators.setPerson(staff);
+                    authenticators.setPassword("Staff123"); // Password will be encoded by Authenticators' setPassword
+                    entityManager.persist(authenticators);
+                    System.out.println("Đã thêm Staff: " + staff.getId());
+                } catch (Exception ex) {
+                    System.err.println("Failed to add staff " + staff.getId() + ": " + ex.getMessage());
+                    throw ex; // Re-throw to trigger transaction rollback
+                }
             }
         }
     }

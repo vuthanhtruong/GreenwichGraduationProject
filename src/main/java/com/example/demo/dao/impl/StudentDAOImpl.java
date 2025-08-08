@@ -12,10 +12,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,10 +28,12 @@ public class StudentDAOImpl implements StudentsDAO {
 
     private final EmailServiceForStudentService emailServiceForStudentService;
     private final EmailServiceForLectureService emailServiceForLectureService;
-    private final AccountBalancesService  accountBalancesService;
+    private final AccountBalancesService accountBalancesService;
 
     public StudentDAOImpl(EmailServiceForStudentService emailServiceForStudentService,
-                          EmailServiceForLectureService emailServiceForLectureService, AccountBalancesService accountBalancesService, StaffsService staffsService) {
+                          EmailServiceForLectureService emailServiceForLectureService,
+                          AccountBalancesService accountBalancesService,
+                          StaffsService staffsService) {
         this.accountBalancesService = accountBalancesService;
         if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
@@ -46,7 +47,7 @@ public class StudentDAOImpl implements StudentsDAO {
     public Students getStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.email = :username or s.id= :username",
+                        "SELECT s FROM Students s WHERE s.email = :username OR s.id = :username",
                         Students.class)
                 .setParameter("username", authentication.getName())
                 .setMaxResults(1)
@@ -65,16 +66,23 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public Students addStudents(Students students, String randomPassword) {
-
         Staffs staff = staffsService.getStaff();
         students.setCampus(staff.getCampus());
         students.setMajor(staff.getMajorManagement());
         students.setCreator(staff);
         Students savedStudent = entityManager.merge(students);
+
+        // Create and save Authenticators entity for the student
+        Authenticators authenticators = new Authenticators();
+        authenticators.setPersonId(savedStudent.getId());
+        authenticators.setPerson(savedStudent);
+        authenticators.setPassword(randomPassword);
+        entityManager.persist(authenticators);
+
         AccountBalances accountBalances = new AccountBalances();
         accountBalances.setBalance(0.000000);
         accountBalances.setStudent(savedStudent);
-        accountBalances.setStudentId(accountBalances.getStudent().getId());
+        accountBalances.setStudentId(savedStudent.getId());
         accountBalances.setLastUpdated(LocalDateTime.now());
         accountBalancesService.createAccountBalances(accountBalances);
 
@@ -102,6 +110,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
+        // The Authenticators entity will be automatically deleted due to OnDeleteAction.CASCADE
         entityManager.remove(student);
     }
 
@@ -148,8 +157,6 @@ public class StudentDAOImpl implements StudentsDAO {
         if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
         if (updated.getBirthDate() != null) existing.setBirthDate(updated.getBirthDate());
         if (updated.getGender() != null) existing.setGender(updated.getGender());
-        if (updated.getFaceData() != null) existing.setFaceData(updated.getFaceData());
-        if (updated.getVoiceData() != null) existing.setVoiceData(updated.getVoiceData());
         if (updated.getCountry() != null) existing.setCountry(updated.getCountry());
         if (updated.getProvince() != null) existing.setProvince(updated.getProvince());
         if (updated.getCity() != null) existing.setCity(updated.getCity());
@@ -161,6 +168,5 @@ public class StudentDAOImpl implements StudentsDAO {
         if (updated.getMisId() != null) existing.setMisId(updated.getMisId());
         if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
         if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
-        if (updated.getPassword() != null && !updated.getPassword().isEmpty()) existing.setPassword(updated.getPassword());
     }
 }

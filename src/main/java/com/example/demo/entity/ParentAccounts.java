@@ -49,8 +49,4 @@ public class ParentAccounts extends Persons {
         return "PARENT";
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

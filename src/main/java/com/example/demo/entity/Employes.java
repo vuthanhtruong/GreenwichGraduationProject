@@ -29,9 +29,5 @@ public class Employes extends Persons {
     public String getRoleType() {
         throw new UnsupportedOperationException("Employes must be either Staffs or Lecturers");
     }
-    @Override
-    public String getPassword() {
-        return null;
-    }
 
 }

@@ -42,11 +42,6 @@ public class Students extends Persons {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Majors major;
 
-    public void setPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        this.password = passwordEncoder.encode(password);
-    }
-
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null;
@@ -59,8 +54,4 @@ public class Students extends Persons {
         return "STUDENT";
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

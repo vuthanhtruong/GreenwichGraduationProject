@@ -50,8 +50,4 @@ public class MajorLecturers extends Employes {
         return "LECTURER";
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

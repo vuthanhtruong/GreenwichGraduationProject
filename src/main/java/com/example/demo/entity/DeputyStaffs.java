@@ -27,8 +27,4 @@ public class DeputyStaffs extends Employes {
         return "DEPUTY_STAFF";
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

@@ -9,10 +9,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
-@Table(name = "Authentication")
+@Table(name = "Authenticators")
 @Getter
 @Setter
-public class Authentication {
+public class Authenticators {
 
     @Id
     @Column(name = "PersonID")
@@ -23,7 +23,7 @@ public class Authentication {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Persons person; // Liên kết tới entity Persons (hoặc subclass)
 
-    @Column(name = "Password", nullable = false, length = 255)
+    @Column(name = "Password", nullable = true, length = 255)
     private String password;
 
     public void setPassword(String rawPassword) {

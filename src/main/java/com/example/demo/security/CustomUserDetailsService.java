@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Staffs;
@@ -30,10 +31,19 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         long startTime = System.currentTimeMillis();
         try {
+            // Join Persons with Authenticators to fetch the password
             Persons person = entityManager.createQuery(
-                            "SELECT p FROM Persons p WHERE p.id = :username OR p.email = :username", Persons.class)
+                            "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId WHERE p.id = :username OR p.email = :username",
+                            Persons.class)
                     .setParameter("username", username)
                     .setHint("jakarta.persistence.cache.storeMode", "REFRESH")
+                    .getSingleResult();
+
+            // Fetch the password from the Authenticators entity
+            Authenticators authenticators = entityManager.createQuery(
+                            "SELECT a FROM Authenticators a WHERE a.personId = :personId",
+                            Authenticators.class)
+                    .setParameter("personId", person.getId())
                     .getSingleResult();
 
             String role = switch (person) {
@@ -44,7 +54,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             };
 
             logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - startTime);
-            return new CustomUserDetails(person, role);
+            return new CustomUserDetails(person, role, authenticators.getPassword());
         } catch (NoResultException e) {
             logger.warn("User not found with username: {}", username);
             throw new UsernameNotFoundException("User not found with username: " + username);

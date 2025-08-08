@@ -14,9 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Setter
 public class Staffs extends Employes{
 
-    @Column(name = "Password", nullable = false, length = 255)
-    private String password;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -27,16 +24,8 @@ public class Staffs extends Employes{
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
-    public void setPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        this.password = passwordEncoder.encode(password);
-    }
     @Override
     public String getRoleType() {
         return "STAFF";
-    }
-    @Override
-    public String getPassword() {
-        return password;
     }
 }
