@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.entity.Enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,10 @@ public class Authenticators {
 
     @Column(name = "Password", nullable = true, length = 255)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "AccountStatus", nullable = true)
+    private AccountStatus accountStatus = AccountStatus.ACTIVE; // Default status
 
     public void setPassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
