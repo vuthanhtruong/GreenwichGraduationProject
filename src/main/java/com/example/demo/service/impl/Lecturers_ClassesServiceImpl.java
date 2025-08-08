@@ -12,6 +12,11 @@ import java.util.List;
 @Service
 public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     @Override
+    public void removeLecturerFromClass(Classes classes, List<String> lecturerIds) {
+        lecturers_classesDAO.removeLecturerFromClass(classes, lecturerIds);
+    }
+
+    @Override
     public void addLecturersToClass(Classes classes, List<String> lecturerIds) {
         lecturers_classesDAO.addLecturersToClass(classes, lecturerIds);
     }

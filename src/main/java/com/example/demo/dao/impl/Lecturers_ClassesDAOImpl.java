@@ -19,6 +19,21 @@ import java.util.List;
 @Repository
 @Transactional
 public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
+    @Override
+    public void removeLecturerFromClass(Classes classes, List<String> lecturerIds) {
+        if (classes == null || lecturerIds == null || lecturerIds.isEmpty()) {
+            return; // No action if inputs are invalid
+        }
+
+        for (String lecturerId : lecturerIds) {
+            // Find the Lecturers_Classes record by composite key
+            LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
+            Lecturers_Classes lecturerClass = entityManager.find(Lecturers_Classes.class, id);
+            if (lecturerClass != null) {
+                entityManager.remove(lecturerClass); // Delete the record
+            }
+        }
+    }
 
     private final PersonsService personsService;
     private final LecturesService lecturesService;
