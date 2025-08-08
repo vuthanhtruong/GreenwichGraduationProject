@@ -1,6 +1,6 @@
 package com.example.demo.controller.DeleteByStaff;
 
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -13,10 +13,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
 public class DeleteSubjectController {
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public DeleteSubjectController(SubjectsService subjectsService) {
+    public DeleteSubjectController(MajorSubjectsService subjectsService) {
         this.subjectsService = subjectsService;
     }
     @DeleteMapping("/major-subjects-list/delete-subject/{id}")

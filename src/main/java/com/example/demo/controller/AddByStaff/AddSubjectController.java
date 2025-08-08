@@ -2,7 +2,7 @@ package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,11 +24,11 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class AddSubjectController {
 
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public AddSubjectController(SubjectsService subjectsService, StaffsService staffsService) {
+    public AddSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

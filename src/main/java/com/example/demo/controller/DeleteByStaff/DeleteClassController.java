@@ -5,7 +5,7 @@ import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,11 +19,11 @@ import java.util.List;
 @RequestMapping("/staff-home/classes-list")
 public class DeleteClassController {
     private final StaffsService staffsService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final ClassesService classesService;
 
     @Autowired
-    public DeleteClassController(ClassesService classesService, StaffsService staffsService, SubjectsService subjectsService) {
+    public DeleteClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

@@ -5,7 +5,7 @@ import com.example.demo.entity.Staffs;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -24,10 +24,10 @@ public class UpdateClassController {
 
     private final ClassesService classesService;
     private final StaffsService staffsService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public UpdateClassController(ClassesService classesService, StaffsService staffsService, SubjectsService subjectsService) {
+    public UpdateClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

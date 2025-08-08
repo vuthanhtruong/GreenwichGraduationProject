@@ -2,7 +2,7 @@ package com.example.demo.controller.ReadByStaff;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.entity.Syllabuses;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import com.example.demo.service.SyllabusesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +22,10 @@ import java.util.List;
 public class ListSyllabusesController {
 
     private final SyllabusesService syllabusesService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public ListSyllabusesController(SyllabusesService syllabusesService, SubjectsService subjectsService) {
+    public ListSyllabusesController(SyllabusesService syllabusesService, MajorSubjectsService subjectsService) {
         this.syllabusesService = syllabusesService;
         this.subjectsService = subjectsService;
     }

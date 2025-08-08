@@ -1,11 +1,11 @@
-package com.example.demo.service;
+package com.example.demo.dao;
 
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
 
 import java.util.List;
 
-public interface SubjectsService {
+public interface MajorSubjectsDAO {
     void addSubject(MajorSubjects subject);
     MajorSubjects getSubjectById(String subjectId);
     MajorSubjects getSubjectByName(String subjectName);

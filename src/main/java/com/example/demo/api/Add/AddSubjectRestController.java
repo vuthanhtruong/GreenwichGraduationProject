@@ -2,7 +2,7 @@ package com.example.demo.api.Add;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,11 +20,11 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class AddSubjectRestController {
 
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public AddSubjectRestController(SubjectsService subjectsService, StaffsService staffsService) {
+    public AddSubjectRestController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

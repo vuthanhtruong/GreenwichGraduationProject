@@ -44,7 +44,7 @@ public class MinorLecturers_MinorClasses {
     public MinorLecturers_MinorClasses() {}
 
     public MinorLecturers_MinorClasses(MinorLecturers minorLecturer, MinorClasses minorClass, DeputyStaffs addedBy, LocalDateTime createdAt) {
-        this.id = new MinorLecturersMinorClassesId(minorLecturer.getId(), minorClass.getMinorClassId());
+        this.id = new MinorLecturersMinorClassesId(minorLecturer.getId(), minorClass.getClassId());
         this.minorLecturer = minorLecturer;
         this.minorClass = minorClass;
         this.addedBy = addedBy;

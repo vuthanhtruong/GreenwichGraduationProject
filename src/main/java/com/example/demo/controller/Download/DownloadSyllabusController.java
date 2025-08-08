@@ -2,7 +2,7 @@ package com.example.demo.controller.Download;
 
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import com.example.demo.service.SyllabusesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class DownloadSyllabusController {
     private final SyllabusesService syllabusesService;
     private final StaffsService staffsService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public DownloadSyllabusController(SyllabusesService syllabusesService, StaffsService staffsService, SubjectsService subjectsService) {
+    public DownloadSyllabusController(SyllabusesService syllabusesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.syllabusesService = syllabusesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

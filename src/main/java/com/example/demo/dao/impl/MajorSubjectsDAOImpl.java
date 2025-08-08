@@ -1,6 +1,6 @@
 package com.example.demo.dao.impl;
 
-import com.example.demo.dao.SubjectsDAO;
+import com.example.demo.dao.MajorSubjectsDAO;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class SubjectsDAOImpl implements SubjectsDAO {
+public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -24,7 +24,7 @@ public class SubjectsDAOImpl implements SubjectsDAO {
     private final SyllabusesService syllabusesService;
     private final ClassesService classesService;
 
-    public SubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
+    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
         if (staffsService == null || syllabusesService == null || classesService == null) {
             throw new IllegalArgumentException("Services cannot be null");
         }

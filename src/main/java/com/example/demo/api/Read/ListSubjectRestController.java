@@ -1,14 +1,13 @@
 package com.example.demo.api.Read;
 
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 @RestController
@@ -16,11 +15,11 @@ import java.util.Map;
 @PreAuthorize("hasRole('STAFF')")
 public class ListSubjectRestController {
 
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public ListSubjectRestController(SubjectsService subjectsService, StaffsService staffsService) {
+    public ListSubjectRestController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

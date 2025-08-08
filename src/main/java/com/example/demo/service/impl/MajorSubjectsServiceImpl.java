@@ -1,21 +1,21 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dao.SubjectsDAO;
+import com.example.demo.dao.MajorSubjectsDAO;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class SubjectsServiceImpl implements SubjectsService {
+public class MajorSubjectsServiceImpl implements MajorSubjectsService {
 
-    private final SubjectsDAO subjectsDAO;
+    private final MajorSubjectsDAO subjectsDAO;
 
     @Autowired
-    public SubjectsServiceImpl(SubjectsDAO subjectsDAO) {
+    public MajorSubjectsServiceImpl(MajorSubjectsDAO subjectsDAO) {
         this.subjectsDAO = subjectsDAO;
     }
 

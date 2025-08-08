@@ -21,7 +21,7 @@ public class ClassPosts extends Posts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses classEntity;
+    private Classes classEntity;
 
     @Column(name = "Content", nullable = true, length = 1000)
     private String content;

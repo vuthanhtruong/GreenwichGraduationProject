@@ -2,7 +2,7 @@ package com.example.demo.api.Add;
 
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.entity.MajorSubjects;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import com.example.demo.service.SyllabusesService;
 import com.example.demo.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
@@ -25,10 +25,10 @@ public class AddSyllabusRestController {
 
     private final SyllabusesService syllabusesService;
     private final StaffsService staffsService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public AddSyllabusRestController(SyllabusesService syllabusesService, StaffsService staffsService, SubjectsService subjectsService) {
+    public AddSyllabusRestController(SyllabusesService syllabusesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.syllabusesService = syllabusesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

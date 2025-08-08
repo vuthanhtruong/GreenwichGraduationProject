@@ -2,7 +2,7 @@ package com.example.demo.controller.EditByStaff;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -21,11 +21,11 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class UpdateSubjectController {
 
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public UpdateSubjectController(SubjectsService subjectsService, StaffsService staffsService) {
+    public UpdateSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

@@ -2,7 +2,7 @@ package com.example.demo.controller.ReadByStaff;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @PreAuthorize("hasRole('STAFF')")
 public class ListSubjectController {
 
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public ListSubjectController(SubjectsService subjectsService, StaffsService staffsService) {
+    public ListSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

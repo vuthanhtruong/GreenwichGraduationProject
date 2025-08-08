@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "LecturerEvaluations")
 @Getter
 @Setter
-public class LecturerEvaluations {
+public class MajorLecturerEvaluations {
 
     @Id
     @Column(name = "LecturerEvaluationID")
@@ -43,9 +43,9 @@ public class LecturerEvaluations {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    public LecturerEvaluations() {}
+    public MajorLecturerEvaluations() {}
 
-    public LecturerEvaluations(String lecturerEvaluationId, Students reviewer, MajorLecturers lecturer, Notifications notification, MajorClasses classEntity, String text, LocalDateTime createdAt) {
+    public MajorLecturerEvaluations(String lecturerEvaluationId, Students reviewer, MajorLecturers lecturer, Notifications notification, MajorClasses classEntity, String text, LocalDateTime createdAt) {
         this.lecturerEvaluationId = lecturerEvaluationId;
         this.reviewer = reviewer;
         this.lecturer = lecturer;

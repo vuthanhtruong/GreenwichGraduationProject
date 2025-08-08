@@ -4,7 +4,7 @@ import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SubjectsService;
+import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +24,9 @@ public class AddClassController {
 
     private final ClassesService classesService;
     private final StaffsService staffsService;
-    private final SubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     @Autowired
-    public AddClassController(ClassesService classesService, StaffsService staffsService, SubjectsService subjectsService) {
+    public AddClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

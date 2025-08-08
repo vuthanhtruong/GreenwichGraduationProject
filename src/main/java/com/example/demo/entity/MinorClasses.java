@@ -9,47 +9,28 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MinorClasses")
+@DiscriminatorValue("MINOR")
 @Getter
 @Setter
-public class MinorClasses {
-
-    @Id
-    @Column(name = "MinorClassID")
-    private String minorClassId;
-
-    @Column(name = "NameClass", nullable = true, length = 255)
-    private String nameClass;
-
-    @Column(name = "SlotQuantity")
-    private Integer slotQuantity;
-
-    @Column(name = "Session", nullable = true)
-    @Enumerated(EnumType.STRING)
-    private Sessions session;
+public class MinorClasses extends Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MinorSubjectID", nullable = true)
+    @JoinColumn(name = "MinorSubjectID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorSubjects minorSubject;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = true)
+    @JoinColumn(name = "Creator")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private DeputyStaffs creator;
 
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
+    // Constructors
+    public MinorClasses() {
+    }
 
-    public MinorClasses() {}
-
-    public MinorClasses(String minorClassId, String nameClass, Integer slotQuantity, Sessions session, MinorSubjects minorSubject, DeputyStaffs creator, LocalDateTime createdAt) {
-        this.minorClassId = minorClassId;
-        this.nameClass = nameClass;
-        this.slotQuantity = slotQuantity;
-        this.session = session;
+    public MinorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session, MinorSubjects minorSubject, DeputyStaffs creator, LocalDateTime createdAt) {
+        super(classId, nameClass, slotQuantity, session, createdAt);
         this.minorSubject = minorSubject;
         this.creator = creator;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 }
