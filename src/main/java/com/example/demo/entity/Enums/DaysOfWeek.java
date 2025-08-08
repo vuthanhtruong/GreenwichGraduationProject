@@ -1,5 +1,5 @@
 package com.example.demo.entity.Enums;
 
-public enum DayOfWeek {
+public enum DaysOfWeek {
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 }

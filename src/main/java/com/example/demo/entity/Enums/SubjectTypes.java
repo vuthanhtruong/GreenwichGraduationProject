@@ -1,6 +1,6 @@
 package com.example.demo.entity.Enums;
 
-public enum SubjectType {
+public enum SubjectTypes {
     MAJOR_PREPARATION,
     TOPUP_PREPARATION
 }

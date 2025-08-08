@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.entity.*;
+import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;

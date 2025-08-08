@@ -73,7 +73,7 @@
             <label for="gender" class="form-label">Gender:</label>
             <select id="gender" class="form-control" th:field="*{gender}">
                 <option value="">Select gender</option>
-                <option th:each="gender : ${T(com.example.demo.entity.Gender).values()}"
+                <option th:each="gender : ${T(com.example.demo.entity.Enums.Gender).values()}"
                         th:value="${gender}" th:text="${gender}"></option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>

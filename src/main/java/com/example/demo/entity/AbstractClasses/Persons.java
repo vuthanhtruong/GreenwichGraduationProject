@@ -1,5 +1,6 @@
 package com.example.demo.entity.AbstractClasses;
 
+import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;

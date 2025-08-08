@@ -1,6 +1,6 @@
 package com.example.demo.entity.AbstractClasses;
 
-import com.example.demo.entity.Enums.DayOfWeek;
+import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.entity.Slots;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,14 +33,14 @@ public abstract class Timetable {
 
     @Column(name = "DayOfTheWeek", nullable = true, length = 20)
     @Enumerated(EnumType.STRING)
-    private DayOfWeek dayOfTheWeek;
+    private DaysOfWeek dayOfTheWeek;
 
     @Column(name = "Date", nullable = true)
     private LocalDate date;
 
     public Timetable() {}
 
-    public Timetable(String timetableId, Rooms room, Slots slot, DayOfWeek dayOfTheWeek, LocalDate date) {
+    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date) {
         this.timetableId = timetableId;
         this.room = room;
         this.slot = slot;

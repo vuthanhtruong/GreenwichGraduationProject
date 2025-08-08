@@ -1,6 +1,6 @@
 package com.example.demo.entity.AbstractClasses;
 
-import com.example.demo.entity.Enums.SubjectType;
+import com.example.demo.entity.Enums.SubjectTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,5 +28,5 @@ public abstract class Subjects {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "RequirementType", nullable = false)
-    private SubjectType requirementType;
+    private SubjectTypes requirementType;
 }

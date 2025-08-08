@@ -2,7 +2,7 @@ package com.example.demo.entity;
 
 import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.entity.AbstractClasses.Timetable;
-import com.example.demo.entity.Enums.DayOfWeek;
+import com.example.demo.entity.Enums.DaysOfWeek;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +30,7 @@ public class MajorTimetable extends Timetable {
 
     public MajorTimetable() {}
 
-    public MajorTimetable(String timetableId, Rooms room, Slots slot, DayOfWeek dayOfTheWeek, LocalDate date, MajorClasses classEntity, Staffs creator) {
+    public MajorTimetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date, MajorClasses classEntity, Staffs creator) {
         super(timetableId, room, slot, dayOfTheWeek, date);
         this.classEntity = classEntity;
         this.creator = creator;

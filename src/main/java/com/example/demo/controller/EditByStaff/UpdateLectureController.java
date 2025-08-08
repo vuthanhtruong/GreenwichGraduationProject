@@ -1,6 +1,7 @@
 package com.example.demo.controller.EditByStaff;
 
-import com.example.demo.entity.Gender;
+
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
