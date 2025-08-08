@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.MajorLecturers;
@@ -33,10 +34,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         try {
             // Join Persons with Authenticators to fetch the password
             Persons person = entityManager.createQuery(
-                            "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId WHERE p.id = :username OR p.email = :username",
+                            "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
+                                    "WHERE (p.id = :username OR p.email = :username) AND a.accountStatus = :status",
                             Persons.class)
                     .setParameter("username", username)
-                    .setHint("jakarta.persistence.cache.storeMode", "REFRESH")
+                    .setParameter("status", AccountStatus.ACTIVE)
                     .getSingleResult();
 
             // Fetch the password from the Authenticators entity

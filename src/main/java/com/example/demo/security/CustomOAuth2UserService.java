@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.MajorLecturers;
@@ -44,9 +45,12 @@ public class CustomOAuth2UserService extends OidcUserService {
 
             try {
                 Persons person = entityManager.createQuery(
-                                "SELECT p FROM Persons p WHERE p.email = :email", Persons.class)
+                                "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
+                                        "WHERE p.email = :email AND a.accountStatus = :status",
+                                Persons.class)
                         .setParameter("email", email)
-                        .setHint("jakarta.persistence.cache.storeMode", "REFRESH") // Sửa từ javax sang jakarta
+                        .setParameter("status", AccountStatus.ACTIVE)
+                        .setHint("jakarta.persistence.cache.storeMode", "REFRESH")
                         .getSingleResult();
 
                 String role = switch (person) {

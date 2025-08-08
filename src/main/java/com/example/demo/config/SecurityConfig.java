@@ -102,7 +102,7 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        tokenRepository.setCreateTableOnStartup(true); // Enable automatic table creation
+        tokenRepository.setCreateTableOnStartup(false); // Enable automatic table creation
         return tokenRepository;
     }
 }
