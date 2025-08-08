@@ -35,7 +35,7 @@ public class LecturerEvaluations {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Classes classEntity;
+    private MajorClasses classEntity;
 
     @Column(name = "Text", nullable = true, length = 1000)
     private String text;
@@ -45,7 +45,7 @@ public class LecturerEvaluations {
 
     public LecturerEvaluations() {}
 
-    public LecturerEvaluations(String lecturerEvaluationId, Students reviewer, Lecturers lecturer, Notifications notification, Classes classEntity, String text, LocalDateTime createdAt) {
+    public LecturerEvaluations(String lecturerEvaluationId, Students reviewer, Lecturers lecturer, Notifications notification, MajorClasses classEntity, String text, LocalDateTime createdAt) {
         this.lecturerEvaluationId = lecturerEvaluationId;
         this.reviewer = reviewer;
         this.lecturer = lecturer;

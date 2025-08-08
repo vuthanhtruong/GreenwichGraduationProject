@@ -26,7 +26,7 @@ public class StaffsServiceImpl implements StaffsService {
     }
 
     @Override
-    public List<Classes> getClasses() {
+    public List<MajorClasses> getClasses() {
         return staffsDAO.getClasses();
     }
 

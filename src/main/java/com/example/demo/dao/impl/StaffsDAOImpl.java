@@ -1,16 +1,14 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.StaffsDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Persons;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.PersonsService;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -43,7 +41,7 @@ public class StaffsDAOImpl implements StaffsDAO {
                 .getSingleResult();
     }
     @Override
-    public List<Classes> getClasses() {
+    public List<MajorClasses> getClasses() {
         return List.of();
     }
 }

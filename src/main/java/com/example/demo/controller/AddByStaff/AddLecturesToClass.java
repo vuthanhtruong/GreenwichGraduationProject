@@ -1,6 +1,6 @@
 package com.example.demo.controller.AddByStaff;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +43,7 @@ public class AddLecturesToClass {
     public String addLecturersToClass(@RequestParam("classId") String classId,
                                       @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
                                       RedirectAttributes redirectAttributes) {
-        Classes selectedClass = classesService.getClassById(classId);
+        MajorClasses selectedClass = classesService.getClassById(classId);
         if (selectedClass == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
             return "redirect:/staff-home/classes-list";

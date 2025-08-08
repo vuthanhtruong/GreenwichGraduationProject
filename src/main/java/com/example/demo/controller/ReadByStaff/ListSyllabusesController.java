@@ -1,6 +1,6 @@
 package com.example.demo.controller.ReadByStaff;
 
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.SubjectsService;
 import com.example.demo.service.SyllabusesService;
@@ -34,11 +34,11 @@ public class ListSyllabusesController {
         String subjectId = (String) session.getAttribute("currentSubjectId");
         model.addAttribute("newSyllabus", new Syllabuses());
         if (subjectId != null) {
-            Subjects subject = subjectsService.getSubjectById(subjectId);
-            model.addAttribute("subject", subject != null ? subject : new Subjects());
+            MajorSubjects subject = subjectsService.getSubjectById(subjectId);
+            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
             model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
         } else {
-            model.addAttribute("subject", new Subjects());
+            model.addAttribute("subject", new MajorSubjects());
             model.addAttribute("errorMessage", "No subject selected. Please select a subject from the subjects list.");
         }
         return "SyllabusesList";
@@ -46,7 +46,7 @@ public class ListSyllabusesController {
 
     @PostMapping("/major-subjects-list/view-syllabus")
     public String viewSyllabusBySubject(@RequestParam("id") String subjectId, Model model, HttpSession session) {
-        Subjects subject = subjectsService.getSubjectById(subjectId);
+        MajorSubjects subject = subjectsService.getSubjectById(subjectId);
         if (subject == null) {
             model.addAttribute("errorMessage", "Subject not found");
             return "redirect:/staff-home/major-subjects-list";

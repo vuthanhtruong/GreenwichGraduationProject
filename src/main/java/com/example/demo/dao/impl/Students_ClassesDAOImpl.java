@@ -32,12 +32,12 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         this.studentsService = studentsService;
     }
 
-    private boolean isValidClassAndMajor(Classes classes, Majors major) {
+    private boolean isValidClassAndMajor(MajorClasses classes, Majors major) {
         return classes != null && classes.getSubject() != null && major != null;
     }
 
     @Override
-    public void addStudentsToClass(Classes classes, List<String> studentIds) {
+    public void addStudentsToClass(MajorClasses classes, List<String> studentIds) {
         if (classes == null || studentIds == null) {
             throw new IllegalArgumentException("Classes or studentIds cannot be null");
         }
@@ -49,7 +49,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             if (student == null) {
                 continue;
             }
-            Students_Classes studentClass = new Students_Classes();
+            Students_MajorClasses studentClass = new Students_MajorClasses();
             StudentsClassesId id = new StudentsClassesId(studentId, classes.getClassId());
             studentClass.setId(id);
             studentClass.setClassEntity(classes);
@@ -61,27 +61,27 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students_Classes> listStudentsInClass(Classes classes) {
+    public List<Students_MajorClasses> listStudentsInClass(MajorClasses classes) {
         if (classes == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
         Majors major = staffsService.getStaffMajor();
         return entityManager.createQuery(
-                        "SELECT sc FROM Students_Classes sc WHERE sc.classEntity = :class AND sc.student.major = :major",
-                        Students_Classes.class)
+                        "SELECT sc FROM Students_MajorClasses sc WHERE sc.classEntity = :class AND sc.student.major = :major",
+                        Students_MajorClasses.class)
                 .setParameter("class", classes)
                 .setParameter("major", major)
                 .getResultList();
     }
 
     @Override
-    public List<Students> listStudentsNotInClass(Classes classes) {
+    public List<Students> listStudentsNotInClass(MajorClasses classes) {
         if (classes == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
         Majors major = staffsService.getStaffMajor();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s LEFT JOIN Students_Classes sc ON s.id = sc.student.id AND sc.classEntity = :class " +
+                        "SELECT s FROM Students s LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity = :class " +
                                 "WHERE s.major = :major AND sc.student.id IS NULL",
                         Students.class)
                 .setParameter("class", classes)
@@ -90,7 +90,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsFailedSubjectAndNotPaid(Classes classes) {
+    public List<Students> listStudentsFailedSubjectAndNotPaid(MajorClasses classes) {
         if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
             return List.of();
         }
@@ -98,8 +98,8 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         Majors major = staffsService.getStaffMajor();
         return entityManager.createQuery(
                         "SELECT s FROM Students s JOIN AcademicTranscripts at ON s.id = at.student.id " +
-                                "LEFT JOIN MajorPaymentHistory ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
-                                "LEFT JOIN Students_Classes sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
+                                "LEFT JOIN PaymentHistories ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
+                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
                                 "WHERE s.major = :major AND at.subject.subjectId = :subjectId AND at.grade = :failedGrade " +
                                 "AND ph.student.id IS NULL AND sc.student.id IS NULL",
                         Students.class)
@@ -110,7 +110,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsFailedSubjectAndPaid(Classes classes) {
+    public List<Students> listStudentsFailedSubjectAndPaid(MajorClasses classes) {
         if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
             return List.of();
         }
@@ -118,8 +118,8 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         Majors major = staffsService.getStaffMajor();
         return entityManager.createQuery(
                         "SELECT s FROM Students s JOIN AcademicTranscripts at ON s.id = at.student.id " +
-                                "JOIN MajorPaymentHistory ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
-                                "LEFT JOIN Students_Classes sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
+                                "JOIN PaymentHistories ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
+                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
                                 "WHERE s.major = :major AND at.subject.subjectId = :subjectId AND at.grade = :failedGrade " +
                                 "AND sc.student.id IS NULL",
                         Students.class)
@@ -130,7 +130,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsNotTakenSubject(Classes classes, boolean hasPaid) {
+    public List<Students> listStudentsNotTakenSubject(MajorClasses classes, boolean hasPaid) {
         if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
             return List.of();
         }
@@ -141,7 +141,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
                 "AND NOT EXISTS (SELECT ph FROM MajorPaymentHistory ph WHERE ph.student.id = s.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED')";
         return entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN AcademicTranscripts at ON s.id = at.student.id AND at.subject.subjectId = :subjectId " +
-                                "LEFT JOIN Students_Classes sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
+                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
                                 "WHERE s.major = :major AND at.student.id IS NULL AND sc.student.id IS NULL " + paymentCondition,
                         Students.class)
                 .setParameter("subjectId", subjectId)
@@ -150,13 +150,13 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsCurrentlyTakingSubject(Classes classes) {
+    public List<Students> listStudentsCurrentlyTakingSubject(MajorClasses classes) {
         if (classes == null) {
             return List.of();
         }
         LocalDate currentDate = LocalDate.now();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_Classes sc ON s.id = sc.student.id " +
+                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
                                 "WHERE sc.classEntity = :class AND EXISTS (SELECT t FROM MajorTimetable t WHERE t.classEntity = :class " +
                                 "AND (t.date >= :currentDate OR t.dayOfTheWeek IS NOT NULL))",
                         Students.class)
@@ -168,7 +168,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     @Cacheable(value = "totalTuition", key = "#currentSemester + '-' + #major.id")
     public Double calculateTotalTuition(Integer currentSemester, Majors major) {
         return entityManager.createQuery(
-                        "SELECT COALESCE(SUM(s.tuition), 0) FROM Subjects s WHERE s.semester = :currentSemester AND s.major = :major",
+                        "SELECT COALESCE(SUM(s.tuition), 0) FROM MajorSubjects s WHERE s.semester = :currentSemester AND s.major = :major",
                         Double.class)
                 .setParameter("currentSemester", currentSemester)
                 .setParameter("major", major)
@@ -176,7 +176,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(Classes classes) {
+    public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes) {
         if (classes == null || classes.getSubject() == null || classes.getSubject().getSemester() == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
@@ -189,13 +189,13 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         Double totalTuition = calculateTotalTuition(classes.getSubject().getSemester(), major);
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_Classes sc ON s.id = sc.student.id " +
+                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
                                 "JOIN AccountBalances ab ON s.id = ab.student.id " +
                                 "WHERE s.major = :major AND sc.classEntity.subject.semester = :prevSemester " +
-                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_Classes sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
+                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_MajorClasses sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
                                 "AND ab.balance >= :totalTuition " +
                                 "GROUP BY s.id HAVING COUNT(DISTINCT sc.classEntity.subject.subjectId) = " +
-                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM Subjects sub WHERE sub.semester = :prevSemester)",
+                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub WHERE sub.semester = :prevSemester)",
                         Students.class)
                 .setParameter("prevSemester", prevSemester)
                 .setParameter("subjectId", subjectId)
@@ -205,7 +205,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     @Override
-    public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(Classes classes) {
+    public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(MajorClasses classes) {
         if (classes == null || classes.getSubject() == null || classes.getSubject().getSemester() == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
@@ -218,13 +218,13 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         Double totalTuition = calculateTotalTuition(classes.getSubject().getSemester(), major);
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_Classes sc ON s.id = sc.student.id " +
+                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
                                 "LEFT JOIN AccountBalances ab ON s.id = ab.student.id " +
                                 "WHERE s.major = :major AND sc.classEntity.subject.semester = :prevSemester " +
-                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_Classes sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
+                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_MajorClasses sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
                                 "AND (ab.balance IS NULL OR ab.balance < :totalTuition) " +
                                 "GROUP BY s.id HAVING COUNT(DISTINCT sc.classEntity.subject.subjectId) = " +
-                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM Subjects sub WHERE sub.semester = :prevSemester)",
+                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub WHERE sub.semester = :prevSemester)",
                         Students.class)
                 .setParameter("prevSemester", prevSemester)
                 .setParameter("subjectId", subjectId)

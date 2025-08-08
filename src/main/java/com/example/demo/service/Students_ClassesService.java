@@ -1,19 +1,19 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Students;
-import com.example.demo.entity.Students_Classes;
+import com.example.demo.entity.Students_MajorClasses;
 
 import java.util.List;
 
 public interface Students_ClassesService {
-    List<Students_Classes> listStudentsInClass(Classes classes);
-    List<Students> listStudentsNotInClass(Classes classes);
-    List<Students> listStudentsFailedSubjectAndNotPaid(Classes classes);
-    List<Students> listStudentsFailedSubjectAndPaid(Classes classes);
-    List<Students> listStudentsNotTakenSubject(Classes classes, boolean hasPaid);
-    List<Students> listStudentsCurrentlyTakingSubject(Classes classes);
-    List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(Classes classes);
-    List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(Classes classes);
-    void addStudentsToClass(Classes classes, List<String> studentIds);
+    List<Students_MajorClasses> listStudentsInClass(MajorClasses classes);
+    List<Students> listStudentsNotInClass(MajorClasses classes);
+    List<Students> listStudentsFailedSubjectAndNotPaid(MajorClasses classes);
+    List<Students> listStudentsFailedSubjectAndPaid(MajorClasses classes);
+    List<Students> listStudentsNotTakenSubject(MajorClasses classes, boolean hasPaid);
+    List<Students> listStudentsCurrentlyTakingSubject(MajorClasses classes);
+    List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes);
+    List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(MajorClasses classes);
+    void addStudentsToClass(MajorClasses classes, List<String> studentIds);
 }

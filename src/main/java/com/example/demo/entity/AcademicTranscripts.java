@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "AcademicTranscripts")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "transcript_type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
-public class AcademicTranscripts {
+public abstract class AcademicTranscripts {
 
     @Id
     @Column(name = "TranscriptID", nullable = false)
@@ -23,24 +25,9 @@ public class AcademicTranscripts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SubjectID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Subjects subject;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "Notification", nullable = true)
     private Notifications notification;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Marker", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Lecturers marker;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs creator;
 
     @Column(name = "Grade", nullable = true, length = 10)
     @Enumerated(EnumType.STRING)
@@ -54,15 +41,10 @@ public class AcademicTranscripts {
 
     public AcademicTranscripts() {}
 
-    public AcademicTranscripts(String transcriptId, Students student, Subjects subject, Grades grade, LocalDateTime createdAt, Staffs creator) {
+    public AcademicTranscripts(String transcriptId, Students student, Grades grade, LocalDateTime createdAt) {
         this.transcriptId = transcriptId;
         this.student = student;
-        this.subject = subject;
         this.grade = grade;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
-        if (creator == null) {
-            throw new IllegalArgumentException("Creator cannot be null");
-        }
-        this.creator = creator;
     }
 }

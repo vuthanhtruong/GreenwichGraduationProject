@@ -1,6 +1,6 @@
 package com.example.demo.controller.EditByStaff;
 
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import jakarta.validation.Valid;
@@ -32,7 +32,7 @@ public class UpdateSubjectController {
 
     @PostMapping("/major-subjects-list/edit-subject-form")
     public String showEditSubjectForm(@RequestParam("id") String id, Model model) {
-        Subjects subject = subjectsService.getSubjectById(id);
+        MajorSubjects subject = subjectsService.getSubjectById(id);
         if (subject == null) {
             model.addAttribute("message", "Subject not found");
             model.addAttribute("alertClass", "alert-danger");
@@ -45,11 +45,11 @@ public class UpdateSubjectController {
     @PutMapping("/major-subjects-list/edit-subject/{id}")
     public String editSubject(
             @PathVariable("id") String id,
-            @Valid @ModelAttribute("subject") Subjects formSubject,
+            @Valid @ModelAttribute("subject") MajorSubjects formSubject,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
-        Subjects existingSubject = subjectsService.getSubjectById(id);
+        MajorSubjects existingSubject = subjectsService.getSubjectById(id);
         if (existingSubject == null) {
             redirectAttributes.addFlashAttribute("message", "Subject not found.");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
@@ -83,7 +83,7 @@ public class UpdateSubjectController {
         return "redirect:/staff-home/major-subjects-list";
     }
 
-    private void validateSubject(Subjects subject, BindingResult bindingResult, List<String> errors) {
+    private void validateSubject(MajorSubjects subject, BindingResult bindingResult, List<String> errors) {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -92,7 +92,7 @@ public class UpdateSubjectController {
             errors.add("Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
 
-        Subjects existingSubjectByName = subjectsService.getSubjectByName(subject.getSubjectName());
+        MajorSubjects existingSubjectByName = subjectsService.getSubjectByName(subject.getSubjectName());
         if (subject.getSubjectName() != null && existingSubjectByName != null &&
                 (subject.getSubjectId() == null || !existingSubjectByName.getSubjectId().equals(subject.getSubjectId()))) {
             errors.add("Subject name is already in use.");

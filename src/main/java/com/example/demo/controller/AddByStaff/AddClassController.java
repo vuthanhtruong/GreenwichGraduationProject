@@ -1,7 +1,7 @@
 package com.example.demo.controller.AddByStaff;
 
-import com.example.demo.entity.Classes;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorClasses;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
@@ -60,7 +60,7 @@ public class AddClassController {
         }
 
         // Fetch Subjects by subjectId
-        Subjects subject = null;
+        MajorSubjects subject = null;
         if (subjectId != null && !subjectId.isEmpty()) {
             subject = subjectsService.getSubjectById(subjectId);
             if (subject == null) {
@@ -77,7 +77,7 @@ public class AddClassController {
 
         try {
             // Create new Classes object
-            Classes newClass = new Classes();
+            MajorClasses newClass = new MajorClasses();
             newClass.setNameClass(nameClass);
             newClass.setSlotQuantity(slotQuantity);
             newClass.setSubject(subject);

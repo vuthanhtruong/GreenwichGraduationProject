@@ -1,7 +1,7 @@
 package com.example.demo.api.Add;
 
 import com.example.demo.entity.Syllabuses;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.SubjectsService;
 import com.example.demo.service.SyllabusesService;
 import com.example.demo.service.StaffsService;
@@ -40,7 +40,7 @@ public class AddSyllabusRestController {
             @RequestParam("subjectId") String subjectId,
             @RequestParam("uploadFile") MultipartFile file,
             HttpSession session) throws IOException {
-        Subjects subject = subjectsService.getSubjectById(subjectId);
+        MajorSubjects subject = subjectsService.getSubjectById(subjectId);
         List<String> errors = new ArrayList<>();
 
         // Perform all validations
@@ -69,7 +69,7 @@ public class AddSyllabusRestController {
         }
     }
 
-    private void validateSyllabus(Syllabuses syllabus, MultipartFile file, Subjects subject, List<String> errors) {
+    private void validateSyllabus(Syllabuses syllabus, MultipartFile file, MajorSubjects subject, List<String> errors) {
         // Custom validations
         if (subject == null) {
             errors.add("Subject not found. Please select a subject.");

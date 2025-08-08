@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "classes")
-public class Classes {
+public class MajorClasses {
 
     @Id
     @Column(name = "ClassID")
@@ -23,7 +23,7 @@ public class Classes {
 
     @ManyToOne
     @JoinColumn(name = "SubjectID", nullable = true)
-    private Subjects subject;
+    private MajorSubjects subject;
 
     @ManyToOne
     @JoinColumn(name = "Creator", nullable = true)
@@ -33,10 +33,10 @@ public class Classes {
     private LocalDateTime createdAt;
 
     // Constructors
-    public Classes() {
+    public MajorClasses() {
     }
 
-    public Classes(String classId, String nameClass, Integer slotQuantity, Sessions session, Subjects subject, Staffs creator, LocalDateTime createdAt) {
+    public MajorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session, MajorSubjects subject, Staffs creator, LocalDateTime createdAt) {
         this.classId = classId;
         this.nameClass = nameClass;
         this.slotQuantity = slotQuantity;
@@ -79,11 +79,11 @@ public class Classes {
         this.session = session;
     }
 
-    public Subjects getSubject() {
+    public MajorSubjects getSubject() {
         return subject;
     }
 
-    public void setSubject(Subjects subject) {
+    public void setSubject(MajorSubjects subject) {
         this.subject = subject;
     }
 

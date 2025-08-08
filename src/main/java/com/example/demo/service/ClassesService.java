@@ -1,19 +1,19 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 
 import java.util.List;
 
 public interface ClassesService {
-    List<Classes> getClasses();
-    Classes getClassById(String id);
-    Classes getClassByName(String name);
-    void addClass(Classes c);
+    List<MajorClasses> getClasses();
+    MajorClasses getClassById(String id);
+    MajorClasses getClassByName(String name);
+    void addClass(MajorClasses c);
     void deleteClass(String id);
-    List<Classes> ClassesByMajor(Majors major);
-    Classes updateClass(String id, Classes classObj);
-    void deleteClassBySubject(Subjects subject);
-    void SetNullWhenDeletingSubject(Subjects subject);
+    List<MajorClasses> ClassesByMajor(Majors major);
+    MajorClasses updateClass(String id, MajorClasses classObj);
+    void deleteClassBySubject(MajorSubjects subject);
+    void SetNullWhenDeletingSubject(MajorSubjects subject);
 }

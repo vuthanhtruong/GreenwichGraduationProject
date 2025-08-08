@@ -1,7 +1,7 @@
 package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.Syllabuses;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.SubjectsService;
 import com.example.demo.service.SyllabusesService;
 import com.example.demo.service.StaffsService;
@@ -50,7 +50,7 @@ public class AddSyllabusController {
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) throws IOException {
-        Subjects subject = subjectsService.getSubjectById(subjectId);
+        MajorSubjects subject = subjectsService.getSubjectById(subjectId);
         List<String> errors = new ArrayList<>();
 
         // Perform all validations
@@ -58,7 +58,7 @@ public class AddSyllabusController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("subject", subject != null ? subject : new Subjects());
+            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
             model.addAttribute("newSyllabus", syllabus);
             model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
             return "SyllabusesList";
@@ -80,14 +80,14 @@ public class AddSyllabusController {
         } catch (Exception e) {
             errors.add("Failed to add syllabus: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("subject", subject != null ? subject : new Subjects());
+            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
             model.addAttribute("newSyllabus", syllabus);
             model.addAttribute("syllabuses", subject != null ? syllabusesService.getSyllabusesBySubject(subject) : null);
             return "SyllabusesList";
         }
     }
 
-    private void validateSyllabus(Syllabuses syllabus, BindingResult result, MultipartFile file, Subjects subject, List<String> errors) {
+    private void validateSyllabus(Syllabuses syllabus, BindingResult result, MultipartFile file, MajorSubjects subject, List<String> errors) {
         // Annotation-based validation errors
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));

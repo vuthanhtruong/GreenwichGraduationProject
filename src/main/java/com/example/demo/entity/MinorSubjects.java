@@ -7,23 +7,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "MinorSubjects")
+@DiscriminatorValue("MINOR")
 @Getter
 @Setter
-public class MinorSubjects {
-
-    @Id
-    @Column(name = "MinorSubjectID")
-    private String minorSubjectId;
-
-    @Column(name = "MinorSubjectName", nullable = false, length = 255)
-    private String minorSubjectName;
-
-    @Column(name = "Tuition", nullable = true)
-    private Double tuition;
-
-    @Column(name = "Semester", nullable = true)
-    private Integer semester;
+public class MinorSubjects extends Subjects {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
@@ -32,11 +19,11 @@ public class MinorSubjects {
 
     public MinorSubjects() {}
 
-    public MinorSubjects(String minorSubjectId, String minorSubjectName, Double tuition, Integer semester, DeputyStaffs creator) {
-        this.minorSubjectId = minorSubjectId;
-        this.minorSubjectName = minorSubjectName;
-        this.tuition = tuition;
-        this.semester = semester;
+    public MinorSubjects(String subjectId, String subjectName, Double tuition, Integer semester, DeputyStaffs creator) {
+        setSubjectId(subjectId);
+        setSubjectName(subjectName);
+        setTuition(tuition);
+        setSemester(semester);
         this.creator = creator;
     }
 }

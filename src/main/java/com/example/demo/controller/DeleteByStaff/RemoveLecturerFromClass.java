@@ -1,7 +1,7 @@
 package com.example.demo.controller.DeleteByStaff;
 
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.Lecturers_ClassesService;
 import com.example.demo.service.LecturesService;
@@ -37,7 +37,7 @@ public class RemoveLecturerFromClass {
                                           RedirectAttributes redirectAttributes,
                                           HttpSession session) {
         // Validate classId
-        Classes selectedClass = classesService.getClassById(classId);
+        MajorClasses selectedClass = classesService.getClassById(classId);
         if (selectedClass == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
             return "redirect:/staff-home/classes-list";

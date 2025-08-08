@@ -22,7 +22,7 @@ public class Syllabuses {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SubjectID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Subjects subject;
+    private MajorSubjects subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)

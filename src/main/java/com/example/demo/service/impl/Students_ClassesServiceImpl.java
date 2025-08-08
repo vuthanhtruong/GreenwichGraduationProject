@@ -1,9 +1,9 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.Students_ClassesDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Students;
-import com.example.demo.entity.Students_Classes;
+import com.example.demo.entity.Students_MajorClasses;
 import com.example.demo.service.Students_ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,17 +13,17 @@ import java.util.List;
 @Service
 public class Students_ClassesServiceImpl implements Students_ClassesService {
     @Override
-    public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(Classes classes) {
+    public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes) {
         return studentsClassesDAO.listStudentsCompletedPreviousSemesterWithSufficientBalance(classes);
     }
 
     @Override
-    public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(Classes classes) {
+    public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(MajorClasses classes) {
         return studentsClassesDAO.listStudentsCompletedPreviousSemesterWithInsufficientBalance(classes);
     }
 
     @Override
-    public void addStudentsToClass(Classes classes, List<String> studentIds) {
+    public void addStudentsToClass(MajorClasses classes, List<String> studentIds) {
         studentsClassesDAO.addStudentsToClass(classes, studentIds);
     }
 
@@ -35,32 +35,32 @@ public class Students_ClassesServiceImpl implements Students_ClassesService {
     }
 
     @Override
-    public List<Students_Classes> listStudentsInClass(Classes classes) {
+    public List<Students_MajorClasses> listStudentsInClass(MajorClasses classes) {
         return studentsClassesDAO.listStudentsInClass(classes);
     }
 
     @Override
-    public List<Students> listStudentsNotInClass(Classes classes) {
+    public List<Students> listStudentsNotInClass(MajorClasses classes) {
         return studentsClassesDAO.listStudentsNotInClass(classes);
     }
 
     @Override
-    public List<Students> listStudentsFailedSubjectAndNotPaid(Classes classes) {
+    public List<Students> listStudentsFailedSubjectAndNotPaid(MajorClasses classes) {
         return studentsClassesDAO.listStudentsFailedSubjectAndNotPaid(classes);
     }
 
     @Override
-    public List<Students> listStudentsFailedSubjectAndPaid(Classes classes) {
+    public List<Students> listStudentsFailedSubjectAndPaid(MajorClasses classes) {
         return studentsClassesDAO.listStudentsFailedSubjectAndPaid(classes);
     }
 
     @Override
-    public List<Students> listStudentsNotTakenSubject(Classes classes, boolean hasPaid) {
+    public List<Students> listStudentsNotTakenSubject(MajorClasses classes, boolean hasPaid) {
         return studentsClassesDAO.listStudentsNotTakenSubject(classes, hasPaid);
     }
 
     @Override
-    public List<Students> listStudentsCurrentlyTakingSubject(Classes classes) {
+    public List<Students> listStudentsCurrentlyTakingSubject(MajorClasses classes) {
         return studentsClassesDAO.listStudentsCurrentlyTakingSubject(classes);
     }
 

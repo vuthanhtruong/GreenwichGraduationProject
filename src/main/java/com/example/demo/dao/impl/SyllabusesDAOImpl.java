@@ -1,10 +1,9 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.SyllabusesDAO;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.StaffsService;
-import com.example.demo.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -15,7 +14,7 @@ import java.util.List;
 @Transactional
 public class SyllabusesDAOImpl implements SyllabusesDAO {
     @Override
-    public void deleteSyllabusBySubject(Subjects subject) {
+    public void deleteSyllabusBySubject(MajorSubjects subject) {
         List<Syllabuses> syllabusesList=entityManager.createQuery("select s from Syllabuses s where s.subject=:subject",Syllabuses.class).
                 setParameter("subject",subject).getResultList();
         for (Syllabuses syllabuses : syllabusesList) {
@@ -49,7 +48,7 @@ public class SyllabusesDAOImpl implements SyllabusesDAO {
     }
 
     @Override
-    public List<Syllabuses> getSyllabusesBySubject(Subjects subject) {
+    public List<Syllabuses> getSyllabusesBySubject(MajorSubjects subject) {
         return entityManager.createQuery("select s FROM Syllabuses s where s.subject=:subject", Syllabuses.class).
                 setParameter("subject", subject).getResultList();
     }

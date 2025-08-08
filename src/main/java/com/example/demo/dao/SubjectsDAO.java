@@ -1,17 +1,17 @@
 package com.example.demo.dao;
 
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 
 import java.util.List;
 
 public interface SubjectsDAO {
-    void addSubject(Subjects subject);
-    Subjects getSubjectById(String subjectId);
-    Subjects getSubjectByName(String subjectName);
-    Subjects checkNameSubject(Subjects subject);
-    List<Subjects> subjectsByMajor(Majors major);
-    List<Subjects> getSubjects();
-    Subjects updateSubject(String id, Subjects subject);
+    void addSubject(MajorSubjects subject);
+    MajorSubjects getSubjectById(String subjectId);
+    MajorSubjects getSubjectByName(String subjectName);
+    MajorSubjects checkNameSubject(MajorSubjects subject);
+    List<MajorSubjects> subjectsByMajor(Majors major);
+    List<MajorSubjects> getSubjects();
+    MajorSubjects updateSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
 }

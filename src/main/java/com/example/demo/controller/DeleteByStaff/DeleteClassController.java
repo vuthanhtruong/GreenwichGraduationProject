@@ -1,7 +1,7 @@
 package com.example.demo.controller.DeleteByStaff;
 
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
@@ -41,7 +41,7 @@ public class DeleteClassController {
             return "redirect:/staff-home/classes-list";
         }
 
-        Classes existingClass = classesService.getClassById(classId);
+        MajorClasses existingClass = classesService.getClassById(classId);
         if (existingClass == null) {
             redirectAttributes.addFlashAttribute("errors", List.of("Class not found."));
             return "redirect:/staff-home/classes-list";

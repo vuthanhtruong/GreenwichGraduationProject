@@ -1,10 +1,10 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.Lecturers_ClassesDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Lecturers;
 import com.example.demo.entity.LecturersClassesId;
-import com.example.demo.entity.Lecturers_Classes;
+import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
@@ -20,7 +20,7 @@ import java.util.List;
 @Transactional
 public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     @Override
-    public void removeLecturerFromClass(Classes classes, List<String> lecturerIds) {
+    public void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds) {
         if (classes == null || lecturerIds == null || lecturerIds.isEmpty()) {
             return; // No action if inputs are invalid
         }
@@ -28,7 +28,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
         for (String lecturerId : lecturerIds) {
             // Find the Lecturers_Classes record by composite key
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
-            Lecturers_Classes lecturerClass = entityManager.find(Lecturers_Classes.class, id);
+            Lecturers_MajorClasses lecturerClass = entityManager.find(Lecturers_MajorClasses.class, id);
             if (lecturerClass != null) {
                 entityManager.remove(lecturerClass); // Delete the record
             }
@@ -40,10 +40,10 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     private  final StaffsService staffsService;
 
     @Override
-    public void addLecturersToClass(Classes classes, List<String> lecturerIds) {
+    public void addLecturersToClass(MajorClasses classes, List<String> lecturerIds) {
         for (String lecturerId : lecturerIds) {
             Lecturers lecturer = lecturesService.getLecturerById(lecturerId);
-            Lecturers_Classes lecturerClass = new Lecturers_Classes();
+            Lecturers_MajorClasses lecturerClass = new Lecturers_MajorClasses();
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setClassEntity(classes);
@@ -65,20 +65,20 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     }
 
     @Override
-    public List<Lecturers_Classes> listLecturersInClass(Classes classes) {
+    public List<Lecturers_MajorClasses> listLecturersInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc FROM Lecturers_Classes lc WHERE lc.classEntity = :class AND lc.lecturer.majorManagement = :major",
-                        Lecturers_Classes.class)
+                        "SELECT lc FROM Lecturers_MajorClasses lc WHERE lc.classEntity = :class AND lc.lecturer.majorManagement = :major",
+                        Lecturers_MajorClasses.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }
 
     @Override
-    public List<Lecturers> listLecturersNotInClass(Classes classes) {
+    public List<Lecturers> listLecturersNotInClass(MajorClasses classes) {
         return entityManager.createQuery(
                         "SELECT l FROM Lecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
-                                "(SELECT lc.lecturer.id FROM Lecturers_Classes lc WHERE lc.classEntity = :class)",
+                                "(SELECT lc.lecturer.id FROM Lecturers_MajorClasses lc WHERE lc.classEntity = :class)",
                         Lecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())

@@ -2,7 +2,7 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.SubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,37 +20,37 @@ public class SubjectsServiceImpl implements SubjectsService {
     }
 
     @Override
-    public void addSubject(Subjects subject) {
+    public void addSubject(MajorSubjects subject) {
         subjectsDAO.addSubject(subject);
     }
 
     @Override
-    public Subjects getSubjectById(String subjectId) {
+    public MajorSubjects getSubjectById(String subjectId) {
         return subjectsDAO.getSubjectById(subjectId);
     }
 
     @Override
-    public Subjects getSubjectByName(String subjectName) {
+    public MajorSubjects getSubjectByName(String subjectName) {
         return subjectsDAO.getSubjectByName(subjectName);
     }
 
     @Override
-    public Subjects checkNameSubject(Subjects subject) {
+    public MajorSubjects checkNameSubject(MajorSubjects subject) {
         return subjectsDAO.checkNameSubject(subject);
     }
 
     @Override
-    public List<Subjects> subjectsByMajor(Majors major) {
+    public List<MajorSubjects> subjectsByMajor(Majors major) {
         return subjectsDAO.subjectsByMajor(major);
     }
 
     @Override
-    public List<Subjects> getSubjects() {
+    public List<MajorSubjects> getSubjects() {
         return subjectsDAO.getSubjects();
     }
 
     @Override
-    public Subjects updateSubject(String id, Subjects subject) {
+    public MajorSubjects updateSubject(String id, MajorSubjects subject) {
         return subjectsDAO.updateSubject(id, subject);
     }
 

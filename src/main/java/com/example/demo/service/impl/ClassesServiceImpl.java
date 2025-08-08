@@ -1,9 +1,9 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.ClassesDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +13,17 @@ public class ClassesServiceImpl implements ClassesService {
 
 
     @Override
-    public void deleteClassBySubject(Subjects subject) {
+    public void deleteClassBySubject(MajorSubjects subject) {
         classesDAO.deleteClassBySubject(subject);
     }
 
     @Override
-    public void SetNullWhenDeletingSubject(Subjects subject) {
+    public void SetNullWhenDeletingSubject(MajorSubjects subject) {
         classesDAO.SetNullWhenDeletingSubject(subject);
     }
 
     @Override
-    public List<Classes> ClassesByMajor(Majors major) {
+    public List<MajorClasses> ClassesByMajor(Majors major) {
         return classesDAO.ClassesByMajor(major);
     }
 
@@ -34,27 +34,27 @@ public class ClassesServiceImpl implements ClassesService {
     }
 
     @Override
-    public List<Classes> getClasses() {
+    public List<MajorClasses> getClasses() {
         return classesDAO.getClasses();
     }
 
     @Override
-    public Classes getClassById(String id) {
+    public MajorClasses getClassById(String id) {
         return classesDAO.getClassById(id);
     }
 
     @Override
-    public Classes getClassByName(String name) {
+    public MajorClasses getClassByName(String name) {
         return classesDAO.getClassByName(name);
     }
 
     @Override
-    public void addClass(Classes c) {
+    public void addClass(MajorClasses c) {
         classesDAO.addClass(c);
     }
 
     @Override
-    public Classes updateClass(String id,Classes c) {
+    public MajorClasses updateClass(String id, MajorClasses c) {
         return classesDAO.updateClass(id, c);
     }
 

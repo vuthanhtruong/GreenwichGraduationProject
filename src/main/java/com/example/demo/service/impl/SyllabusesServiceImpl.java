@@ -1,19 +1,16 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.dao.SyllabusesDAO;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.service.SyllabusesService;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class SyllabusesServiceImpl implements SyllabusesService {
     @Override
-    public void deleteSyllabusBySubject(Subjects subject) {
+    public void deleteSyllabusBySubject(MajorSubjects subject) {
         syllabusesDAO.deleteSyllabusBySubject(subject);
     }
 
@@ -39,7 +36,7 @@ public class SyllabusesServiceImpl implements SyllabusesService {
     }
 
     @Override
-    public List<Syllabuses> getSyllabusesBySubject(Subjects subject) {
+    public List<Syllabuses> getSyllabusesBySubject(MajorSubjects subject) {
         return syllabusesDAO.getSyllabusesBySubject(subject);
     }
 }

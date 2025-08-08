@@ -2,7 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.SubjectsDAO;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SyllabusesService;
@@ -34,7 +34,7 @@ public class SubjectsDAOImpl implements SubjectsDAO {
     }
 
     @Override
-    public void addSubject(Subjects subject) {
+    public void addSubject(MajorSubjects subject) {
         if (subject == null) {
             throw new IllegalArgumentException("Subject object cannot be null");
         }
@@ -44,60 +44,62 @@ public class SubjectsDAOImpl implements SubjectsDAO {
     }
 
     @Override
-    public Subjects getSubjectById(String subjectId) {
+    public MajorSubjects getSubjectById(String subjectId) {
         if (subjectId == null) {
             throw new IllegalArgumentException("Subject ID cannot be null");
         }
-        return entityManager.find(Subjects.class, subjectId);
+        return entityManager.find(MajorSubjects.class, subjectId);
     }
 
     @Override
-    public Subjects getSubjectByName(String subjectName) {
+    public MajorSubjects getSubjectByName(String subjectName) {
         if (subjectName == null || subjectName.trim().isEmpty()) {
             return null;
         }
-        List<Subjects> subjects = entityManager.createQuery(
-                        "SELECT s FROM Subjects s WHERE s.subjectName = :name", Subjects.class)
+        List<MajorSubjects> subjects = entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.subjectName = :name", MajorSubjects.class)
                 .setParameter("name", subjectName.trim())
                 .getResultList();
         return subjects.isEmpty() ? null : subjects.get(0);
     }
 
     @Override
-    public Subjects checkNameSubject(Subjects subject) {
+    public MajorSubjects checkNameSubject(MajorSubjects subject) {
         if (subject == null || subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
             return null;
         }
-        List<Subjects> subjects = entityManager.createQuery(
-                        "SELECT s FROM Subjects s WHERE s.subjectName = :name", Subjects.class)
+        List<MajorSubjects> subjects = entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.subjectName = :name", MajorSubjects.class)
                 .setParameter("name", subject.getSubjectName().trim())
                 .getResultList();
         return subjects.isEmpty() ? null : subjects.get(0);
     }
 
     @Override
-    public List<Subjects> subjectsByMajor(Majors major) {
+    public List<MajorSubjects> subjectsByMajor(Majors major) {
         if (major == null) {
             return List.of();
         }
         return entityManager.createQuery(
-                        "SELECT s FROM Subjects s WHERE s.major = :major", Subjects.class)
+                        "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
+                        MajorSubjects.class)
                 .setParameter("major", major)
                 .getResultList();
     }
 
+
     @Override
-    public List<Subjects> getSubjects() {
-        return entityManager.createQuery("SELECT s FROM Subjects s", Subjects.class).getResultList();
+    public List<MajorSubjects> getSubjects() {
+        return entityManager.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList();
     }
 
     @Override
-    public Subjects updateSubject(String id, Subjects subject) {
+    public MajorSubjects updateSubject(String id, MajorSubjects subject) {
         if (subject == null || id == null) {
             throw new IllegalArgumentException("Subject object or ID cannot be null");
         }
 
-        Subjects existingSubject = entityManager.find(Subjects.class, id);
+        MajorSubjects existingSubject = entityManager.find(MajorSubjects.class, id);
         if (existingSubject == null) {
             throw new IllegalArgumentException("Subject with ID " + id + " not found");
         }
@@ -118,7 +120,7 @@ public class SubjectsDAOImpl implements SubjectsDAO {
         if (id == null) {
             throw new IllegalArgumentException("Subject ID cannot be null");
         }
-        Subjects subject = entityManager.find(Subjects.class, id);
+        MajorSubjects subject = entityManager.find(MajorSubjects.class, id);
         if (subject != null) {
             syllabusesService.deleteSyllabusBySubject(subject);
             classesService.SetNullWhenDeletingSubject(subject);

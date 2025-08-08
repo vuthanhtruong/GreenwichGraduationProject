@@ -1,6 +1,6 @@
 package com.example.demo.api.Add;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +42,7 @@ public class AddLecturesToClassRestController {
             @RequestParam("classId") String classId,
             @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds) {
 
-        Classes selectedClass = classesService.getClassById(classId);
+        MajorClasses selectedClass = classesService.getClassById(classId);
         if (selectedClass == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Class not found.");

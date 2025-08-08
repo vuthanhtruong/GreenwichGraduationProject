@@ -23,7 +23,7 @@ public class AssignmentSubmitSlots extends Posts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Classes classEntity;
+    private MajorClasses classEntity;
 
     @Column(name = "Content", nullable = true, length = 1000)
     private String content;

@@ -7,22 +7,18 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "ClassPosts")
-@PrimaryKeyJoinColumn(name = "PostID")
+@DiscriminatorValue("MAJOR")
 @Getter
 @Setter
-public class ClassPosts extends Posts {
+public class MajorSubjects extends Subjects {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons creator;
+    private Staffs creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", nullable = false)
+    @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses classEntity;
-
-    @Column(name = "Content", nullable = true, length = 1000)
-    private String content;
+    private Majors major;
 }

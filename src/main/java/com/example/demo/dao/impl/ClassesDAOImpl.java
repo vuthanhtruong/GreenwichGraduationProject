@@ -1,10 +1,9 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.ClassesDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Majors;
-import com.example.demo.entity.Subjects;
-import com.example.demo.entity.Syllabuses;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,58 +29,58 @@ public class ClassesDAOImpl implements ClassesDAO {
     }
 
     @Override
-    public void SetNullWhenDeletingSubject(Subjects subject) {
-        entityManager.createQuery("UPDATE Classes c SET c.subject = NULL WHERE c.subject = :subject")
+    public void SetNullWhenDeletingSubject(MajorSubjects subject) {
+        entityManager.createQuery("UPDATE MajorClasses c SET c.subject = NULL WHERE c.subject = :subject")
                 .setParameter("subject", subject)
                 .executeUpdate();
     }
 
     @Override
-    public void deleteClassBySubject(Subjects subject) {
-        entityManager.createQuery("DELETE FROM Classes c WHERE c.subject = :subject")
+    public void deleteClassBySubject(MajorSubjects subject) {
+        entityManager.createQuery("DELETE FROM MajorClasses c WHERE c.subject = :subject")
                 .setParameter("subject", subject)
                 .executeUpdate();
     }
 
     @Override
-    public List<Classes> ClassesByMajor(Majors major) {
+    public List<MajorClasses> ClassesByMajor(Majors major) {
         if (major == null) {
             return List.of();
         }
-        return entityManager.createQuery("SELECT s FROM Classes s WHERE s.creator.majorManagement = :major", Classes.class)
+        return entityManager.createQuery("SELECT s FROM MajorClasses s WHERE s.creator.majorManagement = :major", MajorClasses.class)
                 .setParameter("major", major)
                 .getResultList();
     }
 
     @Override
-    public List<Classes> getClasses() {
-        return entityManager.createQuery("FROM Classes", Classes.class).getResultList();
+    public List<MajorClasses> getClasses() {
+        return entityManager.createQuery("FROM MajorClasses", MajorClasses.class).getResultList();
     }
 
     @Override
-    public Classes getClassById(String id) {
-        return entityManager.find(Classes.class, id);
+    public MajorClasses getClassById(String id) {
+        return entityManager.find(MajorClasses.class, id);
     }
 
     @Override
-    public Classes getClassByName(String name) {
+    public MajorClasses getClassByName(String name) {
         return null;
     }
 
     @Override
-    public void addClass(Classes c) {
+    public void addClass(MajorClasses c) {
         c.setCreator(staffsService.getStaff());
         c.setCreatedAt(LocalDateTime.now());
         entityManager.persist(c);
     }
 
     @Override
-    public Classes updateClass(String id, Classes classObj) {
+    public MajorClasses updateClass(String id, MajorClasses classObj) {
         if (classObj == null || id == null) {
             throw new IllegalArgumentException("Class object or ID cannot be null");
         }
 
-        Classes existingClass = entityManager.find(Classes.class, id);
+        MajorClasses existingClass = entityManager.find(MajorClasses.class, id);
         if (existingClass == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
@@ -99,14 +98,14 @@ public class ClassesDAOImpl implements ClassesDAO {
 
     @Override
     public void deleteClass(String id) {
-        Classes c = entityManager.find(Classes.class, id);
+        MajorClasses c = entityManager.find(MajorClasses.class, id);
         if (c == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
         entityManager.remove(c);
     }
 
-    private void validateClass(Classes c) {
+    private void validateClass(MajorClasses c) {
         if (c.getNameClass() == null || c.getSlotQuantity() == null || c.getSubject() == null) {
             throw new IllegalArgumentException("Name, slot quantity, and subject are required");
         }

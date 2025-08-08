@@ -9,14 +9,12 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PaymentHistory")
-@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "PaymentHistories")
 @Getter
 @Setter
-public abstract class PaymentHistory {
+public class PaymentHistories {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "PaymentHistoryID")
     private String paymentHistoryId;
 
@@ -26,7 +24,12 @@ public abstract class PaymentHistory {
     private Students student;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RemainingAccountBalance", nullable = false)
+    @JoinColumn(name = "SubjectID", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Subjects subject;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AccountBalanceID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private AccountBalances accountBalance;
 
@@ -36,19 +39,20 @@ public abstract class PaymentHistory {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "Status", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
+    @Column(name = "Status", nullable = false)
     private Status status;
 
-    public PaymentHistory() {}
+    public PaymentHistories() {}
 
-    public PaymentHistory(String paymentHistoryId, Students student, AccountBalances accountBalance,
+    public PaymentHistories(String paymentHistoryId, Students student, Subjects subject, AccountBalances accountBalance,
                           LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
         this.paymentHistoryId = paymentHistoryId;
         this.student = student;
+        this.subject = subject;
         this.accountBalance = accountBalance;
         this.paymentTime = paymentTime;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        this.createdAt = createdAt;
         this.status = status;
     }
 }

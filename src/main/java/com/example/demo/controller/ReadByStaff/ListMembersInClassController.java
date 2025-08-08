@@ -1,10 +1,10 @@
 package com.example.demo.controller.ReadByStaff;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Lecturers;
-import com.example.demo.entity.Lecturers_Classes;
+import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.entity.Students;
-import com.example.demo.entity.Students_Classes;
+import com.example.demo.entity.Students_MajorClasses;
 import com.example.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,7 +48,7 @@ public class ListMembersInClassController {
     @PostMapping("/member-arrangement")
     public String memberArrangement(@RequestParam("id") String classId,
                                     Model model, HttpSession session) {
-        Classes selectedClass = classesService.getClassById(classId);
+        MajorClasses selectedClass = classesService.getClassById(classId);
         if (selectedClass == null) {
             model.addAttribute("errorMessage", "Class not found.");
             return "MemberArrangement";
@@ -58,9 +58,9 @@ public class ListMembersInClassController {
         session.setAttribute("currentClassId", classId);
 
         // Lấy danh sách sinh viên và giảng viên
-        List<Students_Classes> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
+        List<Students_MajorClasses> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
         List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
-        List<Lecturers_Classes> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
+        List<Lecturers_MajorClasses> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
         List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
         // Lấy danh sách theo yêu cầu
         List<Students> studentsFailedNotPaid = studentsClassesService.listStudentsFailedSubjectAndNotPaid(selectedClass);
@@ -73,11 +73,11 @@ public class ListMembersInClassController {
 
         // Ánh xạ sang Students và Lecturers
         List<Students> studentsInClass = studentsInClassRecords.stream()
-                .map(Students_Classes::getStudent)
+                .map(Students_MajorClasses::getStudent)
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
         List<Lecturers> lecturersInClass = lecturersInClassRecords.stream()
-                .map(Lecturers_Classes::getLecturer)
+                .map(Lecturers_MajorClasses::getLecturer)
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
 
@@ -109,7 +109,7 @@ public class ListMembersInClassController {
             return "redirect:/staff-home/classes-list";
         }
 
-        Classes selectedClass = classesService.getClassById(classId);
+        MajorClasses selectedClass = classesService.getClassById(classId);
         if (selectedClass == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
             session.removeAttribute("currentClassId"); // Clear stale session data
@@ -117,9 +117,9 @@ public class ListMembersInClassController {
         }
 
         // Lấy danh sách sinh viên và giảng viên
-        List<Students_Classes> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
+        List<Students_MajorClasses> studentsInClassRecords = studentsClassesService.listStudentsInClass(selectedClass);
         List<Students> studentsNotInClass = studentsClassesService.listStudentsNotInClass(selectedClass);
-        List<Lecturers_Classes> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
+        List<Lecturers_MajorClasses> lecturersInClassRecords = lecturersClassesService.listLecturersInClass(selectedClass);
         List<Lecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(selectedClass);
 
         // Lấy danh sách theo yêu cầu
@@ -133,11 +133,11 @@ public class ListMembersInClassController {
 
         // Ánh xạ sang Students và Lecturers
         List<Students> studentsInClass = studentsInClassRecords.stream()
-                .map(Students_Classes::getStudent)
+                .map(Students_MajorClasses::getStudent)
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
         List<Lecturers> lecturersInClass = lecturersInClassRecords.stream()
-                .map(Lecturers_Classes::getLecturer)
+                .map(Lecturers_MajorClasses::getLecturer)
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
 

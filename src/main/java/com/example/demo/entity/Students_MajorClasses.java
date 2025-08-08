@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "Students_Classes")
 @Getter
 @Setter
-public class Students_Classes {
+public class Students_MajorClasses {
 
     @EmbeddedId
     private StudentsClassesId id;
@@ -28,7 +28,7 @@ public class Students_Classes {
     @MapsId("classId")
     @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Classes classEntity;
+    private MajorClasses classEntity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Notification", nullable = true)

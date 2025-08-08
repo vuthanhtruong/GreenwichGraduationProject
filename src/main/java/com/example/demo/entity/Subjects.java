@@ -8,9 +8,11 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "Subjects")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "subject_type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
-public class Subjects {
+public abstract class Subjects {
 
     @Id
     @Column(name = "SubjectID")
@@ -25,13 +27,7 @@ public class Subjects {
     @Column(name = "Semester", nullable = true)
     private Integer semester;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs creator;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MajorID", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Majors major;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "RequirementType", nullable = false)
+    private SubjectType requirementType;
 }

@@ -1,10 +1,9 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.Lecturers_ClassesDAO;
-import com.example.demo.dao.LecturesDAO;
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Lecturers;
-import com.example.demo.entity.Lecturers_Classes;
+import com.example.demo.entity.Lecturers_MajorClasses;
 import com.example.demo.service.Lecturers_ClassesService;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +11,17 @@ import java.util.List;
 @Service
 public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     @Override
-    public void removeLecturerFromClass(Classes classes, List<String> lecturerIds) {
+    public void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds) {
         lecturers_classesDAO.removeLecturerFromClass(classes, lecturerIds);
     }
 
     @Override
-    public void addLecturersToClass(Classes classes, List<String> lecturerIds) {
+    public void addLecturersToClass(MajorClasses classes, List<String> lecturerIds) {
         lecturers_classesDAO.addLecturersToClass(classes, lecturerIds);
     }
 
     @Override
-    public List<Lecturers> listLecturersNotInClass(Classes classes) {
+    public List<Lecturers> listLecturersNotInClass(MajorClasses classes) {
         return lecturers_classesDAO.listLecturersNotInClass(classes);
     }
 
@@ -33,7 +32,7 @@ public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     }
 
     @Override
-    public List<Lecturers_Classes> listLecturersInClass(Classes classes) {
+    public List<Lecturers_MajorClasses> listLecturersInClass(MajorClasses classes) {
         return lecturers_classesDAO.listLecturersInClass(classes);
     }
 

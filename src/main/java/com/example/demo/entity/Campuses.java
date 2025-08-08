@@ -1,10 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "campuses")
+@Table(name = "Campuses")
+@Getter
+@Setter
 public class Campuses {
 
     @Id
@@ -17,51 +24,24 @@ public class Campuses {
     @Column(name = "OpeningDay")
     private LocalDate openingDay;
 
-    @Column(name = "Description") // Thay 'Describe' bằng 'Description'
+    @Column(name = "Description")
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Creator", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Admins creator;
 
     // Constructors
     public Campuses() {
     }
 
-    public Campuses(String campusId, String campusName, LocalDate openingDay, String description) {
+    public Campuses(String campusId, String campusName, LocalDate openingDay, String description, Admins creator) {
         this.campusId = campusId;
         this.campusName = campusName;
         this.openingDay = openingDay;
         this.description = description;
-    }
-
-    // Getters and Setters
-    public String getCampusId() {
-        return campusId;
-    }
-
-    public void setCampusId(String campusId) {
-        this.campusId = campusId;
-    }
-
-    public String getCampusName() {
-        return campusName;
-    }
-
-    public void setCampusName(String campusName) {
-        this.campusName = campusName;
-    }
-
-    public LocalDate getOpeningDay() {
-        return openingDay;
-    }
-
-    public void setOpeningDay(LocalDate openingDay) {
-        this.openingDay = openingDay;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+        this.creator = creator;
     }
 
     // toString method (optional)
@@ -72,6 +52,7 @@ public class Campuses {
                 ", campusName='" + campusName + '\'' +
                 ", openingDay=" + openingDay +
                 ", description='" + description + '\'' +
+                ", creator=" + (creator != null ? creator.getId() : null) +
                 '}';
     }
 }

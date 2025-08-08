@@ -18,7 +18,7 @@ public class MajorTimetable extends Timetable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Classes classEntity;
+    private MajorClasses classEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
@@ -27,7 +27,7 @@ public class MajorTimetable extends Timetable {
 
     public MajorTimetable() {}
 
-    public MajorTimetable(String timetableId, Rooms room, Slots slot, DayOfWeek dayOfTheWeek, LocalDate date, Classes classEntity, Staffs creator) {
+    public MajorTimetable(String timetableId, Rooms room, Slots slot, DayOfWeek dayOfTheWeek, LocalDate date, MajorClasses classEntity, Staffs creator) {
         super(timetableId, room, slot, dayOfTheWeek, date);
         this.classEntity = classEntity;
         this.creator = creator;

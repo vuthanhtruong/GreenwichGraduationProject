@@ -1,6 +1,6 @@
 package com.example.demo.api.Add;
 
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class AddSubjectRestController {
 
     @PostMapping("/major-subjects-list/add-subject")
     public ResponseEntity<?> addSubject(
-            @Valid @ModelAttribute("newSubject") Subjects newSubject) {
+            @Valid @ModelAttribute("newSubject") MajorSubjects newSubject) {
 
         List<String> errors = new ArrayList<>();
 

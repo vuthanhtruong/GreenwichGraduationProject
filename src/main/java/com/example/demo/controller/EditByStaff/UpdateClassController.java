@@ -1,8 +1,8 @@
 package com.example.demo.controller.EditByStaff;
 
-import com.example.demo.entity.Classes;
+import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Staffs;
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
@@ -46,7 +46,7 @@ public class UpdateClassController {
             return "redirect:/staff-home/classes-list";
         }
 
-        Classes editClass = classesService.getClassById(classId);
+        MajorClasses editClass = classesService.getClassById(classId);
         if (editClass == null) {
             redirectAttributes.addFlashAttribute("errors", List.of("Class not found."));
             return "redirect:/staff-home/classes-list";
@@ -60,7 +60,7 @@ public class UpdateClassController {
 
     @PutMapping("/edit-class")
     public String updateClass(
-            @Valid @ModelAttribute("class") Classes classObj,
+            @Valid @ModelAttribute("class") MajorClasses classObj,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Model model) {
@@ -88,7 +88,7 @@ public class UpdateClassController {
 
         return "redirect:/staff-home/classes-list";
     }
-    private void validateClass(Classes classObj, BindingResult bindingResult, List<String> errors) {
+    private void validateClass(MajorClasses classObj, BindingResult bindingResult, List<String> errors) {
         // Annotation-based validation
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
@@ -107,7 +107,7 @@ public class UpdateClassController {
 
         // Validate subject
         if (classObj.getSubject() != null && classObj.getSubject().getSubjectId() != null) {
-            Subjects subject = subjectsService.getSubjectById(classObj.getSubject().getSubjectId());
+            MajorSubjects subject = subjectsService.getSubjectById(classObj.getSubject().getSubjectId());
             if (subject == null) {
                 errors.add("Invalid subject selected.");
             } else {

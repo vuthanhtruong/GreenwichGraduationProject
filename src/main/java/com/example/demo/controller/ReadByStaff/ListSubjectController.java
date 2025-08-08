@@ -1,6 +1,6 @@
 package com.example.demo.controller.ReadByStaff;
 
-import com.example.demo.entity.Subjects;
+import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.SubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class ListSubjectController {
 
     @GetMapping("/major-subjects-list")
     public String showSubjectsList(Model model) {
-        model.addAttribute("newSubject", new Subjects());
+        model.addAttribute("newSubject", new MajorSubjects());
         model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         return "SubjectsList";
     }
