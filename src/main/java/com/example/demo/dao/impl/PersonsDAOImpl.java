@@ -1,16 +1,10 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.PersonsDAO;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Persons;
-import com.example.demo.entity.Staffs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 @Repository

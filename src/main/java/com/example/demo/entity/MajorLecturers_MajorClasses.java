@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 public class MajorLecturers_MajorClasses {
 
     @EmbeddedId
-    private LecturersClassesId id;
+    private MajorLecturersClassesId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("lecturerId")

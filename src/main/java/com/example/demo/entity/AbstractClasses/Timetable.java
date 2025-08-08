@@ -1,5 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.entity.AbstractClasses;
 
+import com.example.demo.entity.Enums.DayOfWeek;
+import com.example.demo.entity.Slots;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

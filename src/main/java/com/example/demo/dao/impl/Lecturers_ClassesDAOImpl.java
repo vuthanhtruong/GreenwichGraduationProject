@@ -3,7 +3,7 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.Lecturers_ClassesDAO;
 import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.MajorLecturers;
-import com.example.demo.entity.LecturersClassesId;
+import com.example.demo.entity.MajorLecturersClassesId;
 import com.example.demo.entity.MajorLecturers_MajorClasses;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
@@ -27,7 +27,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
 
         for (String lecturerId : lecturerIds) {
             // Find the Lecturers_Classes record by composite key
-            LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
+            MajorLecturersClassesId id = new MajorLecturersClassesId(lecturerId, classes.getClassId());
             MajorLecturers_MajorClasses lecturerClass = entityManager.find(MajorLecturers_MajorClasses.class, id);
             if (lecturerClass != null) {
                 entityManager.remove(lecturerClass); // Delete the record
@@ -44,7 +44,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
         for (String lecturerId : lecturerIds) {
             MajorLecturers lecturer = lecturesService.getLecturerById(lecturerId);
             MajorLecturers_MajorClasses lecturerClass = new MajorLecturers_MajorClasses();
-            LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
+            MajorLecturersClassesId id = new MajorLecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setClassEntity(classes);
             lecturerClass.setLecturer(lecturer);

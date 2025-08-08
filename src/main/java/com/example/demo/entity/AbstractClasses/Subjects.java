@@ -1,10 +1,9 @@
-package com.example.demo.entity;
+package com.example.demo.entity.AbstractClasses;
 
+import com.example.demo.entity.Enums.SubjectType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "Subjects")

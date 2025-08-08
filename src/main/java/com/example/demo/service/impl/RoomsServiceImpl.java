@@ -1,16 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.RoomsDAO;
-import com.example.demo.dao.StaffsDAO;
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
-import com.example.demo.entity.Rooms;
+import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.service.RoomsService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class RoomsServiceImpl implements RoomsService {

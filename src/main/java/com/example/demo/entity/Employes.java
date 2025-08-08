@@ -1,11 +1,12 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.time.LocalDate;
 
 @Entity

@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Enums;
 
 public enum Notifications {
     NOTIFICATION_001("Default event description"),

@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Rooms;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;

@@ -2,6 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.Students_ClassesDAO;
 import com.example.demo.entity.*;
+import com.example.demo.entity.Enums.Grades;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.persistence.EntityManager;

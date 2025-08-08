@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.AcademicTranscripts;
+import com.example.demo.entity.Enums.Grades;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

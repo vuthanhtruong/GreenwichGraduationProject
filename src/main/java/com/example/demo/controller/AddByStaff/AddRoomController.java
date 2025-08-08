@@ -2,7 +2,7 @@ package com.example.demo.controller.AddByStaff;
 
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
-import com.example.demo.entity.Rooms;
+import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.entity.Staffs;
 import com.example.demo.service.RoomsService;
 import com.example.demo.service.StaffsService;

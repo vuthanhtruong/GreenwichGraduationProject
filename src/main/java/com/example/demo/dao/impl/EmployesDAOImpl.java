@@ -3,9 +3,7 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.EmployesDAO;
 
 import com.example.demo.entity.Employes;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Rooms;
-import com.example.demo.entity.Students;
+import com.example.demo.entity.AbstractClasses.Rooms;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

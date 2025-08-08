@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 import com.example.demo.entity.Employes;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Rooms;
+import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.service.EmployesService;
 import org.springframework.stereotype.Service;
 

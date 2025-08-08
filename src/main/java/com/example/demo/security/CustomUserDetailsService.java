@@ -1,6 +1,6 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.Persons;
+import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.entity.Students;
 import com.example.demo.entity.Staffs;
 import com.example.demo.entity.MajorLecturers;

@@ -2,8 +2,7 @@ package com.example.demo.dao;
 
 import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
-import com.example.demo.entity.Rooms;
-import com.example.demo.entity.Students;
+import com.example.demo.entity.AbstractClasses.Rooms;
 
 import java.io.IOException;
 import java.util.List;

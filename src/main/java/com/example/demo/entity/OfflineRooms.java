@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Rooms;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
@@ -8,15 +9,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "OfflineRooms")
 @PrimaryKeyJoinColumn(name = "RoomID") // Liên kết với ID từ Room
 @Getter
 @Setter
 @NoArgsConstructor
-public class OfflineRooms extends Rooms{
+public class OfflineRooms extends Rooms {
     @Column(name = "Address", nullable = true, length = 500)
     private String address;
 }

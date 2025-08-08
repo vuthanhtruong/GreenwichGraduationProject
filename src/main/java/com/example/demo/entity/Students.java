@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

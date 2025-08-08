@@ -2,8 +2,7 @@ package com.example.demo.dao;
 
 
 import com.example.demo.entity.Employes;
-import com.example.demo.entity.Majors;
-import com.example.demo.entity.Rooms;
+import com.example.demo.entity.AbstractClasses.Rooms;
 
 import java.util.List;
 

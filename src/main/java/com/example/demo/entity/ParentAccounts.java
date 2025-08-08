@@ -1,9 +1,7 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Persons;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;

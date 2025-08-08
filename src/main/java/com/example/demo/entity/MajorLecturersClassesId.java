@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Embeddable
 @Data
-public class LecturersClassesId implements Serializable {
+public class MajorLecturersClassesId implements Serializable {
 
     @Column(name = "LecturerID")
     private String lecturerId;
@@ -18,10 +18,10 @@ public class LecturersClassesId implements Serializable {
     private String classId;
 
     // Default constructor (required by JPA)
-    public LecturersClassesId() {}
+    public MajorLecturersClassesId() {}
 
     // Parameterized constructor
-    public LecturersClassesId(String lecturerId, String classId) {
+    public MajorLecturersClassesId(String lecturerId, String classId) {
         this.lecturerId = lecturerId;
         this.classId = classId;
     }
@@ -30,8 +30,8 @@ public class LecturersClassesId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LecturersClassesId)) return false;
-        LecturersClassesId that = (LecturersClassesId) o;
+        if (!(o instanceof MajorLecturersClassesId)) return false;
+        MajorLecturersClassesId that = (MajorLecturersClassesId) o;
         return Objects.equals(lecturerId, that.lecturerId) &&
                 Objects.equals(classId, that.classId);
     }
