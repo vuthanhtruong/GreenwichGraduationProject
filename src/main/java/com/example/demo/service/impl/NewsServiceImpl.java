@@ -10,6 +10,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class NewsServiceImpl implements NewsService {
+    @Override
+    public void deleteDocuments(String id, List<String> documentIds) {
+        newsDAO.deleteDocuments(id, documentIds);
+    }
+
+    @Override
+    public News getNewsById(String id) {
+        return newsDAO.getNewsById(id);
+    }
+
+    @Override
+    public void updateNews(News news, List<Documents> newDocuments) {
+        newsDAO.updateNews(news, newDocuments);
+    }
+
     private  final NewsDAO newsDAO;
 
     public NewsServiceImpl(NewsDAO newsDAO) {

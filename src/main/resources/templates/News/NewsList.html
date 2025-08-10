@@ -25,7 +25,7 @@
     <!-- Form thêm bài đăng tin tức -->
     <section class="mb-4">
         <h2>Add New Post</h2>
-        <form method="post" th:action="@{/staff-home/classes-list/add-news}" th:object="${newNews}" enctype="multipart/form-data">
+        <form method="post" th:action="@{/staff-home/news-list/add-news}" th:object="${newNews}" enctype="multipart/form-data">
             <div class="row g-3">
                 <!-- Title -->
                 <div class="col-md-6">
@@ -54,8 +54,10 @@
 
                 <!-- Documents -->
                 <div class="col-md-12">
-                    <label for="documents" class="form-label">Upload Documents:</label>
-                    <input id="documents" class="form-control" type="file" name="documents" multiple>
+                    <label for="files" class="form-label">Upload Documents:</label>
+                    <input id="files" class="form-control" type="file" name="files" multiple>
+                    <div id="fileList" class="mt-2"></div>
+                    <small class="form-text text-muted">You can select multiple files to upload.</small>
                 </div>
             </div>
 
@@ -95,21 +97,22 @@
                 <td th:text="${#temporals.format(news.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
                 <td th:text="${news.content != null} ? ${news.content} : 'N/A'"></td>
                 <td>
-                    <span th:if="${news.documents != null and not #lists.isEmpty(news.documents)}">
-                        <a th:each="doc : ${news.documents}"
-                           th:href="@{/staff-home/classes-list/download-document/{id}(id=${doc.id})}"
-                           th:text="${doc.fileName}"></a>
-                    </span>
-                    <span th:unless="${news.documents != null and not #lists.isEmpty(news.documents)}">N/A</span>
+                    <span th:if="${#lists.isEmpty(news.documents)}">N/A</span>
+                    <ul class="list-group" th:unless="${#lists.isEmpty(news.documents)}">
+                        <li class="list-group-item" th:each="doc : ${news.documents}">
+                            <a th:href="@{/staff-home/news-list/download-document/{id}(id=${doc.documentId})}"
+                               th:text="${doc.documentTitle}"></a>
+                        </li>
+                    </ul>
                 </td>
                 <td>
-                    <form th:action="@{/staff-home/classes-list/edit-news-form}" method="post" style="display:inline;">
+                    <form th:action="@{/staff-home/news-list/edit-news-form}" method="post" style="display:inline;">
                         <input type="hidden" name="id" th:value="${news.postId}" />
                         <button type="submit" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </button>
                     </form>
-                    <form th:action="@{/staff-home/classes-list/delete-news/{id}(id=${news.postId})}"
+                    <form th:action="@{/staff-home/news-list/delete-news/{id}(id=${news.postId})}"
                           method="post"
                           th:id="'deleteForm-' + ${news.postId}">
                         <input type="hidden" name="_method" value="DELETE" />
@@ -127,5 +130,24 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+<script>
+    // Hiển thị danh sách file được chọn
+    document.getElementById('files').addEventListener('change', function(e) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = ''; // Xóa danh sách cũ
+        const files = e.target.files;
+        if (files.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'list-group';
+            for (let i = 0; i < files.length; i++) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = files[i].name + ' (' + (files[i].size / 1024).toFixed(2) + ' KB)';
+                ul.appendChild(li);
+            }
+            fileList.appendChild(ul);
+        }
+    });
+</script>
 </body>
 </html>

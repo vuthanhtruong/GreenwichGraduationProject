@@ -1,12 +1,11 @@
-package com.example.demo.dao;
+package com.example.demo.service;
 
 import com.example.demo.entity.Documents;
-import com.example.demo.entity.Majors;
 import com.example.demo.entity.News;
 
 import java.util.List;
 
-public interface DocumentsDAO {
+public interface DocumentsService {
     List<Documents> getDocumentsByNews(News news);
     void deleteDocuments(List<String> documentIds);
 }

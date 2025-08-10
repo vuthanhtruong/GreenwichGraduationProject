@@ -1,4 +1,5 @@
 package com.example.demo.entity;
+
 import com.example.demo.entity.AbstractClasses.Posts;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,6 +29,6 @@ public class Documents {
     private String filePath;
 
     @Lob
-    @Column(name = "FileData", nullable = true)
+    @Column(name = "FileData", nullable = true,columnDefinition = "LONGBLOB")
     private byte[] fileData;
 }

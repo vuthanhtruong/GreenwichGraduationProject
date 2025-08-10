@@ -7,6 +7,9 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "News")
 @PrimaryKeyJoinColumn(name = "PostID")
@@ -21,4 +24,7 @@ public class News extends Posts {
 
     @Column(name = "Content", nullable = true, length = 1000)
     private String content;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Documents> documents = new ArrayList<>();
 }
