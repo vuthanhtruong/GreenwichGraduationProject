@@ -1,4 +1,4 @@
-package com.example.demo.controller.DeleteByStaff;
+package com.example.demo.controller.DeleteByMajorStaff;
 
 
 import com.example.demo.entity.MajorClasses;

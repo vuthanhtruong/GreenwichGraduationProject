@@ -17,6 +17,11 @@ public class DeputyStaffs extends Employes {
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Creator", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Admins creator;
+
     public void setPassword(String password) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(password);

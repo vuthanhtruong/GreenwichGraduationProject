@@ -1,4 +1,4 @@
-package com.example.demo.controller.AddByStaff;
+package com.example.demo.controller.AddByMajorStaff;
 
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
@@ -22,13 +22,13 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
-public class AddSubjectController {
+public class AddMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public AddSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public AddMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

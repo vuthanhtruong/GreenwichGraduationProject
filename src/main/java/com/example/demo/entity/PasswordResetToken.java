@@ -1,32 +1,40 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PasswordResetToken")
+@Table(name = "PasswordResetTokens")
 @Getter
 @Setter
 public class PasswordResetToken {
 
     @Id
-    @Column(name = "id")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "otp", nullable = false)
-    private String otp;
+    @Column(nullable = false, unique = true)
+    private String token;
 
-    @Column(name = "expiry_date", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "PersonID", nullable = false)
+    private Authenticators authenticator;
+
+    @Column(nullable = false)
     private LocalDateTime expiryDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons person;
+    public PasswordResetToken() {}
+
+    public PasswordResetToken(String token, Authenticators authenticator) {
+        this.token = token;
+        this.authenticator = authenticator;
+        this.expiryDate = LocalDateTime.now().plusHours(1); // Token hết hạn sau 1 giờ
+    }
+
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiryDate);
+    }
 }

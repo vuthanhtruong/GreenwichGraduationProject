@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
-public class ListSubjectController {
+public class ListMajorSubjectsController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public ListSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public ListMajorSubjectsController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }

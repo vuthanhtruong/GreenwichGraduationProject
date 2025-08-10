@@ -1,4 +1,4 @@
-package com.example.demo.controller.AddByStaff;
+package com.example.demo.controller.AddByMajorStaff;
 
 import com.example.demo.entity.Syllabuses;
 import com.example.demo.entity.MajorSubjects;

@@ -1,21 +1,16 @@
-package com.example.demo.controller.AddByStaff;
+package com.example.demo.controller.AddByMajorStaff;
 
-import com.example.demo.entity.Students;
+import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -28,45 +23,44 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home/students-list/")
-public class AddStudentController {
+@RequestMapping("/staff-home/lectures-list/")
+public class AddLectureController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
-    private final ResourceLoader resourceLoader;
     private final PersonsService personsService;
 
-    public AddStudentController(StaffsService staffsService, LecturesService lecturesService,
-                                StudentsService studentsService, ResourceLoader resourceLoader, PersonsService personsService) {
+    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
-        this.resourceLoader = resourceLoader;
         this.personsService = personsService;
     }
 
-    @GetMapping("/add-student")
-    public String showAddStudentPage(Model model) {
-        model.addAttribute("student", new Students());
-        return "AddStudent";
+    @GetMapping("/add-lecture")
+    public String showAddlecturePage(Model model) {
+        model.addAttribute("lecture", new MajorLecturers()); // Fixed: Use Lecturers instead of Staffs
+        model.addAttribute("majors", staffsService.getStaffMajor());
+        return "AddLecture";
     }
 
-    @PostMapping("/add-student")
-    public String addStudent(
-            @Valid @ModelAttribute("student") Students student,
+    @PostMapping("/add-lecture")
+    public String addlecture(
+            @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes,
-            HttpSession session) { // Thêm HttpSession
+            HttpSession session) {
 
         List<String> errors = new ArrayList<>();
-
         // Perform all validations
-        validateStudent(student, bindingResult, avatarFile, errors);
+        validatelecture(lecture, bindingResult, avatarFile, errors);
 
         if (!errors.isEmpty()) {
+            System.out.println("Validation errors: " + errors);
             model.addAttribute("errors", errors);
+            model.addAttribute("majors", staffsService.getStaffMajor());
             // Lưu avatarFile vào session nếu có
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
@@ -76,74 +70,79 @@ public class AddStudentController {
                     errors.add("Failed to store avatar temporarily: " + e.getMessage());
                 }
             }
-            return "AddStudent";
+            return "AddLecture";
         }
 
         try {
             String randomPassword = generateRandomPassword(12);
-            student.setPassword(randomPassword);
-            String studentId = generateUniqueStudentId(staffsService.getStaffMajor().getMajorId(),
-                    student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
-            student.setId(studentId);
+            lecture.setPassword(randomPassword);
+            String lectureId = generateUniquelectureId(staffsService.getStaffMajor().getMajorId(),
+                    lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
+            lecture.setId(lectureId);
 
             // Handle avatar upload
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 byte[] avatarBytes = avatarFile.getBytes();
-                student.setAvatar(avatarBytes);
+                lecture.setAvatar(avatarBytes);
+                System.out.println("Avatar bytes set: " + avatarBytes.length);
             } else if (session.getAttribute("tempAvatar") != null) {
-                // Sử dụng avatar từ session nếu không có file mới
-                student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
+                lecture.setAvatar((byte[]) session.getAttribute("tempAvatar"));
+                System.out.println("Using temp avatar from session");
             }
 
-            studentsService.addStudents(student, randomPassword);
+            lecturesService.addLecturers(lecture, randomPassword);
             // Xóa dữ liệu tạm sau khi lưu thành công
             session.removeAttribute("tempAvatar");
             session.removeAttribute("tempAvatarName");
-            redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
-            return "redirect:/staff-home/students-list";
+            redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
+            return "redirect:/staff-home/lectures-list";
         } catch (IOException e) {
+            System.err.println("IOException during avatar processing: " + e.getMessage());
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
-            return "AddStudent";
+            model.addAttribute("majors", staffsService.getStaffMajor());
+            return "AddLecture";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the student: " + e.getMessage());
+            System.err.println("Error adding lecture: " + e.getMessage());
+            errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
-            return "AddStudent";
+            model.addAttribute("majors", staffsService.getStaffMajor());
+            return "AddLecture";
         }
     }
 
-    private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
+    private void validatelecture(MajorLecturers lecture, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
         // Annotation-based validation errors
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
 
         // Custom validations
-        if (!isValidName(student.getFirstName())) {
+        if (!isValidName(lecture.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (!isValidName(student.getLastName())) {
+        if (!isValidName(lecture.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        if (student.getEmail() != null && personsService.existsByEmail(student.getEmail())) {
+        if (lecture.getEmail() != null && personsService.existsByEmail(lecture.getEmail())) {
             errors.add("The email address is already associated with another account.");
         }
 
-        if (student.getPhoneNumber() != null && personsService.existsByPhoneNumber(student.getPhoneNumber())) {
+        if (lecture.getPhoneNumber() != null && personsService.existsByPhoneNumber(lecture.getPhoneNumber())) {
             errors.add("The phone number is already associated with another account.");
         }
 
-        if (student.getEmail() != null && !isValidEmail(student.getEmail())) {
+        if (lecture.getEmail() != null && !isValidEmail(lecture.getEmail())) {
             errors.add("Invalid email format.");
         }
 
-        if (student.getPhoneNumber() != null && !isValidPhoneNumber(student.getPhoneNumber())) {
+        if (lecture.getPhoneNumber() != null && !isValidPhoneNumber(lecture.getPhoneNumber())) {
             errors.add("Invalid phone number format.");
         }
 
-        if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
+        if (lecture.getBirthDate() != null && lecture.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
 
@@ -156,11 +155,6 @@ public class AddStudentController {
             if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
                 errors.add("Avatar file size must not exceed 5MB.");
             }
-        }
-
-        // Ensure gender is provided for default avatar
-        if (student.getGender() == null) {
-            errors.add("Gender is required to assign a default avatar.");
         }
     }
 
@@ -215,35 +209,34 @@ public class AddStudentController {
                 .collect(Collectors.joining());
     }
 
-    private String generateUniqueStudentId(String majorId, LocalDate createdDate) {
+    private String generateUniquelectureId(String majorId, LocalDate createdDate) {
         String prefix;
         switch (majorId) {
             case "major001":
-                prefix = "GBH";
+                prefix = "TBH";
                 break;
             case "major002":
-                prefix = "GCH";
+                prefix = "TCH";
                 break;
             case "major003":
-                prefix = "GDH";
+                prefix = "TDT";
                 break;
             case "major004":
-                prefix = "GKH";
+                prefix = "TKT";
                 break;
             default:
-                prefix = "GEN";
+                prefix = "TGN";
                 break;
         }
-
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
 
-        String studentId;
+        String lectureId;
         SecureRandom random = new SecureRandom();
         do {
             String randomDigit = String.valueOf(random.nextInt(10));
-            studentId = prefix + year + date + randomDigit;
-        } while (personsService.existsPersonById(studentId));
-        return studentId;
+            lectureId = prefix + year + date + randomDigit;
+        } while (personsService.existsPersonById(lectureId));
+        return lectureId;
     }
 }

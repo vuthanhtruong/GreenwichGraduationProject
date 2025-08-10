@@ -1,6 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.MajorSubjectsDAO;
+import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
@@ -40,6 +41,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         subject.setCreator(staffsService.getStaff());
         subject.setMajor(staffsService.getStaffMajor());
+        subject.setRequirementType(SubjectTypes.TOPUP_PREPARATION);
         entityManager.persist(subject);
     }
 

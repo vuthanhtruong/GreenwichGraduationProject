@@ -1,5 +1,4 @@
 package com.example.demo.entity;
-import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.entity.AbstractClasses.Posts;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,11 +15,6 @@ public class Documents {
     @Id
     @Column(name = "DocumentID")
     private String documentId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = true)
