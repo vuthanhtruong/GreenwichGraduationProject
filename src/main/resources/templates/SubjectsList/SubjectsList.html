@@ -44,10 +44,7 @@
                 <!-- Semester -->
                 <div class="col-md-3">
                     <label for="semester" class="form-label">Semester:</label>
-                    <select id="semester" class="form-select" th:field="*{semester}">
-                        <option value="">Select Semester</option>
-                        <option th:each="i : ${#numbers.sequence(1, 8)}" th:value="${i}" th:text="${i}"></option>
-                    </select>
+                    <input type="number" id="semester" class="form-control" th:field="*{semester}" placeholder="Enter Semester" min="1" required />
                     <div class="text-danger" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}"></div>
                 </div>
             </div>

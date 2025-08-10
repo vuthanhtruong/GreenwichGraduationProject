@@ -13,11 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
@@ -51,17 +47,15 @@ public class EditNewsController {
         this.staffsService = staffsService;
     }
 
-    @GetMapping("/edit-news-form")
+    @PostMapping("/edit-news-form")
     public String showEditForm(@RequestParam("id") String postId, Model model) {
-        logger.info("Showing edit form for news with postId: {}", postId);
         News news = newsService.getNewsById(postId);
-        // Lấy danh sách tài liệu từ DocumentsSevice
         news.setDocuments(DocumentsSevice.getDocumentsByNews(news));
         model.addAttribute("news", news);
         return "EditNewsForm";
     }
 
-    @PostMapping("/edit-news")
+    @PutMapping("/edit-news-form")
     public String updateNews(@Valid @ModelAttribute("news") News news,
                              BindingResult bindingResult,
                              @RequestParam(value = "deleteDocIds", required = false) List<String> deleteDocIds,
@@ -131,7 +125,6 @@ public class EditNewsController {
             logger.error("Validation error: {}", e.getMessage());
             model.addAttribute("errorMessage", "Failed to update news: " + e.getMessage());
         }
-
         return "EditNewsForm";
     }
 }
