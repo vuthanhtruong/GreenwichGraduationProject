@@ -27,6 +27,9 @@ public class Students extends Persons {
     @Column(name = "MIS_ID", length = 50)
     private String misId;
 
+    @Column(name = "Admission_Year", nullable = false)
+    private Integer admissionYear;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CreatorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)

@@ -111,7 +111,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
 
         existingSubject.setSubjectName(subject.getSubjectName());
-        if (subject.getTuition() != null) existingSubject.setTuition(subject.getTuition());
         if (subject.getSemester() != null) existingSubject.setSemester(subject.getSemester());
 
         return entityManager.merge(existingSubject);

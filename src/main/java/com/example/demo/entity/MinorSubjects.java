@@ -20,10 +20,9 @@ public class MinorSubjects extends Subjects {
 
     public MinorSubjects() {}
 
-    public MinorSubjects(String subjectId, String subjectName, Double tuition, Integer semester, DeputyStaffs creator) {
+    public MinorSubjects(String subjectId, String subjectName, Integer semester, DeputyStaffs creator) {
         setSubjectId(subjectId);
         setSubjectName(subjectName);
-        setTuition(tuition);
         setSemester(semester);
         this.creator = creator;
     }

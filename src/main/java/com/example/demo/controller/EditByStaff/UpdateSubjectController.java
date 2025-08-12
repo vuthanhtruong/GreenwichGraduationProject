@@ -67,7 +67,6 @@ public class UpdateSubjectController {
 
         try {
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
-            existingSubject.setTuition(formSubject.getTuition());
             existingSubject.setSemester(formSubject.getSemester());
             subjectsService.updateSubject(id, existingSubject);
             redirectAttributes.addFlashAttribute("message", "Subject updated successfully!");
