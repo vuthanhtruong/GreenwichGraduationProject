@@ -18,8 +18,9 @@ public class AccountBalances {
     @Column(name = "StudentID")
     private String studentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StudentID", nullable = false, insertable = false, updatable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "StudentID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
@@ -29,11 +30,9 @@ public class AccountBalances {
     @Column(name = "LastUpdated", nullable = false)
     private LocalDateTime lastUpdated;
 
-    // Constructors
     public AccountBalances() {}
 
-    public AccountBalances(String studentId, Students student, Double balance, LocalDateTime lastUpdated) {
-        this.studentId = studentId;
+    public AccountBalances(Students student, Double balance, LocalDateTime lastUpdated) {
         this.student = student;
         this.balance = balance;
         this.lastUpdated = lastUpdated;

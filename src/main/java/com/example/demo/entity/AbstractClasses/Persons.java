@@ -64,12 +64,15 @@ public abstract class Persons {
     private String postalCode;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "Avatar", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] avatar;
 
     public String getFullName() {
-        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+        String fn = firstName == null ? "" : firstName.trim();
+        String ln = lastName == null ? "" : lastName.trim();
+        return (fn + " " + ln).trim();
     }
-    public abstract String getRoleType();
 
+    public abstract String getRoleType();
 }

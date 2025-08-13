@@ -17,19 +17,20 @@ public class Authenticators {
 
     @Id
     @Column(name = "PersonID")
-    private String personId; // Khóa chính, trùng ID của Persons
+    private String personId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PersonID", nullable = false, insertable = false, updatable = false)
+    @MapsId
+    @JoinColumn(name = "PersonID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons person; // Liên kết tới entity Persons (hoặc subclass)
+    private Persons person;
 
     @Column(name = "Password", nullable = true, length = 255)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "AccountStatus", nullable = true)
-    private AccountStatus accountStatus = AccountStatus.ACTIVE; // Default status
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     public void setPassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
