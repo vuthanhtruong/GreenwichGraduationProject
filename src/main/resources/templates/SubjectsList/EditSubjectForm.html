@@ -39,14 +39,6 @@
                     <input id="subjectName" class="form-control" th:field="*{subjectName}" required type="text">
                     <div class="text-danger" th:if="${#fields.hasErrors('subjectName')}" th:errors="*{subjectName}"></div>
                 </div>
-
-                <!-- Tuition -->
-                <div class="col-md-3">
-                    <label for="tuition" class="form-label">Tuition:</label>
-                    <input id="tuition" class="form-control" th:field="*{tuition}" type="number" step="0.01" min="0">
-                    <div class="text-danger" th:if="${#fields.hasErrors('tuition')}" th:errors="*{tuition}"></div>
-                </div>
-
                 <!-- Semester -->
                 <div class="col-md-3">
                     <label for="semester" class="form-label">Semester:</label>

@@ -11,6 +11,7 @@ public interface MajorSubjectsDAO {
     MajorSubjects getSubjectByName(String subjectName);
     MajorSubjects checkNameSubject(MajorSubjects subject);
     List<MajorSubjects> subjectsByMajor(Majors major);
+    List<MajorSubjects> AcceptedSubjectsByMajor(Majors major);
     List<MajorSubjects> getSubjects();
     MajorSubjects updateSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);

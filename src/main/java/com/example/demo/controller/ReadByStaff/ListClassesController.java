@@ -27,7 +27,7 @@ public class ListClassesController {
     @GetMapping("")
     public String showClassesList(Model model) {
         model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
-        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
+        model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
         return "ClassesList";
     }
 }

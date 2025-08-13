@@ -11,6 +11,10 @@ import java.util.List;
 
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
+    @Override
+    public List<MajorSubjects> AcceptedSubjectsByMajor(Majors major) {
+        return subjectsDAO.AcceptedSubjectsByMajor(major);
+    }
 
     private final MajorSubjectsDAO subjectsDAO;
 

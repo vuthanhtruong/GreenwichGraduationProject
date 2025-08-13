@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.AbstractClasses.Subjects;
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,4 +23,8 @@ public class MajorSubjects extends Subjects {
     @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Majors major;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "LearningProgramType", nullable = true)
+    private LearningProgramTypes learningProgramType;
 }

@@ -89,6 +89,18 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                 .getResultList();
     }
 
+    @Override
+    public List<MajorSubjects> AcceptedSubjectsByMajor(Majors major) {
+        if (major == null) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.major = :major and s.acceptor.id IS NOT null ORDER BY s.semester ASC",
+                        MajorSubjects.class)
+                .setParameter("major", major)
+                .getResultList();
+    }
+
 
     @Override
     public List<MajorSubjects> getSubjects() {
