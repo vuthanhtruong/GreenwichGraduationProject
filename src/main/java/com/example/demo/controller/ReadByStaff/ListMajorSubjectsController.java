@@ -1,5 +1,6 @@
 package com.example.demo.controller.ReadByStaff;
 
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.MajorSubjectsService;
@@ -27,6 +28,7 @@ public class ListMajorSubjectsController {
     @GetMapping("/major-subjects-list")
     public String showSubjectsList(Model model) {
         model.addAttribute("newSubject", new MajorSubjects());
+        model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
         model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         return "SubjectsList";
     }

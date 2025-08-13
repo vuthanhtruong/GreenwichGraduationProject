@@ -22,11 +22,6 @@ public class DeputyStaffs extends Employes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
-    public void setPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        this.password = passwordEncoder.encode(password);
-    }
-
     @Override
     public String getRoleType() {
         return "DEPUTY_STAFF";

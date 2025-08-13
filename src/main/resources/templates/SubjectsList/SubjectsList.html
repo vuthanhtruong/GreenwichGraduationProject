@@ -39,6 +39,14 @@
                     <input type="number" id="semester" class="form-control" th:field="*{semester}" placeholder="Enter Semester" min="1" required />
                     <div class="text-danger" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}"></div>
                 </div>
+
+                <div>
+                    <select id="learningProgramType" class="form-select" th:field="*{learningProgramType}" required>
+                        <option value="" disabled selected>-- Select Program --</option>
+                        <option th:each="t : ${learningProgramTypes}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+
             </div>
 
             <!-- General Errors -->

@@ -32,11 +32,6 @@ public class ParentAccounts extends Persons {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    public void setPassword(String password) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        this.password = passwordEncoder.encode(password);
-    }
-
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null; // Avatar exists, no default needed
