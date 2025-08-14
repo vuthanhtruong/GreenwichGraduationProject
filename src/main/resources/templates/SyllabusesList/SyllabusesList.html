@@ -29,7 +29,7 @@
     <!-- Thông báo lỗi riêng (nếu có) -->
     <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></div>
 
-    <form method="post" th:action="@{/staff-home/major-subjects-list/syllabuses-list/add-syllabus}" th:object="${newSyllabus}" enctype="multipart/form-data">
+    <form method="post" th:action="@{/staff-home/major-subjects-list/view-syllabus/syllabuses-list/add-syllabus}" th:object="${newSyllabus}" enctype="multipart/form-data">
         <div class="row g-3">
             <!-- Subject ID (ẩn) -->
             <input type="hidden" name="subjectId" th:value="${subject != null} ? ${subject.subjectId} : ''">

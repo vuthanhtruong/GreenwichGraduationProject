@@ -4,63 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="/login.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/login.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-<div class="container text-center">
-    <h1><i class="fas fa-home"></i> Welcome to the Home Page</h1>
+<main class="container">
+    <header class="text-center">
+        <h1><i class="fas fa-home"></i> Welcome to the Home Page</h1>
+    </header>
 
-    <div class="login-form">
+    <section class="login-form">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+
         <div th:if="${param.error}" class="alert alert-danger">
-            Invalid username or password.
+            <i class="fas fa-exclamation-circle"></i> Invalid username or password.
         </div>
         <div th:if="${param.logout}" class="alert alert-success">
-            You have been logged out successfully.
+            <i class="fas fa-check-circle"></i> You have been logged out successfully.
         </div>
+
         <form th:action="@{/login}" method="post">
-            <!-- CSRF Token -->
-            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
 
-            <div class="mb-3">
-                <label class="form-label" for="username">
-                    <i class="fas fa-user"></i> Username:
-                </label>
-                <input type="text" id="username" name="username" class="form-control" required>
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" class="form-control" required />
             </div>
 
-            <div class="mb-3">
-                <label class="form-label" for="password">
-                    <i class="fas fa-lock"></i> Password:
-                </label>
-                <input type="password" id="password" name="password" class="form-control" required>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" class="form-control" required />
             </div>
 
-            <div class="mb-3 form-check">
-                <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
-                <label class="form-check-label" for="remember-me">
-                    <i class="fas fa-check"></i> Remember Me
+            <div class="form-check">
+                <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input" />
+                <label for="remember-me" class="form-check-label">
+                    <i class="fas fa-check-square"></i> Remember Me
                 </label>
             </div>
 
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-arrow-right"></i> Login
+                <i class="fas fa-sign-in-alt"></i> Login
             </button>
         </form>
 
-        <div class="oauth-login mt-3">
-            <a href="/oauth2/authorization/google" class="btn btn-danger">
+        <div class="oauth-login">
+            <a href="/oauth2/authorization/google" class="btn btn-google">
                 <i class="fab fa-google"></i> Login with Google
             </a>
         </div>
 
-        <div class="forgot-password mt-3">
+        <div class="forgot-password">
             <a href="/auth/reset-password">
                 <i class="fas fa-question-circle"></i> Forgot password?
             </a>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 </body>
 </html>

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/staff-home/major-subjects-list/")
+@RequestMapping("/staff-home/major-subjects-list/view-syllabus")
 public class AddSyllabusController {
 
     private final SyllabusesService syllabusesService;
