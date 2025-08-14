@@ -2,6 +2,7 @@ package com.example.demo.entity.AbstractClasses;
 
 import com.example.demo.entity.StudentRequiredSubjectsId;
 import com.example.demo.entity.Students;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public abstract class StudentRequiredSubjects {
+
     @EmbeddedId
     private StudentRequiredSubjectsId id;
 
@@ -31,8 +33,8 @@ public abstract class StudentRequiredSubjects {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Subjects subject;
 
-    @Column(name = "RequiredReason", nullable = true, length = 255)
-    private String requiredReason; // Lý do bắt buộc (ví dụ: "Major requirement", "Program mandatory")
+    @Column(name = "RequiredReason", length = 255)
+    private String requiredReason;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;

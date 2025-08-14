@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/teacher-home/**").hasRole("LECTURER")
+
                         .requestMatchers("/api/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/api/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/api/teacher-home/**").hasRole("LECTURER")
@@ -102,7 +103,8 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        tokenRepository.setCreateTableOnStartup(true); // Enable automatic table creation
+        // ❌ KHÔNG tạo bảng lại mỗi lần khởi động
+        // tokenRepository.setCreateTableOnStartup(true);
         return tokenRepository;
     }
 }
