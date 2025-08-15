@@ -1,6 +1,8 @@
 package com.example.demo.config;
 
-import com.example.demo.entity.*;
+import com.example.demo.entity.MajorLecturers;
+import com.example.demo.entity.Students;
+import com.example.demo.entity.Staffs;
 import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.security.CustomUserDetailsService;
@@ -25,6 +27,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import javax.sql.DataSource;
 import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -60,13 +63,13 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(formSuccessHandler()) // redirect theo role
+                        .successHandler(formSuccessHandler())
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOAuth2UserService))
-                        .successHandler(oauth2SuccessHandler()) // chuẩn hoá principal + redirect
+                        .successHandler(oauth2SuccessHandler())
                         .failureHandler((req, res, ex) -> res.sendRedirect("/login?error"))
                 )
                 .logout(logout -> logout
@@ -90,7 +93,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler formSuccessHandler() {
         return (request, response, authentication) -> {
-            // principal của form login đã là CustomUserPrincipal -> chỉ redirect
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
                 response.sendRedirect("/student-home");
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
@@ -106,7 +108,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (request, response, authentication) -> {
-            // Lấy email từ OIDC/OAuth2 principal
+            // Lấy email từ principal OAuth2/OIDC
             String email = null;
             Object p = authentication.getPrincipal();
             if (p instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidc) {
@@ -119,13 +121,9 @@ public class SecurityConfig {
                 email = authentication.getName();
             }
 
-            // Tra DB -> build entities & role
+            // Tra DB -> xác định role + lấy Persons (nếu có)
             Persons person = null;
-            String role = "ROLE_STUDENT"; // mặc định
-            Staffs staff = null;
-            Majors major = null;
-            Campuses campus = null;
-
+            String role = "ROLE_STUDENT"; // mặc định nếu chưa map được
             try {
                 person = entityManager.createQuery(
                                 "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
@@ -135,21 +133,17 @@ public class SecurityConfig {
                         .setParameter("st", AccountStatus.ACTIVE)
                         .getSingleResult();
 
-                if (person instanceof Staffs s) {
+                if (person instanceof Staffs) {
                     role = "ROLE_STAFF";
-                    staff = s;
-                    major = s.getMajorManagement();
-                    campus = s.getCampus();
                 } else if (person instanceof MajorLecturers) {
                     role = "ROLE_LECTURER";
-                    // nếu cần, set major/campus cho lecturer
                 } else if (person instanceof Students) {
                     role = "ROLE_STUDENT";
                 } else {
-                    throw new IllegalStateException("Unknown person type: " + person.getClass());
+                    // Giữ mặc định
                 }
             } catch (NoResultException ignore) {
-                // không tìm thấy -> giữ mặc định ROLE_STUDENT, entities = null
+                // Không tìm thấy -> giữ mặc định ROLE_STUDENT, person = null
             }
 
             var authorities = List.of(new SimpleGrantedAuthority(role));
@@ -157,10 +151,7 @@ public class SecurityConfig {
                     email,
                     "N/A", // OAuth2 không có password
                     authorities,
-                    person,
-                    staff,
-                    major,
-                    campus
+                    person
             );
 
             // Ghi lại Authentication với principal đã chuẩn hoá
@@ -190,7 +181,7 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        // tokenRepository.setCreateTableOnStartup(true); // để OFF như hiện tại
+        // tokenRepository.setCreateTableOnStartup(true);
         return tokenRepository;
     }
 }

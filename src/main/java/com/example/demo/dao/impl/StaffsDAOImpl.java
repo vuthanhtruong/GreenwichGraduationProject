@@ -38,7 +38,7 @@ public class StaffsDAOImpl implements StaffsDAO {
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
             throw new IllegalStateException("No authenticated principal");
         }
-        return principal.getStaff();
+        return (Staffs) principal.getPerson();
     }
     @Override
     public List<MajorClasses> getClasses() {

@@ -1,6 +1,9 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.*;
+import com.example.demo.entity.Authenticators;
+import com.example.demo.entity.MajorLecturers;
+import com.example.demo.entity.Students;
+import com.example.demo.entity.Staffs;
 import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import jakarta.persistence.EntityManager;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/** Form login -> tạo CustomUserPrincipal chứa Persons. */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -28,62 +32,48 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     @Cacheable(value = "users", key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        long startTime = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         try {
-            // 1) Lấy Persons đang ACTIVE
+            // Lấy Persons đang ACTIVE theo id hoặc email
             Persons person = entityManager.createQuery(
                             "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
-                                    "WHERE (p.id = :username OR p.email = :username) AND a.accountStatus = :status",
+                                    "WHERE (p.id = :u OR p.email = :u) AND a.accountStatus = :st",
                             Persons.class)
-                    .setParameter("username", username)
-                    .setParameter("status", AccountStatus.ACTIVE)
+                    .setParameter("u", username)
+                    .setParameter("st", AccountStatus.ACTIVE)
                     .getSingleResult();
 
-            // 2) Lấy password từ Authenticators
-            Authenticators authenticators = entityManager.createQuery(
-                            "SELECT a FROM Authenticators a WHERE a.personId = :personId",
+            // Lấy thông tin mật khẩu / trạng thái từ Authenticators
+            Authenticators auth = entityManager.createQuery(
+                            "SELECT a FROM Authenticators a WHERE a.personId = :pid",
                             Authenticators.class)
-                    .setParameter("personId", person.getId())
+                    .setParameter("pid", person.getId())
                     .getSingleResult();
 
-            // 3) Xác định role + entity tham chiếu đưa vào principal
+            // Xác định ROLE theo kiểu đối tượng
             String role;
-            Staffs staff = null;
-            Majors major = null;
-            Campuses campus = null;
-
-            if (person instanceof Staffs s) {
+            if (person instanceof Staffs) {
                 role = "ROLE_STAFF";
-                staff = s;
-                major = s.getMajorManagement();   // có thể null
-                campus = s.getCampus();           // có thể null
-            } else if (person instanceof MajorLecturers l) {
+            } else if (person instanceof MajorLecturers) {
                 role = "ROLE_LECTURER";
-                // Nếu MajorLecturers có major/campus, lấy tương tự:
-                // major = l.getMajorManagement() / campus = l.getCampus() (tuỳ model)
-            } else if (person instanceof Students st) {
+            } else if (person instanceof Students) {
                 role = "ROLE_STUDENT";
-                // Nếu Students có major/campus, lấy tương tự:
-                // major = st.getMajor(); campus = st.getCampus();
             } else {
                 throw new IllegalStateException("Unknown person type: " + person.getClass());
             }
 
             var authorities = List.of(new SimpleGrantedAuthority(role));
+            logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - start);
 
-            logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - startTime);
             return new CustomUserPrincipal(
-                    person.getEmail() != null ? person.getEmail() : person.getId(), // username hiển thị
-                    authenticators.getPassword(),
+                    person.getEmail() != null ? person.getEmail() : person.getId(),
+                    auth.getPassword(),
                     authorities,
-                    person,   // Persons entity
-                    staff,    // Staffs entity (hoặc null)
-                    major,    // Majors entity (hoặc null)
-                    campus    // Campuses entity (hoặc null)
+                    person
             );
         } catch (NoResultException e) {
-            logger.warn("User not found with username: {}", username);
-            throw new UsernameNotFoundException("User not found with username: " + username);
+            logger.warn("User not found: {}", username);
+            throw new UsernameNotFoundException("User not found: " + username);
         }
     }
 }
