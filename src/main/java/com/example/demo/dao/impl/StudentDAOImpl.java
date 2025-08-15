@@ -62,27 +62,9 @@ public class StudentDAOImpl implements StudentsDAO {
                 .map(String::valueOf)
                 .collect(Collectors.joining());
     }
-
     @Override
     public String generateUniqueStudentId(String majorId, LocalDate createdDate) {
-        String prefix;
-        switch (majorId) {
-            case "major001":
-                prefix = "GBH";
-                break;
-            case "major002":
-                prefix = "GCH";
-                break;
-            case "major003":
-                prefix = "GDH";
-                break;
-            case "major004":
-                prefix = "GKH";
-                break;
-            default:
-                prefix = "GEN";
-                break;
-        }
+        String prefix = majorId != null ? majorId : "GEN";
 
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());

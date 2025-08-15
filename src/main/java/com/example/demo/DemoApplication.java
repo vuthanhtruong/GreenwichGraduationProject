@@ -29,18 +29,6 @@ public class DemoApplication {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         try {
-            // Add default events
-            entityManager.getTransaction().begin();
-            entityManager.getTransaction().commit();
-        } catch (Exception e) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
-            System.err.println("Failed to add default events: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        try {
             // Add default slots
             entityManager.getTransaction().begin();
             addDefaultSlots(entityManager);
@@ -131,10 +119,10 @@ public class DemoApplication {
                                 "SELECT s FROM Slots s WHERE s.slotId = :id", Slots.class)
                         .setParameter("id", slot.getSlotId())
                         .getSingleResult();
-                System.out.println("Slot đã tồn tại: " + slot.getSlotName());
+                System.out.println("Slot already exists: " + slot.getSlotName());
             } catch (NoResultException e) {
                 entityManager.persist(slot);
-                System.out.println("Đã thêm slot: " + slot.getSlotName());
+                System.out.println("Added slot: " + slot.getSlotName());
             }
         }
     }
@@ -144,19 +132,19 @@ public class DemoApplication {
         List<Majors> majorsToAdd = new ArrayList<>();
 
         Majors major1 = new Majors();
-        major1.setMajorId("major001");
+        major1.setMajorId("GBH");
         major1.setMajorName("Business Administration");
 
         Majors major2 = new Majors();
-        major2.setMajorId("major002");
+        major2.setMajorId("GCH");
         major2.setMajorName("Information Technology");
 
         Majors major3 = new Majors();
-        major3.setMajorId("major003");
+        major3.setMajorId("GDH");
         major3.setMajorName("Graphic Design");
 
         Majors major4 = new Majors();
-        major4.setMajorId("major004");
+        major4.setMajorId("GKH");
         major4.setMajorName("Marketing");
 
         majorsToAdd.addAll(List.of(major1, major2, major3, major4));
@@ -167,10 +155,10 @@ public class DemoApplication {
                                 "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
                         .setParameter("id", major.getMajorId())
                         .getSingleResult();
-                System.out.println("Major đã tồn tại: " + major.getMajorName());
+                System.out.println("Major already exists: " + major.getMajorName());
             } catch (NoResultException e) {
                 entityManager.persist(major);
-                System.out.println("Đã thêm Major: " + major.getMajorName());
+                System.out.println("Added Major: " + major.getMajorName());
             }
         }
     }
@@ -180,16 +168,16 @@ public class DemoApplication {
         List<Staffs> staffsToAdd = new ArrayList<>();
 
         // Retrieve Majors from the database with error handling
-        Majors computerScience = null;
+        Majors businessAdministration = null;
         Majors informationTechnology = null;
         try {
-            computerScience = entityManager.createQuery(
+            businessAdministration = entityManager.createQuery(
                             "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                    .setParameter("id", "major001")
+                    .setParameter("id", "GBH")
                     .getSingleResult();
             informationTechnology = entityManager.createQuery(
                             "SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                    .setParameter("id", "major002")
+                    .setParameter("id", "GCH")
                     .getSingleResult();
         } catch (NoResultException e) {
             System.err.println("Error: Required major not found. Ensure majors are added before staffs.");
@@ -197,7 +185,7 @@ public class DemoApplication {
         }
 
         Staffs staff1 = new Staffs();
-        staff1.setId("staff001");
+        staff1.setId("vuthanhtruong");
         staff1.setFirstName("John");
         staff1.setLastName("Doe");
         staff1.setEmail("vuthanhtruong1280@gmail.com");
@@ -212,7 +200,7 @@ public class DemoApplication {
         staff1.setStreet("123 Tran Duy Hung");
         staff1.setPostalCode("100000");
         staff1.setCreatedDate(LocalDate.now());
-        staff1.setMajorManagement(computerScience);
+        staff1.setMajorManagement(businessAdministration);
 
         Staffs staff2 = new Staffs();
         staff2.setId("staff002");
@@ -240,7 +228,7 @@ public class DemoApplication {
                                 "SELECT s FROM Staffs s WHERE s.id = :id", Staffs.class)
                         .setParameter("id", staff.getId())
                         .getSingleResult();
-                System.out.println("Staff đã tồn tại: " + staff.getId());
+                System.out.println("Staff already exists: " + staff.getId());
             } catch (NoResultException e) {
                 try {
                     entityManager.persist(staff);
@@ -248,9 +236,9 @@ public class DemoApplication {
                     Authenticators authenticators = new Authenticators();
                     authenticators.setPersonId(staff.getId());
                     authenticators.setPerson(staff);
-                    authenticators.setPassword("Staff123"); // Password will be encoded by Authenticators' setPassword
+                    authenticators.setPassword("Anhnam123"); // Password will be encoded by Authenticators' setPassword
                     entityManager.persist(authenticators);
-                    System.out.println("Đã thêm Staff: " + staff.getId());
+                    System.out.println("Added Staff: " + staff.getId());
                 } catch (Exception ex) {
                     System.err.println("Failed to add staff " + staff.getId() + ": " + ex.getMessage());
                     throw ex; // Re-throw to trigger transaction rollback

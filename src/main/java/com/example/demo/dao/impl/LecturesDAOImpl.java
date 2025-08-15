@@ -66,24 +66,7 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public String generateUniqueLectureId(String majorId, LocalDate createdDate) {
-        String prefix;
-        switch (majorId) {
-            case "major001":
-                prefix = "TBH";
-                break;
-            case "major002":
-                prefix = "TCH";
-                break;
-            case "major003":
-                prefix = "TDT";
-                break;
-            case "major004":
-                prefix = "TKT";
-                break;
-            default:
-                prefix = "TGN";
-                break;
-        }
+        String prefix = majorId != null ? majorId : "TGN";
 
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
