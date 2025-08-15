@@ -2,7 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.EmployesDAO;
 
-import com.example.demo.entity.Employes;
+import com.example.demo.entity.AbstractClasses.MajorEmployes;
 import com.example.demo.entity.AbstractClasses.Rooms;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -19,7 +19,7 @@ public class EmployesDAOImpl implements EmployesDAO {
     private EntityManager entityManager;
 
     @Override
-    public Employes getById(String id) {
+    public MajorEmployes getById(String id) {
         return null;
     }
 

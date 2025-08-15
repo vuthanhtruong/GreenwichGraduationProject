@@ -1,6 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.entity.AbstractClasses;
 
-import com.example.demo.entity.AbstractClasses.Timetable;
+import com.example.demo.entity.Enums.AttendanceStatus;
+import com.example.demo.entity.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +12,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Attendance")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public class Attendance {
+public abstract class Attendance {
 
     @Id
     @Column(name = "AttendanceID")
@@ -24,18 +26,9 @@ public class Attendance {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MarkedByID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Employes markedBy;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TimetableID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Timetable timetable;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = true, length = 50)
-    private String status;
+    private AttendanceStatus status;
 
     @Column(name = "Note", nullable = true, length = 500)
     private String note;

@@ -1,10 +1,8 @@
 package com.example.demo.controller.AddByMajorStaff;
 
+import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
-import com.example.demo.service.LecturesService;
-import com.example.demo.service.PersonsService;
-import com.example.demo.service.StaffsService;
-import com.example.demo.service.StudentsService;
+import com.example.demo.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -29,12 +27,14 @@ public class AddLectureController {
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
     private final PersonsService personsService;
+    private final AuthenticatorsService  authenticatorsService;
 
-    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
+    public AddLectureController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService, AuthenticatorsService authenticatorsService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
         this.personsService = personsService;
+        this.authenticatorsService = authenticatorsService;
     }
 
     @GetMapping("/add-lecture")
@@ -75,11 +75,9 @@ public class AddLectureController {
 
         try {
             String randomPassword = generateRandomPassword(12);
-            lecture.setPassword(randomPassword);
             String lectureId = generateUniquelectureId(staffsService.getStaffMajor().getMajorId(),
                     lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
             lecture.setId(lectureId);
-
             // Handle avatar upload
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 byte[] avatarBytes = avatarFile.getBytes();

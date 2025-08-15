@@ -2,10 +2,7 @@ package com.example.demo.dao.impl;
 
 import com.example.demo.dao.StudentsDAO;
 import com.example.demo.entity.*;
-import com.example.demo.service.AccountBalancesService;
-import com.example.demo.service.EmailServiceForLectureService;
-import com.example.demo.service.EmailServiceForStudentService;
-import com.example.demo.service.StaffsService;
+import com.example.demo.service.*;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -29,12 +26,14 @@ public class StudentDAOImpl implements StudentsDAO {
     private final EmailServiceForStudentService emailServiceForStudentService;
     private final EmailServiceForLectureService emailServiceForLectureService;
     private final AccountBalancesService accountBalancesService;
+    private final AuthenticatorsService  authenticatorsService;
 
     public StudentDAOImpl(EmailServiceForStudentService emailServiceForStudentService,
                           EmailServiceForLectureService emailServiceForLectureService,
                           AccountBalancesService accountBalancesService,
-                          StaffsService staffsService) {
+                          StaffsService staffsService, AuthenticatorsService authenticatorsService) {
         this.accountBalancesService = accountBalancesService;
+        this.authenticatorsService = authenticatorsService;
         if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
@@ -77,7 +76,7 @@ public class StudentDAOImpl implements StudentsDAO {
         authenticators.setPersonId(savedStudent.getId());
         authenticators.setPerson(savedStudent);
         authenticators.setPassword(randomPassword);
-        entityManager.persist(authenticators);
+        authenticatorsService.createAuthenticator(authenticators);
 
         AccountBalances accountBalances = new AccountBalances();
         accountBalances.setBalance(0.000000);

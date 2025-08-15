@@ -1,30 +1,29 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.MinorEmployes;
+import com.example.demo.entity.Enums.EmploymentTypes;
 import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Table(name = "MinorLecturers")
 @PrimaryKeyJoinColumn(name = "ID")
 @Getter
 @Setter
-public class MinorLecturers extends Employes {
-
-    @Column(name = "Password", nullable = false, length = 255)
-    private String password;
+public class MinorLecturers extends MinorEmployes {
 
     @Column(name = "Type", nullable = true, length = 50)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private EmploymentTypes employmentTypes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs creator;
+    private DeputyStaffs creator;
 
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
@@ -37,5 +36,4 @@ public class MinorLecturers extends Employes {
     public String getRoleType() {
         return "MINOR_LECTURER";
     }
-
 }

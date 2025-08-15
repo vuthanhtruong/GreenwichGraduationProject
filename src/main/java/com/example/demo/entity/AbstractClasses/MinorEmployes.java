@@ -1,6 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.entity.AbstractClasses;
 
-import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.entity.Campuses;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,24 +10,21 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "Employes")
-@PrimaryKeyJoinColumn(name = "ID") // Liên kết với khóa chính từ Person
+@Table(name = "MinorEmployes")
+@PrimaryKeyJoinColumn(name = "ID")
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Employes extends Persons {
+public abstract class MinorEmployes extends Persons {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CampusID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Campuses campus;  // Liên kết với Employee (có thể NULL)
+    private Campuses campus;
 
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
 
     @Override
-    public String getRoleType() {
-        throw new UnsupportedOperationException("Employes must be either Staffs or Lecturers");
-    }
-
+    public abstract String getRoleType();
 }

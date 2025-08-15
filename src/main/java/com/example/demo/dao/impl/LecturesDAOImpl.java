@@ -5,6 +5,7 @@ import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
+import com.example.demo.service.AuthenticatorsService;
 import com.example.demo.service.EmailServiceForLectureService;
 import com.example.demo.service.EmailServiceForStudentService;
 import com.example.demo.service.StaffsService;
@@ -26,10 +27,12 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     private final EmailServiceForLectureService emailServiceForLectureService;
     private final EmailServiceForStudentService emailServiceForStudentService;
+    private final AuthenticatorsService authenticatorsService;
 
     public LecturesDAOImpl(EmailServiceForLectureService emailServiceForLectureService,
                            EmailServiceForStudentService emailServiceForStudentService,
-                           StaffsService staffsService) {
+                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
+        this.authenticatorsService = authenticatorsService;
         if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
@@ -56,7 +59,8 @@ public class LecturesDAOImpl implements LecturesDAO {
         authenticators.setPersonId(savedLecturer.getId());
         authenticators.setPerson(savedLecturer);
         authenticators.setPassword(randomPassword);
-        entityManager.persist(authenticators);
+        authenticatorsService.createAuthenticator(authenticators);
+
 
         try {
             String subject = "Your Lecturer Account Information";
