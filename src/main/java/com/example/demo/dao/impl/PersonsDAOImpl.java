@@ -1,6 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.PersonsDAO;
+import com.example.demo.entity.AbstractClasses.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -11,6 +12,12 @@ import org.springframework.stereotype.Repository;
 @Transactional
 
 public class PersonsDAOImpl implements PersonsDAO {
+    @Override
+    public Persons getPersonById(String id) {
+        Persons person = entityManager.find(Persons.class, id);
+        return person;
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

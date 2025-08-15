@@ -4,6 +4,7 @@ import com.example.demo.dao.StaffsDAO;
 import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
+import com.example.demo.security.CustomUserPrincipal;
 import com.example.demo.service.PersonsService;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
@@ -27,18 +28,17 @@ public class StaffsDAOImpl implements StaffsDAO {
 
     @Override
     public Majors getStaffMajor() {
+
         return getStaff().getMajorManagement();
     }
 
     @Override
     public Staffs getStaff() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return entityManager.createQuery(
-                        "SELECT s FROM Staffs s WHERE s.email = :username or s.id= :username",
-                        Staffs.class)
-                .setParameter("username", authentication.getName())
-                .setMaxResults(1)
-                .getSingleResult();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            throw new IllegalStateException("No authenticated principal");
+        }
+        return principal.getStaff();
     }
     @Override
     public List<MajorClasses> getClasses() {

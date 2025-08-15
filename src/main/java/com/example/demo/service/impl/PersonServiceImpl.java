@@ -1,11 +1,17 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dao.PersonsDAO;
+import com.example.demo.entity.AbstractClasses.Persons;
 import com.example.demo.service.PersonsService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PersonServiceImpl implements PersonsService {
+    @Override
+    public Persons getPersonById(String id) {
+        return personsDAO.getPersonById(id);
+    }
+
     private final PersonsDAO personsDAO;
 
     PersonServiceImpl(PersonsDAO personsDAO) {

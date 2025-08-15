@@ -5,21 +5,163 @@ import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
-import com.example.demo.service.AuthenticatorsService;
-import com.example.demo.service.EmailServiceForLectureService;
-import com.example.demo.service.EmailServiceForStudentService;
-import com.example.demo.service.StaffsService;
+import com.example.demo.security.CustomUserPrincipal;
+import com.example.demo.service.*;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+
+    @Override
+    public String generateRandomPassword(int length) {
+        if (length < 8) {
+            throw new IllegalArgumentException("Password length must be at least 8 characters for security.");
+        }
+
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String symbols = "!@#$%^&*()-_+=<>?";
+        String allChars = upperCase + lowerCase + digits + symbols;
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(symbols.charAt(random.nextInt(symbols.length())));
+
+        for (int i = 4; i < length; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        List<Character> chars = password.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toList());
+        Collections.shuffle(chars, random);
+
+        return chars.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining());
+    }
+
+    @Override
+    public String generateUniqueLectureId(String majorId, LocalDate createdDate) {
+        String prefix;
+        switch (majorId) {
+            case "major001":
+                prefix = "TBH";
+                break;
+            case "major002":
+                prefix = "TCH";
+                break;
+            case "major003":
+                prefix = "TDT";
+                break;
+            case "major004":
+                prefix = "TKT";
+                break;
+            default:
+                prefix = "TGN";
+                break;
+        }
+
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+
+        String lectureId;
+        SecureRandom random = new SecureRandom();
+        do {
+            String randomDigit = String.valueOf(random.nextInt(10));
+            lectureId = prefix + year + date + randomDigit;
+        } while (personsService.existsPersonById(lectureId));
+        return lectureId;
+    }
+    private  final PersonsService  personsService;
+
+    @Override
+    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
+        List<String> errors = new ArrayList<>();
+
+        // Custom validations
+        if (!isValidName(lecturer.getFirstName())) {
+            errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+        }
+
+        if (!isValidName(lecturer.getLastName())) {
+            errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+        }
+
+        if (lecturer.getEmail() != null && personsService.existsByEmail(lecturer.getEmail())) {
+            errors.add("The email address is already associated with another account.");
+        }
+
+        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumber(lecturer.getPhoneNumber())) {
+            errors.add("The phone number is already associated with another account.");
+        }
+
+        if (lecturer.getEmail() != null && !isValidEmail(lecturer.getEmail())) {
+            errors.add("Invalid email format.");
+        }
+
+        if (lecturer.getPhoneNumber() != null && !isValidPhoneNumber(lecturer.getPhoneNumber())) {
+            errors.add("Invalid phone number format.");
+        }
+
+        if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
+            errors.add("Date of birth must be in the past.");
+        }
+
+        // Validate avatar file
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
+        }
+
+        return errors;
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email != null && email.matches(emailRegex);
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String phoneRegex = "^\\+?[0-9]{10,15}$";
+        return phoneNumber != null && phoneNumber.matches(phoneRegex);
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}][\\p{L} .'-]{1,49}$";
+        return name.matches(nameRegex);
+    }
 
     private final StaffsService staffsService;
     @PersistenceContext
@@ -29,9 +171,10 @@ public class LecturesDAOImpl implements LecturesDAO {
     private final EmailServiceForStudentService emailServiceForStudentService;
     private final AuthenticatorsService authenticatorsService;
 
-    public LecturesDAOImpl(EmailServiceForLectureService emailServiceForLectureService,
+    public LecturesDAOImpl(PersonsService personsService, EmailServiceForLectureService emailServiceForLectureService,
                            EmailServiceForStudentService emailServiceForStudentService,
                            StaffsService staffsService, AuthenticatorsService authenticatorsService) {
+        this.personsService = personsService;
         this.authenticatorsService = authenticatorsService;
         if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
@@ -53,13 +196,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         lecturers.setMajorManagement(staff.getMajorManagement());
         lecturers.setCreator(staff);
         MajorLecturers savedLecturer = entityManager.merge(lecturers);
-
-        // Create and save Authenticators entity for the lecturer
-        Authenticators authenticators = new Authenticators();
-        authenticators.setPersonId(savedLecturer.getId());
-        authenticators.setPerson(savedLecturer);
-        authenticators.setPassword(randomPassword);
-        authenticatorsService.createAuthenticator(authenticators);
 
 
         try {

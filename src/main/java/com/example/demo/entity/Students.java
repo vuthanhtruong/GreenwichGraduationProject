@@ -29,7 +29,7 @@ public class Students extends Persons {
     private String misId;
 
     @Column(name = "Admission_Year", nullable = false)
-    private Integer admissionYear;
+    private LocalDate admissionYear;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CreatorID", nullable = true)

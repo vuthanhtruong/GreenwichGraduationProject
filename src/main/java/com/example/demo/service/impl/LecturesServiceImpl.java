@@ -5,11 +5,27 @@ import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.LecturesService;
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class LecturesServiceImpl implements LecturesService {
+    @Override
+    public String generateRandomPassword(int length) {
+        return lecturesDAO.generateRandomPassword(length);
+    }
+
+    @Override
+    public String generateUniqueLectureId(String majorId, LocalDate createdDate) {
+        return lecturesDAO.generateUniqueLectureId(majorId, createdDate);
+    }
+
+    @Override
+    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
+        return lecturesDAO.lectureValidation(lecturer, avatarFile);
+    }
 
     private final LecturesDAO lecturesDAO;
 
