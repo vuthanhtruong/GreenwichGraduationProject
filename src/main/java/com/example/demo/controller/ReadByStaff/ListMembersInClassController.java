@@ -77,7 +77,7 @@ public class ListMembersInClassController {
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
         List<MajorLecturers> lecturersInClass = lecturersInClassRecords.stream()
-                .map(MajorLecturers_MajorClasses::getLecturer)
+                .map(MajorLecturers_MajorClasses::getMajorLecturer) // Changed from getLecturer to getMajorLecturer
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
 
@@ -137,7 +137,7 @@ public class ListMembersInClassController {
                 .filter(student -> student != null)
                 .collect(Collectors.toList());
         List<MajorLecturers> lecturersInClass = lecturersInClassRecords.stream()
-                .map(MajorLecturers_MajorClasses::getLecturer)
+                .map(MajorLecturers_MajorClasses::getMajorLecturer) // Changed from getLecturer to getMajorLecturer
                 .filter(lecturer -> lecturer != null)
                 .collect(Collectors.toList());
 

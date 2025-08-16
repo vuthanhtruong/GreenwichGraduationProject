@@ -3,7 +3,7 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.Lecturers_ClassesDAO;
 import com.example.demo.entity.MajorClasses;
 import com.example.demo.entity.MajorLecturers;
-import com.example.demo.entity.MajorLecturersClassesId;
+import com.example.demo.entity.LecturersClassesId; // Corrected from MajorLecturersClassesId
 import com.example.demo.entity.MajorLecturers_MajorClasses;
 import com.example.demo.service.LecturesService;
 import com.example.demo.service.PersonsService;
@@ -18,7 +18,21 @@ import java.util.List;
 
 @Repository
 @Transactional
-public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
+public class MajorLecturers_MajorClassesDAOImpl implements Lecturers_ClassesDAO {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final PersonsService personsService;
+    private final LecturesService lecturersService; // Corrected service name
+    private final StaffsService staffsService;
+
+    public MajorLecturers_MajorClassesDAOImpl(PersonsService personsService, LecturesService lecturersService, StaffsService staffsService) {
+        this.personsService = personsService;
+        this.lecturersService = lecturersService;
+        this.staffsService = staffsService;
+    }
+
     @Override
     public void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds) {
         if (classes == null || lecturerIds == null || lecturerIds.isEmpty()) {
@@ -27,7 +41,7 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
 
         for (String lecturerId : lecturerIds) {
             // Find the Lecturers_Classes record by composite key
-            MajorLecturersClassesId id = new MajorLecturersClassesId(lecturerId, classes.getClassId());
+            LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             MajorLecturers_MajorClasses lecturerClass = entityManager.find(MajorLecturers_MajorClasses.class, id);
             if (lecturerClass != null) {
                 entityManager.remove(lecturerClass); // Delete the record
@@ -35,42 +49,28 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
         }
     }
 
-    private final PersonsService personsService;
-    private final LecturesService lecturesService;
-    private  final StaffsService staffsService;
-
     @Override
     public void addLecturersToClass(MajorClasses classes, List<String> lecturerIds) {
         for (String lecturerId : lecturerIds) {
-            MajorLecturers lecturer = lecturesService.getLecturerById(lecturerId);
+            MajorLecturers lecturer = lecturersService.getLecturerById(lecturerId);
             MajorLecturers_MajorClasses lecturerClass = new MajorLecturers_MajorClasses();
-            MajorLecturersClassesId id = new MajorLecturersClassesId(lecturerId, classes.getClassId());
+            LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setClassEntity(classes);
-            lecturerClass.setLecturer(lecturer);
+            lecturerClass.setMajorLecturer(lecturer); // Corrected from setLecturer to setMajorLecturer
             lecturerClass.setCreatedAt(LocalDateTime.now());
-            lecturerClass.setAddedBy(staffsService.getStaff());
+            lecturerClass.setAddedBy(staffsService.getStaff()); // Assuming getStaff returns a Staffs entity
             entityManager.persist(lecturerClass);
         }
-    }
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-
-    public Lecturers_ClassesDAOImpl(PersonsService personsService, LecturesService lecturesService, StaffsService staffsService) {
-        this.personsService = personsService;
-        this.lecturesService = lecturesService;
-        this.staffsService = staffsService;
     }
 
     @Override
     public List<MajorLecturers_MajorClasses> listLecturersInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class AND lc.lecturer.majorManagement = :major",
+                        "SELECT lc FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class AND lc.majorLecturer.majorManagement = :major",
                         MajorLecturers_MajorClasses.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("major", staffsService.getStaffMajor()) // Assuming getStaffMajor returns a Major entity
                 .getResultList();
     }
 
@@ -78,11 +78,10 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     public List<MajorLecturers> listLecturersNotInClass(MajorClasses classes) {
         return entityManager.createQuery(
                         "SELECT l FROM MajorLecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
-                                "(SELECT lc.lecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class)",
+                                "(SELECT lc.majorLecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class)",
                         MajorLecturers.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("major", staffsService.getStaffMajor()) // Assuming getStaffMajor returns a Major entity
                 .getResultList();
     }
-
 }

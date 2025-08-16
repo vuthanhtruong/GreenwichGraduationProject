@@ -10,15 +10,15 @@ import java.util.Objects;
 @Embeddable
 @Getter
 @Setter
-public class StudentsClassesId implements Serializable {
+public class LecturersClassesId implements Serializable {
 
-    private String studentId;
+    private String lecturerId;
     private String classId;
 
-    public StudentsClassesId() {}
+    public LecturersClassesId() {}
 
-    public StudentsClassesId(String studentId, String classId) {
-        this.studentId = studentId;
+    public LecturersClassesId(String lecturerId, String classId) {
+        this.lecturerId = lecturerId;
         this.classId = classId;
     }
 
@@ -26,13 +26,13 @@ public class StudentsClassesId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StudentsClassesId that = (StudentsClassesId) o;
-        return Objects.equals(studentId, that.studentId) &&
+        LecturersClassesId that = (LecturersClassesId) o;
+        return Objects.equals(lecturerId, that.lecturerId) &&
                 Objects.equals(classId, that.classId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(studentId, classId);
+        return Objects.hash(lecturerId, classId);
     }
 }

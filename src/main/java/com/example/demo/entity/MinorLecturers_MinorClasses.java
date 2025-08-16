@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.AbstractClasses.Lecturers_Classes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,42 +13,30 @@ import java.time.LocalDateTime;
 @Table(name = "MinorLecturers_MinorClasses")
 @Getter
 @Setter
-public class MinorLecturers_MinorClasses {
-
-    @EmbeddedId
-    private MinorLecturersMinorClassesId id;
+public class MinorLecturers_MinorClasses extends Lecturers_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("minorLecturerId")
-    @JoinColumn(name = "MinorLecturerID", nullable = false)
+    @MapsId("lecturerId")
+    @JoinColumn(name = "MinorLecturerID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorLecturers minorLecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("minorClassId")
-    @JoinColumn(name = "MinorClassID", nullable = false)
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorClasses minorClass;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
-    private Notifications notification;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AddedBy", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "AddedBy")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private DeputyStaffs addedBy;
-
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
 
     public MinorLecturers_MinorClasses() {}
 
-    public MinorLecturers_MinorClasses(MinorLecturers minorLecturer, MinorClasses minorClass, DeputyStaffs addedBy, LocalDateTime createdAt) {
-        this.id = new MinorLecturersMinorClassesId(minorLecturer.getId(), minorClass.getClassId());
+    public MinorLecturers_MinorClasses(MinorLecturers minorLecturer, MinorClasses minorClass, LocalDateTime createdAt, DeputyStaffs addedBy) {
+        super(minorLecturer.getId(), minorClass, createdAt);
         this.minorLecturer = minorLecturer;
         this.minorClass = minorClass;
         this.addedBy = addedBy;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 }

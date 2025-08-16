@@ -1,7 +1,6 @@
-
 package com.example.demo.entity;
 
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.AbstractClasses.Students_Classes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,35 +10,26 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Students_Classes")
+@Table(name = "Students_MajorClasses")
 @Getter
 @Setter
-public class Students_MajorClasses {
-
-    @EmbeddedId
-    private StudentsClassesId id;
+public class Students_MajorClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("studentId")
-    @JoinColumn(name = "StudentID")
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Students student;
+    private MajorClasses majorClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("classId")
-    @JoinColumn(name = "ClassID")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses classEntity;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
-    private Notifications notification;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AddedBy", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "AddedBy")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Staffs addedBy;
 
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
+    public Students_MajorClasses() {}
+
+    public Students_MajorClasses(Students student, MajorClasses majorClass, LocalDateTime createdAt, Staffs addedBy) {
+        super(student, majorClass, createdAt);
+        this.majorClass = majorClass;
+        this.addedBy = addedBy;
+    }
 }

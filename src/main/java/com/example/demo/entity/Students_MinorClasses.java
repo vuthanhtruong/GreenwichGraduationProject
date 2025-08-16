@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.AbstractClasses.Students_Classes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,42 +13,23 @@ import java.time.LocalDateTime;
 @Table(name = "Students_MinorClasses")
 @Getter
 @Setter
-public class Students_MinorClasses {
-
-    @EmbeddedId
-    private StudentsMinorClassesId id;
+public class Students_MinorClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("studentId")
-    @JoinColumn(name = "StudentID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Students student;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("minorClassId")
-    @JoinColumn(name = "MinorClassID", nullable = false)
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorClasses minorClass;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
-    private Notifications notification;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AddedBy", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "AddedBy")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private DeputyStaffs addedBy;
-
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
 
     public Students_MinorClasses() {}
 
-    public Students_MinorClasses(Students student, MinorClasses minorClass, DeputyStaffs addedBy, LocalDateTime createdAt) {
-        this.id = new StudentsMinorClassesId(student.getId(), minorClass.getClassId());
-        this.student = student;
+    public Students_MinorClasses(Students student, MinorClasses minorClass, LocalDateTime createdAt, DeputyStaffs addedBy) {
+        super(student, minorClass, createdAt);
         this.minorClass = minorClass;
         this.addedBy = addedBy;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 }
