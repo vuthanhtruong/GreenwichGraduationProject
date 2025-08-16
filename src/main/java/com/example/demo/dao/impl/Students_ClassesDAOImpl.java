@@ -3,16 +3,17 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.Students_ClassesDAO;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.entity.Enums.Status;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -34,210 +35,254 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
     }
 
     private boolean isValidClassAndMajor(MajorClasses classes, Majors major) {
-        return classes != null && classes.getSubject() != null && major != null;
+        return classes != null && major != null && classes.getClassId() != null;
     }
 
     @Override
     public void addStudentsToClass(MajorClasses classes, List<String> studentIds) {
-        if (classes == null || studentIds == null) {
-            throw new IllegalArgumentException("Classes or studentIds cannot be null");
+        if (classes == null || studentIds == null || studentIds.isEmpty()) {
+            throw new IllegalArgumentException("Classes or studentIds cannot be null or empty");
         }
+        Majors major = staffsService.getStaffMajor();
+        if (!isValidClassAndMajor(classes, major)) {
+            throw new IllegalArgumentException("Invalid class or major");
+        }
+
         for (String studentId : studentIds) {
-            if (studentId == null || studentId.trim().isEmpty()) {
-                continue;
-            }
+            if (studentId == null || studentId.trim().isEmpty()) continue;
+
             Students student = studentsService.getStudentById(studentId);
-            if (student == null) {
-                continue;
-            }
-            Students_MajorClasses studentClass = new Students_MajorClasses();
-            StudentsClassesId id = new StudentsClassesId(studentId, classes.getClassId());
-            studentClass.setId(id);
-            studentClass.setClassEntity(classes);
-            studentClass.setStudent(student);
-            studentClass.setCreatedAt(LocalDateTime.now());
-            studentClass.setAddedBy(staffsService.getStaff());
-            entityManager.persist(studentClass);
+            if (student == null || !major.equals(student.getMajor())) continue;
+
+            Students_MajorClasses sc = new Students_MajorClasses();
+            sc.setId(new StudentsClassesId(studentId, classes.getClassId()));
+            sc.setClassEntity(classes);
+            sc.setStudent(student);
+            sc.setCreatedAt(LocalDateTime.now());
+            Staffs addedBy = staffsService.getStaff();
+            if (addedBy == null) throw new IllegalStateException("Staff not found for adding student to class");
+            sc.setAddedBy(addedBy);
+            entityManager.persist(sc);
         }
     }
 
     @Override
     public List<Students_MajorClasses> listStudentsInClass(MajorClasses classes) {
-        if (classes == null || staffsService.getStaffMajor() == null) {
-            return List.of();
-        }
+        if (classes == null || staffsService.getStaffMajor() == null) return Collections.emptyList();
         Majors major = staffsService.getStaffMajor();
+
         return entityManager.createQuery(
-                        "SELECT sc FROM Students_MajorClasses sc WHERE sc.classEntity = :class AND sc.student.major = :major",
+                        "SELECT sc FROM Students_MajorClasses sc " +
+                                "WHERE sc.classEntity.classId = :classId AND sc.student.major = :major",
                         Students_MajorClasses.class)
-                .setParameter("class", classes)
+                .setParameter("classId", classes.getClassId())
                 .setParameter("major", major)
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsNotInClass(MajorClasses classes) {
-        if (classes == null || staffsService.getStaffMajor() == null) {
-            return List.of();
-        }
+        if (classes == null || staffsService.getStaffMajor() == null) return Collections.emptyList();
         Majors major = staffsService.getStaffMajor();
+
         return entityManager.createQuery(
-                        "SELECT s FROM Students s LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity = :class " +
-                                "WHERE s.major = :major AND sc.student.id IS NULL",
+                        "SELECT s FROM Students s " +
+                                "WHERE s.major = :major " +
+                                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc " +
+                                "                 WHERE sc.student.id = s.id AND sc.classEntity.classId = :classId)",
                         Students.class)
-                .setParameter("class", classes)
                 .setParameter("major", major)
+                .setParameter("classId", classes.getClassId())
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsFailedSubjectAndNotPaid(MajorClasses classes) {
-        if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
-            return List.of();
-        }
-        String subjectId = classes.getSubject().getSubjectId();
+        if (classes == null || !isValidClassAndMajor(classes, staffsService.getStaffMajor())) return Collections.emptyList();
+        String subjectId = getSubjectIdFromClass(classes);
+        if (subjectId == null) return Collections.emptyList();
         Majors major = staffsService.getStaffMajor();
+
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN AcademicTranscripts at ON s.id = at.student.id " +
-                                "LEFT JOIN PaymentHistories ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
-                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
-                                "WHERE s.major = :major AND at.subject.subjectId = :subjectId AND at.grade = :failedGrade " +
-                                "AND ph.student.id IS NULL AND sc.student.id IS NULL",
+                        "SELECT s FROM Students s " +
+                                "WHERE s.major = :major " +
+                                "AND EXISTS (SELECT 1 FROM MajorAcademicTranscripts at " +
+                                "            WHERE at.student.id = s.id " +
+                                "              AND at.subject.subjectId = :subjectId " +
+                                "              AND at.grade = :failed) " +
+                                "AND NOT EXISTS (SELECT 1 FROM PaymentHistories ph " +
+                                "                 WHERE ph.student.id = s.id " +
+                                "                   AND ph.subject.subjectId = :subjectId " +
+                                "                   AND ph.status = :completed) " +
+                                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc " +
+                                "                 WHERE sc.student.id = s.id " +
+                                "                   AND sc.classEntity.classId = :classId)",
                         Students.class)
-                .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("failedGrade", Grades.REFER)
+                .setParameter("subjectId", subjectId)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("failed", Grades.REFER)
+                .setParameter("completed", Status.COMPLETED)
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsFailedSubjectAndPaid(MajorClasses classes) {
-        if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
-            return List.of();
-        }
-        String subjectId = classes.getSubject().getSubjectId();
+        if (classes == null || !isValidClassAndMajor(classes, staffsService.getStaffMajor())) return Collections.emptyList();
+        String subjectId = getSubjectIdFromClass(classes);
+        if (subjectId == null) return Collections.emptyList();
         Majors major = staffsService.getStaffMajor();
+
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN AcademicTranscripts at ON s.id = at.student.id " +
-                                "JOIN PaymentHistories ph ON s.id = ph.student.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED' " +
-                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
-                                "WHERE s.major = :major AND at.subject.subjectId = :subjectId AND at.grade = :failedGrade " +
-                                "AND sc.student.id IS NULL",
+                        "SELECT s FROM Students s " +
+                                "WHERE s.major = :major " +
+                                "AND EXISTS (SELECT 1 FROM MajorAcademicTranscripts at " +
+                                "            WHERE at.student.id = s.id " +
+                                "              AND at.subject.subjectId = :subjectId " +
+                                "              AND at.grade = :failed) " +
+                                "AND EXISTS (SELECT 1 FROM PaymentHistories ph " +
+                                "            WHERE ph.student.id = s.id " +
+                                "              AND ph.subject.subjectId = :subjectId " +
+                                "              AND ph.status = :completed) " +
+                                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc " +
+                                "                WHERE sc.student.id = s.id " +
+                                "                  AND sc.classEntity.classId = :classId)",
                         Students.class)
-                .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("failedGrade", Grades.REFER)
+                .setParameter("subjectId", subjectId)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("failed", Grades.REFER)
+                .setParameter("completed", Status.COMPLETED)
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsNotTakenSubject(MajorClasses classes, boolean hasPaid) {
-        if (!isValidClassAndMajor(classes, staffsService.getStaffMajor())) {
-            return List.of();
-        }
-        String subjectId = classes.getSubject().getSubjectId();
+        if (classes == null || !isValidClassAndMajor(classes, staffsService.getStaffMajor())) return Collections.emptyList();
+        String subjectId = getSubjectIdFromClass(classes);
+        if (subjectId == null) return Collections.emptyList();
         Majors major = staffsService.getStaffMajor();
-        String paymentCondition = hasPaid ?
-                "AND EXISTS (SELECT ph FROM MajorPaymentHistory ph WHERE ph.student.id = s.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED')" :
-                "AND NOT EXISTS (SELECT ph FROM MajorPaymentHistory ph WHERE ph.student.id = s.id AND ph.subject.subjectId = :subjectId AND ph.status = 'COMPLETED')";
-        return entityManager.createQuery(
-                        "SELECT s FROM Students s LEFT JOIN AcademicTranscripts at ON s.id = at.student.id AND at.subject.subjectId = :subjectId " +
-                                "LEFT JOIN Students_MajorClasses sc ON s.id = sc.student.id AND sc.classEntity.subject.subjectId = :subjectId " +
-                                "WHERE s.major = :major AND at.student.id IS NULL AND sc.student.id IS NULL " + paymentCondition,
-                        Students.class)
-                .setParameter("subjectId", subjectId)
+
+        String paymentClause = hasPaid
+                ? "AND EXISTS (SELECT 1 FROM PaymentHistories ph WHERE ph.student.id = s.id AND ph.subject.subjectId = :subjectId AND ph.status = :completed) "
+                : "AND NOT EXISTS (SELECT 1 FROM PaymentHistories ph WHERE ph.student.id = s.id AND ph.subject.subjectId = :subjectId AND ph.status = :completed) ";
+
+        String q = "SELECT s FROM Students s " +
+                "WHERE s.major = :major " +
+                "AND NOT EXISTS (SELECT 1 FROM MajorAcademicTranscripts at WHERE at.student.id = s.id AND at.subject.subjectId = :subjectId) " +
+                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc WHERE sc.student.id = s.id AND sc.classEntity.classId = :classId) " +
+                paymentClause;
+
+        return entityManager.createQuery(q, Students.class)
                 .setParameter("major", major)
+                .setParameter("subjectId", subjectId)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("completed", Status.COMPLETED)
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsCurrentlyTakingSubject(MajorClasses classes) {
-        if (classes == null) {
-            return List.of();
-        }
-        LocalDate currentDate = LocalDate.now();
-        return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
-                                "WHERE sc.classEntity = :class AND EXISTS (SELECT t FROM MajorTimetable t WHERE t.classEntity = :class " +
-                                "AND (t.date >= :currentDate OR t.dayOfTheWeek IS NOT NULL))",
-                        Students.class)
-                .setParameter("class", classes)
-                .setParameter("currentDate", currentDate)
-                .getResultList();
-    }
+        if (classes == null) return Collections.emptyList();
+        LocalDate today = LocalDate.now();
 
-    @Cacheable(value = "totalTuition", key = "#currentSemester + '-' + #major.id")
-    public Double calculateTotalTuition(Integer currentSemester, Majors major) {
         return entityManager.createQuery(
-                        "SELECT COALESCE(SUM(s.tuition), 0) FROM MajorSubjects s WHERE s.semester = :currentSemester AND s.major = :major",
-                        Double.class)
-                .setParameter("currentSemester", currentSemester)
-                .setParameter("major", major)
-                .getSingleResult();
+                        "SELECT DISTINCT s FROM Students s " +
+                                "JOIN Students_MajorClasses sc ON sc.student.id = s.id " +
+                                "WHERE sc.classEntity.classId = :classId " +
+                                "AND EXISTS (SELECT 1 FROM MajorTimetable t " +
+                                "            WHERE t.classEntity.classId = :classId " +
+                                "              AND (t.date >= :today OR t.dayOfTheWeek IS NOT NULL))",
+                        Students.class)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("today", today)
+                .getResultList();
     }
 
     @Override
     public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes) {
-        if (classes == null || classes.getSubject() == null || classes.getSubject().getSemester() == null || staffsService.getStaffMajor() == null) {
-            return List.of();
-        }
-        Integer prevSemester = getPreviousSemester(classes.getSubject().getSemester());
-        if (prevSemester == null) {
-            return List.of();
-        }
-        String subjectId = classes.getSubject().getSubjectId();
+        if (classes == null || classes.getClassId() == null || staffsService.getStaffMajor() == null) return Collections.emptyList();
+        String subjectId = getSubjectIdFromClass(classes);
+        if (subjectId == null) return Collections.emptyList();
+        Integer semester = getSemesterFromSubject(subjectId);
+        if (semester == null || semester <= 1) return Collections.emptyList();
+        int prev = semester - 1;
         Majors major = staffsService.getStaffMajor();
-        Double totalTuition = calculateTotalTuition(classes.getSubject().getSemester(), major);
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
-                                "JOIN AccountBalances ab ON s.id = ab.student.id " +
-                                "WHERE s.major = :major AND sc.classEntity.subject.semester = :prevSemester " +
-                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_MajorClasses sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
-                                "AND ab.balance >= :totalTuition " +
-                                "GROUP BY s.id HAVING COUNT(DISTINCT sc.classEntity.subject.subjectId) = " +
-                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub WHERE sub.semester = :prevSemester)",
+                        "SELECT s FROM Students s " +
+                                "JOIN AccountBalances ab ON ab.student.id = s.id " +
+                                "WHERE s.major = :major " +
+                                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc2 " +
+                                "                WHERE sc2.student.id = s.id AND sc2.classEntity.classId = :classId) " +
+                                "AND (SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub " +
+                                "     WHERE sub.major = :major AND sub.semester = :prev) " +
+                                "    = " +
+                                "    (SELECT COUNT(DISTINCT at.subject.subjectId) FROM MajorAcademicTranscripts at " +
+                                "     WHERE at.student.id = s.id " +
+                                "       AND at.subject.major = :major " +
+                                "       AND at.subject.semester = :prev " +
+                                "       AND at.grade <> :failed) " +
+                                "AND ab.balance >= ( " +
+                                "     SELECT COALESCE(SUM(ty.tuition), 0) " +
+                                "     FROM TuitionByYear ty " +
+                                "     WHERE ty.subject.subjectId IN (SELECT ms.subjectId FROM MajorSubjects ms WHERE ms.major = :major AND ms.semester = :prev) " +
+                                "       AND ty.id.admissionYear = FUNCTION('YEAR', s.admissionYear))",
                         Students.class)
-                .setParameter("prevSemester", prevSemester)
-                .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("totalTuition", totalTuition)
+                .setParameter("prev", prev)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("failed", Grades.REFER)
                 .getResultList();
     }
 
     @Override
     public List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(MajorClasses classes) {
-        if (classes == null || classes.getSubject() == null || classes.getSubject().getSemester() == null || staffsService.getStaffMajor() == null) {
-            return List.of();
-        }
-        Integer prevSemester = getPreviousSemester(classes.getSubject().getSemester());
-        if (prevSemester == null) {
-            return List.of();
-        }
-        String subjectId = classes.getSubject().getSubjectId();
+        if (classes == null || classes.getClassId() == null || staffsService.getStaffMajor() == null) return Collections.emptyList();
+        String subjectId = getSubjectIdFromClass(classes);
+        if (subjectId == null) return Collections.emptyList();
+        Integer semester = getSemesterFromSubject(subjectId);
+        if (semester == null || semester <= 1) return Collections.emptyList();
+        int prev = semester - 1;
         Majors major = staffsService.getStaffMajor();
-        Double totalTuition = calculateTotalTuition(classes.getSubject().getSemester(), major);
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN Students_MajorClasses sc ON s.id = sc.student.id " +
-                                "LEFT JOIN AccountBalances ab ON s.id = ab.student.id " +
-                                "WHERE s.major = :major AND sc.classEntity.subject.semester = :prevSemester " +
-                                "AND s.id NOT IN (SELECT sc2.student.id FROM Students_MajorClasses sc2 WHERE sc2.classEntity.subject.subjectId = :subjectId) " +
-                                "AND (ab.balance IS NULL OR ab.balance < :totalTuition) " +
-                                "GROUP BY s.id HAVING COUNT(DISTINCT sc.classEntity.subject.subjectId) = " +
-                                "(SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub WHERE sub.semester = :prevSemester)",
+                        "SELECT s FROM Students s " +
+                                "LEFT JOIN AccountBalances ab ON ab.student.id = s.id " +
+                                "WHERE s.major = :major " +
+                                "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc2 " +
+                                "                WHERE sc2.student.id = s.id AND sc2.classEntity.classId = :classId) " +
+                                "AND (SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub " +
+                                "     WHERE sub.major = :major AND sub.semester = :prev) " +
+                                "    = " +
+                                "    (SELECT COUNT(DISTINCT at.subject.subjectId) FROM MajorAcademicTranscripts at " +
+                                "     WHERE at.student.id = s.id " +
+                                "       AND at.subject.major = :major " +
+                                "       AND at.subject.semester = :prev " +
+                                "       AND at.grade <> :failed) " +
+                                "AND COALESCE(ab.balance, 0) < ( " +
+                                "     SELECT COALESCE(SUM(ty.tuition), 0) " +
+                                "     FROM TuitionByYear ty " +
+                                "     WHERE ty.subject.subjectId IN (SELECT ms.subjectId FROM MajorSubjects ms WHERE ms.major = :major AND ms.semester = :prev) " +
+                                "       AND ty.id.admissionYear = FUNCTION('YEAR', s.admissionYear))",
                         Students.class)
-                .setParameter("prevSemester", prevSemester)
-                .setParameter("subjectId", subjectId)
                 .setParameter("major", major)
-                .setParameter("totalTuition", totalTuition)
+                .setParameter("prev", prev)
+                .setParameter("classId", classes.getClassId())
+                .setParameter("failed", Grades.REFER)
                 .getResultList();
     }
 
-    private Integer getPreviousSemester(Integer currentSemester) {
-        if (currentSemester == null) {
-            return null;
-        }
-        return currentSemester > 1 ? currentSemester - 1 : null;
+    private String getSubjectIdFromClass(MajorClasses classes) {
+        return classes != null && classes.getSubject() != null ? classes.getSubject().getSubjectId() : null;
+    }
+
+    private Integer getSemesterFromSubject(String subjectId) {
+        if (subjectId == null) return null;
+        MajorSubjects subject = entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.subjectId = :subjectId", MajorSubjects.class)
+                .setParameter("subjectId", subjectId)
+                .getSingleResult();
+        return subject != null ? subject.getSemester() : null;
     }
 }
