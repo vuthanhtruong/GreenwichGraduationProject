@@ -37,13 +37,17 @@ public class Student_ParentAccounts {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "RelationshipToStudent", nullable = false, length = 50)
+    private String relationshipToStudent;
+
     public Student_ParentAccounts() {}
 
-    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt) {
+    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt, String relationshipToStudent) {
         this.id = new StudentParentAccountsId(student.getId(), parent.getId());
         this.student = student;
         this.parent = parent;
         this.addedBy = addedBy;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        this.relationshipToStudent = relationshipToStudent;
     }
 }

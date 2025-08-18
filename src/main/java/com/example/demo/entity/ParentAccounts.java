@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -17,9 +16,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ParentAccounts extends Persons {
-
-    @Column(name = "RelationshipToStudent", nullable = true, length = 50)
-    private String relationshipToStudent; // e.g., "Father", "Mother", "Guardian"
 
     @Column(name = "CreatedDate", nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();

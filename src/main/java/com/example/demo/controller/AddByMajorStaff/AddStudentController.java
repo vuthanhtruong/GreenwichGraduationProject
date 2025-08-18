@@ -2,6 +2,8 @@ package com.example.demo.controller.AddByMajorStaff;
 
 import com.example.demo.entity.AccountBalances;
 import com.example.demo.entity.Authenticators;
+import com.example.demo.entity.ParentAccounts;
+import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.entity.Students;
 import com.example.demo.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -27,15 +29,17 @@ public class AddStudentController {
     private final PersonsService personsService;
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
+    private final ParentAccountsService parentAccountsService;
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
-                                AuthenticatorsService authenticatorsService) {
+                                AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.personsService = personsService;
         this.accountBalancesService = accountBalancesService;
         this.authenticatorsService = authenticatorsService;
+        this.parentAccountsService = parentAccountsService;
     }
 
     @GetMapping("/add-student")
@@ -49,19 +53,47 @@ public class AddStudentController {
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "parentFirstName", required = false) String parentFirstName,
+            @RequestParam(value = "parentLastName", required = false) String parentLastName,
+            @RequestParam(value = "parentEmail", required = false) String parentEmail,
+            @RequestParam(value = "parentPhoneNumber", required = false) String parentPhoneNumber,
+            @RequestParam(value = "parentRelationship", required = false) String parentRelationship,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
         List<String> errors = new ArrayList<>();
 
-        // Handle annotation-based validation
+        // Validate student
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            bindingResult.getAllErrors().forEach(error -> errors.add("Student: " + error.getDefaultMessage()));
         }
-
-        // Perform custom validations using StudentsService
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
+
+        // Validate parent if any field is provided
+        ParentAccounts parent = null;
+        boolean isNewParent = false;
+        boolean isParentInfoProvided = (parentFirstName != null && !parentFirstName.trim().isEmpty()) ||
+                (parentLastName != null && !parentLastName.trim().isEmpty()) ||
+                (parentEmail != null && !parentEmail.trim().isEmpty()) ||
+                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty()) ||
+                (parentRelationship != null && !parentRelationship.trim().isEmpty());
+
+        if (isParentInfoProvided) {
+            parent = new ParentAccounts();
+            parent.setFirstName(parentFirstName);
+            parent.setLastName(parentLastName);
+            parent.setEmail(parentEmail);
+            parent.setPhoneNumber(parentPhoneNumber);
+            // Validate parent fields only if they are provided
+            List<String> parentErrors = parentAccountsService.ParentValidation(parent);
+            parentErrors.forEach(error -> errors.add("Parent: " + error));
+
+            // Validate relationship if provided
+            if (parentRelationship != null && !parentRelationship.trim().isEmpty() && !isValidRelationship(parentRelationship)) {
+                errors.add("Parent: Invalid relationship to student. Allowed values: Father, Mother, Guardian.");
+            }
+        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
@@ -77,34 +109,31 @@ public class AddStudentController {
         }
 
         try {
-            // Generate random password
-            String randomPassword = studentsService.generateRandomPassword(12);
-
-            // Generate unique student ID
+            // Generate and set student ID
             String studentId = studentsService.generateUniqueStudentId(
                     staffsService.getStaffMajor().getMajorId(),
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
 
-            // Handle avatar upload
+            // Handle avatar
             if (avatarFile != null && !avatarFile.isEmpty()) {
-                byte[] avatarBytes = avatarFile.getBytes();
-                student.setAvatar(avatarBytes);
+                student.setAvatar(avatarFile.getBytes());
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
 
-            // Add student using service
-            studentsService.addStudents(student, randomPassword);
+            // Add student
+            String studentPassword = studentsService.generateRandomPassword(12);
+            studentsService.addStudents(student, studentPassword);
 
-            // Create and save Authenticators entity
-            Authenticators authenticators = new Authenticators();
-            authenticators.setPersonId(studentId);
-            authenticators.setPerson(personsService.getPersonById(studentId));
-            authenticators.setPassword(randomPassword);
-            authenticatorsService.createAuthenticator(authenticators);
+            // Create Authenticators for student
+            Authenticators studentAuth = new Authenticators();
+            studentAuth.setPersonId(studentId);
+            studentAuth.setPerson(personsService.getPersonById(studentId));
+            studentAuth.setPassword(studentPassword);
+            authenticatorsService.createAuthenticator(studentAuth);
 
-            // Create and save AccountBalances entity
+            // Create AccountBalances
             AccountBalances accountBalances = new AccountBalances();
             accountBalances.setBalance(0.0);
             accountBalances.setStudent(studentsService.getStudentById(studentId));
@@ -112,7 +141,32 @@ public class AddStudentController {
             accountBalances.setLastUpdated(LocalDateTime.now());
             accountBalancesService.createAccountBalances(accountBalances);
 
-            // Clear session data
+            // Handle parent account only if information is provided
+            if (isParentInfoProvided && parent != null) {
+                ParentAccounts existingParent = null;
+                if (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) {
+                    existingParent = parentAccountsService.findByEmail(parent.getEmail());
+                }
+                if (existingParent != null) {
+                    parent = existingParent;
+                } else {
+                    String parentId = parentAccountsService.generateUniqueParentId();
+                    parent.setId(parentId);
+                    parent.setCreatedDate(LocalDate.now());
+                    parentAccountsService.addParentAccounts(parent);
+                    String parentPassword = parentAccountsService.generateRandomPassword(12);
+                    Authenticators parentAuth = new Authenticators();
+                    parentAuth.setPersonId(parentId);
+                    parentAuth.setPerson(personsService.getPersonById(parentId));
+                    parentAuth.setPassword(parentPassword);
+                    authenticatorsService.createAuthenticator(parentAuth);
+                    isNewParent = true;
+                }
+                // Only link student to parent if parent information is valid
+                parentAccountsService.linkStudentToParent(studentsService.getStudentById(studentId), parent, parentRelationship);
+            }
+
+            // Clear session
             session.removeAttribute("tempAvatar");
             session.removeAttribute("tempAvatarName");
 
@@ -127,5 +181,13 @@ public class AddStudentController {
             model.addAttribute("errors", errors);
             return "AddStudent";
         }
+    }
+
+    private boolean isValidRelationship(String relationship) {
+        return relationship != null && (
+                relationship.equalsIgnoreCase("Father") ||
+                        relationship.equalsIgnoreCase("Mother") ||
+                        relationship.equalsIgnoreCase("Guardian")
+        );
     }
 }

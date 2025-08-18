@@ -9,7 +9,7 @@ import java.util.List;
 public interface ParentAccountsService {
     void addParentAccounts(ParentAccounts parent);
     ParentAccounts findByEmail(String email);
-    Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent);
+    Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, String relationshipToStudent);
     List<String> validateParent(ParentAccounts parent);
 
     List<String> ParentValidation(ParentAccounts parent);

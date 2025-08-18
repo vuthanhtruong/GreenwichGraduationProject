@@ -16,6 +16,7 @@
     <form class="mt-4" method="post" th:action="@{/staff-home/students-list/add-student}" th:object="${student}" enctype="multipart/form-data">
         <!-- Error Messages -->
         <div th:if="${errors != null}" class="alert alert-danger">
+            <h5>Errors:</h5>
             <ul>
                 <li th:each="error : ${errors}" th:text="${error}"></li>
             </ul>
@@ -32,12 +33,14 @@
             </div>
         </div>
 
+        <!-- Student Information -->
+        <h4 class="text-primary">Student Information</h4>
         <!-- First Name -->
         <div class="mb-3">
             <label for="firstName" class="form-label">First Name:</label>
             <input id="firstName" class="form-control" th:field="*{firstName}" required type="text">
             <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name') and !error.contains('Father') and !error.contains('Mother')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name') and !error.contains('Parent')}" th:text="${error}"></div>
         </div>
 
         <!-- Last Name -->
@@ -45,7 +48,7 @@
             <label for="lastName" class="form-label">Last Name:</label>
             <input id="lastName" class="form-control" th:field="*{lastName}" required type="text">
             <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name') and !error.contains('Father') and !error.contains('Mother')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name') and !error.contains('Parent')}" th:text="${error}"></div>
         </div>
 
         <!-- Email -->
@@ -53,7 +56,7 @@
             <label for="email" class="form-label">Email to contact:</label>
             <input id="email" class="form-control" th:field="*{email}" required type="email">
             <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email') and !error.contains('Father') and !error.contains('Mother')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email') and !error.contains('Parent')}" th:text="${error}"></div>
             <small class="form-text text-muted">
                 After completing the additional information, the system will automatically send an email containing the student's account information and login password.
             </small>
@@ -64,7 +67,7 @@
             <label for="phoneNumber" class="form-label">Phone Number:</label>
             <input id="phoneNumber" class="form-control" th:field="*{phoneNumber}" required type="text">
             <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone number') and !error.contains('Father') and !error.contains('Mother')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone number') and !error.contains('Parent')}" th:text="${error}"></div>
         </div>
 
         <!-- MIS ID -->
@@ -91,7 +94,6 @@
                         th:value="${gender}" th:text="${gender}"></option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Gender')}" th:text="${error}"></div>
         </div>
 
         <!-- Country -->
@@ -143,6 +145,46 @@
             <div class="text-danger" th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}"></div>
         </div>
 
+        <!-- Parent's Information -->
+        <div class="mb-3">
+            <h4 class="text-primary">Parent's Information</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="parentFirstName" class="form-label">Parent's First Name:</label>
+                    <input id="parentFirstName" class="form-control" name="parentFirstName" type="text">
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent first name')}" th:text="${error}"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="parentLastName" class="form-label">Parent's Last Name:</label>
+                    <input id="parentLastName" class="form-control" name="parentLastName" type="text">
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent last name')}" th:text="${error}"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="parentEmail" class="form-label">Parent's Email:</label>
+                    <input id="parentEmail" class="form-control" name="parentEmail" type="email">
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent email')}" th:text="${error}"></div>
+                    <small class="form-text text-muted">
+                        If provided, the system will send an email with the parent's account information and login password for new accounts.
+                    </small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="parentPhoneNumber" class="form-label">Parent's Phone Number:</label>
+                    <input id="parentPhoneNumber" class="form-control" name="parentPhoneNumber" type="text">
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent phone number')}" th:text="${error}"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="parentRelationship" class="form-label">Relationship to Student:</label>
+                    <select id="parentRelationship" class="form-control" name="parentRelationship">
+                        <option value="">Select relationship</option>
+                        <option value="Father">Father</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Guardian">Guardian</option>
+                    </select>
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Relationship to student')}" th:text="${error}"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="text-center">
             <button class="btn btn-success" type="submit">
                 <i class="fas fa-save"></i> Save Student
@@ -153,8 +195,6 @@
         </div>
     </form>
 </div>
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -14,6 +14,11 @@ import java.util.List;
 @Service
 public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
+    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, String relationshipToStudent) {
+        return parentAccountsDAO.linkStudentToParent(student, parent, relationshipToStudent);
+    }
+
+    @Override
     public List<String> ParentValidation(ParentAccounts parent) {
         return parentAccountsDAO.ParentValidation(parent);
     }
@@ -42,11 +47,6 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
     public ParentAccounts findByEmail(String email) {
         return parentAccountsDAO.findByEmail(email);
-    }
-
-    @Override
-    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent) {
-        return parentAccountsDAO.linkStudentToParent(student, parent);
     }
 
     @Override
