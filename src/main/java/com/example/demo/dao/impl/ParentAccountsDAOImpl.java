@@ -3,8 +3,12 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.ParentAccountsDAO;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
+import com.example.demo.entity.Authenticators;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
+import com.example.demo.service.StudentsService;
+import com.example.demo.service.AuthenticatorsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,11 +32,16 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
 
     private final PersonsService personsService;
     private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final AuthenticatorsService authenticatorsService;
 
     @Autowired
-    public ParentAccountsDAOImpl(PersonsService personsService, StaffsService staffsService) {
+    public ParentAccountsDAOImpl(PersonsService personsService, StaffsService staffsService,
+                                 StudentsService studentsService, AuthenticatorsService authenticatorsService) {
         this.personsService = personsService;
         this.staffsService = staffsService;
+        this.studentsService = studentsService;
+        this.authenticatorsService = authenticatorsService;
     }
 
     @Override
@@ -106,6 +116,17 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
+    public void updateParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
+        if (relationship != null) {
+            existingLink.setRelationshipToStudent(relationship);
+        }
+        if (supportPhoneNumber != null) {
+            existingLink.setSupportPhoneNumber(supportPhoneNumber);
+        }
+        entityManager.merge(existingLink);
+    }
+
+    @Override
     public long countLinkedStudents(String parentId, String excludeStudentId) {
         return entityManager.createQuery(
                         "SELECT COUNT(spa) FROM Student_ParentAccounts spa WHERE spa.parent.id = :parentId AND spa.student.id != :excludeStudentId",
@@ -122,15 +143,12 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             errors.add("Parent account cannot be null");
             return errors;
         }
-        // First Name - OPTIONAL + format if present
         if (!isNullOrBlank(parent.getFirstName()) && !isValidName(parent.getFirstName())) {
             errors.add("Parent first name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-        // Last Name - OPTIONAL + format if present
         if (!isNullOrBlank(parent.getLastName()) && !isValidName(parent.getLastName())) {
             errors.add("Parent last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-        // Email - OPTIONAL + format + uniqueness if present
         if (!isNullOrBlank(parent.getEmail())) {
             if (!isValidEmail(parent.getEmail())) {
                 errors.add("Invalid parent email format.");
@@ -141,7 +159,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 }
             }
         }
-        // Phone Number - OPTIONAL + format + uniqueness if present
         if (!isNullOrBlank(parent.getPhoneNumber())) {
             if (!isValidPhoneNumber(parent.getPhoneNumber())) {
                 errors.add("Invalid parent phone number format. Must be 10-15 digits, optionally starting with '+'.");
@@ -152,7 +169,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 }
             }
         }
-        // Birth Date - OPTIONAL + must be in the past if present
         if (parent.getBirthDate() != null && parent.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
@@ -160,8 +176,35 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public List<String> ParentValidation(ParentAccounts parent) {
-        return validateParent(parent);
+    public List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
+        List<String> errors = new ArrayList<>();
+        // Skip validation if all fields are empty
+        if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
+            return errors;
+        }
+        // Email is required if any field is provided
+        if (email == null || email.trim().isEmpty()) {
+            errors.add(parentLabel + ": Email is required when other parent fields are provided.");
+            return errors;
+        }
+        ParentAccounts parent = new ParentAccounts();
+        parent.setEmail(email);
+        List<String> parentErrors = validateParent(parent);
+        parentErrors.forEach(error -> errors.add(parentLabel + ": " + error));
+        if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
+            if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
+                errors.add(parentLabel + ": Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+            }
+        }
+        if (relationship != null && !relationship.trim().isEmpty()) {
+            try {
+                RelationshipToStudent.valueOf(relationship.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                errors.add(parentLabel + ": Invalid relationship to student. Allowed values: " +
+                        String.join(", ", getRelationshipValues()));
+            }
+        }
+        return errors;
     }
 
     @Override
@@ -206,6 +249,89 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 .collect(Collectors.joining());
     }
 
+    @Override
+    public void updateOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
+        // Skip if no parent fields are provided
+        if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
+            return;
+        }
+        RelationshipToStudent relationshipEnum = relationship != null && !relationship.trim().isEmpty() ?
+                RelationshipToStudent.valueOf(relationship.toUpperCase()) : null;
+        ParentAccounts parent = findByEmail(email);
+        if (parent == null) {
+            parent = new ParentAccounts();
+            parent.setEmail(email);
+            parent.setId(generateUniqueParentId());
+            parent.setCreatedDate(LocalDate.now());
+            addParentAccounts(parent);
+            String parentPassword = generateRandomPassword(12);
+            Authenticators parentAuth = new Authenticators();
+            parentAuth.setPersonId(parent.getId());
+            parentAuth.setPerson(personsService.getPersonById(parent.getId()));
+            parentAuth.setPassword(parentPassword);
+            authenticatorsService.createAuthenticator(parentAuth);
+        }
+        if (existingLink != null && existingLink.getParent().getEmail().equals(email)) {
+            updateParentLink(existingLink, relationshipEnum, supportPhoneNumber);
+        } else {
+            if (existingLink != null) {
+                removeParentLink(existingLink);
+                deleteIfUnlinked(existingLink.getParent(), studentId);
+            }
+            Student_ParentAccounts newLink = new Student_ParentAccounts(
+                    studentsService.getStudentById(studentId),
+                    parent,
+                    staffsService.getStaff(),
+                    LocalDateTime.now(),
+                    relationshipEnum,
+                    supportPhoneNumber
+            );
+            linkStudentToParent(newLink);
+        }
+    }
+
+    @Override
+    public void createParentLink(String studentId, String email, String supportPhoneNumber, String relationship) {
+        // Skip if no parent fields are provided
+        if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
+            return;
+        }
+        RelationshipToStudent relationshipEnum = relationship != null && !relationship.trim().isEmpty() ?
+                RelationshipToStudent.valueOf(relationship.toUpperCase()) : null;
+        ParentAccounts parent = findByEmail(email);
+        if (parent == null) {
+            parent = new ParentAccounts();
+            parent.setEmail(email);
+            parent.setId(generateUniqueParentId());
+            parent.setCreatedDate(LocalDate.now());
+            addParentAccounts(parent);
+            String parentPassword = generateRandomPassword(12);
+            Authenticators parentAuth = new Authenticators();
+            parentAuth.setPersonId(parent.getId());
+            parentAuth.setPerson(personsService.getPersonById(parent.getId()));
+            parentAuth.setPassword(parentPassword);
+            authenticatorsService.createAuthenticator(parentAuth);
+        }
+        Student_ParentAccounts link = new Student_ParentAccounts(
+                studentsService.getStudentById(studentId),
+                parent,
+                staffsService.getStaff(),
+                LocalDateTime.now(),
+                relationshipEnum,
+                supportPhoneNumber
+        );
+        linkStudentToParent(link);
+    }
+
+    @Override
+    public void deleteIfUnlinked(ParentAccounts parent, String excludeStudentId) {
+        long linkedStudentsCount = countLinkedStudents(parent.getId(), excludeStudentId);
+        if (linkedStudentsCount == 0) {
+            authenticatorsService.deleteAuthenticatorByPersonId(parent.getId());
+            deleteParent(parent);
+        }
+    }
+
     private ParentAccounts findByPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             return null;
@@ -243,5 +369,20 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         }
         String nameRegex = "^[\\p{L}][\\p{L} .'-]{0,49}$";
         return name.matches(nameRegex);
+    }
+
+    private String[] getRelationshipValues() {
+        RelationshipToStudent[] values = RelationshipToStudent.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[i].toString();
+        }
+        return result;
+    }
+
+    private boolean isAnyFieldProvided(String email, String phoneNumber, String relationship) {
+        return (email != null && !email.trim().isEmpty()) ||
+                (phoneNumber != null && !phoneNumber.trim().isEmpty()) ||
+                (relationship != null && !relationship.trim().isEmpty());
     }
 }

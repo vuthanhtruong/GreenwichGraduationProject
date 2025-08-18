@@ -3,28 +3,17 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.ParentAccountsDAO;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.ParentAccountsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ParentAccountsServiceImpl implements ParentAccountsService {
-    @Override
-    public List<Student_ParentAccounts> getParentLinksByStudentId(String studentId) {
-        return parentAccountsDAO.getParentLinksByStudentId(studentId);
-    }
-
-    @Override
-    public void deleteParent(ParentAccounts parent) {
-        parentAccountsDAO.deleteParent(parent);
-    }
-
-    @Override
-    public List<String> validateParent(ParentAccounts parent) {
-        return parentAccountsDAO.validateParent(parent);
-    }
 
     private final ParentAccountsDAO parentAccountsDAO;
 
@@ -44,6 +33,11 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
+    public void deleteParent(ParentAccounts parent) {
+        parentAccountsDAO.deleteParent(parent);
+    }
+
+    @Override
     public ParentAccounts findByEmail(String email) {
         return parentAccountsDAO.findByEmail(email);
     }
@@ -51,6 +45,11 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
     public Student_ParentAccounts getParentLinkByStudentId(String studentId) {
         return parentAccountsDAO.getParentLinkByStudentId(studentId);
+    }
+
+    @Override
+    public List<Student_ParentAccounts> getParentLinksByStudentId(String studentId) {
+        return parentAccountsDAO.getParentLinksByStudentId(studentId);
     }
 
     @Override
@@ -64,13 +63,23 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
+    public void updateParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
+        parentAccountsDAO.updateParentLink(existingLink, relationship, supportPhoneNumber);
+    }
+
+    @Override
     public long countLinkedStudents(String parentId, String excludeStudentId) {
         return parentAccountsDAO.countLinkedStudents(parentId, excludeStudentId);
     }
 
     @Override
-    public List<String> ParentValidation(ParentAccounts parent) {
-        return parentAccountsDAO.ParentValidation(parent);
+    public List<String> validateParent(ParentAccounts parent) {
+        return parentAccountsDAO.validateParent(parent);
+    }
+
+    @Override
+    public List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
+        return parentAccountsDAO.validateParentLink(email, supportPhoneNumber, relationship, parentLabel);
     }
 
     @Override
@@ -81,5 +90,20 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
     public String generateRandomPassword(int length) {
         return parentAccountsDAO.generateRandomPassword(length);
+    }
+
+    @Override
+    public void updateOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
+        parentAccountsDAO.updateOrCreateParentLink(studentId, existingLink, email, supportPhoneNumber, relationship);
+    }
+
+    @Override
+    public void createParentLink(String studentId, String email, String supportPhoneNumber, String relationship) {
+        parentAccountsDAO.createParentLink(studentId, email, supportPhoneNumber, relationship);
+    }
+
+    @Override
+    public void deleteIfUnlinked(ParentAccounts parent, String excludeStudentId) {
+        parentAccountsDAO.deleteIfUnlinked(parent, excludeStudentId);
     }
 }

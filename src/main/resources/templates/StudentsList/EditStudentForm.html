@@ -189,7 +189,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="parentEmail1" class="form-label">Parent 1 Email:</label>
                         <input id="parentEmail1" class="form-control" name="parentEmail1" type="email"
-                               th:value="${parentEmail1 != null ? parentEmail1 : parentLinks[0]?.parent?.email}"/>
+                               th:value="${parentEmail1 != null ? parentEmail1 : (!#lists.isEmpty(parentLinks) ? parentLinks[0].parent.email : '')}"/>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('email')}" th:text="${error}"></div>
                         <small class="form-text text-muted">
                             If a new email is provided, a new parent account will be created if the current parent is linked to another student.
@@ -198,7 +198,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="supportPhoneNumber1" class="form-label">Parent 1 Support Phone Number:</label>
                         <input id="supportPhoneNumber1" class="form-control" name="supportPhoneNumber1" type="text"
-                               th:value="${supportPhoneNumber1 != null ? supportPhoneNumber1 : parentLinks[0]?.supportPhoneNumber}"/>
+                               th:value="${supportPhoneNumber1 != null ? supportPhoneNumber1 : (!#lists.isEmpty(parentLinks) ? parentLinks[0].supportPhoneNumber : '')}"/>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('Support phone number')}" th:text="${error}"></div>
                         <small class="form-text text-muted">
                             Provide a phone number for supporting the student, if applicable.
@@ -211,7 +211,7 @@
                             <option th:each="relationship : ${relationshipTypes}"
                                     th:value="${relationship}"
                                     th:text="${relationship}"
-                                    th:selected="${parentRelationship1 != null ? parentRelationship1 == relationship.toString() : parentLinks[0]?.relationshipToStudent == relationship}">
+                                    th:selected="${parentRelationship1 != null ? parentRelationship1 == relationship.toString() : (!#lists.isEmpty(parentLinks) ? parentLinks[0].relationshipToStudent == relationship : false)}">
                             </option>
                         </select>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('Relationship')}" th:text="${error}"></div>
@@ -226,7 +226,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="parentEmail2" class="form-label">Parent 2 Email:</label>
                         <input id="parentEmail2" class="form-control" name="parentEmail2" type="email"
-                               th:value="${parentEmail2 != null ? parentEmail2 : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.parent?.email : '')}"/>
+                               th:value="${parentEmail2 != null ? parentEmail2 : (#lists.size(parentLinks) > 1 ? parentLinks[1].parent.email : '')}"/>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('email')}" th:text="${error}"></div>
                         <small class="form-text text-muted">
                             If a new email is provided, a new parent account will be created if the current parent is linked to another student.
@@ -235,7 +235,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="supportPhoneNumber2" class="form-label">Parent 2 Support Phone Number:</label>
                         <input id="supportPhoneNumber2" class="form-control" name="supportPhoneNumber2" type="text"
-                               th:value="${supportPhoneNumber2 != null ? supportPhoneNumber2 : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.supportPhoneNumber : '')}"/>
+                               th:value="${supportPhoneNumber2 != null ? supportPhoneNumber2 : (#lists.size(parentLinks) > 1 ? parentLinks[1].supportPhoneNumber : '')}"/>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('Support phone number')}" th:text="${error}"></div>
                         <small class="form-text text-muted">
                             Provide a phone number for supporting the student, if applicable.
@@ -248,7 +248,7 @@
                             <option th:each="relationship : ${relationshipTypes}"
                                     th:value="${relationship}"
                                     th:text="${relationship}"
-                                    th:selected="${parentRelationship2 != null ? parentRelationship2 == relationship.toString() : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.relationshipToStudent == relationship : false)}">
+                                    th:selected="${parentRelationship2 != null ? parentRelationship2 == relationship.toString() : (#lists.size(parentLinks) > 1 ? parentLinks[1].relationshipToStudent == relationship : false)}">
                             </option>
                         </select>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('Relationship')}" th:text="${error}"></div>
