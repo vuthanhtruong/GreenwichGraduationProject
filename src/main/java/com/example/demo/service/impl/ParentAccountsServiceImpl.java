@@ -51,8 +51,8 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
-    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, RelationshipToStudent relationshipToStudent) {
-        return parentAccountsDAO.linkStudentToParent(student, parent, relationshipToStudent);
+    public Student_ParentAccounts linkStudentToParent(Student_ParentAccounts studentParent) {
+        return parentAccountsDAO.linkStudentToParent(studentParent);
     }
 
     @Override

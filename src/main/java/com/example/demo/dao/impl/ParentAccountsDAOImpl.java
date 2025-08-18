@@ -3,8 +3,6 @@ package com.example.demo.dao.impl;
 import com.example.demo.dao.ParentAccountsDAO;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import jakarta.persistence.EntityManager;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,18 +80,17 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, RelationshipToStudent relationshipToStudent) {
-        if (student == null || parent == null) {
-            throw new IllegalArgumentException("Student or Parent cannot be null");
+    public Student_ParentAccounts linkStudentToParent(Student_ParentAccounts studentParent) {
+        if (studentParent == null || studentParent.getStudent() == null || studentParent.getParent() == null) {
+            throw new IllegalArgumentException("Student_ParentAccounts, Student, or Parent cannot be null");
         }
         // Remove existing link for this student
-        Student_ParentAccounts existingLink = getParentLinkByStudentId(student.getId());
+        Student_ParentAccounts existingLink = getParentLinkByStudentId(studentParent.getStudent().getId());
         if (existingLink != null) {
             removeParentLink(existingLink);
         }
-        // Create new link
-        Student_ParentAccounts link = new Student_ParentAccounts(student, parent, staffsService.getStaff(), LocalDateTime.now(), relationshipToStudent);
-        return entityManager.merge(link);
+        // Save new link
+        return entityManager.merge(studentParent);
     }
 
     @Override

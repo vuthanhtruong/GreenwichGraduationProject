@@ -58,11 +58,9 @@ public class AddStudentController {
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @RequestParam(value = "parentFirstName", required = false) String parentFirstName,
-            @RequestParam(value = "parentLastName", required = false) String parentLastName,
             @RequestParam(value = "parentEmail", required = false) String parentEmail,
-            @RequestParam(value = "parentPhoneNumber", required = false) String parentPhoneNumber,
             @RequestParam(value = "parentRelationship", required = false) String parentRelationship,
+            @RequestParam(value = "supportPhoneNumber", required = false) String supportPhoneNumber,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
@@ -75,20 +73,14 @@ public class AddStudentController {
         }
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
 
-        // Validate parent if any meaningful field is provided
+        // Validate parent if email is provided
         ParentAccounts parent = null;
         boolean isNewParent = false;
-        boolean isParentInfoProvided = (parentFirstName != null && !parentFirstName.trim().isEmpty()) ||
-                (parentLastName != null && !parentLastName.trim().isEmpty()) ||
-                (parentEmail != null && !parentEmail.trim().isEmpty()) ||
-                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty());
+        boolean isParentInfoProvided = (parentEmail != null && !parentEmail.trim().isEmpty());
 
         if (isParentInfoProvided) {
             parent = new ParentAccounts();
-            parent.setFirstName(parentFirstName);
-            parent.setLastName(parentLastName);
             parent.setEmail(parentEmail);
-            parent.setPhoneNumber(parentPhoneNumber);
             // Validate parent fields
             List<String> parentErrors = parentAccountsService.ParentValidation(parent);
             parentErrors.forEach(error -> errors.add("Parent: " + error));
@@ -104,13 +96,16 @@ public class AddStudentController {
             }
         }
 
-        // Prevent creating parent account if only relationship is provided
+        // Validate support phone number if provided
+        if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
+            if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
+                errors.add("Parent: Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+            }
+        }
+
+        // Prevent creating parent account if only relationship or support phone number is provided without email
         if (isParentInfoProvided && parent != null) {
-            boolean hasValidParentInfo = (parent.getFirstName() != null && !parent.getFirstName().trim().isEmpty()) ||
-                    (parent.getLastName() != null && !parent.getLastName().trim().isEmpty()) ||
-                    (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) ||
-                    (parent.getPhoneNumber() != null && !parent.getPhoneNumber().trim().isEmpty() &&
-                            isValidPhoneNumber(parent.getPhoneNumber()));
+            boolean hasValidParentInfo = (parent.getEmail() != null && !parent.getEmail().trim().isEmpty());
             if (!hasValidParentInfo) {
                 isParentInfoProvided = false; // Ignore parent info if no valid fields
             }
@@ -120,11 +115,9 @@ public class AddStudentController {
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             // Keep parent input values
-            model.addAttribute("parentFirstName", parentFirstName);
-            model.addAttribute("parentLastName", parentLastName);
             model.addAttribute("parentEmail", parentEmail);
-            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
             model.addAttribute("parentRelationship", parentRelationship);
+            model.addAttribute("supportPhoneNumber", supportPhoneNumber);
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
@@ -195,7 +188,16 @@ public class AddStudentController {
                 if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
                     relationshipEnum = RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
                 }
-                parentAccountsService.linkStudentToParent(studentsService.getStudentById(studentId), parent, relationshipEnum);
+                // Create and save Student_ParentAccounts with supportPhoneNumber
+                Student_ParentAccounts studentParent = new Student_ParentAccounts(
+                        studentsService.getStudentById(studentId),
+                        parent,
+                        staffsService.getStaff(),
+                        LocalDateTime.now(),
+                        relationshipEnum,
+                        supportPhoneNumber
+                );
+                parentAccountsService.linkStudentToParent(studentParent);
             }
 
             // Clear session
@@ -209,11 +211,9 @@ public class AddStudentController {
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             // Keep parent input values
-            model.addAttribute("parentFirstName", parentFirstName);
-            model.addAttribute("parentLastName", parentLastName);
             model.addAttribute("parentEmail", parentEmail);
-            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
             model.addAttribute("parentRelationship", parentRelationship);
+            model.addAttribute("supportPhoneNumber", supportPhoneNumber);
             return "AddStudent";
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,11 +221,9 @@ public class AddStudentController {
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             // Keep parent input values
-            model.addAttribute("parentFirstName", parentFirstName);
-            model.addAttribute("parentLastName", parentLastName);
             model.addAttribute("parentEmail", parentEmail);
-            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
             model.addAttribute("parentRelationship", parentRelationship);
+            model.addAttribute("supportPhoneNumber", supportPhoneNumber);
             return "AddStudent";
         }
     }
@@ -240,14 +238,6 @@ public class AddStudentController {
         } catch (IllegalArgumentException e) {
             return false;
         }
-    }
-
-    private boolean isValidPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            return true;
-        }
-        String phoneRegex = "^\\+?[0-9]{10,15}$";
-        return phoneNumber.matches(phoneRegex);
     }
 
     private String[] getRelationshipValues() {

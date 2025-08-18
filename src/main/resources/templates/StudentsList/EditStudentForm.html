@@ -64,7 +64,7 @@
             <label for="firstName" class="form-label">First Name:</label>
             <input id="firstName" class="form-control" th:field="*{firstName}" type="text" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name') and !error.contains('Parent')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name')}" th:text="${error}"></div>
         </div>
 
         <!-- Last Name -->
@@ -72,7 +72,7 @@
             <label for="lastName" class="form-label">Last Name:</label>
             <input id="lastName" class="form-control" th:field="*{lastName}" type="text" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
-            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name') and !error.contains('Parent')}" th:text="${error}"></div>
+            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name')}" th:text="${error}"></div>
         </div>
 
         <!-- Email -->
@@ -174,16 +174,6 @@
             <h4 class="text-primary">Parent's Information (Optional)</h4>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="parentFirstName" class="form-label">Parent's First Name:</label>
-                    <input id="parentFirstName" class="form-control" name="parentFirstName" type="text" th:value="${parentFirstName != null ? parentFirstName : currentParent?.firstName}"/>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent first name')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="parentLastName" class="form-label">Parent's Last Name:</label>
-                    <input id="parentLastName" class="form-control" name="parentLastName" type="text" th:value="${parentLastName != null ? parentLastName : currentParent?.lastName}"/>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent last name')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-6 mb-3">
                     <label for="parentEmail" class="form-label">Parent's Email:</label>
                     <input id="parentEmail" class="form-control" name="parentEmail" type="email" th:value="${parentEmail != null ? parentEmail : currentParent?.email}"/>
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent email')}" th:text="${error}"></div>
@@ -192,9 +182,12 @@
                     </small>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="parentPhoneNumber" class="form-label">Parent's Phone Number:</label>
-                    <input id="parentPhoneNumber" class="form-control" name="parentPhoneNumber" type="text" th:value="${parentPhoneNumber != null ? parentPhoneNumber : currentParent?.phoneNumber}"/>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent phone number')}" th:text="${error}"></div>
+                    <label for="supportPhoneNumber" class="form-label">Support Phone Number:</label>
+                    <input id="supportPhoneNumber" class="form-control" name="supportPhoneNumber" type="text" th:value="${currentSupportPhoneNumber}"/>
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Support phone number')}" th:text="${error}"></div>
+                    <small class="form-text text-muted">
+                        Provide a phone number for supporting the student, if applicable.
+                    </small>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="parentRelationship" class="form-label">Relationship to Student:</label>

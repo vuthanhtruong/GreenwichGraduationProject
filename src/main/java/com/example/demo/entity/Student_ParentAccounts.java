@@ -42,14 +42,18 @@ public class Student_ParentAccounts {
     @Column(name = "RelationshipToStudent", nullable = true, length = 50)
     private RelationshipToStudent relationshipToStudent;
 
+    @Column(name = "SupportPhoneNumber", nullable = true, length = 15)
+    private String supportPhoneNumber;
+
     public Student_ParentAccounts() {}
 
-    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt, RelationshipToStudent relationshipToStudent) {
+    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt, RelationshipToStudent relationshipToStudent, String supportPhoneNumber) {
         this.id = new StudentParentAccountsId(student.getId(), parent.getId());
         this.student = student;
         this.parent = parent;
         this.addedBy = addedBy;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.relationshipToStudent = relationshipToStudent;
+        this.supportPhoneNumber = supportPhoneNumber;
     }
 }

@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,15 +65,18 @@ public class UpdateStudentController {
         Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(id);
         ParentAccounts currentParent = null;
         RelationshipToStudent currentRelationship = null;
+        String currentSupportPhoneNumber = null;
         if (parentLink != null) {
             currentParent = parentLink.getParent();
             currentRelationship = parentLink.getRelationshipToStudent();
+            currentSupportPhoneNumber = parentLink.getSupportPhoneNumber();
         }
         model.addAttribute("student", student);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
         model.addAttribute("currentParent", currentParent);
         model.addAttribute("currentRelationship", currentRelationship);
+        model.addAttribute("currentSupportPhoneNumber", currentSupportPhoneNumber);
         return "EditStudentForm";
     }
 
@@ -81,10 +85,8 @@ public class UpdateStudentController {
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @RequestParam(value = "parentFirstName", required = false) String parentFirstName,
-            @RequestParam(value = "parentLastName", required = false) String parentLastName,
             @RequestParam(value = "parentEmail", required = false) String parentEmail,
-            @RequestParam(value = "parentPhoneNumber", required = false) String parentPhoneNumber,
+            @RequestParam(value = "supportPhoneNumber", required = false) String supportPhoneNumber,
             @RequestParam(value = "parentRelationship", required = false) String parentRelationship,
             RedirectAttributes redirectAttributes,
             ModelMap modelMap,
@@ -95,17 +97,12 @@ public class UpdateStudentController {
 
         // Validate parent if any meaningful field is provided
         ParentAccounts parent = null;
-        boolean isParentInfoProvided = (parentFirstName != null && !parentFirstName.trim().isEmpty()) ||
-                (parentLastName != null && !parentLastName.trim().isEmpty()) ||
-                (parentEmail != null && !parentEmail.trim().isEmpty()) ||
-                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty());
+        boolean isParentInfoProvided = (parentEmail != null && !parentEmail.trim().isEmpty()) ||
+                (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty());
 
         if (isParentInfoProvided) {
             parent = new ParentAccounts();
-            parent.setFirstName(parentFirstName);
-            parent.setLastName(parentLastName);
             parent.setEmail(parentEmail);
-            parent.setPhoneNumber(parentPhoneNumber);
             // Validate parent fields
             List<String> parentErrors = parentAccountsService.ParentValidation(parent);
             parentErrors.forEach(error -> errors.add("Parent: " + error));
@@ -121,13 +118,16 @@ public class UpdateStudentController {
             }
         }
 
-        // Prevent creating/updating parent account if only relationship is provided
+        // Validate support phone number if provided
+        if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
+            if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
+                errors.add("Parent: Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+            }
+        }
+
+        // Prevent creating/updating parent account if only relationship or support phone number is provided
         if (isParentInfoProvided && parent != null) {
-            boolean hasValidParentInfo = (parent.getFirstName() != null && !parent.getFirstName().trim().isEmpty()) ||
-                    (parent.getLastName() != null && !parent.getLastName().trim().isEmpty()) ||
-                    (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) ||
-                    (parent.getPhoneNumber() != null && !parent.getPhoneNumber().trim().isEmpty() &&
-                            isValidPhoneNumber(parent.getPhoneNumber()));
+            boolean hasValidParentInfo = (parent.getEmail() != null && !parent.getEmail().trim().isEmpty());
             if (!hasValidParentInfo) {
                 isParentInfoProvided = false; // Ignore parent info if no valid fields
             }
@@ -138,15 +138,14 @@ public class UpdateStudentController {
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
             // Keep parent input values
-            modelMap.addAttribute("parentFirstName", parentFirstName);
-            modelMap.addAttribute("parentLastName", parentLastName);
             modelMap.addAttribute("parentEmail", parentEmail);
-            modelMap.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            modelMap.addAttribute("supportPhoneNumber", supportPhoneNumber);
             modelMap.addAttribute("parentRelationship", parentRelationship);
             // Load current parent info for display
             Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
             modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
             modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
+            modelMap.addAttribute("currentSupportPhoneNumber", parentLink != null ? parentLink.getSupportPhoneNumber() : null);
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
@@ -187,8 +186,8 @@ public class UpdateStudentController {
                     ParentAccounts currentParent = currentParentLink.getParent();
                     // Check if parent is linked to other students
                     long linkedStudentsCount = parentAccountsService.countLinkedStudents(currentParent.getId(), student.getId());
-                    if (linkedStudentsCount > 0 && (isEmailChanged(parent, currentParent) || isPhoneNumberChanged(parent, currentParent))) {
-                        // Create new parent account if email or phone number changed and parent is linked to other students
+                    if (linkedStudentsCount > 0 && isEmailChanged(parent, currentParent)) {
+                        // Create new parent account if email changed and parent is linked to other students
                         String parentId = parentAccountsService.generateUniqueParentId();
                         parent.setId(parentId);
                         parent.setCreatedDate(LocalDate.now());
@@ -200,16 +199,29 @@ public class UpdateStudentController {
                         parentAuth.setPassword(parentPassword);
                         authenticatorsService.createAuthenticator(parentAuth);
                         // Update link to new parent
-                        parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), parent, relationshipEnum);
+                        Student_ParentAccounts studentParent = new Student_ParentAccounts(
+                                studentsService.getStudentById(student.getId()),
+                                parent,
+                                staffsService.getStaff(),
+                                currentParentLink.getCreatedAt(),
+                                relationshipEnum,
+                                supportPhoneNumber
+                        );
+                        parentAccountsService.linkStudentToParent(studentParent);
                     } else {
-                        // Update existing parent if no other students are linked or no change in email/phone
-                        currentParent.setFirstName(parent.getFirstName());
-                        currentParent.setLastName(parent.getLastName());
+                        // Update existing parent if no other students are linked or no change in email
                         currentParent.setEmail(parent.getEmail());
-                        currentParent.setPhoneNumber(parent.getPhoneNumber());
                         parentAccountsService.updateParent(currentParent);
-                        // Update link with new relationship
-                        parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), currentParent, relationshipEnum);
+                        // Update link with new relationship and support phone number
+                        Student_ParentAccounts studentParent = new Student_ParentAccounts(
+                                studentsService.getStudentById(student.getId()),
+                                currentParent,
+                                staffsService.getStaff(),
+                                currentParentLink.getCreatedAt(),
+                                relationshipEnum,
+                                supportPhoneNumber
+                        );
+                        parentAccountsService.linkStudentToParent(studentParent);
                     }
                 } else {
                     // No current parent, create new parent
@@ -224,10 +236,17 @@ public class UpdateStudentController {
                     parentAuth.setPassword(parentPassword);
                     authenticatorsService.createAuthenticator(parentAuth);
                     // Create new link
-                    parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), parent, relationshipEnum);
+                    Student_ParentAccounts studentParent = new Student_ParentAccounts(
+                            studentsService.getStudentById(student.getId()),
+                            parent,
+                            staffsService.getStaff(),
+                            LocalDateTime.now(),
+                            relationshipEnum,
+                            supportPhoneNumber
+                    );
+                    parentAccountsService.linkStudentToParent(studentParent);
                 }
-            } else if (parentFirstName != null || parentLastName != null || parentEmail != null ||
-                    parentPhoneNumber != null || parentRelationship != null) {
+            } else if (parentEmail != null || supportPhoneNumber != null || parentRelationship != null) {
                 // If any parent field is provided but invalid, keep existing link
             } else {
                 // If no parent fields are provided, remove existing link
@@ -244,15 +263,14 @@ public class UpdateStudentController {
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
             // Keep parent input values
-            modelMap.addAttribute("parentFirstName", parentFirstName);
-            modelMap.addAttribute("parentLastName", parentLastName);
             modelMap.addAttribute("parentEmail", parentEmail);
-            modelMap.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            modelMap.addAttribute("supportPhoneNumber", supportPhoneNumber);
             modelMap.addAttribute("parentRelationship", parentRelationship);
             // Load current parent info for display
             Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
             modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
             modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
+            modelMap.addAttribute("currentSupportPhoneNumber", parentLink != null ? parentLink.getSupportPhoneNumber() : null);
             return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
@@ -269,12 +287,6 @@ public class UpdateStudentController {
         String newEmail = newParent.getEmail() != null ? newParent.getEmail().trim() : "";
         String currentEmail = currentParent.getEmail() != null ? currentParent.getEmail().trim() : "";
         return !newEmail.equals(currentEmail);
-    }
-
-    private boolean isPhoneNumberChanged(ParentAccounts newParent, ParentAccounts currentParent) {
-        String newPhone = newParent.getPhoneNumber() != null ? newParent.getPhoneNumber().trim() : "";
-        String currentPhone = currentParent.getPhoneNumber() != null ? currentParent.getPhoneNumber().trim() : "";
-        return !newPhone.equals(currentPhone);
     }
 
     private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
