@@ -18,9 +18,6 @@ import java.time.LocalDate;
 @Setter
 public class ParentAccounts extends Persons {
 
-    @Column(name = "Password", nullable = false, length = 255)
-    private String password;
-
     @Column(name = "RelationshipToStudent", nullable = true, length = 50)
     private String relationshipToStudent; // e.g., "Father", "Mother", "Guardian"
 

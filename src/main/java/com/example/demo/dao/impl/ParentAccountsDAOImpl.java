@@ -38,7 +38,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         if (parent == null) {
             throw new IllegalArgumentException("Parent account cannot be null");
         }
-        // Check if parent with the same email already exists
+        // Check if parent with the same email already exists as ParentAccounts
         ParentAccounts existingParent = findByEmail(parent.getEmail());
         if (existingParent != null) {
             // Update existing parent with new information (if needed)
@@ -49,6 +49,14 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             existingParent.setRelationshipToStudent(parent.getRelationshipToStudent());
             entityManager.merge(existingParent);
         } else {
+            // Check if email is used by other person type
+            if (parent.getEmail() != null && personsService.existsByEmail(parent.getEmail())) {
+                throw new IllegalArgumentException("Email is already used by another account type.");
+            }
+            // Check for phone
+            if (parent.getPhoneNumber() != null && personsService.existsByPhoneNumber(parent.getPhoneNumber())) {
+                throw new IllegalArgumentException("Phone number is already used by another account type.");
+            }
             // Set created date for new parent
             parent.setCreatedDate(LocalDate.now());
             entityManager.merge(parent);
@@ -111,14 +119,24 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        // Email - OPTIONAL + format if present
-        if (!isNullOrBlank(parent.getEmail()) && !isValidEmail(parent.getEmail())) {
-            errors.add("Invalid email format.");
+        // Email - OPTIONAL + format if present + uniqueness
+        if (!isNullOrBlank(parent.getEmail())) {
+            if (!isValidEmail(parent.getEmail())) {
+                errors.add("Invalid email format.");
+            }
+            if (personsService.existsByEmail(parent.getEmail())) {
+                errors.add("The email address is already associated with another account.");
+            }
         }
 
-        // Phone Number - OPTIONAL + format if present
-        if (!isNullOrBlank(parent.getPhoneNumber()) && !isValidPhoneNumber(parent.getPhoneNumber())) {
-            errors.add("Invalid phone number format.");
+        // Phone Number - OPTIONAL + format if present + uniqueness
+        if (!isNullOrBlank(parent.getPhoneNumber())) {
+            if (!isValidPhoneNumber(parent.getPhoneNumber())) {
+                errors.add("Invalid phone number format.");
+            }
+            if (personsService.existsByPhoneNumber(parent.getPhoneNumber())) {
+                errors.add("The phone number is already associated with another account.");
+            }
         }
 
         // Birth Date - OPTIONAL + must be in the past if present
