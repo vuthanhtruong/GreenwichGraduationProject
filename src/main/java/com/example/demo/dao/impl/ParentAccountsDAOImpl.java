@@ -46,6 +46,11 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
+    public void deleteParent(ParentAccounts parent) {
+        entityManager.remove(entityManager.contains(parent) ? parent : entityManager.merge(parent));
+    }
+
+    @Override
     public ParentAccounts findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return null;

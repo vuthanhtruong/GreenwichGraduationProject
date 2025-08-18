@@ -3,8 +3,6 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.ParentAccountsDAO;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.ParentAccountsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +14,11 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
     public List<Student_ParentAccounts> getParentLinksByStudentId(String studentId) {
         return parentAccountsDAO.getParentLinksByStudentId(studentId);
+    }
+
+    @Override
+    public void deleteParent(ParentAccounts parent) {
+        parentAccountsDAO.deleteParent(parent);
     }
 
     @Override

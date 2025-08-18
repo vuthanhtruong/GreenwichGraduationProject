@@ -4,4 +4,5 @@ import com.example.demo.entity.Authenticators;
 
 public interface AuthenticatorsDAO {
     void createAuthenticator(Authenticators authenticator);
+    void deleteAuthenticatorByPersonId(String personId);
 }

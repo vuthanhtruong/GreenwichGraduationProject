@@ -187,9 +187,17 @@ public class UpdateStudentController {
 
             // Handle parent accounts
             List<Student_ParentAccounts> currentParentLinks = parentAccountsService.getParentLinksByStudentId(student.getId());
-            // Remove existing links
+            // Remove existing links and clean up unlinked parents
             for (Student_ParentAccounts link : currentParentLinks) {
+                ParentAccounts parent = link.getParent();
                 parentAccountsService.removeParentLink(link);
+                // Check if parent is linked to any other students
+                long linkedStudentsCount = parentAccountsService.countLinkedStudents(parent.getId(), student.getId());
+                if (linkedStudentsCount == 0) {
+                    // Remove parent account and its authenticator if no other students are linked
+                    authenticatorsService.deleteAuthenticatorByPersonId(parent.getId());
+                    parentAccountsService.deleteParent(parent);
+                }
             }
 
             // Handle Parent 1
