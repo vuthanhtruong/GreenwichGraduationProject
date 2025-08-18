@@ -26,12 +26,10 @@ public abstract class Persons {
     @Column(name = "LastName", nullable = true, length = 100)
     private String lastName;
 
-    @Column(name = "Email", nullable = false, unique = true, length = 255)
-    @Email(message = "Invalid email")
+    @Column(name = "Email", nullable = true, unique = true, length = 255)
     private String email;
 
-    @Column(name = "PhoneNumber", nullable = false, unique = true, length = 20)
-    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number")
+    @Column(name = "PhoneNumber", nullable = true, unique = true, length = 20)
     private String phoneNumber;
 
     @Column(name = "BirthDate", nullable = true)

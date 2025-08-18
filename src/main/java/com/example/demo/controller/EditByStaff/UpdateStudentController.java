@@ -1,9 +1,14 @@
 package com.example.demo.controller.EditByStaff;
 
-
-import com.example.demo.entity.Enums.Gender;
+import com.example.demo.entity.Authenticators;
+import com.example.demo.entity.ParentAccounts;
+import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.entity.Students;
+import com.example.demo.entity.Enums.Gender;
+import com.example.demo.entity.Enums.RelationshipToStudent;
+import com.example.demo.service.AuthenticatorsService;
 import com.example.demo.service.LecturesService;
+import com.example.demo.service.ParentAccountsService;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.StudentsService;
@@ -33,14 +38,20 @@ public class UpdateStudentController {
     private final LecturesService lecturesService;
     private final ResourceLoader resourceLoader;
     private final PersonsService personsService;
+    private final ParentAccountsService parentAccountsService;
+    private final AuthenticatorsService authenticatorsService;
 
     public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService,
-                                   StudentsService studentsService, ResourceLoader resourceLoader, PersonsService personsService) {
+                                   StudentsService studentsService, ResourceLoader resourceLoader,
+                                   PersonsService personsService, ParentAccountsService parentAccountsService,
+                                   AuthenticatorsService authenticatorsService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
         this.resourceLoader = resourceLoader;
         this.personsService = personsService;
+        this.parentAccountsService = parentAccountsService;
+        this.authenticatorsService = authenticatorsService;
     }
 
     @PostMapping("/edit-student-form")
@@ -49,8 +60,19 @@ public class UpdateStudentController {
         if (student == null) {
             return "redirect:/staff-home/students-list?error=Student+not+found";
         }
+        // Load current parent information if available
+        Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(id);
+        ParentAccounts currentParent = null;
+        RelationshipToStudent currentRelationship = null;
+        if (parentLink != null) {
+            currentParent = parentLink.getParent();
+            currentRelationship = parentLink.getRelationshipToStudent();
+        }
         model.addAttribute("student", student);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
+        model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+        model.addAttribute("currentParent", currentParent);
+        model.addAttribute("currentRelationship", currentRelationship);
         return "EditStudentForm";
     }
 
@@ -59,16 +81,73 @@ public class UpdateStudentController {
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "parentFirstName", required = false) String parentFirstName,
+            @RequestParam(value = "parentLastName", required = false) String parentLastName,
+            @RequestParam(value = "parentEmail", required = false) String parentEmail,
+            @RequestParam(value = "parentPhoneNumber", required = false) String parentPhoneNumber,
+            @RequestParam(value = "parentRelationship", required = false) String parentRelationship,
             RedirectAttributes redirectAttributes,
-            ModelMap modelMap, HttpSession httpSession) {
+            ModelMap modelMap,
+            HttpSession httpSession) {
 
         List<String> errors = new ArrayList<>();
         validateStudent(student, bindingResult, avatarFile, errors);
 
+        // Validate parent if any meaningful field is provided
+        ParentAccounts parent = null;
+        boolean isParentInfoProvided = (parentFirstName != null && !parentFirstName.trim().isEmpty()) ||
+                (parentLastName != null && !parentLastName.trim().isEmpty()) ||
+                (parentEmail != null && !parentEmail.trim().isEmpty()) ||
+                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty());
+
+        if (isParentInfoProvided) {
+            parent = new ParentAccounts();
+            parent.setFirstName(parentFirstName);
+            parent.setLastName(parentLastName);
+            parent.setEmail(parentEmail);
+            parent.setPhoneNumber(parentPhoneNumber);
+            // Validate parent fields
+            List<String> parentErrors = parentAccountsService.ParentValidation(parent);
+            parentErrors.forEach(error -> errors.add("Parent: " + error));
+        }
+
+        // Validate relationship if provided
+        if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
+            try {
+                RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                errors.add("Parent: Invalid relationship to student. Allowed values: " +
+                        String.join(", ", getRelationshipValues()));
+            }
+        }
+
+        // Prevent creating/updating parent account if only relationship is provided
+        if (isParentInfoProvided && parent != null) {
+            boolean hasValidParentInfo = (parent.getFirstName() != null && !parent.getFirstName().trim().isEmpty()) ||
+                    (parent.getLastName() != null && !parent.getLastName().trim().isEmpty()) ||
+                    (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) ||
+                    (parent.getPhoneNumber() != null && !parent.getPhoneNumber().trim().isEmpty() &&
+                            isValidPhoneNumber(parent.getPhoneNumber()));
+            if (!hasValidParentInfo) {
+                isParentInfoProvided = false; // Ignore parent info if no valid fields
+            }
+        }
+
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/"+student.getId());
+            modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+            // Keep parent input values
+            modelMap.addAttribute("parentFirstName", parentFirstName);
+            modelMap.addAttribute("parentLastName", parentLastName);
+            modelMap.addAttribute("parentEmail", parentEmail);
+            modelMap.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            modelMap.addAttribute("parentRelationship", parentRelationship);
+            // Load current parent info for display
+            Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
+            modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
+            modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
+            httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
 
@@ -92,20 +171,110 @@ public class UpdateStudentController {
 
             // Update student
             studentsService.updateStudent(student.getId(), student);
+
+            // Handle parent account
+            Student_ParentAccounts currentParentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
+            if (isParentInfoProvided && parent != null) {
+                ParentAccounts existingParent = null;
+                if (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) {
+                    existingParent = parentAccountsService.findByEmail(parent.getEmail());
+                }
+                RelationshipToStudent relationshipEnum = null;
+                if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
+                    relationshipEnum = RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
+                }
+                if (currentParentLink != null) {
+                    ParentAccounts currentParent = currentParentLink.getParent();
+                    // Check if parent is linked to other students
+                    long linkedStudentsCount = parentAccountsService.countLinkedStudents(currentParent.getId(), student.getId());
+                    if (linkedStudentsCount > 0 && (isEmailChanged(parent, currentParent) || isPhoneNumberChanged(parent, currentParent))) {
+                        // Create new parent account if email or phone number changed and parent is linked to other students
+                        String parentId = parentAccountsService.generateUniqueParentId();
+                        parent.setId(parentId);
+                        parent.setCreatedDate(LocalDate.now());
+                        parentAccountsService.addParentAccounts(parent);
+                        String parentPassword = parentAccountsService.generateRandomPassword(12);
+                        Authenticators parentAuth = new Authenticators();
+                        parentAuth.setPersonId(parentId);
+                        parentAuth.setPerson(personsService.getPersonById(parentId));
+                        parentAuth.setPassword(parentPassword);
+                        authenticatorsService.createAuthenticator(parentAuth);
+                        // Update link to new parent
+                        parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), parent, relationshipEnum);
+                    } else {
+                        // Update existing parent if no other students are linked or no change in email/phone
+                        currentParent.setFirstName(parent.getFirstName());
+                        currentParent.setLastName(parent.getLastName());
+                        currentParent.setEmail(parent.getEmail());
+                        currentParent.setPhoneNumber(parent.getPhoneNumber());
+                        parentAccountsService.updateParent(currentParent);
+                        // Update link with new relationship
+                        parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), currentParent, relationshipEnum);
+                    }
+                } else {
+                    // No current parent, create new parent
+                    String parentId = parentAccountsService.generateUniqueParentId();
+                    parent.setId(parentId);
+                    parent.setCreatedDate(LocalDate.now());
+                    parentAccountsService.addParentAccounts(parent);
+                    String parentPassword = parentAccountsService.generateRandomPassword(12);
+                    Authenticators parentAuth = new Authenticators();
+                    parentAuth.setPersonId(parentId);
+                    parentAuth.setPerson(personsService.getPersonById(parentId));
+                    parentAuth.setPassword(parentPassword);
+                    authenticatorsService.createAuthenticator(parentAuth);
+                    // Create new link
+                    parentAccountsService.linkStudentToParent(studentsService.getStudentById(student.getId()), parent, relationshipEnum);
+                }
+            } else if (parentFirstName != null || parentLastName != null || parentEmail != null ||
+                    parentPhoneNumber != null || parentRelationship != null) {
+                // If any parent field is provided but invalid, keep existing link
+            } else {
+                // If no parent fields are provided, remove existing link
+                if (currentParentLink != null) {
+                    parentAccountsService.removeParentLink(currentParentLink);
+                }
+            }
+
             redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
+            httpSession.removeAttribute("avatarStudent");
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            modelMap.addAttribute("majors", staffsService.getStaffMajor());
+            modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+            // Keep parent input values
+            modelMap.addAttribute("parentFirstName", parentFirstName);
+            modelMap.addAttribute("parentLastName", parentLastName);
+            modelMap.addAttribute("parentEmail", parentEmail);
+            modelMap.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            modelMap.addAttribute("parentRelationship", parentRelationship);
+            // Load current parent info for display
+            Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
+            modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
+            modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
             return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
+            httpSession.removeAttribute("avatarStudent");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Unexpected error while updating student: " + e.getMessage());
+            httpSession.removeAttribute("avatarStudent");
         }
 
         return "redirect:/staff-home/students-list";
+    }
+
+    private boolean isEmailChanged(ParentAccounts newParent, ParentAccounts currentParent) {
+        String newEmail = newParent.getEmail() != null ? newParent.getEmail().trim() : "";
+        String currentEmail = currentParent.getEmail() != null ? currentParent.getEmail().trim() : "";
+        return !newEmail.equals(currentEmail);
+    }
+
+    private boolean isPhoneNumberChanged(ParentAccounts newParent, ParentAccounts currentParent) {
+        String newPhone = newParent.getPhoneNumber() != null ? newParent.getPhoneNumber().trim() : "";
+        String currentPhone = currentParent.getPhoneNumber() != null ? currentParent.getPhoneNumber().trim() : "";
+        return !newPhone.equals(currentPhone);
     }
 
     private void validateStudent(Students student, BindingResult bindingResult, MultipartFile avatarFile, List<String> errors) {
@@ -128,7 +297,7 @@ public class UpdateStudentController {
         }
 
         if (student.getPhoneNumber() != null && !isValidPhoneNumber(student.getPhoneNumber())) {
-            errors.add("Invalid phone number format.");
+            errors.add("Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
         }
 
         if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
@@ -138,7 +307,7 @@ public class UpdateStudentController {
         // Validate avatar file
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
-            if (!contentType.startsWith("image/")) {
+            if (contentType == null || !contentType.startsWith("image/")) {
                 errors.add("Avatar must be an image file.");
             }
             if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
@@ -162,8 +331,11 @@ public class UpdateStudentController {
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return true;
+        }
         String phoneRegex = "^\\+?[0-9]{10,15}$";
-        return phoneNumber != null && phoneNumber.matches(phoneRegex);
+        return phoneNumber.matches(phoneRegex);
     }
 
     private boolean isValidName(String name) {
@@ -172,5 +344,14 @@ public class UpdateStudentController {
         }
         String nameRegex = "^[\\p{L}][\\p{L} .'-]{0,49}$";
         return name.matches(nameRegex);
+    }
+
+    private String[] getRelationshipValues() {
+        RelationshipToStudent[] values = RelationshipToStudent.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[i].toString();
+        }
+        return result;
     }
 }

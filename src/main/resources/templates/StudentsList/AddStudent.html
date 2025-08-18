@@ -147,21 +147,24 @@
 
         <!-- Parent's Information -->
         <div class="mb-3">
-            <h4 class="text-primary">Parent's Information</h4>
+            <h4 class="text-primary">Parent's Information (Optional)</h4>
+            <small class="form-text text-muted">
+                You can provide any or all of the following fields for the parent. If provided, the information must be valid.
+            </small>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="parentFirstName" class="form-label">Parent's First Name:</label>
-                    <input id="parentFirstName" class="form-control" name="parentFirstName" type="text">
+                    <input id="parentFirstName" class="form-control" name="parentFirstName" type="text" th:value="${parentFirstName}">
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent first name')}" th:text="${error}"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="parentLastName" class="form-label">Parent's Last Name:</label>
-                    <input id="parentLastName" class="form-control" name="parentLastName" type="text">
+                    <input id="parentLastName" class="form-control" name="parentLastName" type="text" th:value="${parentLastName}">
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent last name')}" th:text="${error}"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="parentEmail" class="form-label">Parent's Email:</label>
-                    <input id="parentEmail" class="form-control" name="parentEmail" type="email">
+                    <input id="parentEmail" class="form-control" name="parentEmail" type="email" th:value="${parentEmail}">
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent email')}" th:text="${error}"></div>
                     <small class="form-text text-muted">
                         If provided, the system will send an email with the parent's account information and login password for new accounts.
@@ -169,16 +172,15 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="parentPhoneNumber" class="form-label">Parent's Phone Number:</label>
-                    <input id="parentPhoneNumber" class="form-control" name="parentPhoneNumber" type="text">
+                    <input id="parentPhoneNumber" class="form-control" name="parentPhoneNumber" type="text" th:value="${parentPhoneNumber}">
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent phone number')}" th:text="${error}"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="parentRelationship" class="form-label">Relationship to Student:</label>
                     <select id="parentRelationship" class="form-control" name="parentRelationship">
-                        <option value="">Select relationship</option>
-                        <option value="Father">Father</option>
-                        <option value="Mother">Mother</option>
-                        <option value="Guardian">Guardian</option>
+                        <option value="" th:selected="${parentRelationship == null || parentRelationship == ''}">Select relationship</option>
+                        <option th:each="relationship : ${relationshipTypes}"
+                                th:value="${relationship}" th:text="${relationship}" th:selected="${parentRelationship == relationship.toString()}"></option>
                     </select>
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Relationship to student')}" th:text="${error}"></div>
                 </div>
@@ -195,7 +197,6 @@
         </div>
     </form>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

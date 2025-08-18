@@ -5,6 +5,7 @@ import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.entity.Students;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -30,21 +31,25 @@ public class AddStudentController {
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
     private final ParentAccountsService parentAccountsService;
+    private final EmailServiceForStudentService emailServiceForStudentService;
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
-                                AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService) {
+                                AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService,
+                                EmailServiceForStudentService emailServiceForStudentService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.personsService = personsService;
         this.accountBalancesService = accountBalancesService;
         this.authenticatorsService = authenticatorsService;
         this.parentAccountsService = parentAccountsService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
     }
 
     @GetMapping("/add-student")
     public String showAddStudentPage(Model model) {
         model.addAttribute("student", new Students());
+        model.addAttribute("relationshipTypes", RelationshipToStudent.values());
         return "AddStudent";
     }
 
@@ -70,14 +75,13 @@ public class AddStudentController {
         }
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
 
-        // Validate parent if any field is provided
+        // Validate parent if any meaningful field is provided
         ParentAccounts parent = null;
         boolean isNewParent = false;
         boolean isParentInfoProvided = (parentFirstName != null && !parentFirstName.trim().isEmpty()) ||
                 (parentLastName != null && !parentLastName.trim().isEmpty()) ||
                 (parentEmail != null && !parentEmail.trim().isEmpty()) ||
-                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty()) ||
-                (parentRelationship != null && !parentRelationship.trim().isEmpty());
+                (parentPhoneNumber != null && !parentPhoneNumber.trim().isEmpty());
 
         if (isParentInfoProvided) {
             parent = new ParentAccounts();
@@ -85,18 +89,42 @@ public class AddStudentController {
             parent.setLastName(parentLastName);
             parent.setEmail(parentEmail);
             parent.setPhoneNumber(parentPhoneNumber);
-            // Validate parent fields only if they are provided
+            // Validate parent fields
             List<String> parentErrors = parentAccountsService.ParentValidation(parent);
             parentErrors.forEach(error -> errors.add("Parent: " + error));
+        }
 
-            // Validate relationship if provided
-            if (parentRelationship != null && !parentRelationship.trim().isEmpty() && !isValidRelationship(parentRelationship)) {
-                errors.add("Parent: Invalid relationship to student. Allowed values: Father, Mother, Guardian.");
+        // Validate relationship if provided
+        if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
+            try {
+                RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                errors.add("Parent: Invalid relationship to student. Allowed values: " +
+                        String.join(", ", getRelationshipValues()));
+            }
+        }
+
+        // Prevent creating parent account if only relationship is provided
+        if (isParentInfoProvided && parent != null) {
+            boolean hasValidParentInfo = (parent.getFirstName() != null && !parent.getFirstName().trim().isEmpty()) ||
+                    (parent.getLastName() != null && !parent.getLastName().trim().isEmpty()) ||
+                    (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) ||
+                    (parent.getPhoneNumber() != null && !parent.getPhoneNumber().trim().isEmpty() &&
+                            isValidPhoneNumber(parent.getPhoneNumber()));
+            if (!hasValidParentInfo) {
+                isParentInfoProvided = false; // Ignore parent info if no valid fields
             }
         }
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            model.addAttribute("relationshipTypes", RelationshipToStudent.values());
+            // Keep parent input values
+            model.addAttribute("parentFirstName", parentFirstName);
+            model.addAttribute("parentLastName", parentLastName);
+            model.addAttribute("parentEmail", parentEmail);
+            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            model.addAttribute("parentRelationship", parentRelationship);
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
@@ -141,7 +169,7 @@ public class AddStudentController {
             accountBalances.setLastUpdated(LocalDateTime.now());
             accountBalancesService.createAccountBalances(accountBalances);
 
-            // Handle parent account only if information is provided
+            // Handle parent account only if meaningful information is provided
             if (isParentInfoProvided && parent != null) {
                 ParentAccounts existingParent = null;
                 if (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) {
@@ -162,8 +190,12 @@ public class AddStudentController {
                     authenticatorsService.createAuthenticator(parentAuth);
                     isNewParent = true;
                 }
-                // Only link student to parent if parent information is valid
-                parentAccountsService.linkStudentToParent(studentsService.getStudentById(studentId), parent, parentRelationship);
+                // Convert parentRelationship string to enum if provided
+                RelationshipToStudent relationshipEnum = null;
+                if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
+                    relationshipEnum = RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
+                }
+                parentAccountsService.linkStudentToParent(studentsService.getStudentById(studentId), parent, relationshipEnum);
             }
 
             // Clear session
@@ -175,19 +207,55 @@ public class AddStudentController {
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
+            model.addAttribute("relationshipTypes", RelationshipToStudent.values());
+            // Keep parent input values
+            model.addAttribute("parentFirstName", parentFirstName);
+            model.addAttribute("parentLastName", parentLastName);
+            model.addAttribute("parentEmail", parentEmail);
+            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            model.addAttribute("parentRelationship", parentRelationship);
             return "AddStudent";
         } catch (Exception e) {
+            e.printStackTrace();
             errors.add("An error occurred while adding the student: " + e.getMessage());
             model.addAttribute("errors", errors);
+            model.addAttribute("relationshipTypes", RelationshipToStudent.values());
+            // Keep parent input values
+            model.addAttribute("parentFirstName", parentFirstName);
+            model.addAttribute("parentLastName", parentLastName);
+            model.addAttribute("parentEmail", parentEmail);
+            model.addAttribute("parentPhoneNumber", parentPhoneNumber);
+            model.addAttribute("parentRelationship", parentRelationship);
             return "AddStudent";
         }
     }
 
     private boolean isValidRelationship(String relationship) {
-        return relationship != null && (
-                relationship.equalsIgnoreCase("Father") ||
-                        relationship.equalsIgnoreCase("Mother") ||
-                        relationship.equalsIgnoreCase("Guardian")
-        );
+        if (relationship == null || relationship.trim().isEmpty()) {
+            return true;
+        }
+        try {
+            RelationshipToStudent.valueOf(relationship.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return true;
+        }
+        String phoneRegex = "^\\+?[0-9]{10,15}$";
+        return phoneNumber.matches(phoneRegex);
+    }
+
+    private String[] getRelationshipValues() {
+        RelationshipToStudent[] values = RelationshipToStudent.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = values[i].toString();
+        }
+        return result;
     }
 }

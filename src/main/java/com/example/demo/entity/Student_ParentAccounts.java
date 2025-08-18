@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,12 +38,13 @@ public class Student_ParentAccounts {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "RelationshipToStudent", nullable = false, length = 50)
-    private String relationshipToStudent;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "RelationshipToStudent", nullable = true, length = 50)
+    private RelationshipToStudent relationshipToStudent;
 
     public Student_ParentAccounts() {}
 
-    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt, String relationshipToStudent) {
+    public Student_ParentAccounts(Students student, ParentAccounts parent, Staffs addedBy, LocalDateTime createdAt, RelationshipToStudent relationshipToStudent) {
         this.id = new StudentParentAccountsId(student.getId(), parent.getId());
         this.student = student;
         this.parent = parent;

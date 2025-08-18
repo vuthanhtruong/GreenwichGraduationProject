@@ -4,6 +4,7 @@ import com.example.demo.dao.ParentAccountsDAO;
 import com.example.demo.entity.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.entity.Students;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.service.PersonsService;
 import com.example.demo.service.StaffsService;
 import jakarta.persistence.EntityManager;
@@ -43,6 +44,11 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
+    public void updateParent(ParentAccounts parent) {
+        entityManager.merge(parent);
+    }
+
+    @Override
     public ParentAccounts findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return null;
@@ -58,29 +64,47 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, String relationshipToStudent) {
+    public Student_ParentAccounts getParentLinkByStudentId(String studentId) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT spa FROM Student_ParentAccounts spa WHERE spa.student.id = :studentId",
+                            Student_ParentAccounts.class)
+                    .setParameter("studentId", studentId)
+                    .setMaxResults(1)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void removeParentLink(Student_ParentAccounts parentLink) {
+        entityManager.remove(entityManager.contains(parentLink) ? parentLink : entityManager.merge(parentLink));
+    }
+
+    @Override
+    public Student_ParentAccounts linkStudentToParent(Students student, ParentAccounts parent, RelationshipToStudent relationshipToStudent) {
         if (student == null || parent == null) {
             throw new IllegalArgumentException("Student or Parent cannot be null");
         }
-        // Kiểm tra relationshipToStudent nếu được cung cấp
-        if (relationshipToStudent != null && !relationshipToStudent.trim().isEmpty() && !isValidRelationship(relationshipToStudent)) {
-            throw new IllegalArgumentException("Invalid relationship to student. Allowed values: Father, Mother, Guardian.");
-        }
-        // Kiểm tra liên kết đã tồn tại
-        Student_ParentAccounts existingLink = entityManager.createQuery(
-                        "SELECT spa FROM Student_ParentAccounts spa WHERE spa.student.id = :studentId AND spa.parent.id = :parentId",
-                        Student_ParentAccounts.class)
-                .setParameter("studentId", student.getId())
-                .setParameter("parentId", parent.getId())
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst()
-                .orElse(null);
+        // Remove existing link for this student
+        Student_ParentAccounts existingLink = getParentLinkByStudentId(student.getId());
         if (existingLink != null) {
-            return existingLink; // Liên kết đã tồn tại
+            removeParentLink(existingLink);
         }
+        // Create new link
         Student_ParentAccounts link = new Student_ParentAccounts(student, parent, staffsService.getStaff(), LocalDateTime.now(), relationshipToStudent);
         return entityManager.merge(link);
+    }
+
+    @Override
+    public long countLinkedStudents(String parentId, String excludeStudentId) {
+        return entityManager.createQuery(
+                        "SELECT COUNT(spa) FROM Student_ParentAccounts spa WHERE spa.parent.id = :parentId AND spa.student.id != :excludeStudentId",
+                        Long.class)
+                .setParameter("parentId", parentId)
+                .setParameter("excludeStudentId", excludeStudentId)
+                .getSingleResult();
     }
 
     @Override
@@ -112,10 +136,10 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         // Phone Number - OPTIONAL + format + uniqueness if present
         if (!isNullOrBlank(parent.getPhoneNumber())) {
             if (!isValidPhoneNumber(parent.getPhoneNumber())) {
-                errors.add("Invalid parent phone number format.");
+                errors.add("Invalid parent phone number format. Must be 10-15 digits, optionally starting with '+'.");
             } else if (personsService.existsByPhoneNumber(parent.getPhoneNumber())) {
-                ParentAccounts existingParent = findByEmail(parent.getEmail());
-                if (existingParent == null || !existingParent.getPhoneNumber().equals(parent.getPhoneNumber())) {
+                ParentAccounts existingParent = findByPhoneNumber(parent.getPhoneNumber());
+                if (existingParent == null) {
                     errors.add("The phone number is already associated with another account.");
                 }
             }
@@ -140,8 +164,8 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         String parentId;
         SecureRandom random = new SecureRandom();
         do {
-            String randomDigit = String.valueOf(random.nextInt(1000));
-            parentId = prefix + year + date + String.format("%03d", Integer.parseInt(randomDigit));
+            String randomDigit = String.format("%03d", random.nextInt(1000));
+            parentId = prefix + year + date + randomDigit;
         } while (personsService.existsPersonById(parentId));
         return parentId;
     }
@@ -174,6 +198,20 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 .collect(Collectors.joining());
     }
 
+    private ParentAccounts findByPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return entityManager.createQuery("SELECT p FROM ParentAccounts p WHERE p.phoneNumber = :phoneNumber", ParentAccounts.class)
+                    .setParameter("phoneNumber", phoneNumber)
+                    .setMaxResults(1)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private boolean isNullOrBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
@@ -184,23 +222,18 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return true;
+        }
         String phoneRegex = "^\\+?[0-9]{10,15}$";
-        return phoneNumber != null && phoneNumber.matches(phoneRegex);
+        return phoneNumber.matches(phoneRegex);
     }
 
     private boolean isValidName(String name) {
         if (name == null || name.trim().isEmpty()) {
-            return true; // Cho phép tên trống vì là tùy chọn
+            return true;
         }
-        String nameRegex = "^[\\p{L}][\\p{L} .'-]{1,49}$";
+        String nameRegex = "^[\\p{L}][\\p{L} .'-]{0,49}$";
         return name.matches(nameRegex);
-    }
-
-    private boolean isValidRelationship(String relationship) {
-        return relationship != null && (
-                relationship.equalsIgnoreCase("Father") ||
-                        relationship.equalsIgnoreCase("Mother") ||
-                        relationship.equalsIgnoreCase("Guardian")
-        );
     }
 }
