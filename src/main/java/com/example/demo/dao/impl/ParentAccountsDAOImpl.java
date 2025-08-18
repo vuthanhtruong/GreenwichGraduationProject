@@ -75,6 +75,19 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
+    public List<Student_ParentAccounts> getParentLinksByStudentId(String studentId) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT spa FROM Student_ParentAccounts spa WHERE spa.student.id = :studentId",
+                            Student_ParentAccounts.class)
+                    .setParameter("studentId", studentId)
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public void removeParentLink(Student_ParentAccounts parentLink) {
         entityManager.remove(entityManager.contains(parentLink) ? parentLink : entityManager.merge(parentLink));
     }
@@ -84,12 +97,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         if (studentParent == null || studentParent.getStudent() == null || studentParent.getParent() == null) {
             throw new IllegalArgumentException("Student_ParentAccounts, Student, or Parent cannot be null");
         }
-        // Remove existing link for this student
-        Student_ParentAccounts existingLink = getParentLinkByStudentId(studentParent.getStudent().getId());
-        if (existingLink != null) {
-            removeParentLink(existingLink);
-        }
-        // Save new link
         return entityManager.merge(studentParent);
     }
 

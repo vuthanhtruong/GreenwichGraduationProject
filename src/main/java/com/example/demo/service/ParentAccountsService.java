@@ -19,4 +19,5 @@ public interface ParentAccountsService {
     List<String> ParentValidation(ParentAccounts parent);
     String generateUniqueParentId();
     String generateRandomPassword(int length);
+    List<Student_ParentAccounts> getParentLinksByStudentId(String studentId);
 }

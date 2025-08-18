@@ -14,6 +14,11 @@ import java.util.List;
 @Service
 public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
+    public List<Student_ParentAccounts> getParentLinksByStudentId(String studentId) {
+        return parentAccountsDAO.getParentLinksByStudentId(studentId);
+    }
+
+    @Override
     public List<String> validateParent(ParentAccounts parent) {
         return parentAccountsDAO.validateParent(parent);
     }

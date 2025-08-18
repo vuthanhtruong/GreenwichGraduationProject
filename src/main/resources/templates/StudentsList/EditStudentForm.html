@@ -14,6 +14,12 @@
             border-radius: 50%;
             margin-bottom: 10px;
         }
+        .parent-entry {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -172,34 +178,81 @@
         <!-- Parent's Information -->
         <div class="mb-3">
             <h4 class="text-primary">Parent's Information (Optional)</h4>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="parentEmail" class="form-label">Parent's Email:</label>
-                    <input id="parentEmail" class="form-control" name="parentEmail" type="email" th:value="${parentEmail != null ? parentEmail : currentParent?.email}"/>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent email')}" th:text="${error}"></div>
-                    <small class="form-text text-muted">
-                        If a new email is provided, a new parent account will be created if the current parent is linked to another student.
-                    </small>
+            <small class="form-text text-muted">
+                You can provide or update information for up to two parents. If provided, the information must be valid.
+            </small>
+
+            <!-- Parent 1 -->
+            <div class="parent-entry">
+                <h5>Parent 1</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="parentEmail1" class="form-label">Parent 1 Email:</label>
+                        <input id="parentEmail1" class="form-control" name="parentEmail1" type="email"
+                               th:value="${parentEmail1 != null ? parentEmail1 : parentLinks[0]?.parent?.email}"/>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('email')}" th:text="${error}"></div>
+                        <small class="form-text text-muted">
+                            If a new email is provided, a new parent account will be created if the current parent is linked to another student.
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="supportPhoneNumber1" class="form-label">Parent 1 Support Phone Number:</label>
+                        <input id="supportPhoneNumber1" class="form-control" name="supportPhoneNumber1" type="text"
+                               th:value="${supportPhoneNumber1 != null ? supportPhoneNumber1 : parentLinks[0]?.supportPhoneNumber}"/>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('Support phone number')}" th:text="${error}"></div>
+                        <small class="form-text text-muted">
+                            Provide a phone number for supporting the student, if applicable.
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="parentRelationship1" class="form-label">Parent 1 Relationship to Student:</label>
+                        <select id="parentRelationship1" class="form-control" name="parentRelationship1">
+                            <option value="" th:selected="${parentRelationship1 == null || parentRelationship1 == ''}">Select relationship</option>
+                            <option th:each="relationship : ${relationshipTypes}"
+                                    th:value="${relationship}"
+                                    th:text="${relationship}"
+                                    th:selected="${parentRelationship1 != null ? parentRelationship1 == relationship.toString() : parentLinks[0]?.relationshipToStudent == relationship}">
+                            </option>
+                        </select>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and error.contains('Relationship')}" th:text="${error}"></div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="supportPhoneNumber" class="form-label">Support Phone Number:</label>
-                    <input id="supportPhoneNumber" class="form-control" name="supportPhoneNumber" type="text" th:value="${currentSupportPhoneNumber}"/>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Support phone number')}" th:text="${error}"></div>
-                    <small class="form-text text-muted">
-                        Provide a phone number for supporting the student, if applicable.
-                    </small>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="parentRelationship" class="form-label">Relationship to Student:</label>
-                    <select id="parentRelationship" class="form-control" name="parentRelationship">
-                        <option value="" th:selected="${parentRelationship == null || parentRelationship == ''}">Select relationship</option>
-                        <option th:each="relationship : ${relationshipTypes}"
-                                th:value="${relationship}"
-                                th:text="${relationship}"
-                                th:selected="${parentRelationship != null ? parentRelationship == relationship.toString() : currentRelationship == relationship}">
-                        </option>
-                    </select>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Relationship to student')}" th:text="${error}"></div>
+            </div>
+
+            <!-- Parent 2 -->
+            <div class="parent-entry">
+                <h5>Parent 2</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="parentEmail2" class="form-label">Parent 2 Email:</label>
+                        <input id="parentEmail2" class="form-control" name="parentEmail2" type="email"
+                               th:value="${parentEmail2 != null ? parentEmail2 : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.parent?.email : '')}"/>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('email')}" th:text="${error}"></div>
+                        <small class="form-text text-muted">
+                            If a new email is provided, a new parent account will be created if the current parent is linked to another student.
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="supportPhoneNumber2" class="form-label">Parent 2 Support Phone Number:</label>
+                        <input id="supportPhoneNumber2" class="form-control" name="supportPhoneNumber2" type="text"
+                               th:value="${supportPhoneNumber2 != null ? supportPhoneNumber2 : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.supportPhoneNumber : '')}"/>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('Support phone number')}" th:text="${error}"></div>
+                        <small class="form-text text-muted">
+                            Provide a phone number for supporting the student, if applicable.
+                        </small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="parentRelationship2" class="form-label">Parent 2 Relationship to Student:</label>
+                        <select id="parentRelationship2" class="form-control" name="parentRelationship2">
+                            <option value="" th:selected="${parentRelationship2 == null || parentRelationship2 == ''}">Select relationship</option>
+                            <option th:each="relationship : ${relationshipTypes}"
+                                    th:value="${relationship}"
+                                    th:text="${relationship}"
+                                    th:selected="${parentRelationship2 != null ? parentRelationship2 == relationship.toString() : (#lists.size(parentLinks) > 1 ? parentLinks[1]?.relationshipToStudent == relationship : false)}">
+                            </option>
+                        </select>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and error.contains('Relationship')}" th:text="${error}"></div>
+                    </div>
                 </div>
             </div>
         </div>

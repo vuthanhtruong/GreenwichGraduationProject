@@ -61,22 +61,12 @@ public class UpdateStudentController {
         if (student == null) {
             return "redirect:/staff-home/students-list?error=Student+not+found";
         }
-        // Load current parent information if available
-        Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(id);
-        ParentAccounts currentParent = null;
-        RelationshipToStudent currentRelationship = null;
-        String currentSupportPhoneNumber = null;
-        if (parentLink != null) {
-            currentParent = parentLink.getParent();
-            currentRelationship = parentLink.getRelationshipToStudent();
-            currentSupportPhoneNumber = parentLink.getSupportPhoneNumber();
-        }
+        // Load current parent links
+        List<Student_ParentAccounts> parentLinks = parentAccountsService.getParentLinksByStudentId(id);
         model.addAttribute("student", student);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
-        model.addAttribute("currentParent", currentParent);
-        model.addAttribute("currentRelationship", currentRelationship);
-        model.addAttribute("currentSupportPhoneNumber", currentSupportPhoneNumber);
+        model.addAttribute("parentLinks", parentLinks);
         return "EditStudentForm";
     }
 
@@ -85,9 +75,12 @@ public class UpdateStudentController {
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @RequestParam(value = "parentEmail", required = false) String parentEmail,
-            @RequestParam(value = "supportPhoneNumber", required = false) String supportPhoneNumber,
-            @RequestParam(value = "parentRelationship", required = false) String parentRelationship,
+            @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
+            @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
+            @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
+            @RequestParam(value = "parentEmail2", required = false) String parentEmail2,
+            @RequestParam(value = "supportPhoneNumber2", required = false) String supportPhoneNumber2,
+            @RequestParam(value = "parentRelationship2", required = false) String parentRelationship2,
             RedirectAttributes redirectAttributes,
             ModelMap modelMap,
             HttpSession httpSession) {
@@ -95,41 +88,63 @@ public class UpdateStudentController {
         List<String> errors = new ArrayList<>();
         validateStudent(student, bindingResult, avatarFile, errors);
 
-        // Validate parent if any meaningful field is provided
-        ParentAccounts parent = null;
-        boolean isParentInfoProvided = (parentEmail != null && !parentEmail.trim().isEmpty()) ||
-                (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty());
+        // Validate Parent 1
+        boolean isParent1InfoProvided = (parentEmail1 != null && !parentEmail1.trim().isEmpty()) ||
+                (supportPhoneNumber1 != null && !supportPhoneNumber1.trim().isEmpty());
+        ParentAccounts parent1 = null;
+        if (isParent1InfoProvided) {
+            parent1 = new ParentAccounts();
+            parent1.setEmail(parentEmail1);
+            List<String> parentErrors = parentAccountsService.ParentValidation(parent1);
+            parentErrors.forEach(error -> errors.add("Parent 1: " + error));
 
-        if (isParentInfoProvided) {
-            parent = new ParentAccounts();
-            parent.setEmail(parentEmail);
-            // Validate parent fields
-            List<String> parentErrors = parentAccountsService.ParentValidation(parent);
-            parentErrors.forEach(error -> errors.add("Parent: " + error));
-        }
+            if (supportPhoneNumber1 != null && !supportPhoneNumber1.trim().isEmpty()) {
+                if (!supportPhoneNumber1.matches("^\\+?[0-9]{10,15}$")) {
+                    errors.add("Parent 1: Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+                }
+            }
 
-        // Validate relationship if provided
-        if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
-            try {
-                RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                errors.add("Parent: Invalid relationship to student. Allowed values: " +
-                        String.join(", ", getRelationshipValues()));
+            if (parentRelationship1 != null && !parentRelationship1.trim().isEmpty()) {
+                try {
+                    RelationshipToStudent.valueOf(parentRelationship1.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    errors.add("Parent 1: Invalid relationship to student. Allowed values: " +
+                            String.join(", ", getRelationshipValues()));
+                }
+            }
+
+            if (parent1.getEmail() == null || parent1.getEmail().trim().isEmpty()) {
+                isParent1InfoProvided = false;
             }
         }
 
-        // Validate support phone number if provided
-        if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
-            if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
-                errors.add("Parent: Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
-            }
-        }
+        // Validate Parent 2
+        boolean isParent2InfoProvided = (parentEmail2 != null && !parentEmail2.trim().isEmpty()) ||
+                (supportPhoneNumber2 != null && !supportPhoneNumber2.trim().isEmpty());
+        ParentAccounts parent2 = null;
+        if (isParent2InfoProvided) {
+            parent2 = new ParentAccounts();
+            parent2.setEmail(parentEmail2);
+            List<String> parentErrors = parentAccountsService.ParentValidation(parent2);
+            parentErrors.forEach(error -> errors.add("Parent 2: " + error));
 
-        // Prevent creating/updating parent account if only relationship or support phone number is provided
-        if (isParentInfoProvided && parent != null) {
-            boolean hasValidParentInfo = (parent.getEmail() != null && !parent.getEmail().trim().isEmpty());
-            if (!hasValidParentInfo) {
-                isParentInfoProvided = false; // Ignore parent info if no valid fields
+            if (supportPhoneNumber2 != null && !supportPhoneNumber2.trim().isEmpty()) {
+                if (!supportPhoneNumber2.matches("^\\+?[0-9]{10,15}$")) {
+                    errors.add("Parent 2: Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+                }
+            }
+
+            if (parentRelationship2 != null && !parentRelationship2.trim().isEmpty()) {
+                try {
+                    RelationshipToStudent.valueOf(parentRelationship2.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    errors.add("Parent 2: Invalid relationship to student. Allowed values: " +
+                            String.join(", ", getRelationshipValues()));
+                }
+            }
+
+            if (parent2.getEmail() == null || parent2.getEmail().trim().isEmpty()) {
+                isParent2InfoProvided = false;
             }
         }
 
@@ -137,15 +152,14 @@ public class UpdateStudentController {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+            modelMap.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
             // Keep parent input values
-            modelMap.addAttribute("parentEmail", parentEmail);
-            modelMap.addAttribute("supportPhoneNumber", supportPhoneNumber);
-            modelMap.addAttribute("parentRelationship", parentRelationship);
-            // Load current parent info for display
-            Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
-            modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
-            modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
-            modelMap.addAttribute("currentSupportPhoneNumber", parentLink != null ? parentLink.getSupportPhoneNumber() : null);
+            modelMap.addAttribute("parentEmail1", parentEmail1);
+            modelMap.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
+            modelMap.addAttribute("parentRelationship1", parentRelationship1);
+            modelMap.addAttribute("parentEmail2", parentEmail2);
+            modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
+            modelMap.addAttribute("parentRelationship2", parentRelationship2);
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
@@ -171,88 +185,75 @@ public class UpdateStudentController {
             // Update student
             studentsService.updateStudent(student.getId(), student);
 
-            // Handle parent account
-            Student_ParentAccounts currentParentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
-            if (isParentInfoProvided && parent != null) {
-                ParentAccounts existingParent = null;
-                if (parent.getEmail() != null && !parent.getEmail().trim().isEmpty()) {
-                    existingParent = parentAccountsService.findByEmail(parent.getEmail());
+            // Handle parent accounts
+            List<Student_ParentAccounts> currentParentLinks = parentAccountsService.getParentLinksByStudentId(student.getId());
+            // Remove existing links
+            for (Student_ParentAccounts link : currentParentLinks) {
+                parentAccountsService.removeParentLink(link);
+            }
+
+            // Handle Parent 1
+            if (isParent1InfoProvided && parent1 != null) {
+                ParentAccounts existingParent = parentAccountsService.findByEmail(parent1.getEmail());
+                RelationshipToStudent relationshipEnum1 = null;
+                if (parentRelationship1 != null && !parentRelationship1.trim().isEmpty()) {
+                    relationshipEnum1 = RelationshipToStudent.valueOf(parentRelationship1.toUpperCase());
                 }
-                RelationshipToStudent relationshipEnum = null;
-                if (parentRelationship != null && !parentRelationship.trim().isEmpty()) {
-                    relationshipEnum = RelationshipToStudent.valueOf(parentRelationship.toUpperCase());
-                }
-                if (currentParentLink != null) {
-                    ParentAccounts currentParent = currentParentLink.getParent();
-                    // Check if parent is linked to other students
-                    long linkedStudentsCount = parentAccountsService.countLinkedStudents(currentParent.getId(), student.getId());
-                    if (linkedStudentsCount > 0 && isEmailChanged(parent, currentParent)) {
-                        // Create new parent account if email changed and parent is linked to other students
-                        String parentId = parentAccountsService.generateUniqueParentId();
-                        parent.setId(parentId);
-                        parent.setCreatedDate(LocalDate.now());
-                        parentAccountsService.addParentAccounts(parent);
-                        String parentPassword = parentAccountsService.generateRandomPassword(12);
-                        Authenticators parentAuth = new Authenticators();
-                        parentAuth.setPersonId(parentId);
-                        parentAuth.setPerson(personsService.getPersonById(parentId));
-                        parentAuth.setPassword(parentPassword);
-                        authenticatorsService.createAuthenticator(parentAuth);
-                        // Update link to new parent
-                        Student_ParentAccounts studentParent = new Student_ParentAccounts(
-                                studentsService.getStudentById(student.getId()),
-                                parent,
-                                staffsService.getStaff(),
-                                currentParentLink.getCreatedAt(),
-                                relationshipEnum,
-                                supportPhoneNumber
-                        );
-                        parentAccountsService.linkStudentToParent(studentParent);
-                    } else {
-                        // Update existing parent if no other students are linked or no change in email
-                        currentParent.setEmail(parent.getEmail());
-                        parentAccountsService.updateParent(currentParent);
-                        // Update link with new relationship and support phone number
-                        Student_ParentAccounts studentParent = new Student_ParentAccounts(
-                                studentsService.getStudentById(student.getId()),
-                                currentParent,
-                                staffsService.getStaff(),
-                                currentParentLink.getCreatedAt(),
-                                relationshipEnum,
-                                supportPhoneNumber
-                        );
-                        parentAccountsService.linkStudentToParent(studentParent);
-                    }
+                if (existingParent != null) {
+                    parent1 = existingParent;
                 } else {
-                    // No current parent, create new parent
                     String parentId = parentAccountsService.generateUniqueParentId();
-                    parent.setId(parentId);
-                    parent.setCreatedDate(LocalDate.now());
-                    parentAccountsService.addParentAccounts(parent);
+                    parent1.setId(parentId);
+                    parent1.setCreatedDate(LocalDate.now());
+                    parentAccountsService.addParentAccounts(parent1);
                     String parentPassword = parentAccountsService.generateRandomPassword(12);
                     Authenticators parentAuth = new Authenticators();
                     parentAuth.setPersonId(parentId);
                     parentAuth.setPerson(personsService.getPersonById(parentId));
                     parentAuth.setPassword(parentPassword);
                     authenticatorsService.createAuthenticator(parentAuth);
-                    // Create new link
-                    Student_ParentAccounts studentParent = new Student_ParentAccounts(
-                            studentsService.getStudentById(student.getId()),
-                            parent,
-                            staffsService.getStaff(),
-                            LocalDateTime.now(),
-                            relationshipEnum,
-                            supportPhoneNumber
-                    );
-                    parentAccountsService.linkStudentToParent(studentParent);
                 }
-            } else if (parentEmail != null || supportPhoneNumber != null || parentRelationship != null) {
-                // If any parent field is provided but invalid, keep existing link
-            } else {
-                // If no parent fields are provided, remove existing link
-                if (currentParentLink != null) {
-                    parentAccountsService.removeParentLink(currentParentLink);
+                Student_ParentAccounts studentParent1 = new Student_ParentAccounts(
+                        studentsService.getStudentById(student.getId()),
+                        parent1,
+                        staffsService.getStaff(),
+                        LocalDateTime.now(),
+                        relationshipEnum1,
+                        supportPhoneNumber1
+                );
+                parentAccountsService.linkStudentToParent(studentParent1);
+            }
+
+            // Handle Parent 2
+            if (isParent2InfoProvided && parent2 != null) {
+                ParentAccounts existingParent = parentAccountsService.findByEmail(parent2.getEmail());
+                RelationshipToStudent relationshipEnum2 = null;
+                if (parentRelationship2 != null && !parentRelationship2.trim().isEmpty()) {
+                    relationshipEnum2 = RelationshipToStudent.valueOf(parentRelationship2.toUpperCase());
                 }
+                if (existingParent != null) {
+                    parent2 = existingParent;
+                } else {
+                    String parentId = parentAccountsService.generateUniqueParentId();
+                    parent2.setId(parentId);
+                    parent2.setCreatedDate(LocalDate.now());
+                    parentAccountsService.addParentAccounts(parent2);
+                    String parentPassword = parentAccountsService.generateRandomPassword(12);
+                    Authenticators parentAuth = new Authenticators();
+                    parentAuth.setPersonId(parentId);
+                    parentAuth.setPerson(personsService.getPersonById(parentId));
+                    parentAuth.setPassword(parentPassword);
+                    authenticatorsService.createAuthenticator(parentAuth);
+                }
+                Student_ParentAccounts studentParent2 = new Student_ParentAccounts(
+                        studentsService.getStudentById(student.getId()),
+                        parent2,
+                        staffsService.getStaff(),
+                        LocalDateTime.now(),
+                        relationshipEnum2,
+                        supportPhoneNumber2
+                );
+                parentAccountsService.linkStudentToParent(studentParent2);
             }
 
             redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
@@ -262,15 +263,14 @@ public class UpdateStudentController {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+            modelMap.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
             // Keep parent input values
-            modelMap.addAttribute("parentEmail", parentEmail);
-            modelMap.addAttribute("supportPhoneNumber", supportPhoneNumber);
-            modelMap.addAttribute("parentRelationship", parentRelationship);
-            // Load current parent info for display
-            Student_ParentAccounts parentLink = parentAccountsService.getParentLinkByStudentId(student.getId());
-            modelMap.addAttribute("currentParent", parentLink != null ? parentLink.getParent() : null);
-            modelMap.addAttribute("currentRelationship", parentLink != null ? parentLink.getRelationshipToStudent() : null);
-            modelMap.addAttribute("currentSupportPhoneNumber", parentLink != null ? parentLink.getSupportPhoneNumber() : null);
+            modelMap.addAttribute("parentEmail1", parentEmail1);
+            modelMap.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
+            modelMap.addAttribute("parentRelationship1", parentRelationship1);
+            modelMap.addAttribute("parentEmail2", parentEmail2);
+            modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
+            modelMap.addAttribute("parentRelationship2", parentRelationship2);
             return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
