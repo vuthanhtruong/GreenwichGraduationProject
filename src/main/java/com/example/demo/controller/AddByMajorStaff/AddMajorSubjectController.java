@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -38,7 +39,7 @@ public class AddMajorSubjectController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        List<String> errors = subjectsService.validateSubject(newSubject, null);
+        List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject, null)); // Sao chép danh sách lỗi
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -50,6 +51,12 @@ public class AddMajorSubjectController {
         }
 
         try {
+            if (staffsService.getStaff() == null || staffsService.getStaffMajor() == null) {
+                errors.add("Staff or major not found");
+                model.addAttribute("errors", errors);
+                model.addAttribute("subjects", subjectsService.subjectsByMajor(null));
+                return "SubjectsList";
+            }
             newSubject.setCreator(staffsService.getStaff());
             newSubject.setMajor(staffsService.getStaffMajor());
             String subjectId = subjectsService.generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());

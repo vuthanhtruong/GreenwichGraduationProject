@@ -42,6 +42,13 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         if (subject == null) {
             throw new IllegalArgumentException("Subject object cannot be null");
         }
+        if (staffsService.getStaff() == null || staffsService.getStaffMajor() == null) {
+            throw new IllegalArgumentException("Staff or major not found");
+        }
+        List<String> errors = validateSubject(subject, null);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("; ", errors));
+        }
         subject.setCreator(staffsService.getStaff());
         subject.setMajor(staffsService.getStaffMajor());
         subject.setRequirementType(SubjectTypes.TOPUP_PREPARATION);
@@ -70,14 +77,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     @Override
     public MajorSubjects checkNameSubject(MajorSubjects subject) {
-        if (subject == null || subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
-            return null;
-        }
-        List<MajorSubjects> subjects = entityManager.createQuery(
-                        "SELECT s FROM MajorSubjects s WHERE s.subjectName = :name", MajorSubjects.class)
-                .setParameter("name", subject.getSubjectName().trim())
-                .getResultList();
-        return subjects.isEmpty() ? null : subjects.get(0);
+        return getSubjectByName(subject != null ? subject.getSubjectName() : null);
     }
 
     @Override

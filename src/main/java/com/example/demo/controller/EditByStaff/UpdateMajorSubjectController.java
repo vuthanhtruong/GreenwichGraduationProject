@@ -18,13 +18,13 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
-public class UpdateSubjectController {
+public class UpdateMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public UpdateSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public UpdateMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }
@@ -55,7 +55,7 @@ public class UpdateSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
 
-        List<String> errors = subjectsService.validateSubject(formSubject, id);
+        List<String> errors = new ArrayList<>(subjectsService.validateSubject(formSubject, id)); // Sao chép danh sách lỗi
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -73,9 +73,8 @@ public class UpdateSubjectController {
             redirectAttributes.addFlashAttribute("message", "Subject updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Error updating subject: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            model.addAttribute("editErrors", List.of("Error updating subject: " + e.getMessage()));
+            errors.add("Error updating subject: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
             return "EditSubjectForm";
         }
