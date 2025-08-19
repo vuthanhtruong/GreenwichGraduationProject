@@ -3,11 +3,11 @@ package com.example.demo.controller.AddByMajorStaff;
 import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.service.*;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/staff-home/lectures-list/")
@@ -46,64 +47,35 @@ public class AddLectureController {
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
-
+            RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
-
-        // Handle annotation-based validation
+        errors.addAll(lecturesService.lectureValidation(lecture, avatarFile, null));
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
         }
-
-        // Perform custom validations using LecturesService
-        errors.addAll(lecturesService.lectureValidation(lecture, avatarFile));
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getStaffMajor());
-            if (avatarFile != null && !avatarFile.isEmpty()) {
-                try {
-                    session.setAttribute("tempAvatar", avatarFile.getBytes());
-                    session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
-                } catch (IOException e) {
-                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
-                }
-            }
             return "AddLecture";
         }
 
         try {
-            // Generate random password
             String randomPassword = lecturesService.generateRandomPassword(12);
-
-            // Generate unique lecture ID
             String lectureId = lecturesService.generateUniqueLectureId(
                     staffsService.getStaffMajor().getMajorId(),
                     lecture.getCreatedDate() != null ? lecture.getCreatedDate() : LocalDate.now());
             lecture.setId(lectureId);
-
-            // Handle avatar upload
             if (avatarFile != null && !avatarFile.isEmpty()) {
-                byte[] avatarBytes = avatarFile.getBytes();
-                lecture.setAvatar(avatarBytes);
-            } else if (session.getAttribute("tempAvatar") != null) {
-                lecture.setAvatar((byte[]) session.getAttribute("tempAvatar"));
+                lecture.setAvatar(avatarFile.getBytes());
             }
-
-            // Add lecturer using service
             lecturesService.addLecturers(lecture, randomPassword);
 
-            // Create and save Authenticators entity
             Authenticators authenticators = new Authenticators();
             authenticators.setPersonId(lectureId);
             authenticators.setPerson(personsService.getPersonById(lectureId));
             authenticators.setPassword(randomPassword);
             authenticatorsService.createAuthenticator(authenticators);
-
-            // Clear session data
-            session.removeAttribute("tempAvatar");
-            session.removeAttribute("tempAvatarName");
 
             redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
             return "redirect:/staff-home/lectures-list";

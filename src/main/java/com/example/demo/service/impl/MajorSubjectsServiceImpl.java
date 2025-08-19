@@ -7,10 +7,21 @@ import com.example.demo.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
+    @Override
+    public String generateUniqueSubjectId(String majorId, LocalDate createdDate) {
+        return subjectsDAO.generateUniqueSubjectId(majorId, createdDate);
+    }
+
+    @Override
+    public List<String> validateSubject(MajorSubjects subject, String excludeId) {
+        return List.of();
+    }
+
     @Override
     public List<MajorSubjects> AcceptedSubjectsByMajor(Majors major) {
         return subjectsDAO.AcceptedSubjectsByMajor(major);

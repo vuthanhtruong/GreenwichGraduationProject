@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -33,7 +31,6 @@ public class AddMajorSubjectController {
         this.staffsService = staffsService;
     }
 
-
     @PostMapping("/major-subjects-list/add-subject")
     public String addSubject(
             @Valid @ModelAttribute("newSubject") MajorSubjects newSubject,
@@ -41,18 +38,9 @@ public class AddMajorSubjectController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        List<String> errors = new ArrayList<>();
-
+        List<String> errors = subjectsService.validateSubject(newSubject, null);
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
-
-        if (subjectsService.checkNameSubject(newSubject) != null) {
-            errors.add("Subject name already taken.");
-        }
-
-        if (newSubject.getSubjectName() == null || newSubject.getSubjectName().trim().isEmpty()) {
-            errors.add("Subject name cannot be blank.");
         }
 
         if (!errors.isEmpty()) {
@@ -62,12 +50,9 @@ public class AddMajorSubjectController {
         }
 
         try {
-            // Gán creator và major
             newSubject.setCreator(staffsService.getStaff());
             newSubject.setMajor(staffsService.getStaffMajor());
-
-            // Tạo ID duy nhất
-            String subjectId = generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());
+            String subjectId = subjectsService.generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());
             newSubject.setSubjectId(subjectId);
 
             subjectsService.addSubject(newSubject);
@@ -79,37 +64,5 @@ public class AddMajorSubjectController {
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             return "SubjectsList";
         }
-    }
-
-    private String generateUniqueSubjectId(String majorId, LocalDate createdDate) {
-        String prefix;
-        switch (majorId) {
-            case "major001":
-                prefix = "SUBGBH";
-                break;
-            case "major002":
-                prefix = "SUBGCH";
-                break;
-            case "major003":
-                prefix = "SUBGDH";
-                break;
-            case "major004":
-                prefix = "SUBGKH";
-                break;
-            default:
-                prefix = "SUBGEN";
-                break;
-        }
-
-        String year = String.format("%02d", createdDate.getYear() % 100);
-        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
-
-        String subjectId;
-        SecureRandom random = new SecureRandom();
-        do {
-            String randomDigit = String.valueOf(random.nextInt(10));
-            subjectId = prefix + year + date + randomDigit;
-        } while (subjectsService.getSubjectById(subjectId) != null);
-        return subjectId;
     }
 }

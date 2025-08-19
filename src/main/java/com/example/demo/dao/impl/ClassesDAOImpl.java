@@ -10,7 +10,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -19,7 +21,7 @@ public class ClassesDAOImpl implements ClassesDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private StaffsService staffsService;
+    private final StaffsService staffsService;
 
     public ClassesDAOImpl(StaffsService staffsService) {
         if (staffsService == null) {
@@ -64,7 +66,13 @@ public class ClassesDAOImpl implements ClassesDAO {
 
     @Override
     public MajorClasses getClassByName(String name) {
-        return null;
+        try {
+            return entityManager.createQuery("SELECT c FROM MajorClasses c WHERE c.nameClass = :name", MajorClasses.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -85,7 +93,11 @@ public class ClassesDAOImpl implements ClassesDAO {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
 
-        validateClass(classObj);
+        // Validate and throw exception if validation fails
+        List<String> errors = validateClass(classObj, id);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("; ", errors));
+        }
 
         existingClass.setNameClass(classObj.getNameClass());
         existingClass.setSlotQuantity(classObj.getSlotQuantity());
@@ -105,9 +117,77 @@ public class ClassesDAOImpl implements ClassesDAO {
         entityManager.remove(c);
     }
 
-    private void validateClass(MajorClasses c) {
-        if (c.getNameClass() == null || c.getSlotQuantity() == null || c.getSubject() == null) {
-            throw new IllegalArgumentException("Name, slot quantity, and subject are required");
+    @Override
+    public String generateUniqueClassId(String majorId, LocalDateTime createdDate) {
+        String prefix;
+        switch (majorId) {
+            case "major001":
+                prefix = "CLSGBH";
+                break;
+            case "major002":
+                prefix = "CLSGCH";
+                break;
+            case "major003":
+                prefix = "CLSGDH";
+                break;
+            case "major004":
+                prefix = "CLSGKH";
+                break;
+            default:
+                prefix = "CLSGEN";
+                break;
         }
+
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+
+        String classId;
+        SecureRandom random = new SecureRandom();
+        do {
+            String randomDigit = String.valueOf(random.nextInt(10));
+            classId = prefix + year + date + randomDigit;
+        } while (getClassById(classId) != null);
+        return classId;
+    }
+
+    @Override
+    public List<String> validateClass(MajorClasses classObj, String excludeId) {
+        List<String> errors = new ArrayList<>();
+
+        if (classObj.getNameClass() == null || classObj.getNameClass().trim().isEmpty()) {
+            errors.add("Class name cannot be blank.");
+        } else if (!isValidName(classObj.getNameClass())) {
+            errors.add("Class name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
+            errors.add("Total slots must be greater than 0.");
+        }
+
+        if (classObj.getSubject() == null || classObj.getSubject().getSubjectId() == null) {
+            errors.add("Subject is required.");
+        } else {
+            MajorSubjects subject = entityManager.find(MajorSubjects.class, classObj.getSubject().getSubjectId());
+            if (subject == null) {
+                errors.add("Invalid subject selected.");
+            } else {
+                classObj.setSubject(subject); // Ensure the subject is a managed entity
+            }
+        }
+
+        if (classObj.getNameClass() != null && getClassByName(classObj.getNameClass()) != null &&
+                (excludeId == null || !getClassByName(classObj.getNameClass()).getClassId().equals(excludeId))) {
+            errors.add("Class name is already in use.");
+        }
+
+        return errors;
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
+        return name.matches(nameRegex);
     }
 }

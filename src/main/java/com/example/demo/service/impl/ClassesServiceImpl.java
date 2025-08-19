@@ -7,10 +7,19 @@ import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.ClassesService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class ClassesServiceImpl implements ClassesService {
+    @Override
+    public String generateUniqueClassId(String majorId, LocalDateTime createdDate) {
+        return classesDAO.generateUniqueClassId(majorId, createdDate);
+    }
 
+    @Override
+    public List<String> validateClass(MajorClasses classObj, String excludeId) {
+        return classesDAO.validateClass(classObj, excludeId);
+    }
 
     @Override
     public void deleteClassBySubject(MajorSubjects subject) {

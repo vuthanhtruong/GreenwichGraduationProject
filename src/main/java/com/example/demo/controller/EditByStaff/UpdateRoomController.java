@@ -6,7 +6,6 @@ import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.service.RoomsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -90,11 +88,13 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> editErrors = new ArrayList<>();
-        validateOfflineRoom(formRoom, (OfflineRooms) existingRoom, bindingResult, address, editErrors);
+        List<String> errors = roomsService.validateOfflineRoom(formRoom, address, formRoom.getRoomId());
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
 
-        if (!editErrors.isEmpty() || bindingResult.hasErrors()) {
-            model.addAttribute("editErrors", editErrors);
+        if (!errors.isEmpty()) {
+            model.addAttribute("editErrors", errors);
             model.addAttribute("room", formRoom);
             return "EditOfflineRoomForm";
         }
@@ -108,12 +108,12 @@ public class UpdateRoomController {
             roomsService.updateOfflineRoom(offlineRoom.getRoomId(), offlineRoom);
             redirectAttributes.addFlashAttribute("message", "Offline room updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
-        } catch (DataAccessException e) {
-            redirectAttributes.addFlashAttribute("message", "Database error while updating offline room: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Unexpected error while updating offline room: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("message", "Error updating offline room: " + e.getMessage());
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
+            model.addAttribute("editErrors", List.of("Error updating offline room: " + e.getMessage()));
+            model.addAttribute("room", formRoom);
+            return "EditOfflineRoomForm";
         }
 
         return "redirect:/staff-home/rooms-list";
@@ -133,11 +133,13 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> editErrors = new ArrayList<>();
-        validateOnlineRoom(formRoom, (OnlineRooms) existingRoom, bindingResult, link, editErrors);
+        List<String> errors = roomsService.validateOnlineRoom(formRoom, link, formRoom.getRoomId());
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
 
-        if (!editErrors.isEmpty() || bindingResult.hasErrors()) {
-            model.addAttribute("editErrors", editErrors);
+        if (!errors.isEmpty()) {
+            model.addAttribute("editErrors", errors);
             model.addAttribute("room", formRoom);
             return "EditOnlineRoomForm";
         }
@@ -151,70 +153,14 @@ public class UpdateRoomController {
             roomsService.updateOnlineRoom(onlineRoom.getRoomId(), onlineRoom);
             redirectAttributes.addFlashAttribute("message", "Online room updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
-        } catch (DataAccessException e) {
-            redirectAttributes.addFlashAttribute("message", "Database error while updating online room: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Unexpected error while updating online room: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("message", "Error updating online room: " + e.getMessage());
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
+            model.addAttribute("editErrors", List.of("Error updating online room: " + e.getMessage()));
+            model.addAttribute("room", formRoom);
+            return "EditOnlineRoomForm";
         }
 
         return "redirect:/staff-home/rooms-list";
-    }
-
-    private void validateOfflineRoom(OfflineRooms formRoom, OfflineRooms existingRoom, BindingResult bindingResult, String address, List<String> errors) {
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
-
-        if (!isValidName(formRoom.getRoomName())) {
-            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        }
-
-        Rooms existingRoomByName = roomsService.getByName(formRoom.getRoomName());
-        if (formRoom.getRoomName() != null && existingRoomByName != null &&
-                (existingRoom == null || !existingRoomByName.getRoomId().equals(formRoom.getRoomId()))) {
-            errors.add("Room name is already in use.");
-        }
-
-        if (address != null && !address.isEmpty() && !isValidAddress(address)) {
-            errors.add("Invalid address format.");
-        }
-    }
-
-    private void validateOnlineRoom(OnlineRooms formRoom, OnlineRooms existingRoom, BindingResult bindingResult, String link, List<String> errors) {
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
-
-        if (!isValidName(formRoom.getRoomName())) {
-            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        }
-
-        Rooms existingRoomByName = roomsService.getByName(formRoom.getRoomName());
-        if (formRoom.getRoomName() != null && existingRoomByName != null &&
-                (existingRoom == null || !existingRoomByName.getRoomId().equals(formRoom.getRoomId()))) {
-            errors.add("Room name is already in use.");
-        }
-
-        if (link != null && !link.isEmpty() && !isValidLink(link)) {
-            errors.add("Invalid meeting link format. Must be a valid URL.");
-        }
-    }
-
-    private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
-        return name.matches(nameRegex);
-    }
-
-    private boolean isValidLink(String link) {
-        return link != null && link.matches("^https?://[\\w\\-\\.]+\\.[a-zA-Z]{2,}(/.*)?$");
-    }
-
-    private boolean isValidAddress(String address) {
-        return address != null && address.matches("^[\\p{L}0-9][\\p{L}0-9 ,\\-./]{0,99}$");
     }
 }

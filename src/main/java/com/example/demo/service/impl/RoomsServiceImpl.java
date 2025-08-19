@@ -5,13 +5,28 @@ import com.example.demo.entity.OfflineRooms;
 import com.example.demo.entity.OnlineRooms;
 import com.example.demo.entity.AbstractClasses.Rooms;
 import com.example.demo.service.RoomsService;
+import io.jsonwebtoken.io.IOException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
 public class RoomsServiceImpl implements RoomsService {
+    @Override
+    public String generateUniqueRoomId(boolean isOffline) {
+        return roomsDAO.generateUniqueRoomId(isOffline);
+    }
+
+    @Override
+    public List<String> validateOfflineRoom(OfflineRooms formRoom, String address, String excludeId) {
+        return roomsDAO.validateOfflineRoom(formRoom, address, excludeId);
+    }
+
+    @Override
+    public List<String> validateOnlineRoom(OnlineRooms formRoom, String link, String excludeId) {
+        return roomsDAO.validateOnlineRoom(formRoom, link, excludeId);
+    }
+
     @Override
     public Rooms getRoomById(String id) {
         return roomsDAO.getRoomById(id);
@@ -33,7 +48,7 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
-    public String generateUniqueJitsiMeetLink(String roomId) throws IOException {
+    public String generateUniqueJitsiMeetLink(String roomId) throws io.jsonwebtoken.io.IOException {
         return roomsDAO.generateUniqueJitsiMeetLink(roomId);
     }
 

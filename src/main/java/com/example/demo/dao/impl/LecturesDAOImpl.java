@@ -5,20 +5,17 @@ import com.example.demo.entity.Authenticators;
 import com.example.demo.entity.MajorLecturers;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.Staffs;
-import com.example.demo.security.CustomUserPrincipal;
 import com.example.demo.service.*;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,48 +26,61 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+    private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
+
+    private final PersonsService personsService;
+    private final StaffsService staffsService;
+    private final EmailServiceForLectureService emailServiceForLectureService;
+    private final EmailServiceForStudentService emailServiceForStudentService;
+    private final AuthenticatorsService authenticatorsService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public LecturesDAOImpl(PersonsService personsService, EmailServiceForLectureService emailServiceForLectureService,
+                           EmailServiceForStudentService emailServiceForStudentService,
+                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
+        this.personsService = personsService;
+        this.authenticatorsService = authenticatorsService;
+        if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
+            throw new IllegalArgumentException("Email services cannot be null");
+        }
+        this.emailServiceForLectureService = emailServiceForLectureService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.staffsService = staffsService;
+    }
 
     @Override
     public String generateRandomPassword(int length) {
         if (length < 8) {
             throw new IllegalArgumentException("Password length must be at least 8 characters for security.");
         }
-
         String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCase = "abcdefghijklmnopqrstuvwxyz";
         String digits = "0123456789";
         String symbols = "!@#$%^&*()-_+=<>?";
         String allChars = upperCase + lowerCase + digits + symbols;
-
         SecureRandom random = new SecureRandom();
         StringBuilder password = new StringBuilder();
-
         password.append(upperCase.charAt(random.nextInt(upperCase.length())));
         password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
         password.append(digits.charAt(random.nextInt(digits.length())));
         password.append(symbols.charAt(random.nextInt(symbols.length())));
-
         for (int i = 4; i < length; i++) {
             password.append(allChars.charAt(random.nextInt(allChars.length())));
         }
-
         List<Character> chars = password.chars()
                 .mapToObj(c -> (char) c)
                 .collect(Collectors.toList());
         Collections.shuffle(chars, random);
-
-        return chars.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining());
+        return chars.stream().map(String::valueOf).collect(Collectors.joining());
     }
 
     @Override
     public String generateUniqueLectureId(String majorId, LocalDate createdDate) {
         String prefix = majorId != null ? majorId : "TGN";
-
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
-
         String lectureId;
         SecureRandom random = new SecureRandom();
         do {
@@ -79,52 +89,40 @@ public class LecturesDAOImpl implements LecturesDAO {
         } while (personsService.existsPersonById(lectureId));
         return lectureId;
     }
-    private  final PersonsService  personsService;
 
     @Override
-    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
+    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile, String excludeId) {
         List<String> errors = new ArrayList<>();
-
-        // Custom validations
         if (!isValidName(lecturer.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-
         if (!isValidName(lecturer.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-
-        if (lecturer.getEmail() != null && personsService.existsByEmail(lecturer.getEmail())) {
-            errors.add("The email address is already associated with another account.");
-        }
-
-        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumber(lecturer.getPhoneNumber())) {
-            errors.add("The phone number is already associated with another account.");
-        }
-
         if (lecturer.getEmail() != null && !isValidEmail(lecturer.getEmail())) {
             errors.add("Invalid email format.");
         }
-
         if (lecturer.getPhoneNumber() != null && !isValidPhoneNumber(lecturer.getPhoneNumber())) {
             errors.add("Invalid phone number format.");
         }
-
         if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
-
-        // Validate avatar file
+        if (lecturer.getEmail() != null && (excludeId == null ? personsService.existsByEmail(lecturer.getEmail()) : personsService.existsByEmailExcludingId(lecturer.getEmail(), excludeId))) {
+            errors.add("The email address is already associated with another account.");
+        }
+        if (lecturer.getPhoneNumber() != null && (excludeId == null ? personsService.existsByPhoneNumber(lecturer.getPhoneNumber()) : personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), excludeId))) {
+            errors.add("The phone number is already associated with another account.");
+        }
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
                 errors.add("Avatar must be an image file.");
             }
-            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB limit
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
                 errors.add("Avatar file size must not exceed 5MB.");
             }
         }
-
         return errors;
     }
 
@@ -146,46 +144,23 @@ public class LecturesDAOImpl implements LecturesDAO {
         return name.matches(nameRegex);
     }
 
-    private final StaffsService staffsService;
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final EmailServiceForLectureService emailServiceForLectureService;
-    private final EmailServiceForStudentService emailServiceForStudentService;
-    private final AuthenticatorsService authenticatorsService;
-
-    public LecturesDAOImpl(PersonsService personsService, EmailServiceForLectureService emailServiceForLectureService,
-                           EmailServiceForStudentService emailServiceForStudentService,
-                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
-        this.personsService = personsService;
-        this.authenticatorsService = authenticatorsService;
-        if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
-            throw new IllegalArgumentException("Email services cannot be null");
-        }
-        this.emailServiceForLectureService = emailServiceForLectureService;
-        this.emailServiceForStudentService = emailServiceForStudentService;
-        this.staffsService = staffsService;
-    }
-
     @Override
     public List<MajorLecturers> getLecturers() {
         return entityManager.createQuery("FROM MajorLecturers l", MajorLecturers.class).getResultList();
     }
 
     @Override
-    public MajorLecturers addLecturers(MajorLecturers lecturers, String randomPassword) {
+    public MajorLecturers addLecturers(MajorLecturers lecturer, String randomPassword) {
         Staffs staff = staffsService.getStaff();
-        lecturers.setCampus(staff.getCampus());
-        lecturers.setMajorManagement(staff.getMajorManagement());
-        lecturers.setCreator(staff);
-        MajorLecturers savedLecturer = entityManager.merge(lecturers);
-
-
+        lecturer.setCampus(staff.getCampus());
+        lecturer.setMajorManagement(staff.getMajorManagement());
+        lecturer.setCreator(staff);
+        MajorLecturers savedLecturer = entityManager.merge(lecturer);
         try {
             String subject = "Your Lecturer Account Information";
-            emailServiceForLectureService.sendEmailToNotifyLoginInformation(lecturers.getEmail(), subject, lecturers, randomPassword);
+            emailServiceForLectureService.sendEmailToNotifyLoginInformation(lecturer.getEmail(), subject, lecturer, randomPassword);
         } catch (Exception e) {
-            System.err.println("Failed to schedule email to " + lecturers.getEmail() + ": " + e.getMessage());
+            logger.error("Failed to schedule email to {}: {}", lecturer.getEmail(), e.getMessage());
         }
         return savedLecturer;
     }
@@ -196,7 +171,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (staff == null) {
             throw new IllegalArgumentException("Staff not found");
         }
-
         return (Long) entityManager.createQuery(
                         "SELECT COUNT(l) FROM MajorLecturers l WHERE l.majorManagement.id = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement().getMajorId())
@@ -209,25 +183,22 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
-        // The Authenticators entity will be automatically deleted due to OnDeleteAction.CASCADE
         entityManager.remove(lecturer);
     }
 
     @Override
-    public void updateLecturer(String id, MajorLecturers lecturer) throws MessagingException {
-        if (lecturer == null || id == null) {
-            throw new IllegalArgumentException("Lecturer object or ID cannot be null");
-        }
-
+    public void updateLecturer(String id, MajorLecturers lecturer, MultipartFile avatarFile) throws MessagingException, IOException {
         MajorLecturers existingLecturer = entityManager.find(MajorLecturers.class, id);
         if (existingLecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
-
-        validateLecturer(lecturer);
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            lecturer.setAvatar(avatarFile.getBytes());
+        } else {
+            lecturer.setAvatar(existingLecturer.getAvatar());
+        }
         updateLecturerFields(existingLecturer, lecturer);
         entityManager.merge(existingLecturer);
-
         String subject = "Your lecturer account information after being edited";
         emailServiceForLectureService.sendEmailToNotifyInformationAfterEditing(existingLecturer.getEmail(), subject, existingLecturer);
     }
@@ -241,7 +212,6 @@ public class LecturesDAOImpl implements LecturesDAO {
     public List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize) {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
-
         return entityManager.createQuery(
                         "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor", MajorLecturers.class)
                 .setParameter("staffmajor", majors)

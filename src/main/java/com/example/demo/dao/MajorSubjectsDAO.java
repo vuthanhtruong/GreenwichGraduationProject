@@ -3,6 +3,7 @@ package com.example.demo.dao;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface MajorSubjectsDAO {
@@ -15,4 +16,6 @@ public interface MajorSubjectsDAO {
     List<MajorSubjects> getSubjects();
     MajorSubjects updateSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
+    String generateUniqueSubjectId(String majorId, LocalDate createdDate);
+    List<String> validateSubject(MajorSubjects subject, String excludeId);
 }

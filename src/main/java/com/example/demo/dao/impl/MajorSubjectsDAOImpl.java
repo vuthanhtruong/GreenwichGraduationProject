@@ -12,6 +12,9 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -95,12 +98,11 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             return List.of();
         }
         return entityManager.createQuery(
-                        "SELECT s FROM MajorSubjects s WHERE s.major = :major and s.acceptor.id IS NOT null ORDER BY s.semester ASC",
+                        "SELECT s FROM MajorSubjects s WHERE s.major = :major AND s.acceptor.id IS NOT NULL ORDER BY s.semester ASC",
                         MajorSubjects.class)
                 .setParameter("major", major)
                 .getResultList();
     }
-
 
     @Override
     public List<MajorSubjects> getSubjects() {
@@ -118,8 +120,9 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             throw new IllegalArgumentException("Subject with ID " + id + " not found");
         }
 
-        if (subject.getSubjectName() == null) {
-            throw new IllegalArgumentException("Subject name cannot be null");
+        List<String> errors = validateSubject(subject, id);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("; ", errors));
         }
 
         existingSubject.setSubjectName(subject.getSubjectName());
@@ -139,5 +142,65 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             classesService.SetNullWhenDeletingSubject(subject);
             entityManager.remove(subject);
         }
+    }
+
+    @Override
+    public String generateUniqueSubjectId(String majorId, LocalDate createdDate) {
+        String prefix;
+        switch (majorId) {
+            case "major001":
+                prefix = "SUBGBH";
+                break;
+            case "major002":
+                prefix = "SUBGCH";
+                break;
+            case "major003":
+                prefix = "SUBGDH";
+                break;
+            case "major004":
+                prefix = "SUBGKH";
+                break;
+            default:
+                prefix = "SUBGEN";
+                break;
+        }
+
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+
+        String subjectId;
+        SecureRandom random = new SecureRandom();
+        do {
+            String randomDigit = String.valueOf(random.nextInt(10));
+            subjectId = prefix + year + date + randomDigit;
+        } while (getSubjectById(subjectId) != null);
+        return subjectId;
+    }
+
+    @Override
+    public List<String> validateSubject(MajorSubjects subject, String excludeId) {
+        List<String> errors = new ArrayList<>();
+
+        if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
+            errors.add("Subject name cannot be blank.");
+        } else if (!isValidName(subject.getSubjectName())) {
+            errors.add("Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        MajorSubjects existingSubjectByName = getSubjectByName(subject.getSubjectName());
+        if (subject.getSubjectName() != null && existingSubjectByName != null &&
+                (excludeId == null || !existingSubjectByName.getSubjectId().equals(excludeId))) {
+            errors.add("Subject name is already in use.");
+        }
+
+        return errors;
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
+        return name.matches(nameRegex);
     }
 }

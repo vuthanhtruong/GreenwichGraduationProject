@@ -13,7 +13,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -61,8 +64,9 @@ public class RoomsDAOImpl implements RoomsDAO {
             throw new IllegalArgumentException("Offline room with ID " + id + " not found");
         }
 
-        if (room.getRoomName() == null) {
-            throw new IllegalArgumentException("Room name cannot be null");
+        List<String> errors = validateOfflineRoom(room, room.getAddress(), id);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("; ", errors));
         }
 
         existingRoom.setRoomName(room.getRoomName());
@@ -84,8 +88,9 @@ public class RoomsDAOImpl implements RoomsDAO {
             throw new IllegalArgumentException("Online room with ID " + id + " not found");
         }
 
-        if (room.getRoomName() == null) {
-            throw new IllegalArgumentException("Room name cannot be null");
+        List<String> errors = validateOnlineRoom(room, room.getLink(), id);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join("; ", errors));
         }
 
         existingRoom.setRoomName(room.getRoomName());
@@ -186,7 +191,10 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public void addOnlineRoom(OnlineRooms room) {
-       Staffs staff=staffsService.getStaff();
+        Staffs staff = staffsService.getStaff();
+        if (staff == null) {
+            throw new IllegalArgumentException("Authenticated staff not found");
+        }
         room.setCreator(staff);
         room.setCreatedAt(LocalDateTime.now());
         if (room.getLink() == null || room.getLink().isEmpty()) {
@@ -197,7 +205,10 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public void addOfflineRoom(OfflineRooms room) {
-        Staffs staff=staffsService.getStaff();
+        Staffs staff = staffsService.getStaff();
+        if (staff == null) {
+            throw new IllegalArgumentException("Authenticated staff not found");
+        }
         room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);
         room.setCreator(staff);
         room.setCreatedAt(LocalDateTime.now());
@@ -245,5 +256,82 @@ public class RoomsDAOImpl implements RoomsDAO {
     @Override
     public long totalOnlineRooms() {
         return (Long) entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r").getSingleResult();
+    }
+
+    @Override
+    public String generateUniqueRoomId(boolean isOffline) {
+        SecureRandom random = new SecureRandom();
+        LocalDate currentDate = LocalDate.now();
+        String datePart = currentDate.format(DateTimeFormatter.ofPattern("yMMdd"));
+        String prefix = isOffline ? "GWOFF" : "GWONL";
+
+        String roomId;
+        do {
+            String randomDigits = String.format("%02d", random.nextInt(100));
+            roomId = prefix + datePart + randomDigits;
+        } while (existsOnlineRoomsById(roomId) || existsOfflineRoomsById(roomId));
+        return roomId;
+    }
+
+    @Override
+    public List<String> validateOfflineRoom(OfflineRooms formRoom, String address, String excludeId) {
+        List<String> errors = new ArrayList<>();
+
+        if (formRoom.getRoomName() == null || formRoom.getRoomName().trim().isEmpty()) {
+            errors.add("Room name cannot be blank.");
+        } else if (!isValidName(formRoom.getRoomName())) {
+            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        Rooms existingRoomByName = getByName(formRoom.getRoomName());
+        if (formRoom.getRoomName() != null && existingRoomByName != null &&
+                (excludeId == null || !existingRoomByName.getRoomId().equals(excludeId))) {
+            errors.add("Room name is already in use.");
+        }
+
+        if (address != null && !address.isEmpty() && !isValidAddress(address)) {
+            errors.add("Invalid address format.");
+        }
+
+        return errors;
+    }
+
+    @Override
+    public List<String> validateOnlineRoom(OnlineRooms formRoom, String link, String excludeId) {
+        List<String> errors = new ArrayList<>();
+
+        if (formRoom.getRoomName() == null || formRoom.getRoomName().trim().isEmpty()) {
+            errors.add("Room name cannot be blank.");
+        } else if (!isValidName(formRoom.getRoomName())) {
+            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+        }
+
+        Rooms existingRoomByName = getByName(formRoom.getRoomName());
+        if (formRoom.getRoomName() != null && existingRoomByName != null &&
+                (excludeId == null || !existingRoomByName.getRoomId().equals(excludeId))) {
+            errors.add("Room name is already in use.");
+        }
+
+        if (link != null && !link.isEmpty() && !isValidLink(link)) {
+            errors.add("Invalid meeting link format. Must be a valid URL.");
+        }
+
+        return errors;
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
+        return name.matches(nameRegex);
+    }
+
+    private boolean isValidLink(String link) {
+        return link != null && link.matches("^https?://[\\w\\-\\.]+\\.[a-zA-Z]{2,}(/.*)?$");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address != null && address.matches("^[\\p{L}0-9][\\p{L}0-9 ,\\-./]{0,99}$");
     }
 }
