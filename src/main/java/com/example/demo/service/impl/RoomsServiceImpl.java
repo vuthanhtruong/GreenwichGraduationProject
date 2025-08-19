@@ -13,18 +13,18 @@ import java.util.List;
 @Service
 public class RoomsServiceImpl implements RoomsService {
     @Override
+    public List<String> validateOnlineRoom(OnlineRooms room, String link) {
+        return roomsDAO.validateOnlineRoom(room, link);
+    }
+
+    @Override
+    public List<String> validateOfflineRoom(OfflineRooms room, String address) {
+        return roomsDAO.validateOfflineRoom(room, address);
+    }
+
+    @Override
     public String generateUniqueRoomId(boolean isOffline) {
         return roomsDAO.generateUniqueRoomId(isOffline);
-    }
-
-    @Override
-    public List<String> validateOfflineRoom(OfflineRooms formRoom, String address, String excludeId) {
-        return roomsDAO.validateOfflineRoom(formRoom, address, excludeId);
-    }
-
-    @Override
-    public List<String> validateOnlineRoom(OnlineRooms formRoom, String link, String excludeId) {
-        return roomsDAO.validateOnlineRoom(formRoom, link, excludeId);
     }
 
     @Override

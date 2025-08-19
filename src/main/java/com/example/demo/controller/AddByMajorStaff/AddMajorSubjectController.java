@@ -1,5 +1,6 @@
 package com.example.demo.controller.AddByMajorStaff;
 
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.entity.MajorSubjects;
 import com.example.demo.service.StaffsService;
 import com.example.demo.service.MajorSubjectsService;
@@ -39,7 +40,7 @@ public class AddMajorSubjectController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject, null)); // Sao chép danh sách lỗi
+        List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject)); // Sao chép danh sách lỗi
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -47,6 +48,7 @@ public class AddMajorSubjectController {
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             return "SubjectsList";
         }
 
@@ -55,6 +57,7 @@ public class AddMajorSubjectController {
                 errors.add("Staff or major not found");
                 model.addAttribute("errors", errors);
                 model.addAttribute("subjects", subjectsService.subjectsByMajor(null));
+                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 return "SubjectsList";
             }
             newSubject.setCreator(staffsService.getStaff());
@@ -69,6 +72,7 @@ public class AddMajorSubjectController {
             errors.add("Failed to add subject: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             return "SubjectsList";
         }
     }

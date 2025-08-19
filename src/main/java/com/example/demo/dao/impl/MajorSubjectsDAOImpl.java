@@ -1,6 +1,7 @@
 package com.example.demo.dao.impl;
 
 import com.example.demo.dao.MajorSubjectsDAO;
+import com.example.demo.entity.AbstractClasses.Subjects;
 import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.entity.Majors;
 import com.example.demo.entity.MajorSubjects;
@@ -38,6 +39,19 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
+    public boolean existsBySubjectExcludingName(String SubjectName, String SubjectId) {
+        if (SubjectName == null || SubjectName.trim().isEmpty()) {
+            return false;
+        }
+        List<Subjects> Subjects = entityManager.createQuery(
+                        "SELECT s FROM Subjects s WHERE s.subjectName = :name AND s.subjectId != :SubjectId", Subjects.class)
+                .setParameter("name", SubjectName.trim())
+                .setParameter("SubjectId", SubjectId != null ? SubjectId : "")
+                .getResultList();
+        return !Subjects.isEmpty();
+    }
+
+    @Override
     public void addSubject(MajorSubjects subject) {
         if (subject == null) {
             throw new IllegalArgumentException("Subject object cannot be null");
@@ -45,7 +59,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         if (staffsService.getStaff() == null || staffsService.getStaffMajor() == null) {
             throw new IllegalArgumentException("Staff or major not found");
         }
-        List<String> errors = validateSubject(subject, null);
+        List<String> errors = validateSubject(subject);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
@@ -120,7 +134,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             throw new IllegalArgumentException("Subject with ID " + id + " not found");
         }
 
-        List<String> errors = validateSubject(subject, id);
+        List<String> errors = validateSubject(subject);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
@@ -178,7 +192,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
-    public List<String> validateSubject(MajorSubjects subject, String excludeId) {
+    public List<String> validateSubject(MajorSubjects subject) {
         List<String> errors = new ArrayList<>();
 
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
@@ -188,8 +202,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
 
         MajorSubjects existingSubjectByName = getSubjectByName(subject.getSubjectName());
-        if (subject.getSubjectName() != null && existingSubjectByName != null &&
-                (excludeId == null || !existingSubjectByName.getSubjectId().equals(excludeId))) {
+        if (subject.getSubjectName() != null && existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.add("Subject name is already in use.");
         }
 

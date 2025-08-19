@@ -88,7 +88,7 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> errors = roomsService.validateOfflineRoom(formRoom, address, formRoom.getRoomId());
+        List<String> errors = roomsService.validateOfflineRoom(formRoom, address);
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -133,7 +133,7 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> errors = roomsService.validateOnlineRoom(formRoom, link, formRoom.getRoomId());
+        List<String> errors = roomsService.validateOnlineRoom(formRoom, link);
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }

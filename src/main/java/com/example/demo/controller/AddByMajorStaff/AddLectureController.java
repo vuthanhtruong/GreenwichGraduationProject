@@ -49,7 +49,7 @@ public class AddLectureController {
             Model model,
             RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
-        errors.addAll(lecturesService.lectureValidation(lecture, avatarFile, null));
+        errors.addAll(lecturesService.lectureValidation(lecture, avatarFile));
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
         }

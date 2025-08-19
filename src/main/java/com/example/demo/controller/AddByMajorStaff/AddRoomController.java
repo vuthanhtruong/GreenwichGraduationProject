@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -46,7 +47,7 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        List<String> errors = roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress(), null);
+        List<String> errors = new ArrayList<>(roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress()));
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -62,7 +63,8 @@ public class AddRoomController {
             offlineRoom.setCreatedAt(LocalDateTime.now());
             Staffs creator = staffsService.getStaff();
             if (creator == null) {
-                model.addAttribute("errorMessage", "Authenticated staff not found.");
+                errors.add("Authenticated staff not found.");
+                model.addAttribute("editErrors", errors);
                 return "AddOfflineRoom";
             }
             offlineRoom.setCreator(creator);
@@ -71,7 +73,8 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error adding offline room: " + e.getMessage());
+            errors.add("Error adding offline room: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             return "AddOfflineRoom";
         }
     }
@@ -89,7 +92,7 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        List<String> errors = roomsService.validateOnlineRoom(onlineRoom, onlineRoom.getLink(), null);
+        List<String> errors = new ArrayList<>(roomsService.validateOnlineRoom(onlineRoom, onlineRoom.getLink()));
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }
@@ -105,7 +108,8 @@ public class AddRoomController {
             onlineRoom.setCreatedAt(LocalDateTime.now());
             Staffs creator = staffsService.getStaff();
             if (creator == null) {
-                model.addAttribute("errorMessage", "Authenticated staff not found.");
+                errors.add("Authenticated staff not found.");
+                model.addAttribute("editErrors", errors);
                 return "AddOnlineRoom";
             }
             onlineRoom.setCreator(creator);
@@ -114,7 +118,8 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error adding online room: " + e.getMessage());
+            errors.add("Error adding online room: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             return "AddOnlineRoom";
         }
     }

@@ -55,7 +55,7 @@ public class UpdateMajorSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
 
-        List<String> errors = new ArrayList<>(subjectsService.validateSubject(formSubject, id)); // Sao chép danh sách lỗi
+        List<String> errors = new ArrayList<>(subjectsService.validateSubject(formSubject)); // Sao chép danh sách lỗi
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
         }

@@ -91,7 +91,7 @@ public class LecturesDAOImpl implements LecturesDAO {
     }
 
     @Override
-    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile, String excludeId) {
+    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
         List<String> errors = new ArrayList<>();
         if (!isValidName(lecturer.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
@@ -108,10 +108,10 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
-        if (lecturer.getEmail() != null && (excludeId == null ? personsService.existsByEmail(lecturer.getEmail()) : personsService.existsByEmailExcludingId(lecturer.getEmail(), excludeId))) {
+        if (lecturer.getEmail() != null && personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
             errors.add("The email address is already associated with another account.");
         }
-        if (lecturer.getPhoneNumber() != null && (excludeId == null ? personsService.existsByPhoneNumber(lecturer.getPhoneNumber()) : personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), excludeId))) {
+        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(),lecturer.getId())) {
             errors.add("The phone number is already associated with another account.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {

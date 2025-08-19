@@ -13,13 +13,18 @@ import java.util.List;
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
+    public boolean existsBySubjectExcludingName(String SubjectName, String SubjectId) {
+        return subjectsDAO.existsBySubjectExcludingName(SubjectName, SubjectId);
+    }
+
+    @Override
     public String generateUniqueSubjectId(String majorId, LocalDate createdDate) {
         return subjectsDAO.generateUniqueSubjectId(majorId, createdDate);
     }
 
     @Override
-    public List<String> validateSubject(MajorSubjects subject, String excludeId) {
-        return List.of();
+    public List<String> validateSubject(MajorSubjects subject) {
+        return subjectsDAO.validateSubject(subject);
     }
 
     @Override

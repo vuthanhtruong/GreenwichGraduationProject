@@ -53,7 +53,7 @@ public class UpdateLectureController {
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             RedirectAttributes redirectAttributes,
             ModelMap modelMap) {
-        List<String> errors = lecturesService.lectureValidation(lecture, avatarFile, lecture.getId());
+        List<String> errors = lecturesService.lectureValidation(lecture, avatarFile);
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
         }

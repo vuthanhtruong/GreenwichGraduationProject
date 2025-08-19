@@ -18,7 +18,6 @@ public class PersonServiceImpl implements PersonsService {
         this.personsDAO = personsDAO;
     }
 
-
     @Override
     public boolean existsByEmail(String email) {
         return personsDAO.existsByEmail(email);

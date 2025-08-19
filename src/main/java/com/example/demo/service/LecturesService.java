@@ -12,7 +12,7 @@ public interface LecturesService {
 
     String generateUniqueLectureId(String majorId, LocalDate createdDate);
 
-    List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile, String excludeId);
+    List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile);
 
     List<MajorLecturers> getLecturers();
 

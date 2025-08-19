@@ -14,8 +14,8 @@ import java.util.List;
 @Service
 public class LecturesServiceImpl implements LecturesService {
     @Override
-    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile, String excludeId) {
-        return lecturesDAO.lectureValidation(lecturer, avatarFile, excludeId);
+    public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
+        return lecturesDAO.lectureValidation(lecturer, avatarFile);
     }
 
     @Override

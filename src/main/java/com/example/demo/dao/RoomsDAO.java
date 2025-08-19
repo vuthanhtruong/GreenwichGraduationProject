@@ -30,6 +30,7 @@ public interface RoomsDAO {
     long totalOfflineRooms();
     long totalOnlineRooms();
     String generateUniqueRoomId(boolean isOffline);
-    List<String> validateOfflineRoom(OfflineRooms formRoom, String address, String excludeId);
-    List<String> validateOnlineRoom(OnlineRooms formRoom, String link, String excludeId);
+    boolean existsByRoomExcludingName(String roomName, String excludeId);
+    List<String> validateOnlineRoom(OnlineRooms room, String link);
+    List<String> validateOfflineRoom(OfflineRooms room, String address);
 }

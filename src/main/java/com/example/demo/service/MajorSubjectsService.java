@@ -17,5 +17,6 @@ public interface MajorSubjectsService {
     MajorSubjects updateSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
     String generateUniqueSubjectId(String majorId, LocalDate createdDate);
-    List<String> validateSubject(MajorSubjects subject, String excludeId);
+    List<String> validateSubject(MajorSubjects subject);
+    boolean existsBySubjectExcludingName(String SubjectName, String SubjectId);
 }

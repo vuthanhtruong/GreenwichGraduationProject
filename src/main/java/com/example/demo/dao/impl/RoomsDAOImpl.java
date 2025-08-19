@@ -23,7 +23,6 @@ import java.util.List;
 @Transactional
 @PreAuthorize("hasRole('STAFF')")
 public class RoomsDAOImpl implements RoomsDAO {
-
     private final StaffsService staffsService;
 
     @PersistenceContext
@@ -54,21 +53,21 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
+    public boolean existsByRoomExcludingName(String roomName, String roomId) {
+        if (roomName == null || roomName.trim().isEmpty()) {
+            return false;
+        }
+        List<Rooms> rooms = entityManager.createQuery(
+                        "SELECT s FROM Rooms s WHERE s.roomName = :name AND s.roomId != :roomId", Rooms.class)
+                .setParameter("name", roomName.trim())
+                .setParameter("roomId", roomId != null ? roomId : "")
+                .getResultList();
+        return !rooms.isEmpty();
+    }
+
+    @Override
     public Rooms updateOfflineRoom(String id, OfflineRooms room) {
-        if (room == null || id == null) {
-            throw new IllegalArgumentException("Room object or ID cannot be null");
-        }
-
         Rooms existingRoom = entityManager.find(Rooms.class, id);
-        if (existingRoom == null || !(existingRoom instanceof OfflineRooms)) {
-            throw new IllegalArgumentException("Offline room with ID " + id + " not found");
-        }
-
-        List<String> errors = validateOfflineRoom(room, room.getAddress(), id);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
-        }
-
         existingRoom.setRoomName(room.getRoomName());
         if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
         if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
@@ -79,20 +78,8 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public Rooms updateOnlineRoom(String id, OnlineRooms room) {
-        if (room == null || id == null) {
-            throw new IllegalArgumentException("Room object or ID cannot be null");
-        }
-
         Rooms existingRoom = entityManager.find(Rooms.class, id);
-        if (existingRoom == null || !(existingRoom instanceof OnlineRooms)) {
-            throw new IllegalArgumentException("Online room with ID " + id + " not found");
-        }
-
-        List<String> errors = validateOnlineRoom(room, room.getLink(), id);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
-        }
-
+        List<String> errors = validateOnlineRoom(room, room.getLink());
         existingRoom.setRoomName(room.getRoomName());
         if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
         if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
@@ -274,18 +261,16 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public List<String> validateOfflineRoom(OfflineRooms formRoom, String address, String excludeId) {
+    public List<String> validateOfflineRoom(OfflineRooms room, String address) {
         List<String> errors = new ArrayList<>();
 
-        if (formRoom.getRoomName() == null || formRoom.getRoomName().trim().isEmpty()) {
+        if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
             errors.add("Room name cannot be blank.");
-        } else if (!isValidName(formRoom.getRoomName())) {
+        } else if (!isValidName(room.getRoomName())) {
             errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
 
-        Rooms existingRoomByName = getByName(formRoom.getRoomName());
-        if (formRoom.getRoomName() != null && existingRoomByName != null &&
-                (excludeId == null || !existingRoomByName.getRoomId().equals(excludeId))) {
+        if (room.getRoomName() != null && existsByRoomExcludingName(room.getRoomName(), room.getRoomId())) {
             errors.add("Room name is already in use.");
         }
 
@@ -297,18 +282,16 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public List<String> validateOnlineRoom(OnlineRooms formRoom, String link, String excludeId) {
+    public List<String> validateOnlineRoom(OnlineRooms room, String link) {
         List<String> errors = new ArrayList<>();
 
-        if (formRoom.getRoomName() == null || formRoom.getRoomName().trim().isEmpty()) {
+        if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
             errors.add("Room name cannot be blank.");
-        } else if (!isValidName(formRoom.getRoomName())) {
+        } else if (!isValidName(room.getRoomName())) {
             errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
 
-        Rooms existingRoomByName = getByName(formRoom.getRoomName());
-        if (formRoom.getRoomName() != null && existingRoomByName != null &&
-                (excludeId == null || !existingRoomByName.getRoomId().equals(excludeId))) {
+        if (room.getRoomName() != null && existsByRoomExcludingName(room.getRoomName(), room.getRoomId())) {
             errors.add("Room name is already in use.");
         }
 
