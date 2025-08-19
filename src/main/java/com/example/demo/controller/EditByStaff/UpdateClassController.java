@@ -52,7 +52,7 @@ public class UpdateClassController {
             return "redirect:/staff-home/classes-list";
         }
 
-        model.addAttribute("class", editClass);
+        model.addAttribute("editErrors", editClass);
         model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
         model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         return "EditFormClass";

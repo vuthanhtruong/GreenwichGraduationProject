@@ -82,7 +82,9 @@ public class UpdateStudentController {
 
         List<String> errors = new ArrayList<>();
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
-
+        if(student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2)){
+            errors.add("Student and parent emails cannot be duplicated.");
+        }
         // Validate parent inputs only if any field is provided
         boolean isParent1Provided = isAnyFieldProvided(parentEmail1, supportPhoneNumber1, parentRelationship1);
         if (isParent1Provided) {
