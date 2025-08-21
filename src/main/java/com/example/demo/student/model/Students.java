@@ -5,7 +5,7 @@ import com.example.demo.entity.Campuses;
 import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.major.model.Majors;
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

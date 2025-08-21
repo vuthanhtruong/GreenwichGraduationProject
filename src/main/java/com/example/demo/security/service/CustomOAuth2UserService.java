@@ -1,4 +1,4 @@
-package com.example.demo.security;
+package com.example.demo.security.service;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;

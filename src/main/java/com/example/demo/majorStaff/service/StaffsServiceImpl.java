@@ -1,9 +1,9 @@
-package com.example.demo.majorstaff.service;
+package com.example.demo.majorStaff.service;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.majorstaff.dao.StaffsDAO;
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.dao.StaffsDAO;
+import com.example.demo.majorStaff.model.Staffs;
 
 import org.springframework.stereotype.Service;
 

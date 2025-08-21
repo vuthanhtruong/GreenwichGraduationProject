@@ -3,7 +3,7 @@ package com.example.demo.classes.dao;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

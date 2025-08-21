@@ -4,7 +4,7 @@ import com.example.demo.syllabus.model.Syllabuses;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.syllabus.service.SyllabusesService;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

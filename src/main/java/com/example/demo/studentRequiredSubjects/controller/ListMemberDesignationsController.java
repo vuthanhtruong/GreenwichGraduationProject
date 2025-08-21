@@ -5,7 +5,7 @@ import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
 import com.example.demo.subject.service.MajorSubjectsService;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;

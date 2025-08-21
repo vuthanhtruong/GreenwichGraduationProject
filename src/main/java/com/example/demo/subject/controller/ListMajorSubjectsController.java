@@ -2,7 +2,7 @@ package com.example.demo.subject.controller;
 
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

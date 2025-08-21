@@ -6,7 +6,7 @@ import com.example.demo.entity.LecturersClassesId; // Corrected from MajorLectur
 import com.example.demo.lecturer_class.model.MajorLecturers_MajorClasses;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.person.service.PersonsService;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

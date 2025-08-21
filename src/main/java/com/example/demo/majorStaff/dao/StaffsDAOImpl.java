@@ -1,9 +1,9 @@
-package com.example.demo.majorstaff.dao;
+package com.example.demo.majorStaff.dao;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.majorstaff.model.Staffs;
-import com.example.demo.security.CustomUserPrincipal;
+import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.person.service.PersonsService;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;

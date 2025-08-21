@@ -1,6 +1,6 @@
 package com.example.demo.room.model;
 
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,9 +1,10 @@
-package com.example.demo.security;
+package com.example.demo.security.service;
 
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.student.model.Students;
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import jakarta.persistence.EntityManager;

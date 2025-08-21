@@ -1,4 +1,4 @@
-package com.example.demo.majorstaff.model;
+package com.example.demo.majorStaff.model;
 
 import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.entity.Admins;

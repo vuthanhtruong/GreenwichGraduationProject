@@ -2,12 +2,12 @@ package com.example.demo.config;
 
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.student.model.Students;
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
-import com.example.demo.security.CustomUserDetailsService;
-import com.example.demo.security.CustomOAuth2UserService;
-import com.example.demo.security.CustomUserPrincipal;
+import com.example.demo.security.service.CustomUserDetailsService;
+import com.example.demo.security.service.CustomOAuth2UserService;
+import com.example.demo.security.model.CustomUserPrincipal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

@@ -1,5 +1,5 @@
-package com.example.demo.majorstaff.controller;
-import com.example.demo.majorstaff.service.StaffsService;
+package com.example.demo.majorStaff.controller;
+import com.example.demo.majorStaff.service.StaffsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

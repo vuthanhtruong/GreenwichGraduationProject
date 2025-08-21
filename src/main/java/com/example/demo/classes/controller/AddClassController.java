@@ -2,7 +2,7 @@ package com.example.demo.classes.controller;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.classes.service.ClassesService;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

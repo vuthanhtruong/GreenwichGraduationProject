@@ -1,7 +1,7 @@
 package com.example.demo.subject.model;
 
 import com.example.demo.major.model.Majors;
-import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.majorStaff.model.Staffs;
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import jakarta.persistence.*;
 import lombok.Getter;

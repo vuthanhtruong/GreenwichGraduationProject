@@ -5,7 +5,7 @@ import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.person.service.PersonsService;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import jakarta.persistence.EntityManager;

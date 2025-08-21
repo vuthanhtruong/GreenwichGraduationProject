@@ -2,7 +2,7 @@ package com.example.demo.news.controller;
 
 import com.example.demo.news.model.News;
 import com.example.demo.document.model.Documents;
-import com.example.demo.majorstaff.service.StaffsService;
+import com.example.demo.majorStaff.service.StaffsService;
 import com.example.demo.news.service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
