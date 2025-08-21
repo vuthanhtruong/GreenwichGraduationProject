@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 public abstract class Lecturers_Classes {
 
     @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "lecturerId", column = @Column(name = "LecturerID", nullable = false)),
+            @AttributeOverride(name = "classId",    column = @Column(name = "ClassID",    nullable = false))
+    })
     private LecturersClassesId id;
 
     @ManyToOne(fetch = FetchType.LAZY)

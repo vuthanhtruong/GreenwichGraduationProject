@@ -13,11 +13,15 @@ import java.time.LocalDateTime;
 @Table(name = "MinorLecturers_MinorClasses")
 @Getter
 @Setter
+@PrimaryKeyJoinColumns({
+        @PrimaryKeyJoinColumn(name = "LecturerID", referencedColumnName = "LecturerID"),
+        @PrimaryKeyJoinColumn(name = "ClassID",    referencedColumnName = "ClassID")
+})
 public class MinorLecturers_MinorClasses extends Lecturers_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("lecturerId")
-    @JoinColumn(name = "MinorLecturerID")
+    @JoinColumn(name = "LecturerID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorLecturers minorLecturer;
 

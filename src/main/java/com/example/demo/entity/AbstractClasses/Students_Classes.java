@@ -16,9 +16,14 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
+
 public abstract class Students_Classes {
 
     @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "studentId", column = @Column(name = "StudentID", nullable = false)),
+            @AttributeOverride(name = "classId",   column = @Column(name = "ClassID",   nullable = false))
+    })
     private StudentsClassesId id;
 
     @ManyToOne(fetch = FetchType.LAZY)

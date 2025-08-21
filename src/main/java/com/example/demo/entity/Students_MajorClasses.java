@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 @Table(name = "Students_MajorClasses")
 @Getter
 @Setter
+@PrimaryKeyJoinColumns({
+        @PrimaryKeyJoinColumn(name = "StudentID", referencedColumnName = "StudentID"),
+        @PrimaryKeyJoinColumn(name = "ClassID",   referencedColumnName = "ClassID")
+})
 public class Students_MajorClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)

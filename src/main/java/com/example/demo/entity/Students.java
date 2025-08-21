@@ -19,8 +19,6 @@ import java.time.LocalDate;
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
 public class Students extends Persons {
-    @Column(name = "Password", nullable = true, length = 255)
-    private String password;
 
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
