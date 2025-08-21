@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "AcademicTranscripts")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "transcript_type", discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 public abstract class AcademicTranscripts {
