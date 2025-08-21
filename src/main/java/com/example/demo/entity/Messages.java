@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;

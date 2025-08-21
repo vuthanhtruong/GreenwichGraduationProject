@@ -2,6 +2,10 @@ package com.example.demo.entity;
 
 import com.example.demo.entity.AbstractClasses.AcademicTranscripts;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.student.model.Students;
+import com.example.demo.subject.model.MajorSubjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

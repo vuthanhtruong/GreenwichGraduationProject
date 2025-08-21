@@ -1,9 +1,9 @@
 package com.example.demo.config;
 
-import com.example.demo.entity.MajorLecturers;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Staffs;
-import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.student.model.Students;
+import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.security.CustomUserDetailsService;
 import com.example.demo.security.CustomOAuth2UserService;

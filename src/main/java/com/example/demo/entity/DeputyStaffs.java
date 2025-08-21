@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.MinorEmployes;
+import com.example.demo.employe.model.MinorEmployes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

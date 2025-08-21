@@ -1,0 +1,12 @@
+package com.example.demo.studentRequiredSubjects.service;
+
+import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
+import com.example.demo.student.model.Students;
+
+import java.util.List;
+
+public interface StudentRequiredSubjectsService {
+    List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
+    List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects);
+}

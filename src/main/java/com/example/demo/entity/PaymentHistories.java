@@ -1,7 +1,9 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.Subjects;
+import com.example.demo.accountBalance.model.AccountBalances;
+import com.example.demo.subject.model.Subjects;
 import com.example.demo.entity.Enums.Status;
+import com.example.demo.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

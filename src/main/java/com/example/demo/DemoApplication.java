@@ -1,7 +1,10 @@
 package com.example.demo;
 
+import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.Gender;
+import com.example.demo.major.model.Majors;
+import com.example.demo.majorstaff.model.Staffs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;

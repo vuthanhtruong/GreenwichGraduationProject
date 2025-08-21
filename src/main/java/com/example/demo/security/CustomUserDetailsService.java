@@ -1,10 +1,10 @@
 package com.example.demo.security;
 
-import com.example.demo.entity.Authenticators;
-import com.example.demo.entity.MajorLecturers;
-import com.example.demo.entity.Students;
-import com.example.demo.entity.Staffs;
-import com.example.demo.entity.AbstractClasses.Persons;
+import com.example.demo.authenticator.model.Authenticators;
+import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.student.model.Students;
+import com.example.demo.majorstaff.model.Staffs;
+import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

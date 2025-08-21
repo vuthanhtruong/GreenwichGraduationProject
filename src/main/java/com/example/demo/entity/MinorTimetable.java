@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.Rooms;
+import com.example.demo.classes.model.MinorClasses;
+import com.example.demo.room.model.Rooms;
 import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import jakarta.persistence.*;

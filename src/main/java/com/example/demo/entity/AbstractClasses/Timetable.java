@@ -2,6 +2,7 @@ package com.example.demo.entity.AbstractClasses;
 
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.entity.Slots;
+import com.example.demo.room.model.Rooms;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

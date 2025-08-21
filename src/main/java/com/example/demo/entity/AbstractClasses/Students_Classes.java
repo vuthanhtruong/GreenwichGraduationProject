@@ -1,7 +1,8 @@
 package com.example.demo.entity.AbstractClasses;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.entity.Students;
+import com.example.demo.student.model.Students;
 import com.example.demo.entity.StudentsClassesId;
 import jakarta.persistence.*;
 import lombok.Getter;

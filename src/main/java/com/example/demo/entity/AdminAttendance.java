@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.entity.AbstractClasses.Attendance;
 import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.AttendanceStatus;
+import com.example.demo.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
