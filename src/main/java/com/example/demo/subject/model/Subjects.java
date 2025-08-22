@@ -1,6 +1,6 @@
 package com.example.demo.subject.model;
 
-import com.example.demo.entity.Admins;
+import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.SubjectTypes;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,5 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.TuitionByYear.model;
 
+import com.example.demo.admin.model.Admins;
+import com.example.demo.entity.TuitionByYearId;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;

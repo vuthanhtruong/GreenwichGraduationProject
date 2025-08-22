@@ -49,7 +49,7 @@ public class AddMajorSubjectController {
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-            return "SubjectsList";
+            return "MajorSubjectsList";
         }
 
         try {
@@ -58,7 +58,7 @@ public class AddMajorSubjectController {
                 model.addAttribute("errors", errors);
                 model.addAttribute("subjects", subjectsService.subjectsByMajor(null));
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-                return "SubjectsList";
+                return "MajorSubjectsList";
             }
             newSubject.setCreator(staffsService.getStaff());
             newSubject.setMajor(staffsService.getStaffMajor());
@@ -73,7 +73,7 @@ public class AddMajorSubjectController {
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-            return "SubjectsList";
+            return "MajorSubjectsList";
         }
     }
 }

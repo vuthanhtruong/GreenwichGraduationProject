@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.admin.model.Admins;
 import com.example.demo.employe.model.MinorEmployes;
 import jakarta.persistence.*;
 import lombok.Getter;

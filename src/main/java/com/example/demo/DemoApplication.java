@@ -1,10 +1,12 @@
 package com.example.demo;
 
+import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.Gender;
 import com.example.demo.major.model.Majors;
 import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.person.model.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
@@ -58,7 +60,7 @@ public class DemoApplication {
         }
 
         try {
-            // Add default staff accounts
+            // Add default staff and admin accounts
             entityManager.getTransaction().begin();
             addDefaultStaffs(entityManager, passwordEncoder);
             entityManager.getTransaction().commit();
@@ -66,7 +68,7 @@ public class DemoApplication {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
-            System.err.println("Failed to add default staffs: " + e.getMessage());
+            System.err.println("Failed to add default staffs or admin: " + e.getMessage());
             e.printStackTrace();
         } finally {
             // Close EntityManager
@@ -166,9 +168,9 @@ public class DemoApplication {
         }
     }
 
-    // Add default staff accounts to the database if they don't exist
+    // Add default staff and admin accounts to the database if they don't exist
     private static void addDefaultStaffs(EntityManager entityManager, PasswordEncoder passwordEncoder) {
-        List<Staffs> staffsToAdd = new ArrayList<>();
+        List<Persons> personsToAdd = new ArrayList<>();
 
         // Retrieve Majors from the database with error handling
         Majors businessAdministration = null;
@@ -187,6 +189,7 @@ public class DemoApplication {
             return; // Exit if majors are not found
         }
 
+        // Add default staff accounts
         Staffs staff1 = new Staffs();
         staff1.setId("vuthanhtruong");
         staff1.setFirstName("John");
@@ -223,27 +226,44 @@ public class DemoApplication {
         staff2.setCreatedDate(LocalDate.now());
         staff2.setMajorManagement(informationTechnology);
 
-        staffsToAdd.addAll(List.of(staff1, staff2));
+        // Add default admin account
+        Admins admin = new Admins();
+        admin.setId("Admin");
+        admin.setFirstName("Admin");
+        admin.setLastName("User");
+        admin.setEmail("admin@example.com");
+        admin.setPhoneNumber("0390000000");
+        admin.setBirthDate(LocalDate.of(1980, 1, 1));
+        admin.setGender(Gender.OTHER);
+        admin.setCountry("Vietnam");
+        admin.setProvince("Hanoi");
+        admin.setCity("Hanoi");
+        admin.setDistrict("Ba Dinh");
+        admin.setWard("Ngoc Ha");
+        admin.setStreet("10 Ngoc Ha");
+        admin.setPostalCode("100000");
 
-        for (Staffs staff : staffsToAdd) {
+        personsToAdd.addAll(List.of(staff1, staff2, admin));
+
+        for (Persons person : personsToAdd) {
             try {
-                Staffs existingStaff = entityManager.createQuery(
-                                "SELECT s FROM Staffs s WHERE s.id = :id", Staffs.class)
-                        .setParameter("id", staff.getId())
+                Persons existingPerson = entityManager.createQuery(
+                                "SELECT p FROM Persons p WHERE p.id = :id", Persons.class)
+                        .setParameter("id", person.getId())
                         .getSingleResult();
-                System.out.println("Staff already exists: " + staff.getId());
+                System.out.println("Person already exists: " + person.getId());
             } catch (NoResultException e) {
                 try {
-                    entityManager.persist(staff);
-                    // Create and save Authenticators entity for the staff
+                    entityManager.persist(person);
+                    // Create and save Authenticators entity for the person
                     Authenticators authenticators = new Authenticators();
-                    authenticators.setPersonId(staff.getId());
-                    authenticators.setPerson(staff);
-                    authenticators.setPassword("Anhnam123"); // Password will be encoded by Authenticators' setPassword
+                    authenticators.setPersonId(person.getId());
+                    authenticators.setPerson(person);
+                    authenticators.setPassword(person instanceof Admins ? "Admin123" : "Anhnam123");
                     entityManager.persist(authenticators);
-                    System.out.println("Added Staff: " + staff.getId());
+                    System.out.println("Added " + person.getRoleType() + ": " + person.getId());
                 } catch (Exception ex) {
-                    System.err.println("Failed to add staff " + staff.getId() + ": " + ex.getMessage());
+                    System.err.println("Failed to add person " + person.getId() + ": " + ex.getMessage());
                     throw ex; // Re-throw to trigger transaction rollback
                 }
             }

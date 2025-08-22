@@ -1,7 +1,7 @@
 package com.example.demo.majorStaff.model;
 
 import com.example.demo.employe.model.MajorEmployes;
-import com.example.demo.entity.Admins;
+import com.example.demo.admin.model.Admins;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

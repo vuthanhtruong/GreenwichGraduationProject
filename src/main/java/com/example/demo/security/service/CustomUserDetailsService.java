@@ -1,7 +1,9 @@
 package com.example.demo.security.service;
 
 import com.example.demo.authenticator.model.Authenticators;
+import com.example.demo.admin.model.Admins;
 import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.parentAccount.model.ParentAccounts;
 import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.student.model.Students;
 import com.example.demo.majorStaff.model.Staffs;
@@ -59,7 +61,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 role = "ROLE_LECTURER";
             } else if (person instanceof Students) {
                 role = "ROLE_STUDENT";
-            } else {
+            } else if (person instanceof Admins) {
+                role = "ROLE_ADMIN";
+            } else if (person instanceof ParentAccounts) {
+                role = "ROLE_PARENT";
+            }
+            else {
                 throw new IllegalStateException("Unknown person type: " + person.getClass());
             }
 

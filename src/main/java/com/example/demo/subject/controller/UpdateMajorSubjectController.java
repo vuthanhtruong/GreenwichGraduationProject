@@ -29,8 +29,8 @@ public class UpdateMajorSubjectController {
         this.staffsService = staffsService;
     }
 
-    @PostMapping("/major-subjects-list/edit-subject-form")
-    public String showEditSubjectForm(@RequestParam("id") String id, Model model, RedirectAttributes redirectAttributes) {
+    @PostMapping("/major-subjects-list/edit-major-subject-form")
+    public String showEditMajorSubjectForm(@RequestParam("id") String id, Model model, RedirectAttributes redirectAttributes) {
         MajorSubjects subject = subjectsService.getSubjectById(id);
         if (subject == null) {
             redirectAttributes.addFlashAttribute("message", "Subject not found.");
@@ -38,7 +38,7 @@ public class UpdateMajorSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
         model.addAttribute("subject", subject);
-        return "EditSubjectForm";
+        return "EditMajorSubjectForm";
     }
 
     @PutMapping("/major-subjects-list/edit-subject/{id}")
@@ -63,7 +63,7 @@ public class UpdateMajorSubjectController {
         if (!errors.isEmpty()) {
             model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
-            return "EditSubjectForm";
+            return "EditMajorSubjectForm";
         }
 
         try {
@@ -76,7 +76,7 @@ public class UpdateMajorSubjectController {
             errors.add("Error updating subject: " + e.getMessage());
             model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
-            return "EditSubjectForm";
+            return "EditMajorSubjectForm";
         }
 
         return "redirect:/staff-home/major-subjects-list";

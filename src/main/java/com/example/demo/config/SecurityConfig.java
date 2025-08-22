@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.admin.model.Admins;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.student.model.Students;
 import com.example.demo.majorStaff.model.Staffs;
@@ -99,6 +100,8 @@ public class SecurityConfig {
                 response.sendRedirect("/staff-home");
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
                 response.sendRedirect("/teacher-home");
+            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                response.sendRedirect("/admin-home");
             } else {
                 response.sendRedirect("/login?error=no_role");
             }
@@ -139,6 +142,8 @@ public class SecurityConfig {
                     role = "ROLE_LECTURER";
                 } else if (person instanceof Students) {
                     role = "ROLE_STUDENT";
+                } else if (person instanceof Admins) {
+                    role = "ROLE_ADMIN";
                 } else {
                     // Giữ mặc định
                 }
@@ -166,7 +171,11 @@ public class SecurityConfig {
                 response.sendRedirect("/teacher-home");
             } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
                 response.sendRedirect("/student-home");
-            } else {
+            }
+            else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                response.sendRedirect("/admin-home");
+            }
+            else {
                 response.sendRedirect("/login?error=no_role");
             }
         };
