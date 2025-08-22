@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SubjectsService {
     List<Subjects> getSubjects();
+    List<Subjects> getSubjectsByAdmissionYear(Integer admissionYear);
+    Subjects getSubjectById(String id);
 }

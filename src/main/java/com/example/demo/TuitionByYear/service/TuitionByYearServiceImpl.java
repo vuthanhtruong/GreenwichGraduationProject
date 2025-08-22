@@ -2,11 +2,27 @@ package com.example.demo.TuitionByYear.service;
 
 import com.example.demo.TuitionByYear.dao.TuitionByYearDAO;
 import com.example.demo.TuitionByYear.model.TuitionByYear;
+import com.example.demo.entity.TuitionByYearId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
+    @Override
+    public TuitionByYear findById(TuitionByYearId id) {
+        return tuitionByYearDAO.findById(id);
+    }
+
+    @Override
+    public void updateTuition(TuitionByYear tuition) {
+        tuitionByYearDAO.updateTuition(tuition);
+    }
+
+    @Override
+    public void createTuition(TuitionByYear tuition) {
+        tuitionByYearDAO.createTuition(tuition);
+    }
+
     @Override
     public List<TuitionByYear> getTuitionsByYear(Integer admissionYear) {
         return tuitionByYearDAO.getTuitionsByYear(admissionYear);

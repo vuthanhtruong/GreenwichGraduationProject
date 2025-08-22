@@ -30,6 +30,6 @@ public class ListMajorSubjectsController {
         model.addAttribute("newSubject", new MajorSubjects());
         model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
         model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-        return "SubjectsList";
+        return "MajorSubjectsList";
     }
 }

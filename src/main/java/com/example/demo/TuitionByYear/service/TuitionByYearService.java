@@ -1,6 +1,7 @@
 package com.example.demo.TuitionByYear.service;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
+import com.example.demo.entity.TuitionByYearId;
 
 import java.util.List;
 
@@ -9,4 +10,8 @@ public interface TuitionByYearService {
     List<Integer> findAllAdmissionYears();
     List<Integer> getAllAdmissionYears();
     List<TuitionByYear> getTuitionsByYear(Integer admissionYear);
+    TuitionByYear findById(TuitionByYearId id);
+    void updateTuition(TuitionByYear tuition);
+    void createTuition(TuitionByYear tuition);
+
 }
