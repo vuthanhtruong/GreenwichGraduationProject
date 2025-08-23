@@ -2,20 +2,17 @@ package com.example.demo.subject.controller;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
-import com.example.demo.entity.TuitionByYearId;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.subject.service.SubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
@@ -89,62 +86,5 @@ public class ListSubjectsController {
         model.addAttribute("tuitionFeeMap", tuitionFeeMap);
 
         return "AdminSubjectsList";
-    }
-
-    // Xử lý POST để lưu hoặc cập nhật học phí
-    @PostMapping("/update-tuition")
-    @Transactional
-    public String updateTuition(
-            @RequestParam("admissionYear") Integer admissionYear,
-            @RequestParam Map<String, String> allParams,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
-        try {
-            // Lưu admissionYear vào session
-            session.setAttribute("admissionYear", admissionYear);
-
-            // Lấy tất cả môn học để kiểm tra subjectId
-            List<Subjects> allSubjects = subjectService.getSubjects();
-
-            // Xử lý từng học phí được gửi từ form
-            for (Subjects subject : allSubjects) {
-                String tuitionKey = "tuitionFee_" + subject.getSubjectId();
-                String tuitionValue = allParams.get(tuitionKey);
-                if (tuitionValue != null && !tuitionValue.trim().isEmpty()) {
-                    try {
-                        Double tuition = Double.parseDouble(tuitionValue);
-                        if (tuition < 0) {
-                            redirectAttributes.addFlashAttribute("errorMessage", "Tuition fee for " + subject.getSubjectName() + " cannot be negative.");
-                            continue;
-                        }
-
-                        // Kiểm tra xem TuitionByYear đã tồn tại chưa
-                        TuitionByYearId tuitionId = new TuitionByYearId();
-                        tuitionId.setAdmissionYear(admissionYear);
-                        tuitionId.setSubjectId(subject.getSubjectId());
-                        TuitionByYear existingTuition = tuitionService.findById(tuitionId);
-
-                        if (existingTuition != null) {
-                            // Cập nhật học phí
-                            existingTuition.setTuition(tuition);
-                            tuitionService.updateTuition(existingTuition);
-                        } else {
-                            // Tạo mới TuitionByYear
-                            TuitionByYear tuitionByYear = new TuitionByYear();
-                            tuitionByYear.setId(tuitionId);
-                            tuitionByYear.setSubject(subject);
-                            tuitionByYear.setTuition(tuition);
-                            tuitionService.createTuition(tuitionByYear);
-                        }
-                    } catch (NumberFormatException e) {
-                        redirectAttributes.addFlashAttribute("errorMessage", "Invalid tuition fee format for " + subject.getSubjectName());
-                    }
-                }
-            }
-            redirectAttributes.addFlashAttribute("successMessage", "Tuition fees updated successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error updating tuition fees: " + e.getMessage());
-        }
-        return "redirect:/admin-home/subjects-list";
     }
 }

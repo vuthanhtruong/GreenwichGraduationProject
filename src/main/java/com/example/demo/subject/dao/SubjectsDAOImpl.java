@@ -1,5 +1,6 @@
 package com.example.demo.subject.dao;
 
+import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -26,9 +27,19 @@ public class SubjectsDAOImpl implements SubjectsDAO {
         return entityManager.createQuery("SELECT s FROM Subjects s", Subjects.class)
                 .getResultList()
                 .stream()
-                .sorted(Comparator.comparing(Subjects::getSemester, Comparator.nullsLast(Comparator.naturalOrder()))
+                .sorted(Comparator.comparing(
+                                this::getMajorName,
+                                Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Subjects::getSemester, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(Subjects::getSubjectId))
                 .collect(Collectors.toList());
+    }
+
+    private String getMajorName(Subjects subject) {
+        if (subject instanceof MajorSubjects majorSubject && majorSubject.getMajor() != null) {
+            return majorSubject.getMajor().getMajorName();
+        }
+        return null;
     }
 
     @Override
