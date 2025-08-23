@@ -1,8 +1,9 @@
 package com.example.demo.entity;
 
 import com.example.demo.classes.model.MajorClasses;
+import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.entity.AbstractClasses.ClassPosts;
-import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,25 +13,27 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "AssignmentSubmitSlots")
+@Table(name = "MajorClassPosts")
 @PrimaryKeyJoinColumn(name = "PostID")
 @Getter
 @Setter
-public class AssignmentSubmitSlots extends ClassPosts {
+public class MajorClassPosts extends ClassPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorLecturers creator;
+    private MajorEmployes creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses classEntity;
+    private MajorClasses majorClass;
 
-    @Column(name = "Content", nullable = true, length = 1000)
-    private String content;
+    public MajorClassPosts() {}
 
-    @Column(name = "Deadline", nullable = false)
-    private LocalDateTime deadline;
+    public MajorClassPosts(String postId, MajorEmployes creator, MajorClasses majorClass, Notifications notification, String content, LocalDateTime createdAt) {
+        super(postId, notification, content, createdAt);
+        this.creator = creator;
+        this.majorClass = majorClass;
+    }
 }

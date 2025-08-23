@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.person.model.Persons;
-import com.example.demo.entity.AbstractClasses.Posts;
+import com.example.demo.entity.AbstractClasses.PublicPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,12 +12,12 @@ import org.hibernate.annotations.OnDeleteAction;
 @PrimaryKeyJoinColumn(name = "PostID")
 @Getter
 @Setter
-public class Blogs extends Posts {
+public class Blogs extends PublicPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons creator;
+    private com.example.demo.person.model.Persons creator;
 
     @Column(name = "Content", nullable = true, length = 1000)
     private String content;

@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.PublicPosts;
-import com.example.demo.person.model.Persons;
+import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,10 +11,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Comments")
+@Table(name = "MajorComments")
 @Getter
 @Setter
-public class Comments {
+public class MajorComments {
 
     @Id
     @Column(name = "CommentID")
@@ -24,12 +23,12 @@ public class Comments {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons commenter;
+    private MajorEmployes commenter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private PublicPosts post;
+    private MajorClassPosts post;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Notification", nullable = true)
@@ -40,4 +39,15 @@ public class Comments {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    public MajorComments() {}
+
+    public MajorComments(String commentId, MajorEmployes commenter, MajorClassPosts post, Notifications notification, String content, LocalDateTime createdAt) {
+        this.commentId = commentId;
+        this.commenter = commenter;
+        this.post = post;
+        this.notification = notification;
+        this.content = content;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+    }
 }

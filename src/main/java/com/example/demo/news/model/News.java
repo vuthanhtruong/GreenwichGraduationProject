@@ -1,7 +1,7 @@
 package com.example.demo.news.model;
 
-import com.example.demo.entity.AbstractClasses.Posts;
 import com.example.demo.document.model.Documents;
+import com.example.demo.entity.AbstractClasses.PublicPosts;
 import com.example.demo.majorStaff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "PostID")
 @Getter
 @Setter
-public class News extends Posts {
+public class News extends PublicPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)

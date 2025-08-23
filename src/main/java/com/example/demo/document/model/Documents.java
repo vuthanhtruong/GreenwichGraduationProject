@@ -1,6 +1,5 @@
 package com.example.demo.document.model;
-
-import com.example.demo.entity.AbstractClasses.Posts;
+import com.example.demo.entity.AbstractClasses.PublicPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +19,7 @@ public class Documents {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Posts post;
+    private PublicPosts post;
 
     @Column(name = "DocumentTitle", nullable = true, length = 255)
     private String documentTitle;

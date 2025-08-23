@@ -1,18 +1,22 @@
 package com.example.demo.entity.AbstractClasses;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Posts")
+@Table(name = "ClassPosts")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public abstract class Posts {
+public abstract class ClassPosts {
 
     @Id
     @Column(name = "PostID")
@@ -22,18 +26,18 @@ public abstract class Posts {
     @Column(name = "Notification", nullable = true)
     private Notifications notification;
 
-    @Column(name = "Title", nullable = true, length = 255)
-    private String title;
+    @Column(name = "Content", nullable = true, length = 1000)
+    private String content;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    public Posts() {}
+    public ClassPosts() {}
 
-    public Posts(String postId, Notifications notification, String title, LocalDateTime createdAt) {
+    public ClassPosts(String postId, Notifications notification, String content, LocalDateTime createdAt) {
         this.postId = postId;
         this.notification = notification;
-        this.title = title;
+        this.content = content;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 }
