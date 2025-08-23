@@ -1,8 +1,9 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.AbstractClasses.Comments;
 import com.example.demo.entity.AbstractClasses.PublicPosts;
-import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,14 +13,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Comments")
+@Table(name = "PublicComments")
+@PrimaryKeyJoinColumn(name = "CommentID")
 @Getter
 @Setter
-public class Comments {
-
-    @Id
-    @Column(name = "CommentID")
-    private String commentId;
+public class PublicComments extends Comments {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false)
@@ -31,13 +29,11 @@ public class Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private PublicPosts post;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
-    private Notifications notification;
+    public PublicComments() {}
 
-    @Column(name = "Content", nullable = true, length = 1000)
-    private String content;
-
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
+    public PublicComments(String commentId, Persons commenter, PublicPosts post, Notifications notification, String content, LocalDateTime createdAt) {
+        super(commentId, notification, content, createdAt);
+        this.commenter = commenter;
+        this.post = post;
+    }
 }
