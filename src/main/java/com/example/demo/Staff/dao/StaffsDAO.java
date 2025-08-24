@@ -5,6 +5,7 @@ import com.example.demo.major.model.Majors;
 import com.example.demo.Staff.model.Staffs;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface StaffsDAO {
@@ -19,4 +20,6 @@ public interface StaffsDAO {
     void deleteStaff(String id);
     Staffs getStaffById(String id);
     long numberOfStaffs(); // Thêm phương thức này
+    String generateUniqueStaffId(String majorId, LocalDate createdDate);
+    String generateRandomPassword(int length);
 }

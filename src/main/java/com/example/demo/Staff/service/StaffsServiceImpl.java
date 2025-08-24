@@ -8,10 +8,21 @@ import com.example.demo.Staff.model.Staffs;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class StaffsServiceImpl implements StaffsService {
+    @Override
+    public String generateUniqueStaffId(String majorId, LocalDate createdDate) {
+        return staffsDAO.generateUniqueStaffId(majorId, createdDate);
+    }
+
+    @Override
+    public String generateRandomPassword(int length) {
+        return staffsDAO.generateRandomPassword(length);
+    }
+
     @Override
     public long numberOfStaffs() {
         return staffsDAO.numberOfStaffs();
