@@ -82,7 +82,7 @@ public class ClassesDAOImpl implements ClassesDAO {
     }
 
     @Override
-    public MajorClasses updateClass(String id, MajorClasses classObj) {
+    public MajorClasses editClass(String id, MajorClasses classObj) {
         if (classObj == null || id == null) {
             throw new IllegalArgumentException("Class object or ID cannot be null");
         }

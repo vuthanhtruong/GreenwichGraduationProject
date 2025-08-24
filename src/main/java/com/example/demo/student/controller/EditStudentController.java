@@ -29,7 +29,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home/students-list")
-public class UpdateStudentController {
+public class EditStudentController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
@@ -38,10 +38,10 @@ public class UpdateStudentController {
     private final ParentAccountsService parentAccountsService;
     private final AuthenticatorsService authenticatorsService;
 
-    public UpdateStudentController(StaffsService staffsService, LecturesService lecturesService,
-                                   StudentsService studentsService, ResourceLoader resourceLoader,
-                                   PersonsService personsService, ParentAccountsService parentAccountsService,
-                                   AuthenticatorsService authenticatorsService) {
+    public EditStudentController(StaffsService staffsService, LecturesService lecturesService,
+                                 StudentsService studentsService, ResourceLoader resourceLoader,
+                                 PersonsService personsService, ParentAccountsService parentAccountsService,
+                                 AuthenticatorsService authenticatorsService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
@@ -66,7 +66,7 @@ public class UpdateStudentController {
     }
 
     @PutMapping("/edit-student-form")
-    public String updateStudent(
+    public String editStudent(
             @Valid @ModelAttribute("student") Students student,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
@@ -126,8 +126,8 @@ public class UpdateStudentController {
                 student.setAvatar(existingStudent.getAvatar());
             }
 
-            // Update student
-            studentsService.updateStudent(student.getId(), student);
+            // edit student
+            studentsService.editStudent(student.getId(), student);
 
             // Handle parent accounts
             List<Student_ParentAccounts> currentParentLinks = parentAccountsService.getParentLinksByStudentId(student.getId());
@@ -136,7 +136,7 @@ public class UpdateStudentController {
 
             // Process Parent 1
             if (isParent1Provided) {
-                parentAccountsService.updateOrCreateParentLink(student.getId(), parent1Link, parentEmail1, supportPhoneNumber1, parentRelationship1);
+                parentAccountsService.editOrCreateParentLink(student.getId(), parent1Link, parentEmail1, supportPhoneNumber1, parentRelationship1);
             } else if (parent1Link != null) {
                 parentAccountsService.removeParentLink(parent1Link);
                 parentAccountsService.deleteIfUnlinked(parent1Link.getParent(), student.getId());
@@ -144,13 +144,13 @@ public class UpdateStudentController {
 
             // Process Parent 2
             if (isParent2Provided) {
-                parentAccountsService.updateOrCreateParentLink(student.getId(), parent2Link, parentEmail2, supportPhoneNumber2, parentRelationship2);
+                parentAccountsService.editOrCreateParentLink(student.getId(), parent2Link, parentEmail2, supportPhoneNumber2, parentRelationship2);
             } else if (parent2Link != null) {
                 parentAccountsService.removeParentLink(parent2Link);
                 parentAccountsService.deleteIfUnlinked(parent2Link.getParent(), student.getId());
             }
 
-            redirectAttributes.addFlashAttribute("successMessage", "Student updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Student editd successfully!");
             httpSession.removeAttribute("avatarStudent");
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());

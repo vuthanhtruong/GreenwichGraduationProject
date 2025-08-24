@@ -17,14 +17,14 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/staff-home/classes-list")
-public class UpdateClassController {
+public class EditClassController {
 
     private final ClassesService classesService;
     private final StaffsService staffsService;
     private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public UpdateClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public EditClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;
@@ -47,14 +47,14 @@ public class UpdateClassController {
             return "redirect:/staff-home/classes-list";
         }
 
-        model.addAttribute("editErrors", editClass);
+        model.addAttribute("class", editClass);
         model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
         model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
         return "EditFormClass";
     }
 
     @PutMapping("/edit-class")
-    public String updateClass(
+    public String editClass(
             @Valid @ModelAttribute("class") MajorClasses classObj,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
@@ -71,8 +71,8 @@ public class UpdateClassController {
         }
 
         try {
-            classesService.updateClass(classObj.getClassId(), classObj);
-            redirectAttributes.addFlashAttribute("successMessage", "Class updated successfully!");
+            classesService.editClass(classObj.getClassId(), classObj);
+            redirectAttributes.addFlashAttribute("successMessage", "Class editd successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errors", List.of("Error updating class: " + e.getMessage()));
             model.addAttribute("editErrors", List.of("Error updating class: " + e.getMessage()));

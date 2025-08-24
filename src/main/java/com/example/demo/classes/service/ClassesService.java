@@ -15,7 +15,7 @@ public interface ClassesService {
     MajorClasses getClassById(String id);
     MajorClasses getClassByName(String name);
     void addClass(MajorClasses c);
-    MajorClasses updateClass(String id, MajorClasses classObj);
+    MajorClasses editClass(String id, MajorClasses classObj);
     void deleteClass(String id);
     String generateUniqueClassId(String majorId, LocalDateTime createdDate);
     List<String> validateClass(MajorClasses classObj, String excludeId);

@@ -69,8 +69,8 @@ public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     }
 
     @Override
-    public MajorSubjects updateSubject(String id, MajorSubjects subject) {
-        return subjectsDAO.updateSubject(id, subject);
+    public MajorSubjects editSubject(String id, MajorSubjects subject) {
+        return subjectsDAO.editSubject(id, subject);
     }
 
     @Override

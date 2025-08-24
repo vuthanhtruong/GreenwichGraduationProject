@@ -5,14 +5,21 @@ import com.example.demo.major.model.Majors;
 import com.example.demo.Staff.dao.StaffsDAO;
 import com.example.demo.Staff.model.Staffs;
 
+import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class StaffsServiceImpl implements StaffsService {
+    @Override
+    public void editStaff(Staffs staff, MultipartFile avatarFile) throws IOException, MessagingException {
+        staffsDAO.editStaff(staff, avatarFile);
+    }
+
     @Override
     public String generateUniqueStaffId(String majorId, LocalDate createdDate) {
         return staffsDAO.generateUniqueStaffId(majorId, createdDate);
@@ -37,15 +44,11 @@ public class StaffsServiceImpl implements StaffsService {
     public List<Staffs> getStaffs() {
         return staffsDAO.getStaffs();
     }
+    
 
     @Override
-    public void updateStaff(Staffs staff) {
-        staffsDAO.updateStaff(staff);
-    }
-
-    @Override
-    public List<String> validateStaff(Staffs staff, MultipartFile avatarFile) {
-        return staffsDAO.validateStaff(staff, avatarFile);
+    public  List<String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
+        return staffsDAO.validateStaff(staff, avatarFile, majorId, campusId);
     }
 
     @Override

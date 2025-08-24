@@ -27,8 +27,8 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
-    public void updateParent(ParentAccounts parent) {
-        parentAccountsDAO.updateParent(parent);
+    public void editParent(ParentAccounts parent) {
+        parentAccountsDAO.editParent(parent);
     }
 
     @Override
@@ -62,8 +62,8 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
-    public void updateParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
-        parentAccountsDAO.updateParentLink(existingLink, relationship, supportPhoneNumber);
+    public void editParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
+        parentAccountsDAO.editParentLink(existingLink, relationship, supportPhoneNumber);
     }
 
     @Override
@@ -92,8 +92,8 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
     }
 
     @Override
-    public void updateOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
-        parentAccountsDAO.updateOrCreateParentLink(studentId, existingLink, email, supportPhoneNumber, relationship);
+    public void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
+        parentAccountsDAO.editOrCreateParentLink(studentId, existingLink, email, supportPhoneNumber, relationship);
     }
 
     @Override

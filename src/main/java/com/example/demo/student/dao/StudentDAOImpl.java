@@ -215,7 +215,7 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public void updateStudent(String id, Students student) throws MessagingException {
+    public void editStudent(String id, Students student) throws MessagingException {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
@@ -223,7 +223,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (existingStudent == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
-        updateStudentFields(existingStudent, student);
+        editStudentFields(existingStudent, student);
         entityManager.merge(existingStudent);
         String subject = "Your student account information after being edited";
         emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
@@ -247,23 +247,23 @@ public class StudentDAOImpl implements StudentsDAO {
                 .getResultList();
     }
 
-    private void updateStudentFields(Students existing, Students updated) {
-        if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
-        if (updated.getLastName() != null) existing.setLastName(updated.getLastName());
-        if (updated.getEmail() != null) existing.setEmail(updated.getEmail());
-        if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
-        if (updated.getBirthDate() != null) existing.setBirthDate(updated.getBirthDate());
-        if (updated.getGender() != null) existing.setGender(updated.getGender());
-        if (updated.getCountry() != null) existing.setCountry(updated.getCountry());
-        if (updated.getProvince() != null) existing.setProvince(updated.getProvince());
-        if (updated.getCity() != null) existing.setCity(updated.getCity());
-        if (updated.getDistrict() != null) existing.setDistrict(updated.getDistrict());
-        if (updated.getWard() != null) existing.setWard(updated.getWard());
-        if (updated.getStreet() != null) existing.setStreet(updated.getStreet());
-        if (updated.getPostalCode() != null) existing.setPostalCode(updated.getPostalCode());
-        if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
-        if (updated.getMisId() != null) existing.setMisId(updated.getMisId());
-        if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
-        if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
+    private void editStudentFields(Students existing, Students editd) {
+        if (editd.getFirstName() != null) existing.setFirstName(editd.getFirstName());
+        if (editd.getLastName() != null) existing.setLastName(editd.getLastName());
+        if (editd.getEmail() != null) existing.setEmail(editd.getEmail());
+        if (editd.getPhoneNumber() != null) existing.setPhoneNumber(editd.getPhoneNumber());
+        if (editd.getBirthDate() != null) existing.setBirthDate(editd.getBirthDate());
+        if (editd.getGender() != null) existing.setGender(editd.getGender());
+        if (editd.getCountry() != null) existing.setCountry(editd.getCountry());
+        if (editd.getProvince() != null) existing.setProvince(editd.getProvince());
+        if (editd.getCity() != null) existing.setCity(editd.getCity());
+        if (editd.getDistrict() != null) existing.setDistrict(editd.getDistrict());
+        if (editd.getWard() != null) existing.setWard(editd.getWard());
+        if (editd.getStreet() != null) existing.setStreet(editd.getStreet());
+        if (editd.getPostalCode() != null) existing.setPostalCode(editd.getPostalCode());
+        if (editd.getAvatar() != null) existing.setAvatar(editd.getAvatar());
+        if (editd.getMisId() != null) existing.setMisId(editd.getMisId());
+        if (editd.getCampus() != null) existing.setCampus(editd.getCampus());
+        if (editd.getCreator() != null) existing.setCreator(editd.getCreator());
     }
 }

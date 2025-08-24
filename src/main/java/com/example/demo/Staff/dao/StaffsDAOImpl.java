@@ -1,11 +1,15 @@
 package com.example.demo.Staff.dao;
+import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
+import com.example.demo.campus.service.CampusesService;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.Staff.model.Staffs;
+import com.example.demo.major.service.MajorsService;
 import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.person.service.PersonsService;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -17,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,13 +41,17 @@ public class StaffsDAOImpl implements StaffsDAO {
     private static final Logger logger = LoggerFactory.getLogger(StaffsDAOImpl.class);
     private final PersonsService personsService;
     private final AdminsService adminsService;
+    private final CampusesService campusesService;
+    private final MajorsService majorsService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public StaffsDAOImpl(PersonsService personsService, AdminsService adminsService) {
+    public StaffsDAOImpl(PersonsService personsService, AdminsService adminsService, CampusesService campusesService, MajorsService majorsService) {
         this.personsService = personsService;
         this.adminsService = adminsService;
+        this.campusesService = campusesService;
+        this.majorsService = majorsService;
     }
 
     @Override
@@ -150,15 +159,27 @@ public class StaffsDAOImpl implements StaffsDAO {
     }
 
     @Override
-    public void updateStaff(Staffs staff) {
+    public void editStaff(Staffs staff, MultipartFile avatarFile) throws IOException, MessagingException {
         try {
             Staffs existingStaff = entityManager.find(Staffs.class, staff.getId());
-            updateStaffFields(existingStaff, staff);
+            if (existingStaff == null) {
+                throw new IllegalArgumentException("Staff with ID " + staff.getId() + " not found");
+            }
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                staff.setAvatar(avatarFile.getBytes());
+            } else {
+                staff.setAvatar(existingStaff.getAvatar());
+            }
+            editStaffFields(existingStaff, staff);
             entityManager.merge(existingStaff);
+            String subject = "Your Staff Account Information After Being Edited";
+        } catch (IOException | org.springframework.messaging.MessagingException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error updating staff: " + e.getMessage(), e);
+            throw new RuntimeException("Unexpected error updating staff: " + e.getMessage(), e);
         }
     }
+
     @Override
     public String generateRandomPassword(int length) {
         if (length < 8) {
@@ -199,27 +220,27 @@ public class StaffsDAOImpl implements StaffsDAO {
         return staffId;
     }
 
-    private void updateStaffFields(Staffs existing, Staffs updated) {
-        if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
-        if (updated.getLastName() != null) existing.setLastName(updated.getLastName());
-        if (updated.getEmail() != null) existing.setEmail(updated.getEmail());
-        if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
-        if (updated.getBirthDate() != null) existing.setBirthDate(updated.getBirthDate());
-        if (updated.getGender() != null) existing.setGender(updated.getGender());
-        if (updated.getCountry() != null) existing.setCountry(updated.getCountry());
-        if (updated.getProvince() != null) existing.setProvince(updated.getProvince());
-        if (updated.getCity() != null) existing.setCity(updated.getCity());
-        if (updated.getDistrict() != null) existing.setDistrict(updated.getDistrict());
-        if (updated.getWard() != null) existing.setWard(updated.getWard());
-        if (updated.getStreet() != null) existing.setStreet(updated.getStreet());
-        if (updated.getPostalCode() != null) existing.setPostalCode(updated.getPostalCode());
-        if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
-        if (updated.getMajorManagement() != null) existing.setMajorManagement(updated.getMajorManagement());
-        if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
+    private void editStaffFields(Staffs existing, Staffs editd) {
+        if (editd.getFirstName() != null) existing.setFirstName(editd.getFirstName());
+        if (editd.getLastName() != null) existing.setLastName(editd.getLastName());
+        if (editd.getEmail() != null) existing.setEmail(editd.getEmail());
+        if (editd.getPhoneNumber() != null) existing.setPhoneNumber(editd.getPhoneNumber());
+        if (editd.getBirthDate() != null) existing.setBirthDate(editd.getBirthDate());
+        if (editd.getGender() != null) existing.setGender(editd.getGender());
+        if (editd.getCountry() != null) existing.setCountry(editd.getCountry());
+        if (editd.getProvince() != null) existing.setProvince(editd.getProvince());
+        if (editd.getCity() != null) existing.setCity(editd.getCity());
+        if (editd.getDistrict() != null) existing.setDistrict(editd.getDistrict());
+        if (editd.getWard() != null) existing.setWard(editd.getWard());
+        if (editd.getStreet() != null) existing.setStreet(editd.getStreet());
+        if (editd.getPostalCode() != null) existing.setPostalCode(editd.getPostalCode());
+        if (editd.getAvatar() != null) existing.setAvatar(editd.getAvatar());
+        if (editd.getMajorManagement() != null) existing.setMajorManagement(editd.getMajorManagement());
+        if (editd.getCampus() != null) existing.setCampus(editd.getCampus());
     }
 
     @Override
-    public List<String> validateStaff(Staffs staff, MultipartFile avatarFile) {
+    public List<String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
         List<String> errors = new ArrayList<>();
         if (staff.getFirstName() == null || !isValidName(staff.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
@@ -254,14 +275,15 @@ public class StaffsDAOImpl implements StaffsDAO {
         if (staff.getGender() == null) {
             errors.add("Gender is required to assign a default avatar.");
         }
-        if (staff.getMajorManagement() == null) {
-            errors.add("Major is required for staff.");
+        if (majorId == null || majorId.isEmpty() || majorsService.getByMajorId(majorId) == null) {
+            errors.add("A valid major must be selected.");
         }
-        if (staff.getCampus() == null) {
-            errors.add("Campus is required for staff.");
+        if (campusId == null || campusId.isEmpty() || campusesService.getCampusById(campusId) == null) {
+            errors.add("A valid campus must be selected.");
         }
         return errors;
     }
+
 
     private boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";

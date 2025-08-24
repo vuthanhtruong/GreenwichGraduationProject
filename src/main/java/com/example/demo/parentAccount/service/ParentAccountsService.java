@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ParentAccountsService {
     void addParentAccounts(ParentAccounts parent);
-    void updateParent(ParentAccounts parent);
+    void editParent(ParentAccounts parent);
     void deleteParent(ParentAccounts parent);
     ParentAccounts findByEmail(String email);
     Student_ParentAccounts getParentLinkByStudentId(String studentId);
@@ -20,8 +20,8 @@ public interface ParentAccountsService {
     List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel);
     String generateUniqueParentId();
     String generateRandomPassword(int length);
-    void updateParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber);
-    void updateOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship);
+    void editParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber);
+    void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship);
     void createParentLink(String studentId, String email, String supportPhoneNumber, String relationship);
     void deleteIfUnlinked(ParentAccounts parent, String excludeStudentId);
 }

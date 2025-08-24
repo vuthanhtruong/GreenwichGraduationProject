@@ -62,15 +62,7 @@ public class AddStaffController {
             Model model,
             RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
-
-        // Gán major và campus từ request param
-        Majors major = majorsService.getByMajorId(majorId);
-        Campuses campus = campusesService.getCampusById(campusId);
-        if (major == null) errors.add("Invalid major selected.");
-        if (campus == null) errors.add("Invalid campus selected.");
-        staff.setMajorManagement(major);
-        staff.setCampus(campus);
-        errors.addAll(staffsService.validateStaff(staff, avatarFile));
+        errors.addAll(staffsService.validateStaff(staff, avatarFile,majorId,campusId));
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream()
                     .map(ObjectError::getDefaultMessage)
@@ -85,6 +77,10 @@ public class AddStaffController {
         }
 
         try {
+            Majors major = majorsService.getByMajorId(majorId);
+            Campuses campus = campusesService.getCampusById(campusId);
+            staff.setMajorManagement(major);
+            staff.setCampus(campus);
             String randomPassword = staffsService.generateRandomPassword(12);
             String staffId = staffsService.generateUniqueStaffId(
                     major != null ? major.getMajorId() : "STF",

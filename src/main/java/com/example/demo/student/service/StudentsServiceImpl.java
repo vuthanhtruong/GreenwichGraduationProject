@@ -64,8 +64,8 @@ public class StudentsServiceImpl implements StudentsService {
     }
 
     @Override
-    public void updateStudent(String id, Students student) throws MessagingException {
-        studentsDAO.updateStudent(id, student);
+    public void editStudent(String id, Students student) throws MessagingException {
+        studentsDAO.editStudent(id, student);
     }
 
     @Override

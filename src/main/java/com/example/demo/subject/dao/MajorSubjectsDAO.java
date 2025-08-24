@@ -14,7 +14,7 @@ public interface MajorSubjectsDAO {
     List<MajorSubjects> subjectsByMajor(Majors major);
     List<MajorSubjects> AcceptedSubjectsByMajor(Majors major);
     List<MajorSubjects> getSubjects();
-    MajorSubjects updateSubject(String id, MajorSubjects subject);
+    MajorSubjects editSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
     String generateUniqueSubjectId(String majorId, LocalDate createdDate);
     List<String> validateSubject(MajorSubjects subject);

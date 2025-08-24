@@ -50,7 +50,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public void updateParent(ParentAccounts parent) {
+    public void editParent(ParentAccounts parent) {
         entityManager.merge(parent);
     }
 
@@ -115,7 +115,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public void updateParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
+    public void editParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber) {
         if (relationship != null) {
             existingLink.setRelationshipToStudent(relationship);
         }
@@ -249,7 +249,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public void updateOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
+    public void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
         // Skip if no parent fields are provided
         if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
             return;
@@ -271,7 +271,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             authenticatorsService.createAuthenticator(parentAuth);
         }
         if (existingLink != null && existingLink.getParent().getEmail().equals(email)) {
-            updateParentLink(existingLink, relationshipEnum, supportPhoneNumber);
+            editParentLink(existingLink, relationshipEnum, supportPhoneNumber);
         } else {
             if (existingLink != null) {
                 removeParentLink(existingLink);

@@ -123,7 +123,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
-    public MajorSubjects updateSubject(String id, MajorSubjects subject) {
+    public MajorSubjects editSubject(String id, MajorSubjects subject) {
         if (subject == null || id == null) {
             throw new IllegalArgumentException("Subject object or ID cannot be null");
         }

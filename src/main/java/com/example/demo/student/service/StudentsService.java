@@ -13,7 +13,7 @@ public interface StudentsService {
     Students addStudents(Students students, String randomPassword);
     long numberOfStudents();
     void deleteStudent(String id);
-    void updateStudent(String id, Students student) throws MessagingException;
+    void editStudent(String id, Students student) throws MessagingException;
     Students getStudentById(String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
     Majors getStudentMajor();

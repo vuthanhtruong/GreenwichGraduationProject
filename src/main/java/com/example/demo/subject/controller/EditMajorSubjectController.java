@@ -18,13 +18,13 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
-public class UpdateMajorSubjectController {
+public class EditMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
 
     @Autowired
-    public UpdateMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public EditMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
     }
@@ -69,8 +69,8 @@ public class UpdateMajorSubjectController {
         try {
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
             existingSubject.setSemester(formSubject.getSemester());
-            subjectsService.updateSubject(id, existingSubject);
-            redirectAttributes.addFlashAttribute("message", "Subject updated successfully!");
+            subjectsService.editSubject(id, existingSubject);
+            redirectAttributes.addFlashAttribute("message", "Subject editd successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
             errors.add("Error updating subject: " + e.getMessage());

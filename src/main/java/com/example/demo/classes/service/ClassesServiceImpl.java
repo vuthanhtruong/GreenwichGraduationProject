@@ -62,8 +62,8 @@ public class ClassesServiceImpl implements ClassesService {
     }
 
     @Override
-    public MajorClasses updateClass(String id, MajorClasses c) {
-        return classesDAO.updateClass(id, c);
+    public MajorClasses editClass(String id, MajorClasses c) {
+        return classesDAO.editClass(id, c);
     }
 
     @Override
