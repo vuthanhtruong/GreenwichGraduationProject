@@ -239,8 +239,9 @@ public class StudentDAOImpl implements StudentsDAO {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.major = :staffmajor", Students.class)
+                        "SELECT s FROM Students s WHERE s.major = :staffmajor and s.campus=:campuses", Students.class)
                 .setParameter("staffmajor", majors)
+                .setParameter("campuses", staff.getMajorManagement())
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();

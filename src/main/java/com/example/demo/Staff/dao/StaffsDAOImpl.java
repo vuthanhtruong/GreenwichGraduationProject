@@ -17,9 +17,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional
@@ -88,11 +91,6 @@ public class StaffsDAOImpl implements StaffsDAO {
     @Override
     public void addStaff(Staffs staff, String randomPassword) {
         try {
-            if (staff == null || randomPassword == null) {
-                logger.error("Staff or password is null");
-                throw new IllegalArgumentException("Staff or password cannot be null");
-            }
-            // Sử dụng admin hiện tại làm creator
             Admins currentAdmin = adminsService.getAdmin();
             staff.setCreator(currentAdmin);
             entityManager.merge(staff);
@@ -161,6 +159,45 @@ public class StaffsDAOImpl implements StaffsDAO {
             throw new RuntimeException("Error updating staff: " + e.getMessage(), e);
         }
     }
+    @Override
+    public String generateRandomPassword(int length) {
+        if (length < 8) {
+            throw new IllegalArgumentException("Password length must be at least 8 characters.");
+        }
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String symbols = "!@#$%^&*()-_+=<>?";
+        String allChars = upperCase + lowerCase + digits + symbols;
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(symbols.charAt(random.nextInt(symbols.length())));
+        for (int i = 4; i < length; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+        List<Character> chars = password.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toList());
+        Collections.shuffle(chars, random);
+        return chars.stream().map(String::valueOf).collect(Collectors.joining());
+    }
+
+    @Override
+    public String generateUniqueStaffId(String majorId, LocalDate createdDate) {
+        String prefix = majorId != null ? majorId : "STF";
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+        String staffId;
+        SecureRandom random = new SecureRandom();
+        do {
+            String randomDigit = String.valueOf(random.nextInt(10));
+            staffId = prefix + year + date + randomDigit;
+        } while (personsService.existsPersonById(staffId));
+        return staffId;
+    }
 
     private void updateStaffFields(Staffs existing, Staffs updated) {
         if (updated.getFirstName() != null) existing.setFirstName(updated.getFirstName());
@@ -190,14 +227,20 @@ public class StaffsDAOImpl implements StaffsDAO {
         if (staff.getLastName() == null || !isValidName(staff.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-        if (staff.getEmail() != null && !isValidEmail(staff.getEmail())) {
-            errors.add("Invalid email format.");
+        if (staff.getEmail() == null || !isValidEmail(staff.getEmail())) {
+            errors.add("Email is required and must be in a valid format.");
         }
-        if (staff.getPhoneNumber() != null && !isValidPhoneNumber(staff.getPhoneNumber())) {
-            errors.add("Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
+        if (staff.getPhoneNumber() == null || !isValidPhoneNumber(staff.getPhoneNumber())) {
+            errors.add("Phone number is required and must be 10-15 digits, optionally starting with '+'.");
         }
         if (staff.getBirthDate() != null && staff.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
+        }
+        if (staff.getEmail() != null && personsService.existsByEmailExcludingId(staff.getEmail(), staff.getId() != null ? staff.getId() : "")) {
+            errors.add("The email address is already associated with another account.");
+        }
+        if (staff.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(staff.getPhoneNumber(), staff.getId() != null ? staff.getId() : "")) {
+            errors.add("The phone number is already associated with another account.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
@@ -210,12 +253,6 @@ public class StaffsDAOImpl implements StaffsDAO {
         }
         if (staff.getGender() == null) {
             errors.add("Gender is required to assign a default avatar.");
-        }
-        if (staff.getEmail() != null && personsService.existsByEmailExcludingId(staff.getEmail(), staff.getId() != null ? staff.getId() : "")) {
-            errors.add("The email address is already associated with another account.");
-        }
-        if (staff.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(staff.getPhoneNumber(), staff.getId() != null ? staff.getId() : "")) {
-            errors.add("The phone number is already associated with another account.");
         }
         if (staff.getMajorManagement() == null) {
             errors.add("Major is required for staff.");

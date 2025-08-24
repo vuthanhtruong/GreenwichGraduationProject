@@ -1,7 +1,8 @@
 package com.example.demo.employe.model;
 
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.person.model.Persons;
-import com.example.demo.entity.Campuses;
+import com.example.demo.campus.model.Campuses;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public abstract class MinorEmployes extends Persons {
+public class MinorEmployes extends Persons {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CampusID", nullable = true)
@@ -26,6 +27,15 @@ public abstract class MinorEmployes extends Persons {
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
 
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null;
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Boy.png" : "/DefaultAvatar/Staff_Girl.png";
+    }
+
     @Override
-    public abstract String getRoleType();
+    public String getRoleType() {
+        return null;
+    }
 }

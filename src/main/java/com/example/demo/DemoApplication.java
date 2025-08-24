@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.major.model.Majors;
@@ -75,6 +76,12 @@ public class DemoApplication {
             bulkSeedSubjectsAndTuition(em);
             em.getTransaction().commit();
         } catch (Exception e) { rollback(em); e.printStackTrace(); }
+        try {
+            em.getTransaction().begin();
+            addDefaultCampuses(em);
+            em.getTransaction().commit();
+        } catch (Exception e) { rollback(em); e.printStackTrace(); }
+
 
         em.close();
     }
@@ -792,6 +799,39 @@ public class DemoApplication {
         }
         return null; // not mandatory
     }
+    // ===================== CAMPUSES =====================
+    private static void addDefaultCampuses(EntityManager em) {
+        Admins creator = findAdmin(em, "Admin");
+        if (creator == null) {
+            System.err.println("Admin not found, cannot create campuses.");
+            return;
+        }
+
+        List<Campuses> campusesToAdd = new ArrayList<>();
+
+        campusesToAdd.add(new Campuses("CAMP01", "Hanoi Campus", LocalDate.of(2010, 1, 1), "Main campus in Hanoi", creator));
+        campusesToAdd.add(new Campuses("CAMP02", "Ho Chi Minh Campus", LocalDate.of(2012, 5, 15), "Main campus in HCMC", creator));
+        campusesToAdd.add(new Campuses("CAMP03", "Da Nang Campus", LocalDate.of(2015, 3, 20), "Central region campus", creator));
+        campusesToAdd.add(new Campuses("CAMP04", "Hai Phong Campus", LocalDate.of(2016, 9, 10), "Northern coastal city campus", creator));
+        campusesToAdd.add(new Campuses("CAMP05", "Can Tho Campus", LocalDate.of(2018, 11, 25), "Mekong Delta campus", creator));
+        campusesToAdd.add(new Campuses("CAMP06", "Hue Campus", LocalDate.of(2019, 4, 5), "Central heritage city campus", creator));
+        campusesToAdd.add(new Campuses("CAMP07", "Quy Nhon Campus", LocalDate.of(2020, 2, 14), "Coastal city campus", creator));
+        campusesToAdd.add(new Campuses("CAMP08", "Nha Trang Campus", LocalDate.of(2021, 7, 1), "Tourism and marine economy campus", creator));
+        campusesToAdd.add(new Campuses("CAMP09", "Vung Tau Campus", LocalDate.of(2022, 8, 30), "Oil & Gas hub campus", creator));
+        campusesToAdd.add(new Campuses("CAMP10", "Thanh Hoa Campus", LocalDate.of(2023, 10, 12), "Gateway to northern central region", creator));
+
+        for (Campuses campus : campusesToAdd) {
+            try {
+                em.createQuery("SELECT c FROM Campuses c WHERE c.campusId = :id", Campuses.class)
+                        .setParameter("id", campus.getCampusId()).getSingleResult();
+                System.out.println("Campus already exists: " + campus.getCampusName());
+            } catch (NoResultException e) {
+                em.persist(campus);
+                System.out.println("Added Campus: " + campus.getCampusName());
+            }
+        }
+    }
+
 
     // Simple holder
     private static class SubjectSeed {

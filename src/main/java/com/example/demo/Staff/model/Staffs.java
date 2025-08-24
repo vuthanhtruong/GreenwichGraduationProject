@@ -21,13 +21,6 @@ public class Staffs extends MajorEmployes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
-    public String getDefaultAvatarPath() {
-        if (getAvatar() != null) {
-            return null;
-        }
-        return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Male.png" : "/DefaultAvatar/Staff_Female.png";
-    }
-
     @Override
     public String getRoleType() {
         return "STAFF";

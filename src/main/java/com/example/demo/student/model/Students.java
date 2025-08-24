@@ -1,7 +1,7 @@
 package com.example.demo.student.model;
 
 import com.example.demo.person.model.Persons;
-import com.example.demo.entity.Campuses;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.major.model.Majors;

@@ -37,14 +37,14 @@ public class AddLectureController {
         this.authenticatorsService = authenticatorsService;
     }
 
-    @GetMapping("/add-lecture")
+    @GetMapping("/add-lecturer")
     public String showAddLecturePage(Model model) {
         model.addAttribute("lecture", new MajorLecturers());
         model.addAttribute("majors", staffsService.getStaffMajor());
-        return "AddLecture";
+        return "AddLecturer";
     }
 
-    @PostMapping("/add-lecture")
+    @PostMapping("/add-lecturer")
     public String addLecture(
             @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             BindingResult bindingResult,
@@ -60,7 +60,7 @@ public class AddLectureController {
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecture";
+            return "AddLecturer";
         }
 
         try {
@@ -81,17 +81,17 @@ public class AddLectureController {
             authenticatorsService.createAuthenticator(authenticators);
 
             redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
-            return "redirect:/staff-home/lectures-list";
+            return "redirect:/staff-home/lecturers-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecture";
+            return "AddLecturer";
         } catch (Exception e) {
             errors.add("An error occurred while adding the lecture: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecture";
+            return "AddLecturer";
         }
     }
 }

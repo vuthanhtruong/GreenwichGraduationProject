@@ -215,9 +215,9 @@ public class LecturesDAOImpl implements LecturesDAO {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
         return entityManager.createQuery(
-                        "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor", MajorLecturers.class)
+                        "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor and s.campus=:campuses", MajorLecturers.class)
                 .setParameter("staffmajor", majors)
-                .setFirstResult(firstResult)
+                .setParameter("campuses", staff.getMajorManagement())
                 .setMaxResults(pageSize)
                 .getResultList();
     }

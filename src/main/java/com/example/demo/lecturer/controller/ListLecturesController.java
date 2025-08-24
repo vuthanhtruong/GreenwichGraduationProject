@@ -52,7 +52,7 @@ public class ListLecturesController {
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                return "LecturesList";
+                return "LecturersList";
             }
 
             int totalPages = (int) Math.ceil((double) totalTeachers / pageSize);
@@ -67,7 +67,7 @@ public class ListLecturesController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            return "LecturesList";
+            return "LecturersList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());
             return "error";
