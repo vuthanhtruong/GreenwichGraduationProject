@@ -28,7 +28,7 @@ public class ListLecturesController {
         this.lecturesService = lecturesService;
     }
 
-    @GetMapping("/lectures-list")
+    @GetMapping("/lecturers-list")
     public String listTeachers(
             Model model,
             HttpSession session,
@@ -73,7 +73,7 @@ public class ListLecturesController {
             return "error";
         }
     }
-    @GetMapping("/lectures-list/avatar/{id}")
+    @GetMapping("/lecturers-list/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getlectureAvatar(@PathVariable String id) {
         MajorLecturers lectures = lecturesService.getLecturerById(id);
