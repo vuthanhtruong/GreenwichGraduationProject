@@ -3,7 +3,7 @@ package com.example.demo.lecturer.model;
 import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.entity.Enums.EmploymentTypes;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

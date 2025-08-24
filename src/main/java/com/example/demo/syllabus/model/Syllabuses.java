@@ -1,7 +1,7 @@
 package com.example.demo.syllabus.model;
 
 import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

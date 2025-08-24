@@ -2,9 +2,9 @@ package com.example.demo.room.controller;
 
 import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import com.example.demo.room.service.RoomsService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

@@ -3,7 +3,7 @@ package com.example.demo.config;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.student.model.Students;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.security.service.CustomUserDetailsService;
@@ -54,11 +54,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**").hasRole("STAFF")
-                        .requestMatchers("/teacher-home/**").hasRole("LECTURER")
+                        .requestMatchers("/lecturer-home/**").hasRole("LECTURER")
+                        .requestMatchers("/admin-home/**").hasRole("ADMIN")
 
                         .requestMatchers("/api/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/api/staff-home/**").hasRole("STAFF")
-                        .requestMatchers("/api/teacher-home/**").hasRole("LECTURER")
+                        .requestMatchers("/api/lecturer-home/**").hasRole("LECTURER")
+                        .requestMatchers("/api/admin-home/**").hasRole("ADMIN")
                         .requestMatchers("/login", "/resources/**", "/css/**", "/js/**", "/*.css", "/oauth2/**", "/home", "/auth/reset-password").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -99,7 +101,7 @@ public class SecurityConfig {
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
                 response.sendRedirect("/staff-home");
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
-                response.sendRedirect("/teacher-home");
+                response.sendRedirect("/lecturer-home");
             } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 response.sendRedirect("/admin-home");
             } else {
@@ -168,14 +170,12 @@ public class SecurityConfig {
             if (authorities.contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
                 response.sendRedirect("/staff-home");
             } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
-                response.sendRedirect("/teacher-home");
+                response.sendRedirect("/lecturer-home");
             } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
                 response.sendRedirect("/student-home");
-            }
-            else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 response.sendRedirect("/admin-home");
-            }
-            else {
+            } else {
                 response.sendRedirect("/login?error=no_role");
             }
         };
@@ -190,7 +190,7 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        // tokenRepository.setCreateTableOnStartup(true);
+        //tokenRepository.setCreateTableOnStartup(false);
         return tokenRepository;
     }
 }

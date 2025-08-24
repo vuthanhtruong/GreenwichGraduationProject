@@ -4,7 +4,7 @@ import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.room.service.RoomsService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,9 +6,6 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
-/**
- * Custom principal chỉ giữ tham chiếu chung tới Persons.
- */
 public class CustomUserPrincipal extends User {
 
     private final Persons person; // Thông tin chung (Persons)

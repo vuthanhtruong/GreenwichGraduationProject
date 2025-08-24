@@ -1,9 +1,9 @@
 package com.example.demo.classes.controller;
 
 import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import com.example.demo.classes.service.ClassesService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

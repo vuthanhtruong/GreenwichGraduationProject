@@ -1,7 +1,8 @@
-package com.example.demo.majorStaff.model;
+package com.example.demo.Staff.model;
 
 import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.admin.model.Admins;
+import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,13 @@ public class Staffs extends MajorEmployes {
     @JoinColumn(name = "Creator", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
+
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null;
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Male.png" : "/DefaultAvatar/Staff_Female.png";
+    }
 
     @Override
     public String getRoleType() {

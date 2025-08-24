@@ -4,7 +4,7 @@ import com.example.demo.document.model.Documents;
 import com.example.demo.news.model.News;
 import com.example.demo.document.service.DocumentsService;
 import com.example.demo.news.service.NewsService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

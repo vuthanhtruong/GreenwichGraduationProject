@@ -6,7 +6,7 @@ import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.major.model.Majors;
-import com.example.demo.majorStaff.model.Staffs;
+import com.example.demo.Staff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.MinorSubjects;
@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class DemoApplication {

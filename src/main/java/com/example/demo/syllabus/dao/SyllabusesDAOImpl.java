@@ -2,7 +2,7 @@ package com.example.demo.syllabus.dao;
 
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.syllabus.model.Syllabuses;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

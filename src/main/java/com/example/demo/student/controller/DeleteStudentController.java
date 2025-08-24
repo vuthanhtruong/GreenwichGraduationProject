@@ -1,6 +1,6 @@
 package com.example.demo.student.controller;
 import com.example.demo.lecturer.service.LecturesService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

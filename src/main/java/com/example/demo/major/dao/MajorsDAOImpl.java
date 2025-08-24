@@ -3,9 +3,13 @@ package com.example.demo.major.dao;
 import com.example.demo.major.model.Majors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
+@Transactional
 public class MajorsDAOImpl implements MajorDAO {
 
     @PersistenceContext
@@ -23,6 +27,6 @@ public class MajorsDAOImpl implements MajorDAO {
 
     @Override
     public List<Majors> getMajors() {
-        return List.of();
+        return entityManager.createQuery("from Majors", Majors.class).getResultList();
     }
 }

@@ -8,7 +8,7 @@ import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;
-import com.example.demo.majorStaff.service.StaffsService;
+import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
