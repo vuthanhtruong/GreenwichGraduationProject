@@ -24,7 +24,6 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
             String studentId,
             String rawPassword
     ) {
-        // Helpers
         java.util.function.Function<String, String> safe = v -> v != null ? v : "N/A";
         java.util.function.Function<java.time.LocalDate, String> safeDate = d -> d != null ? d.toString() : "N/A";
         String year = String.valueOf(java.time.Year.now().getValue());
@@ -40,7 +39,6 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         String supportEmail = "support@university.example.com";
         String addressLine = "123 University Avenue, City, Country";
 
-        // Inline style cho email compatibility
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>")
                 .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
@@ -59,16 +57,16 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
 
                 .append("<table role='presentation' class='container' width='600' cellpadding='0' cellspacing='0' style='width:600px;max-width:600px;background:#ffffff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,0.08);overflow:hidden;'>")
 
-                // Header - banner logo
+                // Banner đầu (bo góc trên)
                 .append("<tr>")
                 .append("<td style='padding:0;text-align:center;'>")
-                .append("<img src='https://cdn.haitrieu.com/wp-content/uploads/2022/12/Logo-Truong-Dai-hoc-Greenwich-Viet-Nam.png' ")
-                .append("alt='Greenwich Vietnam Banner' width='100%' ")
+                .append("<img src='https://cms.theuniguide.com/sites/default/files/2022-07/banner-university-of-greenwich-1786x642-2022.png' ")
+                .append("alt='Greenwich University Banner' width='100%' ")
                 .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:14px 14px 0 0;'>")
                 .append("</td>")
                 .append("</tr>")
 
-                // Subtitle ngay dưới banner
+                // Subtitle ngay dưới banner đầu
                 .append("<tr>")
                 .append("<td style='text-align:center;padding:18px 24px 0 24px;background:#ffffff;'>")
                 .append("<div style='font-size:18px;line-height:1.6;color:#1246a5;font-weight:600;'>")
@@ -93,19 +91,7 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         html.append("<p style='margin:0 0 18px 0;font-size:16px;line-height:1.8;color:#4b5563;'>")
                 .append(mainMessage)
                 .append("</p>");
-
-        // Key highlights (icon chips)
-        html.append("<table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='margin:6px 0 14px 0;'>")
-                .append("<tr>")
-                .append("<td style='padding:6px 0;'>")
-                .append("<span style='display:inline-block;background:#f1f5ff;color:#0b4be0;border:1px solid #dbe7ff;border-radius:10px;padding:6px 10px;font-size:13px;margin-right:6px;'>🔑 Account Access</span>")
-                .append("<span style='display:inline-block;background:#f1fff5;color:#047857;border:1px solid #d8f6df;border-radius:10px;padding:6px 10px;font-size:13px;margin-right:6px;'>📘 Program: ").append(learn).append("</span>")
-                .append("<span style='display:inline-block;background:#fffaf1;color:#b45309;border:1px solid #fde7c7;border-radius:10px;padding:6px 10px;font-size:13px;'>📍 Campus: ").append(campus).append("</span>")
-                .append("</td>")
-                .append("</tr>")
-                .append("</table>");
-
-        // Info table (two column)
+        // Info table
         html.append("<table class='info-table' role='presentation' width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>")
                 .append("<tr style='background:#f8fafc;'>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;width:40%;font-weight:600;border-bottom:1px solid #e5e7eb;'>Student ID</td>")
@@ -164,7 +150,7 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         // Credentials block (nếu có)
         if (includeCredentials) {
             html.append("<div style='margin:20px 0;padding:16px 16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;'>")
-                    .append("<div style='font-weight:700;color:#1d4ed8;margin-bottom:8px;'>🔐 Your Login Credentials</div>")
+                    .append("<div style='font-weight:700;color:#1d4ed8;margin-bottom:8px;'>Your Login Credentials</div>")
                     .append("<div style='font-size:14px;color:#374151;line-height:1.7;'>")
                     .append("<div><strong>Username:</strong> ").append(safe.apply(studentId)).append("</div>")
                     .append("<div><strong>Password:</strong> ").append(safe.apply(rawPassword)).append("</div>")
@@ -201,7 +187,14 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                 .append("<a href='https://www.tiktok.com/@greenwichvietnam' style='color:#0b4be0;text-decoration:none;margin:0 6px;'>TikTok</a>")
                 .append("</p>")
                 .append("</td></tr>")
-
+                // Banner cuối (bo góc dưới)
+                .append("<tr>")
+                .append("<td style='padding:0;text-align:center;'>")
+                .append("<img src='https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/467750405_985588663602647_1228255341212736818_n.png?_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHBzUB4JrrplmNOCJ7aka0MU8FaZtam74xTwVpm1qbvjNXz4_Z-Pg8H8BArQCkJhiK00xaUDQre5hBA3hyqJ1Sy&_nc_ohc=JSUhzfOS4RQQ7kNvwE5UR4f&_nc_oc=Admu-O9W3FdifQrvIcY-39qKZRFCPyc2VH3RRePK2rQmNnJIQ8EERdaQrSxj1IOT338&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=ciAyH7cwbiuBI9Kd5gPnzA&oh=00_AfVRy5_bt0HVtSG04nrc7NyK-M8imi5klc-J7rMUa0MqVg&oe=68B41159' ")
+                .append("alt='Greenwich Vietnam Ending Banner' width='100%' ")
+                .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:0 0 14px 14px;'>")
+                .append("</td>")
+                .append("</tr>")
                 .append("</table>") // container end
                 .append("</td></tr></table>")
                 .append("</body></html>");
