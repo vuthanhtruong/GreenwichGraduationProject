@@ -40,16 +40,15 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         String supportEmail = "support@university.example.com";
         String addressLine = "123 University Avenue, City, Country";
 
-        // Lưu ý: dùng style inline cho độ tương thích email client
+        // Inline style cho email compatibility
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>")
                 .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
-                // Preheader (ẩn)
                 .append("<title>").append(title).append("</title>")
-                .append("<style>@media only screen and (max-width:600px){.container{width:100%!important;margin:0!important;border-radius:0!important}.px{padding-left:16px!important;padding-right:16px!important}.h1{font-size:22px!important}.h2{font-size:18px!important}.btn{padding:12px 18px!important;font-size:14px!important}}</style>")
+                .append("<style>@media only screen and (max-width:600px){.container{width:100%!important;margin:0!important;border-radius:0!important}.px{padding-left:16px!important;padding-right:16px!important}.h2{font-size:18px!important}.btn{padding:12px 18px!important;font-size:14px!important}}</style>")
                 .append("</head><body style='margin:0;padding:0;background:#f5f7fa;font-family:Helvetica,Arial,sans-serif;color:#1f2937;'>")
 
-                // Preheader “ẩn” bằng display:none; và font-size nhỏ
+                // Preheader “ẩn”
                 .append("<div style='display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;'>")
                 .append(preheader)
                 .append("</div>")
@@ -60,16 +59,23 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
 
                 .append("<table role='presentation' class='container' width='600' cellpadding='0' cellspacing='0' style='width:600px;max-width:600px;background:#ffffff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,0.08);overflow:hidden;'>")
 
-                // Header
-                .append("<tr><td style='background:linear-gradient(135deg,#0b4be0 0%,#1a75ff 100%);padding:28px 24px;text-align:center;'>")
-                .append("<img src='https://university.example.com/logo.png' width='140' height='auto' alt='University Logo' style='display:block;margin:0 auto 10px auto;border:0;outline:none;text-decoration:none;'>")
-                .append("<div class='h1' style='font-size:24px;line-height:1.3;color:#ffffff;font-weight:700;letter-spacing:.2px;'>")
-                .append("🎓 ").append(title)
-                .append("</div>")
-                .append("<div class='h2' style='font-size:16px;line-height:1.6;color:#e6f0ff;margin-top:6px;'>")
+                // Header - banner logo
+                .append("<tr>")
+                .append("<td style='padding:0;text-align:center;'>")
+                .append("<img src='https://cdn.haitrieu.com/wp-content/uploads/2022/12/Logo-Truong-Dai-hoc-Greenwich-Viet-Nam.png' ")
+                .append("alt='Greenwich Vietnam Banner' width='100%' ")
+                .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:14px 14px 0 0;'>")
+                .append("</td>")
+                .append("</tr>")
+
+                // Subtitle ngay dưới banner
+                .append("<tr>")
+                .append("<td style='text-align:center;padding:18px 24px 0 24px;background:#ffffff;'>")
+                .append("<div style='font-size:18px;line-height:1.6;color:#1246a5;font-weight:600;'>")
                 .append(subtitle)
                 .append("</div>")
-                .append("</td></tr>")
+                .append("</td>")
+                .append("</tr>")
 
                 // Content
                 .append("<tr><td class='px' style='padding:28px 28px 10px 28px;'>")
@@ -202,7 +208,6 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
 
         return html.toString();
     }
-
 
     @Async("emailTaskExecutor")
     @Override
