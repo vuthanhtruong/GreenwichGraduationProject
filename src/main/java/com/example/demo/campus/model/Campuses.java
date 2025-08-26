@@ -16,10 +16,10 @@ import java.time.LocalDate;
 public class Campuses {
 
     @Id
-    @Column(name = "CampusID")
+    @Column(name = "CampusID",nullable = true)
     private String campusId;
 
-    @Column(name = "CampusName", nullable = false)
+    @Column(name = "CampusName", nullable = true)
     private String campusName;
 
     @Column(name = "OpeningDay")

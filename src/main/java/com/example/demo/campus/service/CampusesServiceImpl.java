@@ -4,9 +4,40 @@ import com.example.demo.campus.dao.CampusesDAO;
 import com.example.demo.campus.model.Campuses;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 @Service
 public class CampusesServiceImpl implements CampusesService{
+    @Override
+    public String generateUniqueCampusId(LocalDate createdDate) {
+        return campusesDAO.generateUniqueCampusId(createdDate);
+    }
+
+    @Override
+    public List<String> validateCampus(Campuses campus) {
+        return campusesDAO.validateCampus(campus);
+    }
+
+    @Override
+    public void addCampus(Campuses campus) {
+        campusesDAO.addCampus(campus);
+    }
+
+    @Override
+    public boolean existsCampusById(String campusId) {
+        return campusesDAO.existsCampusById(campusId);
+    }
+
+    @Override
+    public void deleteCampus(String campusId) {
+        campusesDAO.deleteCampus(campusId);
+    }
+
+    @Override
+    public void editCampus(Campuses campus) {
+        campusesDAO.editCampus(campus);
+    }
+
     @Override
     public Campuses getCampusById(String campusId) {
         return campusesDAO.getCampusById(campusId);

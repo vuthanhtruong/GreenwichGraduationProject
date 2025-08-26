@@ -184,7 +184,6 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                 student.getPhoneNumber() != null ? student.getPhoneNumber() : "N/A",
                 student.getBirthDate() != null ? student.getBirthDate().toString() : "N/A",
                 student.getGender() != null ? student.getGender().toString() : "N/A",
-                student.getMisId() != null ? student.getMisId() : "N/A",
                 student.getCampus() != null ? student.getCampus().getCampusName() : "N/A",
                 student.getMajor() != null ? student.getMajor().getMajorName() : "N/A",
                 student.getCreatedDate() != null ? student.getCreatedDate().toString() : "N/A",

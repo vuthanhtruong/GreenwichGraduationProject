@@ -2,8 +2,10 @@ package com.example.demo.Staff.controller;
 
 import com.example.demo.Staff.model.Staffs;
 import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.entity.Enums.Gender;
+import com.example.demo.major.model.Majors;
 import com.example.demo.major.service.MajorsService;
 import com.example.demo.person.service.PersonsService;
 import jakarta.mail.MessagingException;
@@ -74,6 +76,10 @@ public class EditStaffController {
                 redirectAttributes.addFlashAttribute("error", "Staff with ID " + staff.getId() + " not found.");
                 return "redirect:/admin-home/staffs-list";
             }
+            Majors majors=majorsService.getByMajorId(majorId);
+            Campuses campuses=campusesService.getCampusById(campusId);
+            staff.setCampus(campuses);
+            staff.setMajorManagement(majors);
             staffsService.editStaff(staff, avatarFile);
             redirectAttributes.addFlashAttribute("successMessage", "Staff editd successfully!");
         } catch (IOException | MessagingException e) {

@@ -262,7 +262,6 @@ public class StudentDAOImpl implements StudentsDAO {
         if (editd.getStreet() != null) existing.setStreet(editd.getStreet());
         if (editd.getPostalCode() != null) existing.setPostalCode(editd.getPostalCode());
         if (editd.getAvatar() != null) existing.setAvatar(editd.getAvatar());
-        if (editd.getMisId() != null) existing.setMisId(editd.getMisId());
         if (editd.getCampus() != null) existing.setCampus(editd.getCampus());
         if (editd.getCreator() != null) existing.setCreator(editd.getCreator());
     }

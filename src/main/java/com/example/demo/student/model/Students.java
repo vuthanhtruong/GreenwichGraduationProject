@@ -20,13 +20,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class Students extends Persons {
+public class Students extends Persons implements StudentsInterface {
 
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
-
-    @Column(name = "MIS_ID", length = 50)
-    private String misId;
 
     @Column(name = "Admission_Year", nullable = false)
     private LocalDate admissionYear;
@@ -50,11 +47,24 @@ public class Students extends Persons {
     @Column(name = "LearningProgramType", nullable = true)
     private LearningProgramTypes learningProgramType;
 
+    @Override
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null;
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Student_Boy.png" : "/DefaultAvatar/Student_Girl.png";
+    }
+
+    @Override
+    public String getAcademicInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Admission Year: ").append(admissionYear != null ? admissionYear.toString() : "N/A").append("\n");
+        sb.append("Campus: ").append(campus != null ? campus.getCampusName() : "N/A").append("\n");
+        sb.append("Major: ").append(major != null ? major.getMajorName() : "N/A").append("\n");
+        sb.append("Learning Program Type: ").append(learningProgramType != null ? learningProgramType.toString() : "N/A").append("\n");
+        sb.append("Created By: ").append(creator != null ? creator.getFullName() : "N/A").append("\n");
+        sb.append("Created Date: ").append(createdDate != null ? createdDate.toString() : "N/A");
+        return sb.toString();
     }
 
     @Override

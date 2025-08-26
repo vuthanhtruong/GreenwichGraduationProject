@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public class CustomUserPrincipal extends User {
 
-    private final Persons person; // Thông tin chung (Persons)
+    private final Persons person;
 
     public CustomUserPrincipal(
             String username,

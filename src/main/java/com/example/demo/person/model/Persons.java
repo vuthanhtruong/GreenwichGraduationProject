@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public abstract class Persons {
+public abstract class Persons implements PersonsInterface {
 
     @Id
     @Column(name = "ID")
@@ -64,11 +64,56 @@ public abstract class Persons {
     @Column(name = "Avatar", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] avatar;
 
+    @Override
     public String getFullName() {
         String fn = firstName == null ? "" : firstName.trim();
         String ln = lastName == null ? "" : lastName.trim();
         return (fn + " " + ln).trim();
     }
 
+    @Override
+    public String getFullAddress() {
+        StringBuilder sb = new StringBuilder();
+        if (street != null && !street.trim().isEmpty()) {
+            sb.append(street.trim()).append(", ");
+        }
+        if (ward != null && !ward.trim().isEmpty()) {
+            sb.append(ward.trim()).append(", ");
+        }
+        if (district != null && !district.trim().isEmpty()) {
+            sb.append(district.trim()).append(", ");
+        }
+        if (city != null && !city.trim().isEmpty()) {
+            sb.append(city.trim()).append(", ");
+        }
+        if (province != null && !province.trim().isEmpty()) {
+            sb.append(province.trim()).append(", ");
+        }
+        if (country != null && !country.trim().isEmpty()) {
+            sb.append(country.trim()).append(" ");
+        }
+        if (postalCode != null && !postalCode.trim().isEmpty()) {
+            sb.append(postalCode.trim());
+        }
+        String address = sb.toString().trim();
+        if (address.endsWith(",")) {
+            address = address.substring(0, address.length() - 1).trim();
+        }
+        return address;
+    }
+
+    @Override
+    public String getPersonalInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID: ").append(id != null ? id : "N/A").append("\n");
+        sb.append("Full Name: ").append(getFullName()).append("\n");
+        sb.append("Email: ").append(email != null ? email : "N/A").append("\n");
+        sb.append("Phone Number: ").append(phoneNumber != null ? phoneNumber : "N/A").append("\n");
+        sb.append("Birth Date: ").append(birthDate != null ? birthDate.toString() : "N/A").append("\n");
+        sb.append("Gender: ").append(gender != null ? gender.toString() : "N/A");
+        return sb.toString();
+    }
+
+    @Override
     public abstract String getRoleType();
 }

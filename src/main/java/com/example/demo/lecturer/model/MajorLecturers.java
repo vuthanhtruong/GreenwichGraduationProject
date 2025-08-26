@@ -15,7 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @PrimaryKeyJoinColumn(name = "ID")
 @Getter
 @Setter
-public class MajorLecturers extends MajorEmployes {
+public class MajorLecturers extends MajorEmployes implements MajorLecturersInterface {
 
     @Column(name = "Type", nullable = true, length = 50)
     @Enumerated(EnumType.STRING)
@@ -26,11 +26,28 @@ public class MajorLecturers extends MajorEmployes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Override
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null; // Avatar exists, no default needed
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
+    }
+
+    @Override
+    public String getEmploymentInfo() {
+        StringBuilder sb = new StringBuilder(super.getEmploymentInfo());
+        sb.append("\nEmployment Type: ").append(employmentTypes != null ? employmentTypes.toString() : "N/A");
+        sb.append("\nAdded By: ").append(creator != null ? creator.getFullName() : "N/A");
+        return sb.toString();
+    }
+
+    @Override
+    public String getLecturerInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Employment Type: ").append(employmentTypes != null ? employmentTypes.toString() : "N/A").append("\n");
+        sb.append("Added By: ").append(creator != null ? creator.getFullName() : "N/A");
+        return sb.toString();
     }
 
     @Override

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @OnDelete(action = OnDeleteAction.CASCADE)
-public class MajorEmployes extends Persons {
+public class MajorEmployes extends Persons implements MajorEmployesInterface {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MajorID", nullable = true)
@@ -33,11 +33,21 @@ public class MajorEmployes extends Persons {
     @Column(nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
 
+    @Override
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
             return null;
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Boy.png" : "/DefaultAvatar/Staff_Girl.png";
+    }
+
+    @Override
+    public String getEmploymentInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Major Management: ").append(majorManagement != null ? majorManagement.getMajorName() : "N/A").append("\n");
+        sb.append("Campus: ").append(campus != null ? campus.getCampusName() : "N/A").append("\n");
+        sb.append("Created Date: ").append(createdDate != null ? createdDate.toString() : "N/A");
+        return sb.toString();
     }
 
     @Override

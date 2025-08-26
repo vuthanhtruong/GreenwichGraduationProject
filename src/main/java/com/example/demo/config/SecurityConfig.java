@@ -1,19 +1,20 @@
 package com.example.demo.config;
 
-import com.example.demo.admin.model.Admins;
-import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.student.model.Students;
 import com.example.demo.Staff.model.Staffs;
-import com.example.demo.person.model.Persons;
+import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
-import com.example.demo.security.service.CustomUserDetailsService;
-import com.example.demo.security.service.CustomOAuth2UserService;
+import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.person.model.Persons;
 import com.example.demo.security.model.CustomUserPrincipal;
+import com.example.demo.security.service.CustomOAuth2UserService;
+import com.example.demo.security.service.CustomUserDetailsService;
+import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.rememberme.JdbcTokenRepos
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
+import java.util.Collection;
 import java.util.List;
 
 @Configuration
@@ -36,31 +38,29 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final DataSource dataSource;
+    private final Environment environment;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                           CustomOAuth2UserService customOAuth2UserService,
-                          DataSource dataSource) {
+                          DataSource dataSource,
+                          Environment environment) {
         this.userDetailsService = userDetailsService;
         this.customOAuth2UserService = customOAuth2UserService;
         this.dataSource = dataSource;
+        this.environment = environment;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/student-home/**").hasRole("STUDENT")
-                        .requestMatchers("/staff-home/**").hasRole("STAFF")
-                        .requestMatchers("/lecturer-home/**").hasRole("LECTURER")
-                        .requestMatchers("/admin-home/**").hasRole("ADMIN")
-
-                        .requestMatchers("/api/student-home/**").hasRole("STUDENT")
-                        .requestMatchers("/api/staff-home/**").hasRole("STAFF")
-                        .requestMatchers("/api/lecturer-home/**").hasRole("LECTURER")
-                        .requestMatchers("/api/admin-home/**").hasRole("ADMIN")
+                        .requestMatchers("/student-home/**", "/api/student-home/**").hasRole("STUDENT")
+                        .requestMatchers("/staff-home/**", "/api/staff-home/**").hasRole("STAFF")
+                        .requestMatchers("/lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
+                        .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
                         .requestMatchers("/login", "/resources/**", "/css/**", "/js/**", "/*.css", "/oauth2/**", "/home", "/auth/reset-password").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -85,7 +85,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                         .tokenRepository(persistentTokenRepository())
                         .tokenValiditySeconds(7 * 24 * 60 * 60)
-                        .key("your-secret-key-1234567890") // TODO: đưa vào ENV/Secrets
+                        .key(environment.getProperty("security.remember-me.key", "your-secret-key-1234567890"))
                         .userDetailsService(userDetailsService)
                         .useSecureCookie(true)
                 );
@@ -96,14 +96,9 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler formSuccessHandler() {
         return (request, response, authentication) -> {
-            if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
-                response.sendRedirect("/student-home");
-            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
-                response.sendRedirect("/staff-home");
-            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
-                response.sendRedirect("/lecturer-home");
-            } else if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                response.sendRedirect("/admin-home");
+            String redirectUrl = getRedirectUrlByRole(authentication.getAuthorities());
+            if (redirectUrl != null) {
+                response.sendRedirect(redirectUrl);
             } else {
                 response.sendRedirect("/login?error=no_role");
             }
@@ -113,72 +108,72 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (request, response, authentication) -> {
-            // Lấy email từ principal OAuth2/OIDC
-            String email = null;
-            Object p = authentication.getPrincipal();
-            if (p instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidc) {
-                email = oidc.getAttribute("email");
-            } else if (p instanceof org.springframework.security.oauth2.core.user.DefaultOAuth2User ou) {
-                Object e = ou.getAttributes().get("email");
-                if (e != null) email = e.toString();
-            }
-            if (email == null || email.isBlank()) {
-                email = authentication.getName();
+            String email = extractEmailFromOAuth2Principal(authentication.getPrincipal());
+            if (email == null) {
+                response.sendRedirect("/login?error=no_email");
+                return;
             }
 
-            // Tra DB -> xác định role + lấy Persons (nếu có)
-            Persons person = null;
-            String role = "ROLE_STUDENT"; // mặc định nếu chưa map được
-            try {
-                person = entityManager.createQuery(
-                                "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
-                                        "WHERE p.email = :email AND a.accountStatus = :st",
-                                Persons.class)
-                        .setParameter("email", email)
-                        .setParameter("st", AccountStatus.ACTIVE)
-                        .getSingleResult();
-
-                if (person instanceof Staffs) {
-                    role = "ROLE_STAFF";
-                } else if (person instanceof MajorLecturers) {
-                    role = "ROLE_LECTURER";
-                } else if (person instanceof Students) {
-                    role = "ROLE_STUDENT";
-                } else if (person instanceof Admins) {
-                    role = "ROLE_ADMIN";
-                } else {
-                    // Giữ mặc định
-                }
-            } catch (NoResultException ignore) {
-                // Không tìm thấy -> giữ mặc định ROLE_STUDENT, person = null
-            }
-
+            Persons person = findActivePersonByEmail(email);
+            String role = determineRole(person);
             var authorities = List.of(new SimpleGrantedAuthority(role));
             var principal = new CustomUserPrincipal(
                     email,
-                    "N/A", // OAuth2 không có password
+                    "N/A",
                     authorities,
                     person
             );
 
-            // Ghi lại Authentication với principal đã chuẩn hoá
             var newAuth = new UsernamePasswordAuthenticationToken(principal, "N/A", authorities);
             newAuth.setDetails(authentication.getDetails());
             SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-            // Redirect theo role
-            if (authorities.contains(new SimpleGrantedAuthority("ROLE_STAFF"))) {
-                response.sendRedirect("/staff-home");
-            } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) {
-                response.sendRedirect("/lecturer-home");
-            } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) {
-                response.sendRedirect("/student-home");
-            } else if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                response.sendRedirect("/admin-home");
+            String redirectUrl = getRedirectUrlByRole(authorities);
+            if (redirectUrl != null) {
+                response.sendRedirect(redirectUrl);
             } else {
                 response.sendRedirect("/login?error=no_role");
             }
         };
+    }
+
+    private String extractEmailFromOAuth2Principal(Object principal) {
+        if (principal instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidcUser) {
+            return oidcUser.getAttribute("email");
+        } else if (principal instanceof org.springframework.security.oauth2.core.user.DefaultOAuth2User oauth2User) {
+            return (String) oauth2User.getAttributes().get("email");
+        }
+        return null;
+    }
+
+    private Persons findActivePersonByEmail(String email) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
+                                    "WHERE p.email = :email AND a.accountStatus = :st",
+                            Persons.class)
+                    .setParameter("email", email)
+                    .setParameter("st", AccountStatus.ACTIVE)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private String determineRole(Persons person) {
+        if (person instanceof Staffs) return "ROLE_STAFF";
+        if (person instanceof MajorLecturers) return "ROLE_LECTURER";
+        if (person instanceof Students) return "ROLE_STUDENT";
+        if (person instanceof Admins) return "ROLE_ADMIN";
+        return "ROLE_STUDENT"; // Default
+    }
+
+    private String getRedirectUrlByRole(Collection<?> authorities) {
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) return "/student-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_STAFF"))) return "/staff-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) return "/lecturer-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return "/admin-home";
+        return null;
     }
 
     @Bean
@@ -190,7 +185,6 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        //tokenRepository.setCreateTableOnStartup(false);
         return tokenRepository;
     }
 }
