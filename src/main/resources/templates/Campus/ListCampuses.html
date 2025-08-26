@@ -40,13 +40,6 @@
         <form method="post" th:action="@{/admin-home/campuses-list/add-campus}" th:object="${campus}" enctype="multipart/form-data">
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label for="campusId" class="form-label">Campus ID:</label>
-                    <input id="campusId" class="form-control" th:field="*{campusId}" type="text" readonly th:value="${randomCampusId}" />
-                    <small class="form-text text-muted">Auto-generated ID</small>
-                    <div class="text-danger" th:if="${#fields.hasErrors('campusId')}" th:errors="*{campusId}"></div>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Campus ID')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-3">
                     <label for="campusName" class="form-label">Campus Name:</label>
                     <input id="campusName" class="form-control" th:field="*{campusName}" type="text" required />
                     <div class="text-danger" th:if="${#fields.hasErrors('campusName')}" th:errors="*{campusName}"></div>
