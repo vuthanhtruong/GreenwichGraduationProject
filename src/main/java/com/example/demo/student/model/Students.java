@@ -28,17 +28,17 @@ public class Students extends Persons implements StudentsInterface {
     @Column(name = "Admission_Year", nullable = false)
     private LocalDate admissionYear;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CampusID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Campuses campus;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MajorID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Majors major;

@@ -9,6 +9,11 @@ import java.util.List;
 @Service
 public class CampusesServiceImpl implements CampusesService{
     @Override
+    public void updateCampusFields(Campuses existing, Campuses updated) {
+        campusesDAO.updateCampusFields(existing, updated);
+    }
+
+    @Override
     public String generateUniqueCampusId(LocalDate createdDate) {
         return campusesDAO.generateUniqueCampusId(createdDate);
     }

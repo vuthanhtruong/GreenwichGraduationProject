@@ -94,8 +94,8 @@ public class CampusesDAOImpl implements CampusesDAO {
         return campusId;
     }
 
-
-    private void updateCampusFields(Campuses existing, Campuses updated) {
+    @Override
+    public void updateCampusFields(Campuses existing, Campuses updated) {
         if (updated.getCampusName() != null) {
             existing.setCampusName(updated.getCampusName());
         }

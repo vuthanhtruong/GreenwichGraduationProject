@@ -1,4 +1,4 @@
-package com.example.demo.email_service.serive;
+package com.example.demo.email_service.service;
 
 import com.example.demo.email_service.dao.EmailServiceForLectureDAO;
 import com.example.demo.lecturer.model.MajorLecturers;

@@ -1,10 +1,10 @@
-
 package com.example.demo.student.dao;
 
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
-import com.example.demo.email_service.serive.EmailServiceForLectureService;
-import com.example.demo.email_service.serive.EmailServiceForStudentService;
+import com.example.demo.email_service.dto.StudentEmailContext;
+import com.example.demo.email_service.service.EmailServiceForLectureService;
+import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.Staff.model.Staffs;
 import com.example.demo.Staff.service.StaffsService;
@@ -19,6 +19,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Year;
@@ -40,6 +45,10 @@ public class StudentDAOImpl implements StudentsDAO {
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
 
+    // Base directory and URL for avatar storage
+    private static final String AVATAR_STORAGE_PATH = "avatars/"; // e.g., /var/www/avatars/ or project-relative path
+    private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
+
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
                           EmailServiceForLectureService emailServiceForLectureService,
                           AccountBalancesService accountBalancesService,
@@ -53,6 +62,23 @@ public class StudentDAOImpl implements StudentsDAO {
         this.emailServiceForStudentService = emailServiceForStudentService;
         this.emailServiceForLectureService = emailServiceForLectureService;
         this.staffsService = staffsService;
+
+        // Ensure avatar storage directory exists
+        try {
+            Files.createDirectories(Paths.get(AVATAR_STORAGE_PATH));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create avatar storage directory: " + AVATAR_STORAGE_PATH, e);
+        }
+    }
+
+    private String saveAvatarAndGetPath(String studentId, byte[] avatarData) throws IOException {
+        if (avatarData == null || avatarData.length == 0) {
+            return null;
+        }
+        String fileName = studentId + "_" + System.currentTimeMillis() + ".jpg"; // Unique filename
+        Path filePath = Paths.get(AVATAR_STORAGE_PATH, fileName);
+        Files.write(filePath, avatarData);
+        return AVATAR_BASE_URL + fileName;
     }
 
     @Override
@@ -161,7 +187,7 @@ public class StudentDAOImpl implements StudentsDAO {
     public Students getStudent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.email = :username OR s.id = :username",
+                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.email = :username OR s.id = :username",
                         Students.class)
                 .setParameter("username", authentication.getName())
                 .setMaxResults(1)
@@ -175,21 +201,45 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> getStudents() {
-        return entityManager.createQuery("FROM Students s", Students.class).getResultList();
+        return entityManager.createQuery("SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator", Students.class)
+                .getResultList();
     }
 
     @Override
     public Students addStudents(Students students, String randomPassword) {
         Staffs staff = staffsService.getStaff();
         students.setCampus(staff.getCampus());
-        students.setMajor(staffsService.getStaffMajor());
+        students.setMajor(staff.getMajorManagement());
         students.setCreator(staff);
         LocalDate admissionDate = LocalDate.of(Year.now().getValue(), 1, 1);
         students.setAdmissionYear(admissionDate);
+        students.setCreatedDate(LocalDate.now());
         Students savedStudent = entityManager.merge(students);
+
+        // Handle avatar
+        String avatarPath = null;
+        try {
+            avatarPath = saveAvatarAndGetPath(savedStudent.getId(), savedStudent.getAvatar());
+        } catch (IOException e) {
+            System.err.println("Failed to save avatar for student " + savedStudent.getId() + ": " + e.getMessage());
+        }
+
+        // Create StudentEmailContext
+        StudentEmailContext context = new StudentEmailContext(
+                savedStudent.getId(),
+                savedStudent.getFullName(),
+                savedStudent.getCampus() != null ? savedStudent.getCampus().getCampusName() : null,
+                savedStudent.getMajor() != null ? savedStudent.getMajor().getMajorName() : null,
+                savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
+                savedStudent.getAdmissionYear(),
+                savedStudent.getCreatedDate(),
+                savedStudent.getLearningProgramType() != null ? savedStudent.getLearningProgramType().toString() : null,
+                avatarPath
+        );
+
         try {
             String subject = "Your Student Account Information";
-            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, students, randomPassword);
+            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, context, randomPassword);
         } catch (Exception e) {
             System.err.println("Failed to schedule email to " + students.getEmail() + ": " + e.getMessage());
         }
@@ -219,19 +269,53 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
-        Students existingStudent = entityManager.find(Students.class, id);
+        // Fetch student with relationships to avoid LazyInitializationException
+        Students existingStudent = entityManager.createQuery(
+                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
+                        Students.class
+                )
+                .setParameter("id", id)
+                .getSingleResult();
         if (existingStudent == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
         editStudentFields(existingStudent, student);
+
+        // Handle avatar
+        String avatarPath = null;
+        try {
+            avatarPath = saveAvatarAndGetPath(existingStudent.getId(), existingStudent.getAvatar());
+        } catch (IOException e) {
+            System.err.println("Failed to save avatar for student " + existingStudent.getId() + ": " + e.getMessage());
+        }
+
         entityManager.merge(existingStudent);
+
+        // Create StudentEmailContext
+        StudentEmailContext context = new StudentEmailContext(
+                existingStudent.getId(),
+                existingStudent.getFullName(),
+                existingStudent.getCampus() != null ? existingStudent.getCampus().getCampusName() : null,
+                existingStudent.getMajor() != null ? existingStudent.getMajor().getMajorName() : null,
+                existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
+                existingStudent.getAdmissionYear(),
+                existingStudent.getCreatedDate(),
+                existingStudent.getLearningProgramType() != null ? existingStudent.getLearningProgramType().toString() : null,
+                avatarPath
+        );
+
         String subject = "Your student account information after being edited";
-        emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, existingStudent);
+        emailServiceForStudentService.sendEmailToNotifyInformationAfterEditing(existingStudent.getEmail(), subject, context);
     }
 
     @Override
     public Students getStudentById(String id) {
-        return entityManager.find(Students.class, id);
+        return entityManager.createQuery(
+                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
+                        Students.class
+                )
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     @Override
@@ -239,9 +323,10 @@ public class StudentDAOImpl implements StudentsDAO {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.major = :staffmajor and s.campus=:campuses", Students.class)
+                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.major = :staffmajor AND s.campus = :campuses",
+                        Students.class)
                 .setParameter("staffmajor", majors)
-                .setParameter("campuses", staff.getMajorManagement())
+                .setParameter("campuses", staff.getCampus())
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();

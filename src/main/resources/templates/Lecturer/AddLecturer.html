@@ -13,7 +13,7 @@
         <i class="fas fa-user-plus"></i> Add New Lecture
     </h1>
 
-    <form class="mt-4" method="post" th:action="@{/staff-home/lectures-list/add-lecture}" th:object="${lecture}" enctype="multipart/form-data">
+    <form class="mt-4" method="post" th:action="@{/staff-home/lecturers-list/add-lecturer}" th:object="${lecture}" enctype="multipart/form-data">
         <!-- Avatar -->
         <div class="mb-3">
             <label for="avatarFile" class="form-label">Avatar:</label>
@@ -132,7 +132,7 @@
             <button class="btn btn-success" type="submit">
                 <i class="fas fa-save"></i> Save Lecture
             </button>
-            <a class="btn btn-secondary" th:href="@{/staff-home/lectures-list}">
+            <a class="btn btn-secondary" th:href="@{/staff-home/lecturers-list}">
                 <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>

@@ -1,8 +1,8 @@
 package com.example.demo.lecturer.dao;
 
 import com.example.demo.authenticator.service.AuthenticatorsService;
-import com.example.demo.email_service.serive.EmailServiceForLectureService;
-import com.example.demo.email_service.serive.EmailServiceForStudentService;
+import com.example.demo.email_service.service.EmailServiceForLectureService;
+import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.major.model.Majors;
 import com.example.demo.Staff.model.Staffs;

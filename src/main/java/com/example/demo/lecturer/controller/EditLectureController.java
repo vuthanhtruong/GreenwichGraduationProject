@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home/lectures-list")
+@RequestMapping("/staff-home/lecturers-list")
 public class EditLectureController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
@@ -37,15 +37,15 @@ public class EditLectureController {
         this.personsService = personsService;
     }
 
-    @PostMapping("/edit-lecture-form")
+    @PostMapping("/edit-lecturer-form")
     public String handleEditLecturePost(@RequestParam String id, Model model) {
         MajorLecturers lecture = lecturesService.getLecturerById(id);
         model.addAttribute("lecture", lecture);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
-        return "EditLectureForm";
+        return "EditLecturerForm";
     }
 
-    @PutMapping("/edit-lecture-form")
+    @PutMapping("/edit-lecturer-form")
     public String updateLecture(
             @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             BindingResult bindingResult,
@@ -60,13 +60,13 @@ public class EditLectureController {
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            return "EditLectureForm";
+            return "EditLecturerForm";
         }
 
         try {
             if (!personsService.existsPersonById(lecture.getId())) {
                 redirectAttributes.addFlashAttribute("error", "Lecture with ID " + lecture.getId() + " not found.");
-                return "redirect:/staff-home/lectures-list";
+                return "redirect:/staff-home/lecturers-list";
             }
             lecturesService.updateLecturer(lecture.getId(), lecture, avatarFile);
             redirectAttributes.addFlashAttribute("successMessage", "Lecture updated successfully!");
@@ -74,8 +74,8 @@ public class EditLectureController {
             redirectAttributes.addFlashAttribute("error", "Error updating lecture: " + e.getMessage());
             modelMap.addAttribute("errors", List.of("Error updating lecture: " + e.getMessage()));
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            return "EditLectureForm";
+            return "EditLecturerForm";
         }
-        return "redirect:/staff-home/lectures-list";
+        return "redirect:/staff-home/lecturers-list";
     }
 }

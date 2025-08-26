@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/staff-home/lectures-list")
+@RequestMapping("/staff-home/lecturers-list")
 public class DeleteLectureController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
@@ -19,10 +19,10 @@ public class DeleteLectureController {
         this.lecturesService = lecturesService;
     }
 
-    @DeleteMapping("/delete-lecture/{id}")
+    @DeleteMapping("/delete-lecturer/{id}")
     public String deleteLecture(@PathVariable String id, RedirectAttributes redirectAttributes) {
         lecturesService.deleteLecturer(id);
         redirectAttributes.addFlashAttribute("message", "Delete lecture ID member: " + id);
-        return "redirect:/staff-home/lectures-list";
+        return "redirect:/staff-home/lecturers-list";
     }
 }

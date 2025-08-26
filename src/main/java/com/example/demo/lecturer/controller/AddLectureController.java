@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home/lectures-list/")
+@RequestMapping("/staff-home/lecturers-list/")
 public class AddLectureController {
     private final StaffsService staffsService;
     private final LecturesService lecturesService;

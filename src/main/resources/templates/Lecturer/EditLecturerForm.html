@@ -26,7 +26,7 @@
     </a>
 
     <!-- Update Lecture Form -->
-    <form class="mt-4" th:method="post" th:action="@{/staff-home/lectures-list/edit-lecture-form}" th:object="${lecture}" enctype="multipart/form-data">
+    <form class="mt-4" th:method="post" th:action="@{/staff-home/lectures-list/edit-lecturer-form}" th:object="${lecture}" enctype="multipart/form-data">
         <input type="hidden" name="_method" value="put"/>
         <input type="hidden" th:field="*{id}"/>
 
@@ -36,7 +36,7 @@
             <img th:if="${session.avatarLecture != null}"
                  th:src="@{${session.avatarLecture}}"
                  class="avatar-img" alt="Avatar from Session"/>
-            <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecture.id}}"
+            <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lecturers-list/avatar/' + ${lecture.id}}"
                  class="avatar-img" alt="Lecture Avatar"/>
             <img th:if="${lecture.avatar == null && session.avatarLecture == null}" th:src="${lecture.defaultAvatarPath}"
                  class="avatar-img" alt="Default Avatar"/>

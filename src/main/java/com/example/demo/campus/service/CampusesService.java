@@ -14,4 +14,5 @@ public interface CampusesService {
     void editCampus(Campuses campus);
     List<String> validateCampus(Campuses campus);
     String generateUniqueCampusId(LocalDate createdDate);
+    void updateCampusFields(Campuses existing, Campuses updated);
 }

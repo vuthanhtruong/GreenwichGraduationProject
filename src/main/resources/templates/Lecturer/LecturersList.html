@@ -28,7 +28,7 @@
 
     <div>
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <form method="post" th:action="@{/search-lectures}">
+            <form method="post" th:action="@{/search-lecturers}">
                 <div class="input-group w-50">
                     <select class="form-select" name="searchType">
                         <option value="name">🔍 Search by Name</option>
@@ -44,13 +44,13 @@
                 <a class="btn btn-secondary mx-2" th:href="@{/staff-home}">
                     <i class="fas fa-home"></i> Home
                 </a>
-                <a class="btn btn-success mx-2" th:href="@{/staff-home/lectures-list/add-lecture}">
+                <a class="btn btn-success mx-2" th:href="@{/staff-home/lecturers-list/add-lecturer}">
                     <i class="fas fa-user-plus"></i> Add lecture
                 </a>
             </div>
         </div>
 
-        <form class="d-flex align-items-center" method="get" th:action="@{/staff-home/lectures-list}">
+        <form class="d-flex align-items-center" method="get" th:action="@{/staff-home/lecturers-list}">
             <label class="me-2" for="pageSizeInput">📌 Show:</label>
             <input class="form-control form-control-sm w-25" id="pageSizeInput" max="100" min="1"
                    name="pageSize" th:value="${pageSize}" type="number">
@@ -78,7 +78,7 @@
                 <tr th:each="lecture : ${teachers}">
                     <td class="text-center" th:text="${lecture.getId()}"></td>
                     <td class="text-center">
-                        <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecture.id}}"
+                        <img th:if="${lecture.avatar != null}" th:src="@{'/staff-home/lecturers-list/avatar/' + ${lecture.id}}"
                              class="avatar-img" alt="lecture Avatar"/>
                         <img th:if="${lecture.avatar == null}" th:src="${lecture.defaultAvatarPath}"
                              class="avatar-img" alt="Default Avatar"/>
@@ -90,13 +90,13 @@
                     <td class="text-center" th:text="${lecture.getGender()}"></td>
                     <td class="text-center" th:text="${lecture.getCreator().getId()}"></td>
                     <td class="text-center">
-                        <form th:action="@{/staff-home/lectures-list/edit-lecture-form}" method="post" style="display:inline;">
+                        <form th:action="@{/staff-home/lecturers-list/edit-lecturer-form}" method="post" style="display:inline;">
                             <input type="hidden" name="id" th:value="${lecture.getId()}" />
                             <button type="submit" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
                         </form>
-                        <form th:action="@{/staff-home/lectures-list/delete-lecture/{id}(id=${lecture.id})}"
+                        <form th:action="@{/staff-home/lecturers-list/delete-lecturer/{id}(id=${lecture.id})}"
                               method="post"
                               th:id="'deleteForm-' + ${lecture.id}">
                             <input type="hidden" name="_method" value="delete"/> <!-- Đây là phần quan trọng -->
@@ -119,19 +119,19 @@
         <ul class="pagination justify-content-center">
             <!-- First Page -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/staff-home/lectures-list(page=1, pageSize=${pageSize})}">First</a>
+                <a class="page-link" th:href="@{/staff-home/lecturers-list(page=1, pageSize=${pageSize})}">First</a>
             </li>
 
             <!-- Previous -->
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/staff-home/lectures-list(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
+                   th:href="@{/staff-home/lecturers-list(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
             </li>
 
             <!-- Page numbers -->
             <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
                 <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/staff-home/lectures-list(page=${i}, pageSize=${pageSize})}"
+                    <a class="page-link" th:href="@{/staff-home/lecturers-list(page=${i}, pageSize=${pageSize})}"
                        th:text="${i}"></a>
                 </li>
             </th:block>
@@ -139,7 +139,7 @@
             <!-- Next -->
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/staff-home/lectures-list(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
+                   th:href="@{/staff-home/lecturers-list(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
             </li>
 
             <!-- Last -->

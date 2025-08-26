@@ -77,14 +77,6 @@
             <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
             <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone number') and !error.contains('Parent')}" th:text="${error}"></div>
         </div>
-
-        <!-- MIS ID -->
-        <div class="mb-3">
-            <label for="misId" class="form-label">MIS ID:</label>
-            <input id="misId" class="form-control" th:field="*{misId}" type="text">
-            <div class="text-danger" th:if="${#fields.hasErrors('misId')}" th:errors="*{misId}"></div>
-        </div>
-
         <!-- Birth Date -->
         <div class="mb-3">
             <label for="birthDate" class="form-label">Birth Date:</label>
