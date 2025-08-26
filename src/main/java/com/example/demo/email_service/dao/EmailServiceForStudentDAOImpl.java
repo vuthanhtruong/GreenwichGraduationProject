@@ -15,80 +15,201 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     @Autowired
     private JavaMailSender mailSender;
 
-    private String generateEmailTemplate(StudentEmailContext context, String title, String subtitle, String mainMessage, boolean includeCredentials, String studentId, String rawPassword) {
+    private String generateEmailTemplate(
+            StudentEmailContext context,
+            String title,
+            String subtitle,
+            String mainMessage,
+            boolean includeCredentials,
+            String studentId,
+            String rawPassword
+    ) {
+        // Helpers
+        java.util.function.Function<String, String> safe = v -> v != null ? v : "N/A";
+        java.util.function.Function<java.time.LocalDate, String> safeDate = d -> d != null ? d.toString() : "N/A";
+        String year = String.valueOf(java.time.Year.now().getValue());
+
+        String preheader = "Welcome to our community — your account details and next steps inside.";
+
+        String campus = safe.apply(context.campusName());
+        String major  = safe.apply(context.majorName());
+        String learn  = safe.apply(context.learningProgramType());
+        String creator = safe.apply(context.creatorName());
+
+        String loginUrl = "https://university.example.com/login";
+        String supportEmail = "support@university.example.com";
+        String addressLine = "123 University Avenue, City, Country";
+
+        // Lưu ý: dùng style inline cho độ tương thích email client
         StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html>");
-        html.append("<html lang='en'>");
-        html.append("<head>");
-        html.append("<meta charset='UTF-8'>");
-        html.append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>");
-        html.append("<style>");
-        html.append("body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }");
-        html.append(".container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }");
-        html.append(".header { background: #004aad; color: #ffffff; padding: 20px; text-align: center; border-top-left-radius: 8px; border-top-right-radius: 8px; }");
-        html.append(".header h1 { margin: 0; font-size: 24px; }");
-        html.append(".content { padding: 20px; }");
-        html.append(".content h2 { color: #333333; font-size: 20px; margin-top: 0; }");
-        html.append(".content p { color: #666666; line-height: 1.6; }");
-        html.append(".info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }");
-        html.append(".info-table th, .info-table td { padding: 10px; border: 1px solid #dddddd; text-align: left; }");
-        html.append(".info-table th { background: #f9f9f9; color: #333333; }");
-        html.append(".credentials { background: #e8f0fe; padding: 15px; border-radius: 5px; margin: 20px 0; }");
-        html.append(".credentials p { margin: 5px 0; }");
-        html.append(".footer { text-align: center; padding: 20px; color: #999999; font-size: 12px; }");
-        html.append(".button { display: inline-block; padding: 10px 20px; margin: 20px 0; background: #004aad; color: #ffffff; text-decoration: none; border-radius: 5px; }");
-        html.append("@media only screen and (max-width: 600px) { .container { margin: 10px; } .header h1 { font-size: 20px; } .content h2 { font-size: 18px; } }");
-        html.append("</style>");
-        html.append("</head>");
-        html.append("<body>");
-        html.append("<div class='container'>");
-        html.append("<div class='header'>");
-        html.append("<h1>").append(title).append("</h1>");
-        html.append("</div>");
-        html.append("<div class='content'>");
-        html.append("<h2>").append(subtitle).append("</h2>");
-        html.append("<p>Dear ").append(context.fullName()).append(",</p>");
+        html.append("<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>")
+                .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
+                // Preheader (ẩn)
+                .append("<title>").append(title).append("</title>")
+                .append("<style>@media only screen and (max-width:600px){.container{width:100%!important;margin:0!important;border-radius:0!important}.px{padding-left:16px!important;padding-right:16px!important}.h1{font-size:22px!important}.h2{font-size:18px!important}.btn{padding:12px 18px!important;font-size:14px!important}}</style>")
+                .append("</head><body style='margin:0;padding:0;background:#f5f7fa;font-family:Helvetica,Arial,sans-serif;color:#1f2937;'>")
+
+                // Preheader “ẩn” bằng display:none; và font-size nhỏ
+                .append("<div style='display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;'>")
+                .append(preheader)
+                .append("</div>")
+
+                // Container
+                .append("<table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='background:#f5f7fa;'>")
+                .append("<tr><td align='center' style='padding:24px;'>")
+
+                .append("<table role='presentation' class='container' width='600' cellpadding='0' cellspacing='0' style='width:600px;max-width:600px;background:#ffffff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,0.08);overflow:hidden;'>")
+
+                // Header
+                .append("<tr><td style='background:linear-gradient(135deg,#0b4be0 0%,#1a75ff 100%);padding:28px 24px;text-align:center;'>")
+                .append("<img src='https://university.example.com/logo.png' width='140' height='auto' alt='University Logo' style='display:block;margin:0 auto 10px auto;border:0;outline:none;text-decoration:none;'>")
+                .append("<div class='h1' style='font-size:24px;line-height:1.3;color:#ffffff;font-weight:700;letter-spacing:.2px;'>")
+                .append("🎓 ").append(title)
+                .append("</div>")
+                .append("<div class='h2' style='font-size:16px;line-height:1.6;color:#e6f0ff;margin-top:6px;'>")
+                .append(subtitle)
+                .append("</div>")
+                .append("</td></tr>")
+
+                // Content
+                .append("<tr><td class='px' style='padding:28px 28px 10px 28px;'>")
+                .append("<p style='margin:0 0 14px 0;font-size:16px;line-height:1.75;color:#374151;'>Dear ")
+                .append(safe.apply(context.fullName()))
+                .append(",</p>");
+
         if (context.avatarPath() != null) {
-            html.append("<p><img src='").append(context.avatarPath()).append("' alt='Student Avatar' style='max-width: 100px; border-radius: 5px;'/></p>");
+            html.append("<div style='text-align:center;margin:18px 0 10px 0;'>")
+                    .append("<img src='").append(context.avatarPath()).append("' width='120' alt='Student Avatar' ")
+                    .append("style='display:inline-block;border-radius:12px;border:1px solid #eef2f7;max-width:120px;height:auto;'>")
+                    .append("</div>");
         }
-        html.append("<p>").append(mainMessage).append("</p>");
-        html.append("<table class='info-table'>");
-        html.append("<tr><th>Student ID</th><td>").append(context.studentId() != null ? context.studentId() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Full Name</th><td>").append(context.fullName()).append("</td></tr>");
-        html.append("<tr><th>Admission Year</th><td>").append(context.admissionYear() != null ? context.admissionYear().toString() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Created Date</th><td>").append(context.createdDate() != null ? context.createdDate().toString() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Major</th><td>").append(context.majorName() != null ? context.majorName() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Campus</th><td>").append(context.campusName() != null ? context.campusName() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Learning Program</th><td>").append(context.learningProgramType() != null ? context.learningProgramType() : "N/A").append("</td></tr>");
-        html.append("<tr><th>Created By</th><td>").append(context.creatorName() != null ? context.creatorName() : "N/A").append("</td></tr>");
-        html.append("</table>");
+
+        html.append("<p style='margin:0 0 18px 0;font-size:16px;line-height:1.8;color:#4b5563;'>")
+                .append(mainMessage)
+                .append("</p>");
+
+        // Key highlights (icon chips)
+        html.append("<table role='presentation' width='100%' cellpadding='0' cellspacing='0' style='margin:6px 0 14px 0;'>")
+                .append("<tr>")
+                .append("<td style='padding:6px 0;'>")
+                .append("<span style='display:inline-block;background:#f1f5ff;color:#0b4be0;border:1px solid #dbe7ff;border-radius:10px;padding:6px 10px;font-size:13px;margin-right:6px;'>🔑 Account Access</span>")
+                .append("<span style='display:inline-block;background:#f1fff5;color:#047857;border:1px solid #d8f6df;border-radius:10px;padding:6px 10px;font-size:13px;margin-right:6px;'>📘 Program: ").append(learn).append("</span>")
+                .append("<span style='display:inline-block;background:#fffaf1;color:#b45309;border:1px solid #fde7c7;border-radius:10px;padding:6px 10px;font-size:13px;'>📍 Campus: ").append(campus).append("</span>")
+                .append("</td>")
+                .append("</tr>")
+                .append("</table>");
+
+        // Info table (two column)
+        html.append("<table class='info-table' role='presentation' width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;width:40%;font-weight:600;border-bottom:1px solid #e5e7eb;'>Student ID</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(safe.apply(context.studentId())).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;width:40%;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Full Name</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(safe.apply(context.fullName())).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;'>Email</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(safe.apply(context.email())).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Phone Number</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(safe.apply(context.phoneNumber())).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;'>Birth Date</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(safeDate.apply(context.birthDate())).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Gender</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(safe.apply(context.gender())).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;'>Address</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(safe.apply(context.fullAddress())).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Campus</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(campus).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;'>Major</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(major).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Admission Year</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(safeDate.apply(context.admissionYear())).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;'>Created Date</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;'>").append(safeDate.apply(context.createdDate())).append("</td>")
+                .append("</tr>")
+                .append("<tr>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;'>Learning Program</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;'>").append(learn).append("</td>")
+                .append("</tr>")
+                .append("<tr style='background:#f8fafc;'>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;'>Created By</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;'>").append(creator).append("</td>")
+                .append("</tr>")
+                .append("</table>");
+
+        // Credentials block (nếu có)
         if (includeCredentials) {
-            html.append("<div class='credentials'>");
-            html.append("<p><strong>Your Login Credentials:</strong></p>");
-            html.append("<p><strong>Student ID:</strong> ").append(studentId).append("</p>");
-            html.append("<p><strong>Password:</strong> ").append(rawPassword).append("</p>");
-            html.append("<p>Please change your password after your first login for security purposes.</p>");
-            html.append("</div>");
+            html.append("<div style='margin:20px 0;padding:16px 16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;'>")
+                    .append("<div style='font-weight:700;color:#1d4ed8;margin-bottom:8px;'>🔐 Your Login Credentials</div>")
+                    .append("<div style='font-size:14px;color:#374151;line-height:1.7;'>")
+                    .append("<div><strong>Username:</strong> ").append(safe.apply(studentId)).append("</div>")
+                    .append("<div><strong>Password:</strong> ").append(safe.apply(rawPassword)).append("</div>")
+                    .append("<div style='margin-top:6px;color:#6b7280;'>For your security, please change your password after the first login.</div>")
+                    .append("</div>")
+                    .append("</div>");
         }
-        html.append("<p><a href='https://university.example.com/login' class='button'>Access Your Account</a></p>");
-        html.append("<p>If you have any questions, please contact our support team at <a href='mailto:support@university.example.com'>support@university.example.com</a>.</p>");
-        html.append("</div>");
-        html.append("<div class='footer'>");
-        html.append("<p>&copy; ").append(java.time.Year.now().getValue()).append(" University Name. All rights reserved.</p>");
-        html.append("<p>123 University Avenue, City, Country</p>");
-        html.append("</div>");
-        html.append("</div>");
-        html.append("</body>");
-        html.append("</html>");
+
+        // CTA button
+        html.append("<div style='text-align:center;margin:22px 0 8px 0;'>")
+                .append("<a href='").append(loginUrl).append("' class='btn' ")
+                .append("style='display:inline-block;background:#0b4be0;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:10px;font-size:15px;font-weight:600;border:1px solid #0940c2;'>")
+                .append("Access Your Account")
+                .append("</a>")
+                .append("</div>")
+
+                // Support line
+                .append("<p style='margin:6px 0 0 0;font-size:13px;line-height:1.7;color:#6b7280;text-align:center;'>")
+                .append("Need help? Contact our support team at ")
+                .append("<a href='mailto:").append(supportEmail).append("' style='color:#0b4be0;text-decoration:none;'>").append(supportEmail).append("</a>.")
+                .append("</p>")
+
+                .append("</td></tr>") // end content
+
+                // Footer
+                .append("<tr><td style='background:#f8fafc;padding:18px 24px;text-align:center;border-top:1px solid #eef2f7;'>")
+                .append("<p style='margin:0 0 6px 0;font-size:12px;color:#9ca3af;'>&copy; ").append(year).append(" University Name. All rights reserved.</p>")
+                .append("<p style='margin:0 0 10px 0;font-size:12px;color:#9ca3af;'>").append(addressLine).append("</p>")
+                .append("<p style='margin:0;font-size:12px;'>")
+                .append("<a href='https://www.facebook.com/GreenwichVietnam' style='color:#0b4be0;text-decoration:none;margin:0 6px;'>Facebook</a>")
+                .append("<span style='color:#d1d5db;'>|</span>")
+                .append("<a href='https://www.instagram.com/universityofgreenwichvn' style='color:#0b4be0;text-decoration:none;margin:0 6px;'>Instagram</a>")
+                .append("<span style='color:#d1d5db;'>|</span>")
+                .append("<a href='https://www.tiktok.com/@greenwichvietnam' style='color:#0b4be0;text-decoration:none;margin:0 6px;'>TikTok</a>")
+                .append("</p>")
+                .append("</td></tr>")
+
+                .append("</table>") // container end
+                .append("</td></tr></table>")
+                .append("</body></html>");
+
         return html.toString();
     }
+
 
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyLoginInformation(String to, String subject, StudentEmailContext context, String rawPassword) throws MessagingException {
         String htmlMessage = generateEmailTemplate(
                 context,
-                "Student Account Created",
+                "Access Your Student Account",
                 "Welcome to Our University",
                 "Your student account has been successfully created. Below are your account details and important information.",
                 true,

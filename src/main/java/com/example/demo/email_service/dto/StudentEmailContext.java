@@ -5,6 +5,11 @@ import java.time.LocalDate;
 public record StudentEmailContext(
         String studentId,
         String fullName,
+        String email,
+        String phoneNumber,
+        LocalDate birthDate,
+        String gender,
+        String fullAddress,
         String campusName,
         String majorName,
         String creatorName,
@@ -13,4 +18,3 @@ public record StudentEmailContext(
         String learningProgramType,
         String avatarPath
 ) {}
-

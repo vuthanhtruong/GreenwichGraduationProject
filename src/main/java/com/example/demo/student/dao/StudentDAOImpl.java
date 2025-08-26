@@ -46,7 +46,7 @@ public class StudentDAOImpl implements StudentsDAO {
     private final AuthenticatorsService authenticatorsService;
 
     // Base directory and URL for avatar storage
-    private static final String AVATAR_STORAGE_PATH = "avatars/"; // e.g., /var/www/avatars/ or project-relative path
+    private static final String AVATAR_STORAGE_PATH = "avatars/";
     private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
 
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
@@ -75,7 +75,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (avatarData == null || avatarData.length == 0) {
             return null;
         }
-        String fileName = studentId + "_" + System.currentTimeMillis() + ".jpg"; // Unique filename
+        String fileName = studentId + "_" + System.currentTimeMillis() + ".jpg";
         Path filePath = Paths.get(AVATAR_STORAGE_PATH, fileName);
         Files.write(filePath, avatarData);
         return AVATAR_BASE_URL + fileName;
@@ -228,6 +228,11 @@ public class StudentDAOImpl implements StudentsDAO {
         StudentEmailContext context = new StudentEmailContext(
                 savedStudent.getId(),
                 savedStudent.getFullName(),
+                savedStudent.getEmail(),
+                savedStudent.getPhoneNumber(),
+                savedStudent.getBirthDate(),
+                savedStudent.getGender() != null ? savedStudent.getGender().toString() : null,
+                savedStudent.getFullAddress(),
                 savedStudent.getCampus() != null ? savedStudent.getCampus().getCampusName() : null,
                 savedStudent.getMajor() != null ? savedStudent.getMajor().getMajorName() : null,
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
@@ -269,7 +274,6 @@ public class StudentDAOImpl implements StudentsDAO {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
-        // Fetch student with relationships to avoid LazyInitializationException
         Students existingStudent = entityManager.createQuery(
                         "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
                         Students.class
@@ -295,6 +299,11 @@ public class StudentDAOImpl implements StudentsDAO {
         StudentEmailContext context = new StudentEmailContext(
                 existingStudent.getId(),
                 existingStudent.getFullName(),
+                existingStudent.getEmail(),
+                existingStudent.getPhoneNumber(),
+                existingStudent.getBirthDate(),
+                existingStudent.getGender() != null ? existingStudent.getGender().toString() : null,
+                existingStudent.getFullAddress(),
                 existingStudent.getCampus() != null ? existingStudent.getCampus().getCampusName() : null,
                 existingStudent.getMajor() != null ? existingStudent.getMajor().getMajorName() : null,
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
