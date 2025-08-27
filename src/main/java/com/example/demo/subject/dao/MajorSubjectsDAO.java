@@ -19,4 +19,8 @@ public interface MajorSubjectsDAO {
     String generateUniqueSubjectId(String majorId, LocalDate createdDate);
     List<String> validateSubject(MajorSubjects subject);
     boolean existsBySubjectExcludingName(String SubjectName, String SubjectId);
+    List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
+    long numberOfSubjects(Majors major);
+    List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major);
+    long countSearchResults(String searchType, String keyword, Majors major);
 }

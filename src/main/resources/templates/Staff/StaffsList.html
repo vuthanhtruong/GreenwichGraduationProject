@@ -30,8 +30,8 @@
             <form method="post" th:action="@{/search-staffs}">
                 <div class="input-group w-50">
                     <select class="form-select" name="searchType">
-                        <option value="name">🔍 Search by Name</option>
-                        <option value="id">🔍 Search by ID</option>
+                        <option value="name"><i class="fas fa-user"></i> Search by Name</option>
+                        <option value="id"><i class="fas fa-id-card"></i> Search by ID</option>
                     </select>
                     <input class="form-control" name="keyword" placeholder="Enter keyword..." type="text">
                     <button class="btn btn-primary" type="submit">
@@ -50,7 +50,7 @@
         </div>
 
         <form class="d-flex align-items-center" method="get" th:action="@{/admin-home/staffs-list}">
-            <label class="me-2" for="pageSizeInput">📌 Show:</label>
+            <label class="me-2" for="pageSizeInput"><i class="fas fa-list"></i> Show:</label>
             <input class="form-control form-control-sm w-25" id="pageSizeInput" max="100" min="1"
                    name="pageSize" th:value="${pageSize}" type="number">
             <button class="btn btn-primary btn-sm ms-2" type="submit">
@@ -114,11 +114,15 @@
 
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin-home/staffs-list(page=1, pageSize=${pageSize})}">First</a>
+                <a class="page-link" th:href="@{/admin-home/staffs-list(page=1, pageSize=${pageSize})}">
+                    <i class="fas fa-angle-double-left"></i> First
+                </a>
             </li>
             <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/admin-home/staffs-list(page=${currentPage - 1}, pageSize=${pageSize})}">«</a>
+                   th:href="@{/admin-home/staffs-list(page=${currentPage - 1}, pageSize=${pageSize})}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
             </li>
             <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
                 <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
@@ -128,11 +132,15 @@
             </th:block>
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/admin-home/staffs-list(page=${currentPage + 1}, pageSize=${pageSize})}">»</a>
+                   th:href="@{/admin-home/staffs-list(page=${currentPage + 1}, pageSize=${pageSize})}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
             </li>
             <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/admin-home/staffs-list(page=${totalPages}, pageSize=${pageSize})}">Last</a>
+                   th:href="@{/admin-home/staffs-list(page=${totalPages}, pageSize=${pageSize})}">
+                    <i class="fas fa-angle-double-right"></i> Last
+                </a>
             </li>
         </ul>
     </div>

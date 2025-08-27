@@ -12,6 +12,26 @@ import java.util.List;
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
+    public List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major) {
+        return subjectsDAO.getPaginatedSubjects(firstResult, pageSize, major);
+    }
+
+    @Override
+    public long numberOfSubjects(Majors major) {
+        return subjectsDAO.numberOfSubjects(major);
+    }
+
+    @Override
+    public List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
+        return subjectsDAO.searchSubjects(searchType, keyword, firstResult, pageSize, major);
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword, Majors major) {
+        return 0;
+    }
+
+    @Override
     public boolean existsBySubjectExcludingName(String SubjectName, String SubjectId) {
         return subjectsDAO.existsBySubjectExcludingName(SubjectName, SubjectId);
     }

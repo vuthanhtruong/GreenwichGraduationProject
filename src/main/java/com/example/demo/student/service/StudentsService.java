@@ -21,4 +21,6 @@ public interface StudentsService {
     List<String> StudentValidation(Students student, MultipartFile avatarFile);
     String generateUniqueStudentId(String majorId, LocalDate createdDate);
     String generateRandomPassword(int length);
+    long countSearchResults(String searchType, String keyword);
+    List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize);
 }

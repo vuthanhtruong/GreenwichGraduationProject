@@ -217,7 +217,7 @@ public class LecturesDAOImpl implements LecturesDAO {
         return entityManager.createQuery(
                         "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor and s.campus=:campuses", MajorLecturers.class)
                 .setParameter("staffmajor", majors)
-                .setParameter("campuses", staff.getMajorManagement())
+                .setParameter("campuses", staff.getCampus())
                 .setMaxResults(pageSize)
                 .getResultList();
     }
@@ -226,6 +226,33 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getEmail() == null || lecturer.getPhoneNumber() == null) {
             throw new IllegalArgumentException("Email and phone number are required");
         }
+    }
+    @Override
+    public List<MajorLecturers> searchLecturers(String searchType, String keyword, int firstResult, int pageSize) {
+        String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator WHERE ";
+        if ("name".equals(searchType)) {
+            queryString += "LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword)";
+        } else {
+            queryString += "l.id LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, MajorLecturers.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword) {
+        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE ";
+        if ("name".equals(searchType)) {
+            queryString += "LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword)";
+        } else {
+            queryString += "l.id LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getSingleResult();
     }
 
     private void updateLecturerFields(MajorLecturers existing, MajorLecturers updated) {

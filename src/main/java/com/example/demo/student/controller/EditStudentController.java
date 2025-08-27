@@ -52,16 +52,38 @@ public class EditStudentController {
     }
 
     @PostMapping("/edit-student-form")
-    public String handleEditStudentPost(@RequestParam String id, Model model) {
+    public String handleEditStudentPost(
+            @RequestParam String id,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false, defaultValue = "list") String source,
+            Model model, RedirectAttributes redirectAttributes) {
         Students student = studentsService.getStudentById(id);
         if (student == null) {
-            return "redirect:/staff-home/students-list?error=Student+not+found";
+            redirectAttributes.addFlashAttribute("error", "Student with ID " + id + " not found.");
+            if (source.equals("search")) {
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                return "redirect:/staff-home/search-students";
+            }
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize);
+            return "redirect:/staff-home/students-list";
         }
         List<Student_ParentAccounts> parentLinks = parentAccountsService.getParentLinksByStudentId(id);
         model.addAttribute("student", student);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
         model.addAttribute("parentLinks", parentLinks);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("page", page);
+        model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+        model.addAttribute("source", source);
         return "EditStudentForm";
     }
 
@@ -76,13 +98,18 @@ public class EditStudentController {
             @RequestParam(value = "parentEmail2", required = false) String parentEmail2,
             @RequestParam(value = "supportPhoneNumber2", required = false) String supportPhoneNumber2,
             @RequestParam(value = "parentRelationship2", required = false) String parentRelationship2,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(required = false, defaultValue = "list") String source,
             RedirectAttributes redirectAttributes,
             ModelMap modelMap,
             HttpSession httpSession) {
 
         List<String> errors = new ArrayList<>();
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
-        if(student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2)){
+        if (student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2)) {
             errors.add("Student and parent emails cannot be duplicated.");
         }
         // Validate parent inputs only if any field is provided
@@ -106,6 +133,11 @@ public class EditStudentController {
             modelMap.addAttribute("parentEmail2", parentEmail2);
             modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             modelMap.addAttribute("parentRelationship2", parentRelationship2);
+            modelMap.addAttribute("searchType", searchType);
+            modelMap.addAttribute("keyword", keyword);
+            modelMap.addAttribute("page", page);
+            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            modelMap.addAttribute("source", source);
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
@@ -113,7 +145,17 @@ public class EditStudentController {
         try {
             // Check if student exists
             if (!personsService.existsPersonById(student.getId())) {
-                redirectAttributes.addFlashAttribute("error", "Person with ID " + student.getId() + " not found.");
+                redirectAttributes.addFlashAttribute("error", "Student with ID " + student.getId() + " not found.");
+                if (source.equals("search")) {
+                    redirectAttributes.addFlashAttribute("searchType", searchType);
+                    redirectAttributes.addFlashAttribute("keyword", keyword);
+                    redirectAttributes.addFlashAttribute("page", page);
+                    redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                    httpSession.removeAttribute("avatarStudent");
+                    return "redirect:/staff-home/search-students";
+                }
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
                 httpSession.removeAttribute("avatarStudent");
                 return "redirect:/staff-home/students-list";
             }
@@ -126,7 +168,7 @@ public class EditStudentController {
                 student.setAvatar(existingStudent.getAvatar());
             }
 
-            // edit student
+            // Edit student
             studentsService.editStudent(student.getId(), student);
 
             // Handle parent accounts
@@ -150,8 +192,19 @@ public class EditStudentController {
                 parentAccountsService.deleteIfUnlinked(parent2Link.getParent(), student.getId());
             }
 
-            redirectAttributes.addFlashAttribute("successMessage", "Student editd successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Student edited successfully!");
+            if (source.equals("search")) {
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                httpSession.removeAttribute("avatarStudent");
+                return "redirect:/staff-home/search-students";
+            }
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize);
             httpSession.removeAttribute("avatarStudent");
+            return "redirect:/staff-home/students-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             modelMap.addAttribute("errors", errors);
@@ -164,16 +217,42 @@ public class EditStudentController {
             modelMap.addAttribute("parentEmail2", parentEmail2);
             modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             modelMap.addAttribute("parentRelationship2", parentRelationship2);
+            modelMap.addAttribute("searchType", searchType);
+            modelMap.addAttribute("keyword", keyword);
+            modelMap.addAttribute("page", page);
+            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            modelMap.addAttribute("source", source);
+            httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         } catch (DataAccessException e) {
             redirectAttributes.addFlashAttribute("error", "Database error while updating student: " + e.getMessage());
+            if (source.equals("search")) {
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                httpSession.removeAttribute("avatarStudent");
+                return "redirect:/staff-home/search-students";
+            }
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize);
             httpSession.removeAttribute("avatarStudent");
+            return "redirect:/staff-home/students-list";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Unexpected error while updating student: " + e.getMessage());
+            if (source.equals("search")) {
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                httpSession.removeAttribute("avatarStudent");
+                return "redirect:/staff-home/search-students";
+            }
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize);
             httpSession.removeAttribute("avatarStudent");
+            return "redirect:/staff-home/students-list";
         }
-
-        return "redirect:/staff-home/students-list";
     }
 
     private boolean isAnyFieldProvided(String email, String phoneNumber, String relationship) {

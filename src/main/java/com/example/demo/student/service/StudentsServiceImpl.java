@@ -13,6 +13,16 @@ import java.util.List;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
+    public long countSearchResults(String searchType, String keyword) {
+        return studentsDAO.countSearchResults(searchType, keyword);
+    }
+
+    @Override
+    public List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize) {
+        return studentsDAO.searchStudents(searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
     public String generateUniqueStudentId(String majorId, LocalDate createdDate) {
         return studentsDAO.generateUniqueStudentId(majorId, createdDate);
     }

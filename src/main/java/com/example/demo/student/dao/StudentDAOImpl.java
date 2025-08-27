@@ -18,8 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -339,6 +337,34 @@ public class StudentDAOImpl implements StudentsDAO {
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
+    }
+
+    @Override
+    public List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize) {
+        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE ";
+        if ("name".equals(searchType)) {
+            queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+        } else {
+            queryString += "s.id LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, Students.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword) {
+        String queryString = "SELECT COUNT(s) FROM Students s WHERE ";
+        if ("name".equals(searchType)) {
+            queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+        } else {
+            queryString += "s.id LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getSingleResult();
     }
 
     private void editStudentFields(Students existing, Students editd) {

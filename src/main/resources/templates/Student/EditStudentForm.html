@@ -27,7 +27,10 @@
     <h1 class="text-center text-primary">
         <i class="fas fa-edit"></i> Update Student
     </h1>
-    <a class="btn btn-secondary" th:href="@{/staff-home/students-list}">
+    <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/search-students(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/students-list(page=${page}, pageSize=${pageSize})}">
         <i class="fas fa-arrow-left"></i> Back
     </a>
 
@@ -43,6 +46,11 @@
     <form class="mt-4" th:method="post" th:action="@{/staff-home/students-list/edit-student-form}" th:object="${student}" enctype="multipart/form-data">
         <input type="hidden" name="_method" value="put"/>
         <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" name="searchType" th:value="${searchType}"/>
+        <input type="hidden" name="keyword" th:value="${keyword}"/>
+        <input type="hidden" name="page" th:value="${page}"/>
+        <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+        <input type="hidden" name="source" th:value="${source}"/>
 
         <!-- Current Avatar -->
         <div class="mb-3 text-center">

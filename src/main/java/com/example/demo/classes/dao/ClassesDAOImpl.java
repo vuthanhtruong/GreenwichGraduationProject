@@ -182,6 +182,52 @@ public class ClassesDAOImpl implements ClassesDAO {
         return errors;
     }
 
+    @Override
+    public List<MajorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
+        String queryString = "SELECT c FROM MajorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.subject WHERE c.creator.majorManagement = :major";
+        if ("name".equals(searchType)) {
+            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+        } else {
+            queryString += " AND c.classId LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, MajorClasses.class)
+                .setParameter("major", major)
+                .setParameter("keyword", "%" + keyword + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword, Majors major) {
+        String queryString = "SELECT COUNT(c) FROM MajorClasses c WHERE c.creator.majorManagement = :major";
+        if ("name".equals(searchType)) {
+            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+        } else {
+            queryString += " AND c.classId LIKE :keyword";
+        }
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("major", major)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getSingleResult();
+    }
+
+    @Override
+    public List<MajorClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major) {
+        return entityManager.createQuery("SELECT c FROM MajorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.subject WHERE c.creator.majorManagement = :major", MajorClasses.class)
+                .setParameter("major", major)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long numberOfClasses(Majors major) {
+        return entityManager.createQuery("SELECT COUNT(c) FROM MajorClasses c WHERE c.creator.majorManagement = :major", Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+    }
+
     private boolean isValidName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return false;

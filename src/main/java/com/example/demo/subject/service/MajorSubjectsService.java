@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MajorSubjectsService {
+    boolean existsBySubjectExcludingName(String subjectName, String subjectId);
     void addSubject(MajorSubjects subject);
     MajorSubjects getSubjectById(String subjectId);
     MajorSubjects getSubjectByName(String subjectName);
@@ -18,5 +19,8 @@ public interface MajorSubjectsService {
     void deleteSubject(String id);
     String generateUniqueSubjectId(String majorId, LocalDate createdDate);
     List<String> validateSubject(MajorSubjects subject);
-    boolean existsBySubjectExcludingName(String SubjectName, String SubjectId);
+    List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
+    long numberOfSubjects(Majors major);
+    List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major);
+    long countSearchResults(String searchType, String keyword, Majors major);
 }

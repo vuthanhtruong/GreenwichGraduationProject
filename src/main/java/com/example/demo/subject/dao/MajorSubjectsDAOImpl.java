@@ -1,9 +1,9 @@
 package com.example.demo.subject.dao;
 
-import com.example.demo.subject.model.Subjects;
 import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.subject.model.Subjects;
 import com.example.demo.classes.service.ClassesService;
 import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.syllabus.service.SyllabusesService;
@@ -38,16 +38,16 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
-    public boolean existsBySubjectExcludingName(String SubjectName, String SubjectId) {
-        if (SubjectName == null || SubjectName.trim().isEmpty()) {
+    public boolean existsBySubjectExcludingName(String subjectName, String subjectId) {
+        if (subjectName == null || subjectName.trim().isEmpty()) {
             return false;
         }
-        List<Subjects> Subjects = entityManager.createQuery(
-                        "SELECT s FROM Subjects s WHERE s.subjectName = :name AND s.subjectId != :SubjectId", Subjects.class)
-                .setParameter("name", SubjectName.trim())
-                .setParameter("SubjectId", SubjectId != null ? SubjectId : "")
+        List<Subjects> subjects = entityManager.createQuery(
+                        "SELECT s FROM Subjects s WHERE s.subjectName = :name AND s.subjectId != :subjectId", Subjects.class)
+                .setParameter("name", subjectName.trim())
+                .setParameter("subjectId", subjectId != null ? subjectId : "")
                 .getResultList();
-        return !Subjects.isEmpty();
+        return !subjects.isEmpty();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             return List.of();
         }
         return entityManager.createQuery(
-                        "SELECT s FROM MajorSubjects s WHERE s.major = :major AND s.acceptor.id IS NOT NULL ORDER BY s.semester ASC",
+                        "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
                         MajorSubjects.class)
                 .setParameter("major", major)
                 .getResultList();
@@ -119,7 +119,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     @Override
     public List<MajorSubjects> getSubjects() {
-        return entityManager.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList();
+        return entityManager.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class)
+                .getResultList();
     }
 
     @Override
@@ -127,20 +128,17 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         if (subject == null || id == null) {
             throw new IllegalArgumentException("Subject object or ID cannot be null");
         }
-
         MajorSubjects existingSubject = entityManager.find(MajorSubjects.class, id);
         if (existingSubject == null) {
             throw new IllegalArgumentException("Subject with ID " + id + " not found");
         }
-
         List<String> errors = validateSubject(subject);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
-
         existingSubject.setSubjectName(subject.getSubjectName());
         if (subject.getSemester() != null) existingSubject.setSemester(subject.getSemester());
-
+        if (subject.getLearningProgramType() != null) existingSubject.setLearningProgramType(subject.getLearningProgramType());
         return entityManager.merge(existingSubject);
     }
 
@@ -177,10 +175,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                 prefix = "SUBGEN";
                 break;
         }
-
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
-
         String subjectId;
         SecureRandom random = new SecureRandom();
         do {
@@ -193,19 +189,87 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     @Override
     public List<String> validateSubject(MajorSubjects subject) {
         List<String> errors = new ArrayList<>();
-
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
             errors.add("Subject name cannot be blank.");
         } else if (!isValidName(subject.getSubjectName())) {
             errors.add("Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
-
-        MajorSubjects existingSubjectByName = getSubjectByName(subject.getSubjectName());
-        if (subject.getSubjectName() != null && existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+        if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.add("Subject name is already in use.");
         }
-
+        if (subject.getSemester() == null || subject.getSemester() < 1) {
+            errors.add("Semester must be a positive number.");
+        }
+        if (subject.getLearningProgramType() == null) {
+            errors.add("Learning program type is required.");
+        }
         return errors;
+    }
+
+    @Override
+    public List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major) {
+        if (major == null) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.major = :major",
+                        MajorSubjects.class)
+                .setParameter("major", major)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long numberOfSubjects(Majors major) {
+        if (major == null) {
+            return 0;
+        }
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM MajorSubjects s WHERE s.major = :major",
+                        Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
+        if (major == null || keyword == null || searchType == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+        String queryString = "SELECT ms FROM MajorSubjects ms JOIN Subjects s ON ms.subjectId = s.subjectId WHERE ms.major = :major";
+        if ("name".equals(searchType)) {
+            queryString += " AND LOWER(s.subjectName) LIKE LOWER(:keyword)";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND s.subjectId LIKE :keyword";
+        } else {
+            return List.of();
+        }
+        return entityManager.createQuery(queryString, MajorSubjects.class)
+                .setParameter("major", major)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword, Majors major) {
+        if (major == null || keyword == null || searchType == null || keyword.trim().isEmpty()) {
+            return 0;
+        }
+        String queryString = "SELECT COUNT(ms) FROM MajorSubjects ms JOIN Subjects s ON ms.subjectId = s.subjectId WHERE ms.major = :major";
+        if ("name".equals(searchType)) {
+            queryString += " AND LOWER(s.subjectName) LIKE LOWER(:keyword)";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND s.subjectId LIKE :keyword";
+        } else {
+            return 0;
+        }
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("major", major)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .getSingleResult();
     }
 
     private boolean isValidName(String name) {

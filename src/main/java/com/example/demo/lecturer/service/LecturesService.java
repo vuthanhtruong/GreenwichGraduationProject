@@ -27,4 +27,7 @@ public interface LecturesService {
     MajorLecturers getLecturerById(String id);
 
     List<MajorLecturers> getPaginatedLecturers(int firstResult, int pageSize);
+    // Trong LecturesService
+    List<MajorLecturers> searchLecturers(String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchResults(String searchType, String keyword);
 }

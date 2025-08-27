@@ -11,6 +11,26 @@ import java.util.List;
 @Service
 public class ClassesServiceImpl implements ClassesService {
     @Override
+    public List<MajorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
+        return classesDAO.searchClasses(searchType, keyword, firstResult, pageSize, major);
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword, Majors major) {
+        return classesDAO.countSearchResults(searchType, keyword, major);
+    }
+
+    @Override
+    public List<MajorClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major) {
+        return classesDAO.getPaginatedClasses(firstResult, pageSize, major);
+    }
+
+    @Override
+    public long numberOfClasses(Majors major) {
+        return classesDAO.numberOfClasses(major);
+    }
+
+    @Override
     public String generateUniqueClassId(String majorId, LocalDateTime createdDate) {
         return classesDAO.generateUniqueClassId(majorId, createdDate);
     }

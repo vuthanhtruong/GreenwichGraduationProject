@@ -21,14 +21,30 @@
     <h1 class="text-center text-primary">
         <i class="fas fa-edit"></i> Update Lecture
     </h1>
-    <a class="btn btn-secondary" th:href="@{/staff-home/lectures-list}">
+    <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/lecturers-list/search-lecturers(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/lecturers-list(page=${page}, pageSize=${pageSize})}">
         <i class="fas fa-arrow-left"></i> Back
     </a>
 
+    <!-- Error Messages -->
+    <div th:if="${errors != null}" class="alert alert-danger mt-3">
+        <h5>Errors:</h5>
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}"></li>
+        </ul>
+    </div>
+
     <!-- Update Lecture Form -->
-    <form class="mt-4" th:method="post" th:action="@{/staff-home/lectures-list/edit-lecturer-form}" th:object="${lecture}" enctype="multipart/form-data">
+    <form class="mt-4" th:method="post" th:action="@{/staff-home/lecturers-list/edit-lecturer-form}" th:object="${lecture}" enctype="multipart/form-data">
         <input type="hidden" name="_method" value="put"/>
         <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" name="searchType" th:value="${searchType}"/>
+        <input type="hidden" name="keyword" th:value="${keyword}"/>
+        <input type="hidden" name="page" th:value="${page}"/>
+        <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+        <input type="hidden" name="source" th:value="${source}"/>
 
         <!-- Current Avatar -->
         <div class="mb-3 text-center">

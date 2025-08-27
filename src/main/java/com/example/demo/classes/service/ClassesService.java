@@ -19,4 +19,8 @@ public interface ClassesService {
     void deleteClass(String id);
     String generateUniqueClassId(String majorId, LocalDateTime createdDate);
     List<String> validateClass(MajorClasses classObj, String excludeId);
+    List<MajorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major);
+    long countSearchResults(String searchType, String keyword, Majors major);
+    List<MajorClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major);
+    long numberOfClasses(Majors major);
 }

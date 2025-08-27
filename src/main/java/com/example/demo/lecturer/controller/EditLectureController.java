@@ -7,6 +7,7 @@ import com.example.demo.person.service.PersonsService;
 import com.example.demo.Staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,10 +39,28 @@ public class EditLectureController {
     }
 
     @PostMapping("/edit-lecturer-form")
-    public String handleEditLecturePost(@RequestParam String id, Model model) {
+    public String handleEditLecturePost(
+            @RequestParam String id,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false, defaultValue = "list") String source,
+            Model model) {
         MajorLecturers lecture = lecturesService.getLecturerById(id);
+        if (lecture == null) {
+            if (source.equals("search")) {
+                return "redirect:/staff-home/lecturers-list/search-lecturers?error=Lecturer+not+found&searchType=" + (searchType != null ? searchType : "") + "&keyword=" + (keyword != null ? keyword : "") + "&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            }
+            return "redirect:/staff-home/lecturers-list?error=Lecturer+not+found&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+        }
         model.addAttribute("lecture", lecture);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("page", page);
+        model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+        model.addAttribute("source", source);
         return "EditLecturerForm";
     }
 
@@ -50,8 +69,14 @@ public class EditLectureController {
             @Valid @ModelAttribute("lecture") MajorLecturers lecture,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             RedirectAttributes redirectAttributes,
-            ModelMap modelMap) {
+            ModelMap modelMap,
+            HttpSession session) {
         List<String> errors = lecturesService.lectureValidation(lecture, avatarFile);
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
@@ -60,22 +85,53 @@ public class EditLectureController {
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
+            modelMap.addAttribute("searchType", searchType);
+            modelMap.addAttribute("keyword", keyword);
+            modelMap.addAttribute("page", page);
+            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            modelMap.addAttribute("source", source);
+            session.setAttribute("avatarLecture", "/staff-home/lecturers-list/avatar/" + lecture.getId());
             return "EditLecturerForm";
         }
 
         try {
             if (!personsService.existsPersonById(lecture.getId())) {
-                redirectAttributes.addFlashAttribute("error", "Lecture with ID " + lecture.getId() + " not found.");
+                redirectAttributes.addFlashAttribute("error", "Lecturer with ID " + lecture.getId() + " not found.");
+                if (source.equals("search")) {
+                    redirectAttributes.addFlashAttribute("searchType", searchType);
+                    redirectAttributes.addFlashAttribute("keyword", keyword);
+                    redirectAttributes.addFlashAttribute("page", page);
+                    redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                    return "redirect:/staff-home/lecturers-list/search-lecturers";
+                }
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
                 return "redirect:/staff-home/lecturers-list";
             }
+
             lecturesService.updateLecturer(lecture.getId(), lecture, avatarFile);
-            redirectAttributes.addFlashAttribute("successMessage", "Lecture updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Lecturer updated successfully!");
+            session.removeAttribute("avatarLecture");
+            if (source.equals("search")) {
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                return "redirect:/staff-home/lecturers-list/search-lecturers";
+            }
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize);
+            return "redirect:/staff-home/lecturers-list";
         } catch (IOException | MessagingException e) {
-            redirectAttributes.addFlashAttribute("error", "Error updating lecture: " + e.getMessage());
-            modelMap.addAttribute("errors", List.of("Error updating lecture: " + e.getMessage()));
+            modelMap.addAttribute("errors", List.of("Error updating lecturer: " + e.getMessage()));
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
+            modelMap.addAttribute("searchType", searchType);
+            modelMap.addAttribute("keyword", keyword);
+            modelMap.addAttribute("page", page);
+            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            modelMap.addAttribute("source", source);
+            session.setAttribute("avatarLecture", "/staff-home/lecturers-list/avatar/" + lecture.getId());
             return "EditLecturerForm";
         }
-        return "redirect:/staff-home/lecturers-list";
     }
 }
