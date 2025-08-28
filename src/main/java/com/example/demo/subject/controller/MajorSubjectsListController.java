@@ -35,8 +35,6 @@ public class MajorSubjectsListController {
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(value = "successMessage", required = false) String successMessage,
             @RequestParam(value = "errorMessage", required = false) String errorMessage,
-            @RequestParam(value = "searchType", required = false, defaultValue = "name") String searchType,
-            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
             Model model,
             HttpSession session) {
         try {
@@ -54,8 +52,6 @@ public class MajorSubjectsListController {
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                model.addAttribute("searchType", searchType);
-                model.addAttribute("keyword", keyword);
                 model.addAttribute("newSubject", new MajorSubjects());
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 return "MajorSubjectsList";
@@ -69,8 +65,6 @@ public class MajorSubjectsListController {
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                model.addAttribute("searchType", searchType);
-                model.addAttribute("keyword", keyword);
                 model.addAttribute("newSubject", new MajorSubjects());
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("message", successMessage != null ? successMessage : (errorMessage != null ? errorMessage : "No subjects found."));
@@ -85,8 +79,6 @@ public class MajorSubjectsListController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("searchType", searchType);
-            model.addAttribute("keyword", keyword);
             model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             if (successMessage != null) {
@@ -102,8 +94,6 @@ public class MajorSubjectsListController {
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("searchType", searchType);
-            model.addAttribute("keyword", keyword);
             model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             return "MajorSubjectsList";

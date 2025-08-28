@@ -30,26 +30,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <!-- Form tìm kiếm môn học -->
-    <section class="mb-4">
-        <form method="post" th:action="@{/staff-home/major-subjects-list/search-subjects}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <input type="hidden" name="source" value="search" />
-            <input type="hidden" name="page" th:value="${currentPage}" />
-            <input type="hidden" name="pageSize" th:value="${pageSize}" />
-            <div class="input-group w-50">
-                <select class="form-select" name="searchType">
-                    <option value="name">Search by Subject Name</option>
-                    <option value="id">Search by Subject ID</option>
-                </select>
-                <input class="form-control" name="keyword" placeholder="Enter keyword..." type="text">
-                <button class="btn btn-primary" type="submit">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </section>
-
     <!-- Form thêm môn học -->
     <section class="mb-4">
         <h2>Add New Subject</h2>

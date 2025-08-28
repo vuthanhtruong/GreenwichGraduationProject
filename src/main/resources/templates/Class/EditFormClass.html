@@ -12,7 +12,10 @@
     <h1><i class="fas fa-chalkboard-teacher"></i> Edit Class</h1>
 </header>
 <nav class="mb-3 d-flex justify-content-end container">
-    <a class="btn btn-secondary" th:href="@{/staff-home/classes-list}">
+    <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/classes-list(page=${page}, pageSize=${pageSize})}">
         <i class="fas fa-arrow-left"></i> Back to Classes List
     </a>
 </nav>
@@ -22,6 +25,11 @@
             <input type="hidden" name="_method" value="PUT">
             <input type="hidden" th:field="*{classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="searchType" th:value="${searchType}"/>
+            <input type="hidden" name="keyword" th:value="${keyword}"/>
+            <input type="hidden" name="page" th:value="${page}"/>
+            <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+            <input type="hidden" name="source" th:value="${source}"/>
             <div class="row g-3">
                 <!-- Class Name -->
                 <div class="col-md-4">
@@ -43,7 +51,7 @@
                     <label for="editSubjectId" class="form-label">Subject:</label>
                     <select id="editSubjectId" th:field="*{subject.subjectId}" class="form-control" required>
                         <option value="">Select subject</option>
-                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}"></option>
+                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == class.subject.subjectId}"></option>
                     </select>
                     <div class="text-danger" th:errors="*{subject.subjectId}"></div>
                     <div class="text-danger" th:if="${editErrors != null and editErrors.contains('Invalid subject selected.')}" th:text="'Invalid subject selected.'"></div>
@@ -55,9 +63,10 @@
 
             <div class="mt-3">
                 <button class="btn btn-success" type="submit">
-                    <i class="fas fa-save"></i> edit Class
+                    <i class="fas fa-save"></i> Save Class
                 </button>
-                <a class="btn btn-secondary" th:href="@{/staff-home/classes-list}">Cancel</a>
+                <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">Cancel</a>
+                <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/classes-list(page=${page}, pageSize=${pageSize})}">Cancel</a>
             </div>
         </form>
     </section>

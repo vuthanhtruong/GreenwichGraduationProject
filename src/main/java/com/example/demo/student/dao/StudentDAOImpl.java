@@ -341,14 +341,29 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize) {
-        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE ";
-        if ("name".equals(searchType)) {
-            queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
-        } else {
-            queryString += "s.id LIKE :keyword";
+        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
         }
+
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+            return List.of();
+        }
+        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator " +
+                "WHERE s.major = :staffmajor AND s.campus = :campuses";
+
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND s.id LIKE :keyword";
+        } else {
+            return List.of();
+        }
+
         return entityManager.createQuery(queryString, Students.class)
-                .setParameter("keyword", "%" + keyword + "%")
+                .setParameter("staffmajor", staff.getMajorManagement())
+                .setParameter("campuses", staff.getCampus())
+                .setParameter("keyword", "%" + keyword.trim() + "%")
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();

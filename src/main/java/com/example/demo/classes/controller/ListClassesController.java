@@ -40,7 +40,7 @@ public class ListClassesController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("pageSize");
                 if (pageSize == null) {
-                    pageSize = 5; // Default to 5 classes per page
+                    pageSize = 5;
                 }
             }
             session.setAttribute("pageSize", pageSize);
