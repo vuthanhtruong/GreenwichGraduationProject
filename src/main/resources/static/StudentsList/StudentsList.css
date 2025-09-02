@@ -6,7 +6,7 @@
 body {
     background: linear-gradient(135deg, #008080 0%, #004040 100%);
     font-family: 'Perfect DOS VGA 437', 'MS Sans Serif', sans-serif;
-    font-size: 11px;
+    font-size: 15px;
     color: #000000;
     margin: 0;
     padding: 0;
@@ -29,7 +29,7 @@ body {
     color: white;
     padding: 8px 16px;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 18px;
     border-bottom: 2px solid #000000;
     box-shadow: inset 0 1px 0 #4080ff, inset 0 -1px 0 #000040;
     position: sticky;
@@ -70,17 +70,13 @@ body {
     padding: 6px 12px;
     font-weight: bold;
     border-bottom: 1px solid #000000;
-    font-size: 12px;
-}
-
-.panel-content {
-    padding: 16px;
+    font-size: 16px;
 }
 
 /* Buttons */
 .win98-button {
     font-family: inherit;
-    font-size: 11px;
+    font-size: 15px;
     background-color: #c0c0c0;
     border: 2px outset #c0c0c0;
     padding: 6px 14px;
@@ -91,7 +87,7 @@ body {
     align-items: center;
     gap: 6px;
     margin: 2px;
-    min-height: 26px;
+    min-height: 30px;
     box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #808080;
     transition: all 0.1s;
 }
@@ -114,8 +110,8 @@ body {
 
 .win98-button.small {
     padding: 3px 10px;
-    font-size: 10px;
-    min-height: 20px;
+    font-size: 14px;
+    min-height: 24px;
 }
 
 .win98-button.danger {
@@ -125,13 +121,13 @@ body {
 /* Form Elements */
 .win98-input, .win98-select {
     font-family: inherit;
-    font-size: 11px;
+    font-size: 15px;
     background-color: white;
     border: 2px inset #c0c0c0;
     padding: 4px 6px;
     color: #000000;
     outline: none;
-    min-height: 24px;
+    min-height: 28px;
     box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #808080;
 }
 
@@ -142,7 +138,7 @@ body {
 }
 
 .win98-input.small {
-    width: 70px;
+    width: 90px;
 }
 
 /* Toolbar */
@@ -171,6 +167,20 @@ body {
     align-items: end;
 }
 
+.search-form-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 20px; /* Adds spacing between search components and page size control */
+}
+
 .form-row {
     display: flex;
     flex-direction: column;
@@ -180,19 +190,13 @@ body {
 .form-row label {
     font-weight: bold;
     color: #000080;
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .page-size-form {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 16px;
-}
-
-.inline-form {
-    display: inline;
-    margin: 1px;
 }
 
 /* Table */
@@ -209,7 +213,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     background-color: white;
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .win98-table th {
@@ -221,7 +225,7 @@ body {
     text-align: center;
     position: sticky;
     top: 0;
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .win98-table td {
@@ -258,7 +262,7 @@ body {
 
 .email-cell, .phone-cell {
     text-align: left;
-    font-size: 10px;
+    font-size: 14px;
 }
 
 .date-cell, .gender-cell {
@@ -305,6 +309,7 @@ body {
     gap: 10px;
     margin-bottom: 16px;
     box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #808080;
+    font-size: 15px;
 }
 
 .win98-alert.success {
@@ -327,7 +332,7 @@ body {
 
 .page-btn {
     font-family: inherit;
-    font-size: 11px;
+    font-size: 15px;
     background-color: #c0c0c0;
     border: 2px outset #c0c0c0;
     padding: 4px 10px;
@@ -339,7 +344,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 3px;
-    height: 24px;
+    height: 28px;
     box-shadow: inset 1px 1px 0px #ffffff, inset -1px -1px 0px #808080;
 }
 
@@ -406,6 +411,14 @@ body {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
     }
+
+    .search-form-compact {
+        flex-wrap: wrap;
+    }
+
+    .search-group {
+        margin-right: 10px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -418,8 +431,18 @@ body {
         gap: 10px;
     }
 
+    .search-form-compact {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-group {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
     .win98-table {
-        font-size: 10px;
+        font-size: 14px;
     }
 
     .win98-pagination {
@@ -439,11 +462,11 @@ body {
 
     .win98-button.small {
         padding: 4px 8px;
-        font-size: 9px;
+        font-size: 13px;
     }
 
     .title-bar {
-        font-size: 12px;
+        font-size: 16px;
         padding: 6px 12px;
     }
 }
