@@ -1,6 +1,6 @@
 package com.example.demo.subject.model;
 
-import com.example.demo.entity.DeputyStaffs;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

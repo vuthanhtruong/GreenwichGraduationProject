@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.classes.model.MinorClasses;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.AbstractClasses.Students_Classes;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.*;

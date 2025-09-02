@@ -16,6 +16,16 @@ import java.util.List;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
+    public long countSearchResults(String searchType, String keyword) {
+        return staffsDAO.countSearchResults(searchType, keyword);
+    }
+
+    @Override
+    public List<Staffs> searchStaffs(String searchType, String keyword, int firstResult, int pageSize) {
+        return staffsDAO.searchStaffs(searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
     public void editStaff(Staffs staff, MultipartFile avatarFile) throws IOException, MessagingException {
         staffsDAO.editStaff(staff, avatarFile);
     }

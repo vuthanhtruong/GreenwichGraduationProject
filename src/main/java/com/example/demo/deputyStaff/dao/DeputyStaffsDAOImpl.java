@@ -1,0 +1,331 @@
+package com.example.demo.deputyStaff.dao;
+
+import com.example.demo.deputyStaff.model.DeputyStaffs;
+import com.example.demo.admin.model.Admins;
+import com.example.demo.admin.service.AdminsService;
+import com.example.demo.campus.service.CampusesService;
+import com.example.demo.person.service.PersonsService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Repository
+@Transactional
+public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
+    private static final Logger logger = LoggerFactory.getLogger(DeputyStaffsDAOImpl.class);
+    private final PersonsService personsService;
+    private final AdminsService adminsService;
+    private final CampusesService campusesService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public DeputyStaffsDAOImpl(PersonsService personsService, AdminsService adminsService, CampusesService campusesService) {
+        this.personsService = personsService;
+        this.adminsService = adminsService;
+        this.campusesService = campusesService;
+    }
+
+    @Override
+    public List<DeputyStaffs> getDeputyStaffs() {
+        try {
+            TypedQuery<DeputyStaffs> query = entityManager.createQuery(
+                    "SELECT s FROM DeputyStaffs s",
+                    DeputyStaffs.class);
+            List<DeputyStaffs> deputyStaffs = query.getResultList();
+            logger.info("Retrieved {} deputy staffs", deputyStaffs.size());
+            return deputyStaffs;
+        } catch (Exception e) {
+            logger.error("Error retrieving deputy staff list: {}", e.getMessage());
+            throw new RuntimeException("Error retrieving deputy staff list: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<DeputyStaffs> getPaginatedDeputyStaffs(int firstResult, int pageSize) {
+        try {
+            TypedQuery<DeputyStaffs> query = entityManager.createQuery(
+                            "SELECT s FROM DeputyStaffs s",
+                            DeputyStaffs.class)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+            List<DeputyStaffs> deputyStaffs = query.getResultList();
+            logger.info("Retrieved {} deputy staffs for page starting at {}", deputyStaffs.size(), firstResult);
+            return deputyStaffs;
+        } catch (Exception e) {
+            logger.error("Error retrieving paginated deputy staff list: {}", e.getMessage());
+            throw new RuntimeException("Error retrieving paginated deputy staff list: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long numberOfDeputyStaffs() {
+        try {
+            TypedQuery<Long> query = entityManager.createQuery(
+                    "SELECT COUNT(s) FROM DeputyStaffs s",
+                    Long.class);
+            long count = query.getSingleResult();
+            logger.info("Total deputy staffs: {}", count);
+            return count;
+        } catch (Exception e) {
+            logger.error("Error counting deputy staffs: {}", e.getMessage());
+            throw new RuntimeException("Error counting deputy staffs: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void addDeputyStaff(DeputyStaffs deputyStaff, String randomPassword) {
+        try {
+            Admins currentAdmin = adminsService.getAdmin();
+            deputyStaff.setCreator(currentAdmin);
+            entityManager.merge(deputyStaff);
+            logger.info("Added new deputy staff with ID: {} by admin ID: {}", deputyStaff.getId(), currentAdmin.getId());
+        } catch (Exception e) {
+            logger.error("Error adding deputy staff: {}", e.getMessage());
+            throw new RuntimeException("Error adding deputy staff: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteDeputyStaff(String id) {
+        try {
+            DeputyStaffs deputyStaff = entityManager.find(DeputyStaffs.class, id);
+            if (deputyStaff != null) {
+                entityManager.remove(deputyStaff);
+                logger.info("Deleted deputy staff with ID: {}", id);
+            } else {
+                logger.warn("Deputy staff with ID {} not found for deletion", id);
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting deputy staff with ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Error deleting deputy staff with ID " + id + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public DeputyStaffs getDeputyStaffById(String id) {
+        try {
+            DeputyStaffs deputyStaff = entityManager.find(DeputyStaffs.class, id);
+            if (deputyStaff == null) {
+                logger.warn("Deputy staff with ID {} not found", id);
+            }
+            return deputyStaff;
+        } catch (Exception e) {
+            logger.error("Error retrieving deputy staff by ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Error retrieving deputy staff by ID " + id + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void editDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile) throws IOException {
+        try {
+            DeputyStaffs existingDeputyStaff = entityManager.find(DeputyStaffs.class, deputyStaff.getId());
+            if (existingDeputyStaff == null) {
+                throw new IllegalArgumentException("Deputy staff with ID " + deputyStaff.getId() + " not found");
+            }
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                deputyStaff.setAvatar(avatarFile.getBytes());
+            } else {
+                deputyStaff.setAvatar(existingDeputyStaff.getAvatar());
+            }
+            editDeputyStaffFields(existingDeputyStaff, deputyStaff);
+            entityManager.merge(existingDeputyStaff);
+            logger.info("Updated deputy staff with ID: {}", deputyStaff.getId());
+        } catch (IOException e) {
+            logger.error("IO error updating deputy staff with ID {}: {}", deputyStaff.getId(), e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error updating deputy staff with ID {}: {}", deputyStaff.getId(), e.getMessage());
+            throw new RuntimeException("Unexpected error updating deputy staff: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String generateRandomPassword(int length) {
+        if (length < 8) {
+            throw new IllegalArgumentException("Password length must be at least 8 characters.");
+        }
+        String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        String digits = "0123456789";
+        String symbols = "!@#$%^&*()-_+=<>?";
+        String allChars = upperCase + lowerCase + digits + symbols;
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        password.append(upperCase.charAt(random.nextInt(upperCase.length())));
+        password.append(lowerCase.charAt(random.nextInt(lowerCase.length())));
+        password.append(digits.charAt(random.nextInt(digits.length())));
+        password.append(symbols.charAt(random.nextInt(symbols.length())));
+        for (int i = 4; i < length; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+        List<Character> chars = password.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toList());
+        Collections.shuffle(chars, random);
+        String generatedPassword = chars.stream().map(String::valueOf).collect(Collectors.joining());
+        logger.info("Generated random password for deputy staff");
+        return generatedPassword;
+    }
+
+    @Override
+    public String generateUniqueDeputyStaffId(String majorId, LocalDate createdDate) {
+        String prefix = majorId != null ? majorId : "DSTF";
+        String year = String.format("%02d", createdDate.getYear() % 100);
+        String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+        String deputyStaffId;
+        SecureRandom random = new SecureRandom();
+        do {
+            String randomDigit = String.valueOf(random.nextInt(10));
+            deputyStaffId = prefix + year + date + randomDigit;
+        } while (personsService.existsPersonById(deputyStaffId));
+        logger.info("Generated unique deputy staff ID: {}", deputyStaffId);
+        return deputyStaffId;
+    }
+
+    @Override
+    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String majorId, String campusId) {
+        List<String> errors = new ArrayList<>();
+        if (deputyStaff.getFirstName() == null || !isValidName(deputyStaff.getFirstName())) {
+            errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+        }
+        if (deputyStaff.getLastName() == null || !isValidName(deputyStaff.getLastName())) {
+            errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+        }
+        if (deputyStaff.getEmail() == null || !isValidEmail(deputyStaff.getEmail())) {
+            errors.add("Email is required and must be in a valid format.");
+        }
+        if (deputyStaff.getPhoneNumber() == null || !isValidPhoneNumber(deputyStaff.getPhoneNumber())) {
+            errors.add("Phone number is required and must be 10-15 digits, optionally starting with '+'.");
+        }
+        if (deputyStaff.getBirthDate() != null && deputyStaff.getBirthDate().isAfter(LocalDate.now())) {
+            errors.add("Date of birth must be in the past.");
+        }
+        if (deputyStaff.getEmail() != null && personsService.existsByEmailExcludingId(deputyStaff.getEmail(), deputyStaff.getId() != null ? deputyStaff.getId() : "")) {
+            errors.add("The email address is already associated with another account.");
+        }
+        if (deputyStaff.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(deputyStaff.getPhoneNumber(), deputyStaff.getId() != null ? deputyStaff.getId() : "")) {
+            errors.add("The phone number is already associated with another account.");
+        }
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.add("Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
+                errors.add("Avatar file size must not exceed 5MB.");
+            }
+        }
+        if (deputyStaff.getGender() == null) {
+            errors.add("Gender is required to assign a default avatar.");
+        }
+        if (campusId == null || campusId.isEmpty() || campusesService.getCampusById(campusId) == null) {
+            errors.add("A valid campus must be selected.");
+        }
+        if (!errors.isEmpty()) {
+            logger.warn("Validation errors for deputy staff: {}", errors);
+        }
+        return errors;
+    }
+
+    @Override
+    public List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize) {
+        try {
+            String queryString = "SELECT s FROM DeputyStaffs s WHERE ";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "s.id = :keyword";
+            } else {
+                logger.warn("Invalid search type: {}", searchType);
+                return new ArrayList<>();
+            }
+            TypedQuery<DeputyStaffs> query = entityManager.createQuery(queryString, DeputyStaffs.class)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%")
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+            List<DeputyStaffs> deputyStaffs = query.getResultList();
+            logger.info("Found {} deputy staffs for search type: {}, keyword: {}", deputyStaffs.size(), searchType, keyword);
+            return deputyStaffs;
+        } catch (Exception e) {
+            logger.error("Error searching deputy staff: {}", e.getMessage());
+            throw new RuntimeException("Error searching deputy staff: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword) {
+        try {
+            String queryString = "SELECT COUNT(s) FROM DeputyStaffs s WHERE ";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "s.id = :keyword";
+            } else {
+                logger.warn("Invalid search type for count: {}", searchType);
+                return 0;
+            }
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%");
+            long count = query.getSingleResult();
+            logger.info("Counted {} deputy staffs for search type: {}, keyword: {}", count, searchType, keyword);
+            return count;
+        } catch (Exception e) {
+            logger.error("Error counting search results: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results: " + e.getMessage(), e);
+        }
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email != null && email.matches(emailRegex);
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            return true;
+        }
+        String phoneRegex = "^\\+?[0-9]{10,15}$";
+        return phoneNumber.matches(phoneRegex);
+    }
+
+    private boolean isValidName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        String nameRegex = "^[\\p{L}][\\p{L} .'-]{1,49}$";
+        return name.matches(nameRegex);
+    }
+
+    private void editDeputyStaffFields(DeputyStaffs existing, DeputyStaffs edited) {
+        if (edited.getFirstName() != null) existing.setFirstName(edited.getFirstName());
+        if (edited.getLastName() != null) existing.setLastName(edited.getLastName());
+        if (edited.getEmail() != null) existing.setEmail(edited.getEmail());
+        if (edited.getPhoneNumber() != null) existing.setPhoneNumber(edited.getPhoneNumber());
+        if (edited.getBirthDate() != null) existing.setBirthDate(edited.getBirthDate());
+        if (edited.getGender() != null) existing.setGender(edited.getGender());
+        if (edited.getCountry() != null) existing.setCountry(edited.getCountry());
+        if (edited.getProvince() != null) existing.setProvince(edited.getProvince());
+        if (edited.getCity() != null) existing.setCity(edited.getCity());
+        if (edited.getDistrict() != null) existing.setDistrict(edited.getDistrict());
+        if (edited.getWard() != null) existing.setWard(edited.getWard());
+        if (edited.getStreet() != null) existing.setStreet(edited.getStreet());
+        if (edited.getPostalCode() != null) existing.setPostalCode(edited.getPostalCode());
+        if (edited.getAvatar() != null) existing.setAvatar(edited.getAvatar());
+        if (edited.getCampus() != null) existing.setCampus(edited.getCampus());
+        logger.info("Updated fields for deputy staff ID: {}", existing.getId());
+    }
+}

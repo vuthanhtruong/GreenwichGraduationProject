@@ -1,7 +1,7 @@
 package com.example.demo.lecturer.model;
 
 import com.example.demo.employe.model.MinorEmployes;
-import com.example.demo.entity.DeputyStaffs;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.EmploymentTypes;
 import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.*;

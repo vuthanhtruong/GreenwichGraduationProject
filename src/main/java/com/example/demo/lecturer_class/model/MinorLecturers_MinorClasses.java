@@ -1,7 +1,7 @@
 package com.example.demo.lecturer_class.model;
 
 import com.example.demo.classes.model.MinorClasses;
-import com.example.demo.entity.DeputyStaffs;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.lecturer.model.MinorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;

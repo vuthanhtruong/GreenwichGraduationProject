@@ -1,14 +1,11 @@
-package com.example.demo.Staff.controller;
+package com.example.demo.deputyStaff.controller;
 
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
+import com.example.demo.deputyStaff.service.DeputyStaffsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.major.model.Majors;
-import com.example.demo.major.service.MajorsService;
 import com.example.demo.person.service.PersonsService;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,23 +21,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin-home/staffs-list")
-public class EditStaffController {
+@RequestMapping("/admin-home/deputy-staffs-list")
+public class EditDeputyStaffController {
 
-    private final StaffsService staffsService;
+    private final DeputyStaffsService deputyStaffsService;
     private final PersonsService personsService;
-    private final MajorsService majorsService;
     private final CampusesService campusesService;
 
-    public EditStaffController(StaffsService staffsService, PersonsService personsService, MajorsService majorsService, CampusesService campusesService) {
-        this.staffsService = staffsService;
+    public EditDeputyStaffController(DeputyStaffsService deputyStaffsService, PersonsService personsService, CampusesService campusesService) {
+        this.deputyStaffsService = deputyStaffsService;
         this.personsService = personsService;
-        this.majorsService = majorsService;
         this.campusesService = campusesService;
     }
 
-    @PostMapping("/edit-staff-form")
-    public String handleEditStaffFormPost(
+    @PostMapping("/edit-deputy-staff-form")
+    public String handleEditDeputyStaffFormPost(
             @RequestParam String id,
             @RequestParam(required = false) String source,
             @RequestParam(required = false) String searchType,
@@ -48,25 +43,23 @@ public class EditStaffController {
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false) Integer pageSize,
             Model model) {
-        Staffs staff = staffsService.getStaffById(id);
-        model.addAttribute("staff", staff);
+        DeputyStaffs deputyStaff = deputyStaffsService.getDeputyStaffById(id);
+        model.addAttribute("deputyStaff", deputyStaff);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
-        model.addAttribute("majors", majorsService.getMajors());
         model.addAttribute("campuses", campusesService.getCampuses());
         model.addAttribute("source", source);
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
-        return "EditStaffForm";
+        return "EditDeputyStaffForm";
     }
 
-    @PutMapping("/edit-staff-form")
-    public String editStaff(
-            @Valid @ModelAttribute("staff") Staffs staff,
+    @PutMapping("/edit-deputy-staff-form")
+    public String editDeputyStaff(
+            @Valid @ModelAttribute("deputyStaff") DeputyStaffs deputyStaff,
             BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @RequestParam(value = "majorId", required = false) String majorId,
             @RequestParam(value = "campusId", required = false) String campusId,
             @RequestParam(value = "source", required = false) String source,
             @RequestParam(value = "searchType", required = false) String searchType,
@@ -75,7 +68,7 @@ public class EditStaffController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             RedirectAttributes redirectAttributes,
             Model model) {
-        List<String> errors = staffsService.validateStaff(staff, avatarFile, majorId, campusId);
+        List<String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, null, campusId);
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
         }
@@ -83,52 +76,49 @@ public class EditStaffController {
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("genders", Arrays.asList(Gender.values()));
-            model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("source", source);
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);
             model.addAttribute("page", page);
             model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
-            return "EditStaffForm";
+            return "EditDeputyStaffForm";
         }
 
         try {
-            if (!personsService.existsPersonById(staff.getId())) {
-                redirectAttributes.addFlashAttribute("error", "Staff with ID " + staff.getId() + " not found.");
+            if (!personsService.existsPersonById(deputyStaff.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Deputy staff with ID " + deputyStaff.getId() + " not found.");
                 if ("search".equals(source)) {
                     redirectAttributes.addFlashAttribute("searchType", searchType);
                     redirectAttributes.addFlashAttribute("keyword", keyword);
                     redirectAttributes.addFlashAttribute("page", page);
                     redirectAttributes.addFlashAttribute("pageSize", pageSize);
-                    return "redirect:/admin-home/staffs-list/search-staffs";
+                    return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs";
                 }
-                return "redirect:/admin-home/staffs-list";
+                return "redirect:/admin-home/deputy-staffs-list";
             }
-            Majors majors = majorsService.getByMajorId(majorId);
-            Campuses campuses = campusesService.getCampusById(campusId);
-            staff.setCampus(campuses);
-            staff.setMajorManagement(majors);
-            staffsService.editStaff(staff, avatarFile);
-            redirectAttributes.addFlashAttribute("successMessage", "Staff edited successfully!");
+            Campuses campus = campusesService.getCampusById(campusId);
+            deputyStaff.setCampus(campus);
+            deputyStaffsService.editDeputyStaff(deputyStaff, avatarFile);
+            redirectAttributes.addFlashAttribute("successMessage", "Deputy staff edited successfully!");
             if ("search".equals(source)) {
                 redirectAttributes.addFlashAttribute("searchType", searchType);
                 redirectAttributes.addFlashAttribute("keyword", keyword);
                 redirectAttributes.addFlashAttribute("page", page);
                 redirectAttributes.addFlashAttribute("pageSize", pageSize);
-                return "redirect:/admin-home/staffs-list/search-staffs";
+                return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs";
             }
-            return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
-        } catch (IOException | MessagingException e) {
-            redirectAttributes.addFlashAttribute("error", "Error updating staff: " + e.getMessage());
+            return "redirect:/admin-home/deputy-staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Error updating deputy staff: " + e.getMessage());
             if ("search".equals(source)) {
                 redirectAttributes.addFlashAttribute("searchType", searchType);
                 redirectAttributes.addFlashAttribute("keyword", keyword);
                 redirectAttributes.addFlashAttribute("page", page);
                 redirectAttributes.addFlashAttribute("pageSize", pageSize);
-                return "redirect:/admin-home/staffs-list/search-staffs";
+                return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs";
             }
-            return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            return "redirect:/admin-home/deputy-staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
         }
     }
 }

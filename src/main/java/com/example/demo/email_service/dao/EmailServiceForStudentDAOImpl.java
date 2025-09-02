@@ -4,6 +4,7 @@ import com.example.demo.email_service.dto.StudentEmailContext;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -14,6 +15,9 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     private String generateEmailTemplate(
             StudentEmailContext context,
@@ -35,7 +39,8 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         String learn  = safe.apply(context.learningProgramType());
         String creator = safe.apply(context.creatorName());
 
-        String loginUrl = "https://university.example.com/login";
+        // ** Sử dụng baseUrl từ cấu hình **
+        String loginUrl = baseUrl + "/login";
         String supportEmail = "support@university.example.com";
         String addressLine = "123 University Avenue, City, Country";
 

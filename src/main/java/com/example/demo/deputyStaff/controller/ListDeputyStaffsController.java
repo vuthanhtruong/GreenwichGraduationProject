@@ -1,7 +1,7 @@
-package com.example.demo.Staff.controller;
+package com.example.demo.deputyStaff.controller;
 
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
+import com.example.demo.deputyStaff.service.DeputyStaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,23 +14,23 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin-home")
-public class ListStaffsController {
+public class ListDeputyStaffsController {
 
-    private final StaffsService staffsService;
+    private final DeputyStaffsService deputyStaffsService;
 
-    public ListStaffsController(StaffsService staffsService) {
-        this.staffsService = staffsService;
+    public ListDeputyStaffsController(DeputyStaffsService deputyStaffsService) {
+        this.deputyStaffsService = deputyStaffsService;
     }
 
-    @GetMapping("/staffs-list")
-    public String listStaffs(
+    @GetMapping("/deputy-staffs-list")
+    public String listDeputyStaffs(
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize) {
         try {
             if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("staffPageSize");
+                pageSize = (Integer) session.getAttribute("deputyStaffPageSize");
                 if (pageSize == null) {
                     pageSize = 5;
                 }
@@ -38,45 +38,45 @@ public class ListStaffsController {
             if (pageSize < 1 || pageSize > 100) {
                 pageSize = 5;
             }
-            session.setAttribute("staffPageSize", pageSize);
+            session.setAttribute("deputyStaffPageSize", pageSize);
 
-            Long totalStaffs = staffsService.numberOfStaffs();
+            Long totalDeputyStaffs = deputyStaffsService.numberOfDeputyStaffs();
 
-            if (totalStaffs == 0) {
-                model.addAttribute("staffs", new ArrayList<>());
+            if (totalDeputyStaffs == 0) {
+                model.addAttribute("deputyStaffs", new ArrayList<>());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                return "StaffsList";
+                return "DeputyStaffsList";
             }
 
-            int totalPages = (int) Math.ceil((double) totalStaffs / pageSize);
+            int totalPages = (int) Math.ceil((double) totalDeputyStaffs / pageSize);
             if (page < 1) page = 1;
             if (page > totalPages) page = totalPages;
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Staffs> staffs = staffsService.getPaginatedStaffs(firstResult, pageSize);
+            List<DeputyStaffs> deputyStaffs = deputyStaffsService.getPaginatedDeputyStaffs(firstResult, pageSize);
 
-            model.addAttribute("staffs", staffs);
+            model.addAttribute("deputyStaffs", deputyStaffs);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            return "StaffsList";
+            return "DeputyStaffsList";
         } catch (Exception e) {
             model.addAttribute("error", "An unexpected error occurred: " + e.getMessage());
             return "error";
         }
     }
 
-    @GetMapping("/staffs-list/avatar/{id}")
+    @GetMapping("/deputy-staffs-list/avatar/{id}")
     @ResponseBody
-    public ResponseEntity<byte[]> getStaffAvatar(@PathVariable String id) {
-        Staffs staff = staffsService.getStaffById(id);
-        if (staff != null && staff.getAvatar() != null) {
+    public ResponseEntity<byte[]> getDeputyStaffAvatar(@PathVariable String id) {
+        DeputyStaffs deputyStaff = deputyStaffsService.getDeputyStaffById(id);
+        if (deputyStaff != null && deputyStaff.getAvatar() != null) {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)
-                    .body(staff.getAvatar());
+                    .body(deputyStaff.getAvatar());
         }
         return ResponseEntity.notFound().build();
     }

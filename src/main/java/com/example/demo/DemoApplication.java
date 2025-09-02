@@ -4,6 +4,7 @@ import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.major.model.Majors;

@@ -26,4 +26,6 @@ public interface StaffsService {
     long numberOfStaffs(); // Thêm phương thức này
     String generateUniqueStaffId(String majorId, LocalDate createdDate);
     String generateRandomPassword(int length);
+    List<Staffs> searchStaffs(String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchResults(String searchType, String keyword);
 }

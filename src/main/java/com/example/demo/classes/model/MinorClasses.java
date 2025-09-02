@@ -1,6 +1,6 @@
 package com.example.demo.classes.model;
 
-import com.example.demo.entity.DeputyStaffs;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.model.MinorSubjects;
 import jakarta.persistence.*;

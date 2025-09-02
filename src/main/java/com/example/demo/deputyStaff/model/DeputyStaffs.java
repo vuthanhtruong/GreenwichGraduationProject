@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.deputyStaff.model;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.employe.model.MinorEmployes;

@@ -32,6 +32,49 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+    @Override
+    public long countSearchResults(String searchType, String keyword) {
+        try {
+            String queryString = "SELECT COUNT(s) FROM Staffs s WHERE ";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "s.id = :keyword";
+            } else {
+                return 0;
+            }
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%");
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting search results: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<Staffs> searchStaffs(String searchType, String keyword, int firstResult, int pageSize) {
+        try {
+            String queryString = "SELECT s FROM Staffs s WHERE ";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "s.id = :keyword";
+            } else {
+                return new ArrayList<>();
+            }
+            TypedQuery<Staffs> query = entityManager.createQuery(queryString, Staffs.class)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%")
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching staff: {}", e.getMessage());
+            throw new RuntimeException("Error searching staff: " + e.getMessage(), e);
+        }
+    }
+
+
     public long numberOfStaffs() {
         return entityManager.createQuery(
                         "SELECT COUNT(s) FROM Staffs s", Long.class)
