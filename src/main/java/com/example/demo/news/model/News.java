@@ -2,7 +2,7 @@ package com.example.demo.news.model;
 
 import com.example.demo.document.model.Documents;
 import com.example.demo.entity.AbstractClasses.PublicPosts;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

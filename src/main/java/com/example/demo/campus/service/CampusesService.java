@@ -1,9 +1,11 @@
 package com.example.demo.campus.service;
 
 import com.example.demo.campus.model.Campuses;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface CampusesService {
     List<Campuses> getCampuses();
@@ -15,4 +17,6 @@ public interface CampusesService {
     List<String> validateCampus(Campuses campus);
     String generateUniqueCampusId(LocalDate createdDate);
     void updateCampusFields(Campuses existing, Campuses updated);
+    Map<String, Map<String, Long>> getCampusCounts();
+    List<String> validateCampus(Campuses campus, MultipartFile avatarFile);
 }

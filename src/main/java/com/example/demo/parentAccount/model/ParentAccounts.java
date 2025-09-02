@@ -2,7 +2,7 @@ package com.example.demo.parentAccount.model;
 
 import com.example.demo.person.model.Persons;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

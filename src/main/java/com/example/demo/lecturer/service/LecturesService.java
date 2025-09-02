@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface LecturesService {
+    long lecturersCountByCampus(String campus);
+    long minorLecturersCountByCampus(String campus);
     String generateRandomPassword(int length);
 
     String generateUniqueLectureId(String majorId, LocalDate createdDate);

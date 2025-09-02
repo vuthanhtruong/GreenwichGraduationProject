@@ -5,8 +5,8 @@ import com.example.demo.email_service.service.EmailServiceForLectureService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.model.Staffs;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
@@ -28,6 +28,26 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+    @Override
+    public long minorLecturersCountByCampus(String campus) {
+        if (campus == null || campus.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus name must not be null or empty");
+        }
+
+        String jpql = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusName";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusName", campus)
+                .getSingleResult();
+    }
+
+    @Override
+    public long lecturersCountByCampus(String campus) {
+        String jpql = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusName";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusName", campus)
+                .getSingleResult();
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
 
     private final PersonsService personsService;

@@ -1,7 +1,7 @@
 package com.example.demo.syllabus.controller;
 
 import com.example.demo.syllabus.model.Syllabuses;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.syllabus.service.SyllabusesService;
 import org.springframework.beans.factory.annotation.Autowired;

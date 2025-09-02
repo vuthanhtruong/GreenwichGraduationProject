@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.lecturer.model.MajorLecturers;

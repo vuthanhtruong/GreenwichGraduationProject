@@ -1,8 +1,7 @@
-package com.example.demo.Staff.model;
+package com.example.demo.staff.model;
 
 import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.admin.model.Admins;
-import com.example.demo.entity.Enums.Gender;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -13,6 +13,11 @@ import java.util.List;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
+    public long totalStudentsByCampus(String campus) {
+        return studentsDAO.totalStudentsByCampus(campus);
+    }
+
+    @Override
     public long countSearchResults(String searchType, String keyword) {
         return studentsDAO.countSearchResults(searchType, keyword);
     }

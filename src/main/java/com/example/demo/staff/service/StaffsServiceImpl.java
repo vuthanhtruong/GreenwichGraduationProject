@@ -1,9 +1,9 @@
-package com.example.demo.Staff.service;
+package com.example.demo.staff.service;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.dao.StaffsDAO;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.dao.StaffsDAO;
+import com.example.demo.staff.model.Staffs;
 
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,7 @@ import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.authenticator.model.Authenticators;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;
 import com.example.demo.student.model.Students;

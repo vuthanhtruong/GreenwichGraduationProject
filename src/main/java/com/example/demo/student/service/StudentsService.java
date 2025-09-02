@@ -23,4 +23,5 @@ public interface StudentsService {
     String generateRandomPassword(int length);
     long countSearchResults(String searchType, String keyword);
     List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize);
+    long totalStudentsByCampus(String campus);
 }

@@ -1,7 +1,7 @@
-package com.example.demo.Staff.controller;
+package com.example.demo.staff.controller;
 
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.model.Staffs;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.entity.Enums.Gender;

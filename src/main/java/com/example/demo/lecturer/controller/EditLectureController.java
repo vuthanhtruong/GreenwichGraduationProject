@@ -4,7 +4,7 @@ import com.example.demo.entity.Enums.Gender;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.person.service.PersonsService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;

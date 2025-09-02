@@ -5,7 +5,7 @@ import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.classes.service.ClassesService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.syllabus.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

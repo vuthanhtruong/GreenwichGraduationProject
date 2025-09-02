@@ -13,6 +13,16 @@ import java.util.List;
 @Service
 public class LecturesServiceImpl implements LecturesService {
     @Override
+    public long lecturersCountByCampus(String campus) {
+        return lecturesDAO.lecturersCountByCampus(campus);
+    }
+
+    @Override
+    public long minorLecturersCountByCampus(String campus) {
+        return lecturesDAO.minorLecturersCountByCampus(campus);
+    }
+
+    @Override
     public List<MajorLecturers> searchLecturers(String searchType, String keyword, int firstResult, int pageSize) {
         return lecturesDAO.searchLecturers(searchType, keyword, firstResult, pageSize);
     }

@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class Campuses {
 
     @Id
-    @Column(name = "CampusID",nullable = true)
+    @Column(name = "CampusID", nullable = true)
     private String campusId;
 
     @Column(name = "CampusName", nullable = true)
@@ -33,6 +33,10 @@ public class Campuses {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
+    @Lob
+    @Column(name = "Avatar", nullable = true)
+    private byte[] avatar;
+
     // Constructors
     public Campuses() {
     }
@@ -45,7 +49,7 @@ public class Campuses {
         this.creator = creator;
     }
 
-    // toString method (optional)
+    // toString method
     @Override
     public String toString() {
         return "Campus{" +
@@ -54,6 +58,7 @@ public class Campuses {
                 ", openingDay=" + openingDay +
                 ", description='" + description + '\'' +
                 ", creator=" + (creator != null ? creator.getId() : null) +
+                ", avatar=" + (avatar != null ? "present" : "null") +
                 '}';
     }
 }

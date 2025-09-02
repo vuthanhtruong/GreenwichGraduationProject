@@ -3,11 +3,24 @@ package com.example.demo.campus.service;
 import com.example.demo.campus.dao.CampusesDAO;
 import com.example.demo.campus.model.Campuses;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class CampusesServiceImpl implements CampusesService{
+    @Override
+    public List<String> validateCampus(Campuses campus, MultipartFile avatarFile) {
+        return campusesDAO.validateCampus(campus, avatarFile);
+    }
+
+    @Override
+    public Map<String, Map<String, Long>> getCampusCounts() {
+        return campusesDAO.getCampusCounts();
+    }
+
     @Override
     public void updateCampusFields(Campuses existing, Campuses updated) {
         campusesDAO.updateCampusFields(existing, updated);

@@ -1,9 +1,9 @@
 package com.example.demo.lecturer.controller;
 
 import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.lecturer.service.LecturesService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;

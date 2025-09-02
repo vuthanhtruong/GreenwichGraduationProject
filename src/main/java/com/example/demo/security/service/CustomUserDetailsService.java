@@ -1,6 +1,6 @@
 package com.example.demo.security.service;
 
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.AccountStatus;

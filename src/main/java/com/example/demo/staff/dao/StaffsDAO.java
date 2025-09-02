@@ -1,10 +1,8 @@
-package com.example.demo.Staff.service;
-
-
+package com.example.demo.staff.dao;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import jakarta.mail.MessagingException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +10,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface StaffsService {
+public interface StaffsDAO {
     Staffs getStaff();
     Majors getStaffMajor();
     List<MajorClasses> getClasses();

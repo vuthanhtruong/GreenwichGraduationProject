@@ -1,7 +1,7 @@
-package com.example.demo.Staff.controller;
+package com.example.demo.staff.controller;
 
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.model.Staffs;
+import com.example.demo.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

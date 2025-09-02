@@ -4,7 +4,7 @@ import com.example.demo.document.model.Documents;
 import com.example.demo.major.model.Majors;
 import com.example.demo.news.model.News;
 import com.example.demo.document.service.DocumentsService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

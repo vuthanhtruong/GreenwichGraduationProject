@@ -1,6 +1,6 @@
 package com.example.demo.studentRequiredSubjects.model;
 
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.student.model.Students;
 import com.example.demo.subject.model.MajorSubjects;
 import jakarta.persistence.*;

@@ -4,7 +4,7 @@ import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.service.LecturesService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;

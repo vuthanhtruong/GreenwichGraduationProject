@@ -1,7 +1,7 @@
 package com.example.demo.lecturer.controller;
 
 import com.example.demo.lecturer.service.LecturesService;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
 import com.example.demo.student.service.StudentsService;
 import org.springframework.stereotype.Controller;

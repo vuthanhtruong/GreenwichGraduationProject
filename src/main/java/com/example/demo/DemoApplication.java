@@ -8,7 +8,7 @@ import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.MinorSubjects;

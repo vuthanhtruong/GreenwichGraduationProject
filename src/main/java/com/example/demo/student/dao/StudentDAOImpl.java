@@ -6,8 +6,8 @@ import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLectureService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.model.Staffs;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.model.Staffs;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
 import com.example.demo.student.model.Students;
 import jakarta.mail.MessagingException;
@@ -33,6 +33,18 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
+    @Override
+    public long totalStudentsByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+
+        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
 
     private final StaffsService staffsService;
     private final PersonsService personsService;

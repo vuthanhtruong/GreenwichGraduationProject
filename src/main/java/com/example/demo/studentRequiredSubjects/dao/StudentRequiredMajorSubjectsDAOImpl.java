@@ -7,7 +7,7 @@ import com.example.demo.entity.Enums.Grades;
 import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.entity.Enums.UpgradeStatus;
 import com.example.demo.entity.UpgradeStudents;
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

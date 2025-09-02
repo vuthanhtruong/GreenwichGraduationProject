@@ -1,11 +1,10 @@
-package com.example.demo.Staff.dao;
-import com.example.demo.Staff.service.StaffsService;
+package com.example.demo.staff.dao;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.Staff.model.Staffs;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.major.service.MajorsService;
 import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.person.service.PersonsService;

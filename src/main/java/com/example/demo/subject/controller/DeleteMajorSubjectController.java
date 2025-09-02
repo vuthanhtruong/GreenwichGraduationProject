@@ -1,6 +1,6 @@
 package com.example.demo.subject.controller;
 
-import com.example.demo.Staff.service.StaffsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.subject.service.SubjectsService;
 import org.springframework.security.access.prepost.PreAuthorize;
