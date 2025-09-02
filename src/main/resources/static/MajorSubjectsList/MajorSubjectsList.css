@@ -32,7 +32,7 @@ body {
     padding: 12px 20px;
     font-size: 18px;
     font-weight: bold;
-    border: 2px outset #c0c0c0;
+    border-bottom: 2px outset #c0c0c0;
     box-shadow: inset 0 1px 0 #4080ff, inset 0 -1px 0 #000040;
     display: flex;
     align-items: center;
@@ -64,14 +64,6 @@ body {
     border-bottom: 1px solid #000000;
 }
 
-.sub-header {
-    font-size: 16px;
-    font-weight: bold;
-    color: #000080;
-    padding: 8px 12px;
-    border-bottom: 1px solid #808080;
-}
-
 /* Form Elements */
 .form-group {
     display: grid;
@@ -90,6 +82,12 @@ body {
     font-weight: bold;
     color: #000080;
     font-size: 15px;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .win98-input,
@@ -112,21 +110,29 @@ body {
     outline: none;
 }
 
-.form-text {
-    font-size: 14px;
-    color: #404040;
+.win98-input.small {
+    width: 100px;
 }
 
-/* Error Messages */
-.win98-alert.error {
-    background-color: #c0c0c0;
-    border: 2px inset #c0c0c0;
+/* Alerts */
+.win98-alert {
     padding: 10px 14px;
     margin-bottom: 20px;
+    border: 2px inset #c0c0c0;
     box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.win98-alert.success {
+    background-color: #c0c0c0;
+    color: #000080;
+}
+
+.win98-alert.error {
+    background-color: #c0c0c0;
+    color: #800000;
 }
 
 .win98-alert.error h5 {
@@ -141,13 +147,38 @@ body {
     margin-top: 5px;
 }
 
-/* Parent Entry */
-.parent-entry {
-    background-color: #d4d0c8;
+/* Table */
+.table-container {
+    margin: 15px 0;
+}
+
+.win98-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
     border: 2px inset #c0c0c0;
-    padding: 15px;
-    margin-bottom: 15px;
     box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+
+.win98-table th,
+.win98-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #808080;
+}
+
+.win98-table th {
+    background: linear-gradient(90deg, #000080 0%, #0000cc 100%);
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.win98-table tr:nth-child(even) {
+    background-color: #d4d0c8;
+}
+
+.win98-table tr:hover {
+    background-color: #e0e0e0;
 }
 
 /* Buttons */
@@ -179,14 +210,58 @@ body {
     box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
 }
 
+.win98-button.small {
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.win98-button.danger {
+    background-color: #c0c0c0;
+    color: #800000;
+}
+
+.win98-button.danger:hover {
+    background-color: #d4d0c8;
+}
+
+.win98-button.danger:active {
+    border: 2px inset #c0c0c0;
+    background-color: #a0a0a0;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 /* Toolbar */
 .win98-toolbar {
     display: flex;
     gap: 10px;
-    justify-content: center;
+    align-items: center;
     padding: 10px;
     border: 2px inset #c0c0c0;
     box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+
+.win98-toolbar.pagination {
+    justify-content: center;
+}
+
+.win98-button.active {
+    background-color: #000080;
+    color: #ffffff;
+    border: 2px inset #c0c0c0;
+    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
+}
+
+.win98-button.disabled {
+    background-color: #a0a0a0;
+    color: #808080;
+    cursor: not-allowed;
+    border: 2px inset #c0c0c0;
+    box-shadow: none;
 }
 
 /* Scrollbar */
@@ -234,6 +309,17 @@ body {
         font-size: 14px;
         padding: 6px 12px;
     }
+
+    .win98-table th,
+    .win98-table td {
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 @media (max-width: 480px) {
@@ -261,5 +347,19 @@ body {
     .win98-toolbar {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .win98-table {
+        font-size: 12px;
+    }
+
+    .win98-table th,
+    .win98-table td {
+        padding: 4px;
     }
 }

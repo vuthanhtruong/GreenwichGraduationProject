@@ -2,208 +2,221 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arrange Class</title>
     <link rel="stylesheet" th:href="@{/ClassesList.css}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<header class="text-center">
-    <h1><i class="fas fa-chalkboard-teacher"></i> Arrange Class</h1>
-</header>
-<nav class="mb-3 d-flex justify-content-end">
-    <a class="btn btn-secondary" th:href="@{/staff-home}">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </a>
-</nav>
-<main class="container">
-    <!-- Form tìm kiếm lớp học -->
-    <section class="mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+<div class="win98-container">
+    <!-- Title Bar -->
+    <div class="win98-title-bar">
+        <div class="title-text">
+            <i class="fas fa-chalkboard-teacher"></i> Arrange Class
+        </div>
+    </div>
+
+    <!-- Window Content -->
+    <div class="win98-content">
+        <!-- Navigation Toolbar -->
+        <div class="win98-toolbar">
+            <a th:href="@{/staff-home}" class="win98-button">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <!-- Search Classes Section -->
+        <div class="win98-panel">
+            <div class="panel-header">Search Classes</div>
             <form method="get" th:action="@{/staff-home/classes-list/search-classes}">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <div class="input-group w-50">
-                    <select class="form-select" name="searchType">
-                        <option value="name" th:selected="${searchType == 'name'}"><i class="fas fa-chalkboard"></i> Search by Class Name</option>
-                        <option value="id" th:selected="${searchType == 'id'}"><i class="fas fa-id-card"></i> Search by Class ID</option>
-                    </select>
-                    <input class="form-control" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." type="text">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="fas fa-search"></i> Search
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="form-row">
+                    <div class="input-group">
+                        <select class="win98-select" name="searchType">
+                            <option value="name" th:selected="${searchType == 'name'}"><i class="fas fa-chalkboard"></i> Search by Class Name</option>
+                            <option value="id" th:selected="${searchType == 'id'}"><i class="fas fa-id-card"></i> Search by Class ID</option>
+                        </select>
+                        <input class="win98-input" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." type="text">
+                        <button class="win98-button" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add New Class Section -->
+        <div class="win98-panel">
+            <div class="panel-header">Add New Class</div>
+            <form method="post" th:action="@{/staff-home/classes-list/add-class}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="form-group">
+                    <!-- Class Name -->
+                    <div class="form-row">
+                        <label for="nameClass" class="form-label">Class Name:</label>
+                        <input id="nameClass" name="nameClass" class="win98-input" required type="text" th:value="${nameClass}">
+                        <div class="error-text" th:if="${errors != null and errors.contains('Class name cannot be blank.')}" th:text="'Class name cannot be blank.'"></div>
+                        <div class="error-text" th:if="${errors != null and errors.contains('Class name is already in use.')}" th:text="'Class name is already in use.'"></div>
+                    </div>
+
+                    <!-- Slot Quantity -->
+                    <div class="form-row">
+                        <label for="slotQuantity" class="form-label">Total Slots:</label>
+                        <input id="slotQuantity" name="slotQuantity" class="win98-input" required type="number" min="1" th:value="${slotQuantity}">
+                        <div class="error-text" th:if="${errors != null and errors.contains('Total slots cannot be blank.')}" th:text="'Total slots cannot be blank.'"></div>
+                        <div class="error-text" th:if="${errors != null and errors.contains('Total slots must be greater than 0.')}" th:text="'Total slots must be greater than 0.'"></div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="form-row">
+                        <label for="subjectId" class="form-label">Subject:</label>
+                        <select id="subjectId" name="subjectId" class="win98-select" required>
+                            <option value="">Select subject</option>
+                            <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == subjectId}"></option>
+                        </select>
+                        <div class="error-text" th:if="${errors != null and errors.contains('Subject is required.')}" th:text="'Subject is required.'"></div>
+                        <div class="error-text" th:if="${errors != null and errors.contains('Invalid subject selected.')}" th:text="'Invalid subject selected.'"></div>
+                    </div>
+                </div>
+                <div class="win98-toolbar">
+                    <button class="win98-button" type="submit">
+                        <i class="fas fa-save"></i> Save Class
                     </button>
                 </div>
             </form>
         </div>
-    </section>
 
-    <!-- Form thêm lớp học -->
-    <section class="mb-4">
-        <h2>Add New Class</h2>
-        <form method="post" th:action="@{/staff-home/classes-list/add-class}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            <div class="row g-3">
-                <!-- Class Name -->
-                <div class="col-md-3">
-                    <label for="nameClass" class="form-label">Class Name:</label>
-                    <input id="nameClass" name="nameClass" class="form-control" required type="text" th:value="${nameClass}">
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Class name cannot be blank.')}" th:text="'Class name cannot be blank.'"></div>
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Class name is already in use.')}" th:text="'Class name is already in use.'"></div>
-                </div>
-
-                <!-- Slot Quantity -->
-                <div class="col-md-3">
-                    <label for="slotQuantity" class="form-label">Total Slots:</label>
-                    <input id="slotQuantity" name="slotQuantity" class="form-control" required type="number" min="1" th:value="${slotQuantity}">
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Total slots cannot be blank.')}" th:text="'Total slots cannot be blank.'"></div>
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Total slots must be greater than 0.')}" th:text="'Total slots must be greater than 0.'"></div>
-                </div>
-
-                <!-- Subject -->
-                <div class="col-md-3">
-                    <label for="subjectId" class="form-label">Subject:</label>
-                    <select id="subjectId" name="subjectId" class="form-control" required>
-                        <option value="">Select subject</option>
-                        <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == subjectId}"></option>
-                    </select>
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Subject is required.')}" th:text="'Subject is required.'"></div>
-                    <div class="text-danger" th:if="${errors != null and errors.contains('Invalid subject selected.')}" th:text="'Invalid subject selected.'"></div>
-                </div>
-            </div>
-
+        <!-- Class List Section -->
+        <div class="win98-panel">
+            <div class="panel-header">Class List</div>
             <!-- General Errors -->
-            <div class="text-danger mt-2" th:if="${errors != null}" th:each="error : ${errors}" th:text="${error}"></div>
-
-            <div class="mt-3">
-                <button class="btn btn-success" type="submit">
-                    <i class="fas fa-save"></i> Save Class
-                </button>
+            <div th:if="${errors != null}" class="win98-alert error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    <h5>Errors:</h5>
+                    <ul>
+                        <li th:each="error : ${errors}" th:text="${error}"></li>
+                    </ul>
+                </div>
             </div>
-        </form>
-    </section>
-    <!-- Bảng danh sách lớp học -->
-    <section class="table-container">
-        <h2>Class</h2>
-        <form class="d-flex align-items-center mb-3" method="get" th:action="@{/staff-home/classes-list}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <label class="me-2" for="pageSizeInput"><i class="fas fa-list"></i> Show:</label>
-            <input class="form-control form-control-sm w-25" id="pageSizeInput" max="100" min="1"
-                   name="pageSize" th:value="${pageSize}" type="number">
-            <button class="btn btn-primary btn-sm ms-2" type="submit">
-                <i class="fas fa-check"></i> Apply
-            </button>
-        </form>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID Class</th>
-                    <th>Class Name</th>
-                    <th>Subject ID</th>
-                    <th>Subject Name</th>
-                    <th>Total Slot</th>
-                    <th>Classroom</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="class : ${classes}">
-                    <td th:text="${class.getClassId()}"></td>
-                    <td th:text="${class.getNameClass()}"></td>
-                    <td th:text="${class?.subject != null} ? ${class.subject.subjectId} : 'N/A'"></td>
-                    <td th:text="${class?.subject != null} ? ${class.subject.subjectName} : 'N/A'"></td>
-                    <td th:text="${class.getSlotQuantity()}"></td>
-                    <td>
-                        <a class="btn btn-info btn-sm" th:href="@{/classroom/{id}(id=${class.classId})}">
-                            <i class="fas fa-eye"></i> View Details
-                        </a>
-                    </td>
-                    <td>
-                        <form th:action="@{/staff-home/classes-list/timetable}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${class.classId}"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Timetable
-                            </button>
-                        </form>
-                        <form th:action="@{/staff-home/classes-list/member-arrangement}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${class.classId}"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Member Arrangement
-                            </button>
-                        </form>
-                        <form th:action="@{/staff-home/classes-list/enter-transcript}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${class.classId}"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Enter Transcript
-                            </button>
-                        </form>
-                        <form th:action="@{/staff-home/classes-list/edit-class-form}" method="post" style="display:inline;">
-                            <input type="hidden" name="id" th:value="${class.classId}"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <input type="hidden" name="source" value="list"/>
-                            <input type="hidden" name="page" th:value="${currentPage}"/>
-                            <input type="hidden" name="pageSize" th:value="${pageSize}"/>
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                        </form>
-                        <form th:action="@{/staff-home/classes-list/delete-class/{classId}(classId=${class.classId})}"
-                              method="post"
-                              th:id="'deleteForm-' + ${class.classId}"
-                              style="display:inline;"
-                              onsubmit="return confirm('Are you sure you want to delete this class?');">
-                            <input type="hidden" name="_method" value="DELETE"/>
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <input type="hidden" name="source" value="list"/>
-                            <input type="hidden" name="page" th:value="${currentPage}"/>
-                            <input type="hidden" name="pageSize" th:value="${pageSize}"/>
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
 
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/staff-home/classes-list(page=1, pageSize=${pageSize})}">
+            <!-- Page Size Selector -->
+            <form class="form-row" method="get" th:action="@{/staff-home/classes-list}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div class="input-group">
+                    <label class="form-label" for="pageSizeInput"><i class="fas fa-list"></i> Show:</label>
+                    <input class="win98-input small" id="pageSizeInput" max="100" min="1" name="pageSize" th:value="${pageSize}" type="number">
+                    <button class="win98-button" type="submit">
+                        <i class="fas fa-check"></i> Apply
+                    </button>
+                </div>
+            </form>
+
+            <!-- Class Table -->
+            <div class="table-container">
+                <table class="win98-table">
+                    <thead>
+                    <tr>
+                        <th>ID Class</th>
+                        <th>Class Name</th>
+                        <th>Subject ID</th>
+                        <th>Subject Name</th>
+                        <th>Total Slot</th>
+                        <th>Classroom</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="class : ${classes}">
+                        <td th:text="${class.getClassId()}"></td>
+                        <td th:text="${class.getNameClass()}"></td>
+                        <td th:text="${class?.subject != null} ? ${class.subject.subjectId} : 'N/A'"></td>
+                        <td th:text="${class?.subject != null} ? ${class.subject.subjectName} : 'N/A'"></td>
+                        <td th:text="${class.getSlotQuantity()}"></td>
+                        <td>
+                            <a class="win98-button" th:href="@{/classroom/{id}(id=${class.classId})}">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <form th:action="@{/staff-home/classes-list/timetable}" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" th:value="${class.classId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="win98-button small">
+                                        <i class="fas fa-edit"></i> Timetable
+                                    </button>
+                                </form>
+                                <form th:action="@{/staff-home/classes-list/member-arrangement}" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" th:value="${class.classId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="win98-button small">
+                                        <i class="fas fa-edit"></i> Member Arrangement
+                                    </button>
+                                </form>
+                                <form th:action="@{/staff-home/classes-list/enter-transcript}" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" th:value="${class.classId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="win98-button small">
+                                        <i class="fas fa-edit"></i> Enter Transcript
+                                    </button>
+                                </form>
+                                <form th:action="@{/staff-home/classes-list/edit-class-form}" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" th:value="${class.classId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <input type="hidden" name="source" value="list">
+                                    <input type="hidden" name="page" th:value="${currentPage}">
+                                    <input type="hidden" name="pageSize" th:value="${pageSize}">
+                                    <button type="submit" class="win98-button small">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </form>
+                                <form th:action="@{/staff-home/classes-list/delete-class/{classId}(classId=${class.classId})}"
+                                      method="post"
+                                      th:id="'deleteForm-' + ${class.classId}"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this class?');">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <input type="hidden" name="source" value="list">
+                                    <input type="hidden" name="page" th:value="${currentPage}">
+                                    <input type="hidden" name="pageSize" th:value="${pageSize}">
+                                    <button type="submit" class="win98-button small danger">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="win98-toolbar pagination">
+                <a class="win98-button" th:href="@{/staff-home/classes-list(page=1, pageSize=${pageSize})}"
+                   th:classappend="${currentPage == 1} ? 'disabled' : ''">
                     <i class="fas fa-angle-double-left"></i> First
                 </a>
-            </li>
-            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/staff-home/classes-list(page=${currentPage - 1}, pageSize=${pageSize})}">
+                <a class="win98-button" th:href="@{/staff-home/classes-list(page=${currentPage - 1}, pageSize=${pageSize})}"
+                   th:classappend="${currentPage == 1} ? 'disabled' : ''">
                     <i class="fas fa-angle-left"></i>
                 </a>
-            </li>
-            <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
-                <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/staff-home/classes-list(page=${i}, pageSize=${pageSize})}"
-                       th:text="${i}"></a>
-                </li>
-            </th:block>
-            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/staff-home/classes-list(page=${currentPage + 1}, pageSize=${pageSize})}">
+                <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                    <a class="win98-button" th:href="@{/staff-home/classes-list(page=${i}, pageSize=${pageSize})}"
+                       th:classappend="${i == currentPage} ? 'active' : ''" th:text="${i}"></a>
+                </th:block>
+                <a class="win98-button" th:href="@{/staff-home/classes-list(page=${currentPage + 1}, pageSize=${pageSize})}"
+                   th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
                     <i class="fas fa-angle-right"></i>
                 </a>
-            </li>
-            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/staff-home/classes-list(page=${totalPages}, pageSize=${pageSize})}">
+                <a class="win98-button" th:href="@{/staff-home/classes-list(page=${totalPages}, pageSize=${pageSize})}"
+                   th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
                     <i class="fas fa-angle-double-right"></i> Last
                 </a>
-            </li>
-        </ul>
-    </section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
