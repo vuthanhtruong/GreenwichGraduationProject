@@ -1,288 +1,174 @@
-/* Base Styles */
-* {
-    box-sizing: border-box;
-}
-
+/* Base */
 body {
-    background: linear-gradient(135deg, #008080 0%, #004040 100%);
-    font-family: 'MS Sans Serif', 'Arial', sans-serif;
-    font-size: 16px;
-    color: #000000;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: #f3f3f3;
     margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    image-rendering: pixelated;
+    color: #1a1a1a;
+    font-size: 15px;
 }
 
-/* Main Container */
-.win98-container {
-    background-color: #c0c0c0;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    border: 2px outset #ffffff;
-    box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff;
+.win11-container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
 }
 
 /* Title Bar */
-.win98-title-bar {
-    background: linear-gradient(90deg, #000080 0%, #0000ff 100%);
-    color: #ffffff;
-    padding: 12px 20px;
-    font-size: 18px;
-    font-weight: bold;
-    border: 2px outset #c0c0c0;
-    box-shadow: inset 0 1px 0 #4080ff, inset 0 -1px 0 #000040;
+.win11-title-bar {
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.win11-title-bar h1 {
+    font-size: 20px;
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Window Content */
-.win98-content {
-    flex: 1;
-    padding: 20px;
-    background-color: #c0c0c0;
-    overflow: auto;
-}
-
 /* Panels */
-.win98-panel {
-    background-color: #c0c0c0;
-    border: 2px inset #c0c0c0;
+.win11-panel {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .panel-header {
-    background: linear-gradient(90deg, #000080 0%, #0000cc 100%);
-    color: #ffffff;
-    padding: 8px 12px;
     font-size: 16px;
-    font-weight: bold;
-    border-bottom: 1px solid #000000;
+    font-weight: 600;
+    margin-bottom: 12px;
 }
 
 .sub-header {
-    font-size: 16px;
-    font-weight: bold;
-    color: #000080;
-    padding: 8px 12px;
-    border-bottom: 1px solid #808080;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0;
 }
 
-/* Form Elements */
+/* Form */
 .form-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .form-row {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
-.form-label {
-    font-weight: bold;
-    color: #000080;
-    font-size: 15px;
-}
-
-.win98-input,
-.win98-select {
-    font-family: inherit;
-    font-size: 16px;
-    background-color: #ffffff;
-    border: 2px inset #c0c0c0;
-    padding: 6px 8px;
-    color: #000000;
-    min-height: 32px;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
-    transition: all 0.1s ease;
-}
-
-.win98-input:focus,
-.win98-select:focus {
-    border: 2px inset #0080ff;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0040ff;
-    outline: none;
-}
-
-.form-text {
+label {
+    font-weight: 500;
     font-size: 14px;
-    color: #404040;
+}
+
+.input, select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    min-height: 34px;
+    transition: 0.2s;
+}
+
+.input:focus, select:focus {
+    border-color: #2563eb;
+    outline: none;
+    background: #f0f6ff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Grid Layout */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Alerts */
+.win11-alert {
+    background: #fee2e2;
+    border-left: 4px solid #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: #991b1b;
 }
 
 /* Avatar */
 .avatar-container {
-    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
 }
 
 .avatar-img {
-    width: 100px;
-    height: 100px;
-    border: 2px inset #c0c0c0;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-    image-rendering: pixelated;
-}
-
-/* Error Messages */
-.win98-alert.error {
-    background-color: #c0c0c0;
-    border: 2px inset #c0c0c0;
-    padding: 10px 14px;
-    margin-bottom: 20px;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.win98-alert.error h5 {
-    margin: 0;
-    font-size: 15px;
-    color: #000080;
-}
-
-.error-text {
-    font-size: 14px;
-    color: #800000;
-    margin-top: 5px;
-}
-
-/* Parent Entry */
-.parent-entry {
-    background-color: #d4d0c8;
-    border: 2px inset #c0c0c0;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    object-fit: cover;
 }
 
 /* Buttons */
-.win98-button {
-    font-family: inherit;
-    font-size: 16px;
-    background-color: #c0c0c0;
-    border: 2px outset #c0c0c0;
-    padding: 8px 16px;
-    color: #000000;
-    cursor: pointer;
-    text-decoration: none;
+.btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 32px;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-    transition: all 0.1s ease;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: 0.2s;
 }
 
-.win98-button:hover {
-    background-color: #d4d0c8;
-    box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080;
+.btn:hover {
+    background: #f0f6ff;
+    border-color: #2563eb;
+    color: #2563eb;
 }
 
-.win98-button:active {
-    border: 2px inset #c0c0c0;
-    background-color: #a0a0a0;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
+.btn.primary {
+    background: #2563eb;
+    color: white;
+    border: none;
 }
 
-/* Toolbar */
-.win98-toolbar {
+.btn.primary:hover {
+    background: #1e4fd6;
+}
+
+.form-actions {
     display: flex;
     gap: 10px;
-    justify-content: center;
-    padding: 10px;
-    border: 2px inset #c0c0c0;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+    justify-content: flex-end;
+    margin-top: 16px;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 18px;
-    height: 18px;
-}
-
-::-webkit-scrollbar-track {
-    background: #c0c0c0;
-    border: 2px inset #c0c0c0;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #a0a0a0;
-    border: 2px outset #c0c0c0;
-    min-height: 20px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #808080;
-}
-
-::-webkit-scrollbar-corner {
-    background: #c0c0c0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .win98-content {
-        padding: 12px;
-    }
-
-    .form-group {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .win98-title-bar {
-        font-size: 16px;
-        padding: 10px 16px;
-    }
-
-    .win98-button {
-        font-size: 14px;
-        padding: 6px 12px;
-    }
-
-    .avatar-img {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-@media (max-width: 480px) {
-    .win98-content {
-        padding: 8px;
-    }
-
-    .win98-title-bar {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-
-    .win98-input,
-    .win98-select {
-        font-size: 14px;
-        padding: 5px 7px;
-    }
-
-    .win98-button {
-        font-size: 13px;
-        padding: 5px 10px;
-        width: 100%;
-    }
-
-    .win98-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .avatar-img {
-        width: 60px;
-        height: 60px;
-    }
+/* Error text */
+.error-text {
+    color: #dc2626;
+    font-size: 13px;
+    font-style: italic;
 }

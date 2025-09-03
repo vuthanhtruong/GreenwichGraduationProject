@@ -8,8 +8,9 @@
 </head>
 <body>
 
-<main class="dashboard-container">
-    <header class="dashboard-header">
+<main class="win11-container">
+    <!-- Header -->
+    <header class="win11-title-bar">
         <h1><i class="fas fa-user-shield"></i> Admin Home</h1>
         <h2>
             Welcome, <span th:text="${admin.getLastName()} + ' ' + ${admin.getFirstName()}"></span>
@@ -24,6 +25,7 @@
         </nav>
     </header>
 
+    <!-- Dashboard Grid -->
     <section class="dashboard-grid">
         <!-- Nhóm nhân sự -->
         <a class="dashboard-card primary" th:href="@{/admin-home/staffs-list}">

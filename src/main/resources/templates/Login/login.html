@@ -6,76 +6,78 @@
     <title>Login - E-Learning Platform</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://www.gre.ac.uk/__data/assets/image/0030/306687/2022-fpt-greenwich-logo.png" />
+    <link rel="icon" type="image/png"
+          href="https://www.gre.ac.uk/__data/assets/image/0030/306687/2022-fpt-greenwich-logo.png" />
 
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.cdnfonts.com/css/perfect-dos-vga-437" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- CSS -->
     <link rel="stylesheet" th:href="@{/login.css}">
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Prevent scrollbars */
-        }
-    </style>
 </head>
 <body>
-<div class="win98-container">
-    <div class="win98-content">
-        <div class="win98-panel login-panel">
-            <div class="panel-header">Sign In</div>
+<!-- Background -->
+<div class="background">
+    <img src="https://www.gre.ac.uk/__data/assets/image/0012/312033/0v9a2365-small.jpg"
+         alt="Campus Background" class="bg-image">
+</div>
 
-            <!-- Alerts -->
-            <div th:if="${message}" class="win98-alert success" role="alert">
-                <i class="fas fa-check-circle"></i>
-                <span th:text="${message}"></span>
-            </div>
-            <div th:if="${error}" class="win98-alert error" role="alert">
-                <i class="fas fa-exclamation-circle"></i>
-                <span th:text="${error}"></span>
-            </div>
-
-            <!-- Login Form -->
-            <form th:action="@{/login}" method="post" class="form-login">
-                <div class="input-group">
-                    <label for="username" class="form-label">Username</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="username" name="username" class="win98-input" placeholder="Enter username" required autocomplete="username" />
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="password" name="password" class="win98-input" placeholder="Enter password" required autocomplete="current-password" />
-                    </div>
-                </div>
-                <div class="form-options">
-                    <label class="form-check">
-                        <input type="checkbox" name="remember-me" class="win98-checkbox" /> Remember me
-                    </label>
-                    <a th:href="@{/auth/reset-password}" class="win98-link">Forgot password?</a>
-                </div>
-                <div class="input-group">
-                    <button type="submit" class="win98-button primary">
-                        <i class="fas fa-right-to-bracket"></i> Sign In
-                    </button>
-                </div>
-                <div class="divider">or</div>
-                <div class="input-group">
-                    <a th:href="@{/oauth2/authorization/google}" class="win98-button google">
-                        <i class="fab fa-google"></i> Sign in with Google
-                    </a>
-                </div>
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            </form>
+<!-- Login Container -->
+<div class="login-container">
+    <div class="login-card">
+        <!-- Logo + Title -->
+        <div class="login-header">
+            <img src="https://www.gre.ac.uk/__data/assets/image/0030/306687/2022-fpt-greenwich-logo.png"
+                 alt="Logo" class="logo">
+            <h2>Sign In</h2>
         </div>
+
+        <!-- Alerts -->
+        <div th:if="${message}" class="alert success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${message}"></span>
+        </div>
+        <div th:if="${error}" class="alert error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post" class="login-form">
+            <!-- Username -->
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" name="username" placeholder="Username" required autocomplete="username">
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+            </div>
+
+            <!-- Options -->
+            <div class="options">
+                <label><input type="checkbox" name="remember-me"> Remember me</label>
+                <a th:href="@{/auth/reset-password}" class="forgot">Forgot password?</a>
+            </div>
+
+            <!-- Sign In Button -->
+            <button type="submit" class="btn primary">
+                <i class="fas fa-right-to-bracket"></i> Sign In
+            </button>
+
+            <!-- Divider -->
+            <div class="divider"><span>or</span></div>
+
+            <!-- Google Login -->
+            <a th:href="@{/oauth2/authorization/google}" class="btn google">
+                <i class="fab fa-google"></i> Sign in with Google
+            </a>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        </form>
     </div>
 </div>
 </body>

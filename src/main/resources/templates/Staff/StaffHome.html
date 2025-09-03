@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Staff Dashboard</title>
@@ -8,12 +8,12 @@
 </head>
 <body>
 
-<main class="dashboard-container">
-    <header class="dashboard-header">
+<div class="win11-container">
+
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
         <h1><i class="fas fa-user-tie"></i> Staff Home - <span th:text="${major}"></span></h1>
-        <h2>
-            Welcome, <span th:text="${staff.getLastName()} + ' ' + ${staff.getFirstName()}"></span>
-        </h2>
+        <h2>Welcome, <span th:text="${staff.lastName} + ' ' + ${staff.firstName}"></span></h2>
         <nav class="dashboard-nav">
             <a th:href="@{/personal-page}"><i class="fas fa-id-card"></i> Personal Page</a>
             <a th:href="@{/staff-home/messages-list}"><i class="fas fa-envelope"></i> Messages</a>
@@ -24,6 +24,7 @@
         </nav>
     </header>
 
+    <!-- Dashboard Grid -->
     <section class="dashboard-grid">
         <a class="dashboard-card primary" th:href="@{/staff-home/lecturers-list}">
             <i class="fas fa-chalkboard-teacher"></i>
@@ -70,7 +71,7 @@
             <span>Blogs</span>
         </a>
     </section>
-</main>
+</div>
 
 </body>
 </html>

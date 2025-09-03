@@ -1,331 +1,203 @@
-body {
-    background: #c0c0c0;
-    font-family: 'Perfect DOS VGA 437', 'MS Sans Serif', Arial, sans-serif;
-    color: #000000;
-    min-height: 100vh;
+/* Reset + Base */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body, html {
+    height: 100%;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+}
+
+/* Background */
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+}
+.bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6) blur(2px);
+}
+
+/* Login Container */
+.login-container {
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 16px;
 }
 
-.win98-container {
-    background-color: #c0c0c0;
-    border: 2px outset #ffffff;
-    box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff;
-    padding: 15px;
-    margin: 0;
-    width: 100vw;
-    min-height: 100vh;
-    border-radius: 0;
+/* Card */
+.login-card {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 36px 28px;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    width: 100%;
+    max-width: 380px;
+    color: #fff;
+    animation: fadeIn 0.8s ease-out;
+}
+
+/* Header */
+.login-header {
     display: flex;
     flex-direction: column;
-}
-
-.win98-content {
-    padding: 15px;
-    background-color: #c0c0c0;
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
     align-items: center;
+    margin-bottom: 24px;
+}
+.login-header .logo {
+    height: 55px;
+    margin-bottom: 10px;
+}
+.login-header h2 {
+    font-size: 22px;
+    font-weight: 600;
 }
 
-.win98-panel.login-panel {
-    background-color: #c0c0c0;
-    border: 2px inset #c0c0c0;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-    padding: 20px;
-    width: 100%;
-    max-width: 350px; /* Kept small */
-    border-radius: 4px;
-    text-align: center; /* Ensure text alignment */
-}
-
-.panel-header {
-    font-weight: bold;
-    color: #000080;
-    font-size: 16px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #808080;
-    text-align: center;
-}
-
-.win98-alert {
+/* Alerts */
+.alert {
     padding: 10px 14px;
-    margin-bottom: 15px;
-    border: 2px inset #c0c0c0;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+    border-radius: 10px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    justify-content: center; /* Center alert content */
+    font-size: 14px;
+}
+.alert.success {
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid #10b981;
+}
+.alert.error {
+    background: rgba(239, 68, 68, 0.25);
+    border: 1px solid #ef4444;
 }
 
-.win98-alert.success {
-    background-color: #c0c0c0;
-    color: #000080;
-}
-
-.win98-alert.error {
-    background-color: #c0c0c0;
-    color: #800000;
-}
-
-.form-login {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch; /* Ensure inputs stretch evenly */
-}
-
+/* Inputs */
 .input-group {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align items to start for consistency */
-    text-align: left; /* Left-align labels */
-}
-
-.form-label {
-    font-weight: bold;
-    color: #000080;
-    font-size: 14px;
-    margin-bottom: 6px;
-}
-
-.input-wrapper {
-    position: relative;
-    display: flex;
     align-items: center;
-    width: 100%;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
 }
-
-.input-wrapper i {
-    position: absolute;
-    left: 10px;
-    color: #000080;
-    font-size: 14px;
+.input-group i {
+    color: #e5e7eb;
 }
-
-.win98-input {
-    font-family: inherit;
-    font-size: 14px;
-    background-color: #ffffff;
-    border: 2px inset #c0c0c0;
-    padding: 6px 8px 6px 30px;
-    color: #000000;
-    min-height: 32px;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
-    width: 100%;
-    text-align: left; /* Ensure text inside input aligns left */
-}
-
-.win98-input:focus {
-    border: 2px inset #0080ff;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #0040ff;
+.input-group input {
+    border: none;
     outline: none;
+    flex: 1;
+    background: transparent;
+    font-size: 14px;
+    color: #fff;
+}
+.input-group input::placeholder {
+    color: #d1d5db;
+}
+.input-group:focus-within {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid #3b82f6;
 }
 
-.win98-checkbox {
-    margin-right: 8px;
-    accent-color: #000080;
-    width: 16px;
-    height: 16px;
-}
-
-.form-options {
+/* Options */
+.options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 10px 0;
-    width: 100%; /* Ensure full width for even spacing */
-}
-
-.win98-link {
-    color: #000080;
-    text-decoration: underline;
     font-size: 13px;
+    margin-bottom: 18px;
 }
-
-.win98-link:hover {
-    color: #0040ff;
-}
-
-.win98-button {
-    font-family: inherit;
-    font-size: 14px;
-    background-color: #c0c0c0;
-    border: 2px outset #c0c0c0;
-    padding: 10px 1px;
-    color: #000000;
-    cursor: pointer;
+.options .forgot {
+    color: #93c5fd;
     text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
-    transition: all 0.1s ease;
+}
+.options .forgot:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.btn {
     width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+.btn.primary {
+    background: #2563eb;
+    color: #fff;
+}
+.btn.primary:hover {
+    background: #1d4ed8;
+}
+.btn.google {
+    background: #fff;
+    color: #111827;
+}
+.btn.google:hover {
+    background: #f9fafb;
 }
 
-.win98-button:hover {
-    background-color: #d4d0c8;
-    box-shadow: inset 2px 2px 0 #ffffff, inset -2px -2px 0 #808080;
-}
-
-.win98-button:active {
-    border: 2px inset #c0c0c0;
-    background-color: #a0a0a0;
-    box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #808080;
-}
-
-.win98-button.primary {
-    background-color: #000080;
-    color: #ffffff;
-    border: 2px outset #000080;
-}
-
-.win98-button.primary:hover {
-    background-color: #0000ff;
-}
-
-.win98-button.google {
-    background-color: #ffffff;
-    border: 2px outset #c0c0c0;
-    color: #000000;
-}
-
-.win98-button.google:hover {
-    background-color: #d4d0c8;
-}
-
+/* Divider */
 .divider {
+    display: flex;
+    align-items: center;
     text-align: center;
-    color: #000080;
+    color: #d1d5db;
     font-size: 13px;
-    margin: 15px 0;
-    position: relative;
+    margin: 20px 0;
 }
-
-.divider::before,
-.divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 45%;
+.divider::before, .divider::after {
+    content: "";
+    flex: 1;
     height: 1px;
-    background: #808080;
+    background: #9ca3af;
+}
+.divider span {
+    padding: 0 10px;
 }
 
-.divider::before {
-    left: 0;
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Logo chỉnh to hơn */
+.login-header .logo {
+    height: 90px;           /* tăng từ 55px lên 90px */
+    margin-bottom: 16px;    /* tạo khoảng cách với text */
+    transition: transform 0.4s ease, filter 0.4s ease;
 }
 
-.divider::after {
-    right: 0;
+/* Animation khi hover */
+.login-header .logo:hover {
+    transform: scale(1.08);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
-@media (max-width: 768px) {
-    .win98-panel.login-panel {
-        max-width: 90%;
-        padding: 15px;
-    }
-    .win98-input {
-        font-size: 13px;
-        min-height: 30px;
-        padding: 5px 7px 5px 28px;
-    }
-    .win98-button {
-        font-size: 13px;
-        padding: 5px 10px;
-    }
-    .form-label {
-        font-size: 13px;
-    }
-    .input-wrapper i {
-        font-size: 13px;
-    }
-    .win98-checkbox {
-        width: 14px;
-        height: 14px;
-    }
-    .win98-alert {
-        font-size: 12px;
-    }
-    .win98-link {
-        font-size: 12px;
-    }
-    .panel-header {
-        font-size: 15px;
-    }
+/* Animation khi load trang */
+@keyframes logoZoom {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
-/* Prevent scrollbars and enforce full height */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.win98-container {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #c0c0c0;
-    border: 2px outset #ffffff;
-    box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff;
-    padding: 0;
-}
-
-.win98-content {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.win98-panel.login-panel {
-    width: 100%;
-    max-width: 360px;
-    margin: auto;
-}
-/* Prevent scrollbars and enforce full height */
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.win98-container {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #c0c0c0;
-    border: 2px outset #ffffff;
-    box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #ffffff;
-    padding: 0;
-}
-
-.win98-content {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.win98-panel.login-panel {
-    width: 100%;
-    max-width: 360px;
-    margin: auto;
+.login-header .logo {
+    animation: logoZoom 0.6s ease-out;
 }

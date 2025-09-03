@@ -1,153 +1,139 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
-
-:root {
-    --primary: #4361ee;
-    --secondary: #3a0ca3;
-    --accent: #4cc9f0;
-    --success: #2ecc71;
-    --warning: #f7b731;
-    --danger: #fc5c65;
-    --info: #00bcd4;
-    --dark: #2d3436;
-    --neutral: #b2bec3;
-    --white: #ffffff;
-    --text: #2d3436;
-    --shadow: rgba(0, 0, 0, 0.05);
-    --light: #f8f9fa; /* Thêm màu cho class light */
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* Base */
 body {
-    font-family: 'Outfit', sans-serif;
-    background: linear-gradient(to bottom right, #f0f4ff, #f9fcff);
-    color: var(--text);
-    padding: 2rem;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef2f7, #f9fafc);
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1.6;
 }
 
-.dashboard-container {
-    max-width: 1100px;
+.win11-container {
+    max-width: 1200px;
     margin: auto;
-    background: var(--white);
-    border-radius: 20px;
-    padding: 3rem;
-    box-shadow: 0 10px 40px var(--shadow);
-    backdrop-filter: blur(10px);
-    animation: fadeIn 0.6s ease-out;
+    padding: 24px;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-.dashboard-header {
+/* Title Bar */
+.win11-title-bar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
     text-align: center;
-    margin-bottom: 2rem;
 }
 
-.dashboard-header h1 {
-    font-size: 2.5rem;
-    background: linear-gradient(to right, var(--primary), var(--accent));
-    -webkit-background-clip: text;
-    color: transparent;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.dashboard-header h2 {
-    font-size: 1.4rem;
-    font-weight: 500;
-}
-
-.dashboard-nav {
-    margin-top: 1rem;
+.win11-title-bar h1 {
+    font-size: 26px;
+    margin: 0;
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+.win11-title-bar h2 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 8px;
+    color: #4b5563;
+}
+
+/* Navigation */
+.dashboard-nav {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 14px;
     flex-wrap: wrap;
-    gap: 1.2rem;
 }
 
 .dashboard-nav a,
 .dashboard-nav button {
-    font-size: 1rem;
-    color: var(--primary);
+    background: #f9fafc;
+    padding: 8px 16px;
+    border-radius: 10px;
     text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    display: flex;
+    font-size: 14px;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    color: #1a1a1a;
+    transition: all 0.25s ease;
 }
 
 .dashboard-nav a:hover,
 .dashboard-nav button:hover {
-    color: var(--accent);
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+    transform: translateY(-2px);
 }
 
+/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
 }
 
+/* Cards */
 .dashboard-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    border-radius: 16px;
-    font-weight: 600;
-    text-align: center;
-    color: white;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
     text-decoration: none;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .dashboard-card i {
-    font-size: 2rem;
-    margin-bottom: 0.8rem;
+    font-size: 34px;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card span {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.3px;
 }
 
 .dashboard-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 32px rgba(0,0,0,0.08);
+    transform: translateY(-6px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
-/* Color schemes */
-.primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); }
-.success { background: linear-gradient(135deg, var(--success), #27ae60); }
-.warning { background: linear-gradient(135deg, var(--warning), #e67e22); }
-.info    { background: linear-gradient(135deg, var(--accent), var(--primary)); }
-.dark    { background: linear-gradient(135deg, #636e72, #2d3436); }
-.neutral { background: linear-gradient(135deg, var(--neutral), #636e72); }
-.secondary { background: linear-gradient(135deg, var(--secondary), #2c0966); } /* Thêm cho Deputy Staffs */
-.danger { background: linear-gradient(135deg, var(--danger), #d12e36); } /* Thêm cho Minor Lecturers */
-.light { background: linear-gradient(135deg, var(--light), #e9ecef); color: var(--text); } /* Thêm cho Campuses */
+.dashboard-card:hover i {
+    transform: scale(1.2);
+}
 
-/* Responsive Adjustments */
+/* Color Variants */
+.dashboard-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); }
+.dashboard-card.secondary { background: linear-gradient(135deg, #6b7280, #374151); }
+.dashboard-card.success { background: linear-gradient(135deg, #16a34a, #065f46); }
+.dashboard-card.danger { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
+.dashboard-card.warning { background: linear-gradient(135deg, #d97706, #92400e); }
+.dashboard-card.info { background: linear-gradient(135deg, #0891b2, #155e75); }
+.dashboard-card.light { background: linear-gradient(135deg, #f3f4f6, #d1d5db); color: #111827; }
+
+/* Responsive */
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 1.5rem;
-    }
-
-    .dashboard-header h1 {
-        font-size: 2rem;
-    }
-
-    .dashboard-header h2 {
-        font-size: 1.1rem;
-    }
-
-    .dashboard-card {
-        padding: 1.5rem;
+    .dashboard-nav {
+        flex-direction: column;
+        gap: 8px;
     }
 }
