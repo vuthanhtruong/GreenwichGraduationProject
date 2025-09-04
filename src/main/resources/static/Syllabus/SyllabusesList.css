@@ -7,13 +7,14 @@ body {
     font-size: 15px;
 }
 
+/* Container */
 .win11-container {
     max-width: 1200px;
     margin: auto;
     padding: 20px;
 }
 
-/* Title */
+/* Title Bar */
 .win11-title-bar {
     background: #fff;
     padding: 20px;
@@ -32,6 +33,13 @@ body {
     color: #2563eb;
 }
 
+/* Toolbar */
+.win11-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
 /* Panel */
 .win11-panel {
     background: #fff;
@@ -46,20 +54,13 @@ body {
     margin-bottom: 14px;
 }
 
-/* Toolbar */
-.win11-toolbar {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-/* Form */
+/* Forms */
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-.form-group.grid-3 {
+.form-group.grid-4 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
@@ -84,9 +85,6 @@ label {
     border-color: #2563eb;
     outline: none;
     background: #f0f6ff;
-}
-.input.small {
-    width: 80px;
 }
 .error-text {
     font-size: 13px;
@@ -144,6 +142,11 @@ label {
     gap: 8px;
     font-size: 14px;
 }
+.win11-alert.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
 .win11-alert.error {
     background: #fef2f2;
     color: #991b1b;
@@ -160,7 +163,8 @@ label {
     border-radius: 12px;
     overflow: hidden;
 }
-.win11-table th, .win11-table td {
+.win11-table th,
+.win11-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
@@ -174,24 +178,13 @@ label {
 }
 .actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 .inline-form {
     display: inline-block;
 }
 
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 16px;
-}
-.pagination .btn.active {
-    background: #2563eb;
-    color: #fff;
-}
-.pagination .btn.disabled {
-    pointer-events: none;
-    opacity: 0.5;
+/* Misc */
+.text-center {
+    text-align: center;
 }

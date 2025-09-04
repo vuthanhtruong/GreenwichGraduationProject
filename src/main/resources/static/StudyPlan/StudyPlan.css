@@ -13,7 +13,7 @@ body {
     padding: 20px;
 }
 
-/* Title */
+/* Title Bar */
 .win11-title-bar {
     background: #fff;
     padding: 20px;
@@ -53,44 +53,25 @@ body {
     margin-bottom: 20px;
 }
 
-/* Form */
-.form-group {
+/* Alerts */
+.win11-alert {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.form-group.grid-3 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-}
-.form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-label {
-    font-weight: 500;
+    align-items: center;
+    gap: 8px;
     font-size: 14px;
 }
-.input {
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: 0.2s;
+.win11-alert.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #10b981;
 }
-.input:focus {
-    border-color: #2563eb;
-    outline: none;
-    background: #f0f6ff;
-}
-.input.small {
-    width: 80px;
-}
-.error-text {
-    font-size: 13px;
-    color: #dc2626;
+.win11-alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #f87171;
 }
 
 /* Buttons */
@@ -125,30 +106,6 @@ label {
     font-size: 13px;
     padding: 6px 12px;
 }
-.btn.danger {
-    background: #dc2626;
-    color: #fff;
-    border: none;
-}
-.btn.danger:hover {
-    background: #b91c1c;
-}
-
-/* Alerts */
-.win11-alert {
-    padding: 12px 14px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-}
-.win11-alert.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #f87171;
-}
 
 /* Table */
 .table-container {
@@ -171,27 +128,4 @@ label {
 }
 .win11-table tr:hover {
     background: #f0f6ff;
-}
-.actions {
-    display: flex;
-    gap: 6px;
-}
-.inline-form {
-    display: inline-block;
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 16px;
-}
-.pagination .btn.active {
-    background: #2563eb;
-    color: #fff;
-}
-.pagination .btn.disabled {
-    pointer-events: none;
-    opacity: 0.5;
 }

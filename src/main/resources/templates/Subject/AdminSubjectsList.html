@@ -2,103 +2,98 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Subjects</title>
     <link rel="stylesheet" th:href="@{/SubjectsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<div class="win98-container">
-    <!-- Title Bar -->
-    <div class="win98-title-bar">
-        <div class="title-text">
-            <i class="fas fa-book"></i> Manage Subjects
-        </div>
+<div class="win11-container">
+
+    <!-- Title -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-book"></i> Manage Subjects</h1>
+    </header>
+
+    <!-- Navigation -->
+    <div class="form-actions">
+        <a th:href="@{/admin-home}" class="btn">
+            <i class="fas fa-arrow-left"></i> Back to Admin Home
+        </a>
     </div>
 
-    <!-- Window Content -->
-    <div class="win98-content">
-        <!-- Navigation Toolbar -->
-        <div class="win98-toolbar">
-            <a th:href="@{/admin-home}" class="win98-button">
-                <i class="fas fa-arrow-left"></i> Back to Admin Home
-            </a>
-        </div>
-
-        <!-- Messages -->
-        <div th:if="${successMessage != null}" class="win98-alert success">
-            <i class="fas fa-check-circle"></i>
-            <span th:text="${successMessage}"></span>
-        </div>
-        <div th:if="${errorMessage != null}" class="win98-alert error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${errorMessage}"></span>
-        </div>
-
-        <!-- Admission Year Selector -->
-        <div class="win98-panel">
-            <div class="panel-header">Select Admission Year</div>
-            <form method="post" th:action="@{/admin-home/subjects-list}" class="form-row">
-                <div class="input-group">
-                    <label for="admissionYear" class="form-label">Admission Year:</label>
-                    <select id="admissionYear" name="admissionYear" class="win98-select" onchange="this.form.submit()">
-                        <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
-                        <option th:each="year : ${admissionYears}"
-                                th:value="${year}"
-                                th:text="${year}"
-                                th:selected="${year == selectedYear}"></option>
-                    </select>
-                </div>
-            </form>
-        </div>
-
-        <!-- Subjects Table Section -->
-        <div class="win98-panel">
-            <div class="panel-header">Subjects for <span th:text="${selectedYear}"></span></div>
-            <form th:action="@{/admin-home/update-tuition}" method="post">
-                <input type="hidden" name="admissionYear" th:value="${selectedYear}">
-                <div class="table-container full-width">
-                    <table class="win98-table">
-                        <thead>
-                        <tr>
-                            <th>Subject ID</th>
-                            <th>Subject Name</th>
-                            <th>Semester</th>
-                            <th>Type</th>
-                            <th>Major</th>
-                            <th>Acceptor</th>
-                            <th>Tuition Fee</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="subject : ${allSubjects}">
-                            <td th:text="${subject.subjectId}"></td>
-                            <td th:text="${subject.subjectName}"></td>
-                            <td th:text="${subject.semester != null} ? ${subject.semester} : 'N/A'"></td>
-                            <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? 'Major' : 'Minor'"></td>
-                            <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? (${subject.major != null} ? ${subject.major.majorName} : 'N/A') : 'N/A'"></td>
-                            <td th:text="${subject.acceptor != null} ? ${subject.acceptor.getFullName()} : 'N/A'"></td>
-                            <td>
-                                <input type="number" class="win98-input tuition-input"
-                                       th:name="'tuitionFee_' + ${subject.subjectId}"
-                                       th:value="${tuitionFeeMap.containsKey(subject.subjectId)} ? ${tuitionFeeMap.get(subject.subjectId)}"
-                                       placeholder="Enter fee" min="0" step="0.01">
-                            </td>
-                        </tr>
-                        <tr th:unless="${allSubjects.size() > 0}">
-                            <td colspan="7" class="text-center">No Subjects available</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="win98-toolbar">
-                    <button type="submit" class="win98-button">
-                        <i class="fas fa-save"></i> Save Tuition Fees
-                    </button>
-                </div>
-            </form>
-        </div>
+    <!-- Alerts -->
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
     </div>
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Admission Year -->
+    <section class="win11-panel">
+        <h2 class="panel-header"><i class="fas fa-calendar-alt"></i> Select Admission Year</h2>
+        <form method="post" th:action="@{/admin-home/subjects-list}" class="inline-form">
+            <label for="admissionYear">Year:</label>
+            <select id="admissionYear" name="admissionYear" class="input"
+                    onchange="this.form.submit()">
+                <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
+                <option th:each="year : ${admissionYears}"
+                        th:value="${year}"
+                        th:text="${year}"
+                        th:selected="${year == selectedYear}"></option>
+            </select>
+        </form>
+    </section>
+
+    <!-- Subjects Table -->
+    <section class="win11-panel">
+        <h2 class="panel-header"><i class="fas fa-list"></i> Subjects for <span th:text="${selectedYear}"></span></h2>
+        <form th:action="@{/admin-home/update-tuition}" method="post">
+            <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+            <div class="table-container">
+                <table class="win11-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Semester</th>
+                        <th>Type</th>
+                        <th>Major</th>
+                        <th>Acceptor</th>
+                        <th>Tuition Fee</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="subject : ${allSubjects}">
+                        <td th:text="${subject.subjectId}"></td>
+                        <td th:text="${subject.subjectName}"></td>
+                        <td th:text="${subject.semester ?: 'N/A'}"></td>
+                        <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? 'Major' : 'Minor'"></td>
+                        <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? (${subject.major != null} ? ${subject.major.majorName} : 'N/A') : 'N/A'"></td>
+                        <td th:text="${subject.acceptor?.fullName ?: 'N/A'}"></td>
+                        <td>
+                            <input type="number" class="input small"
+                                   th:name="'tuitionFee_' + ${subject.subjectId}"
+                                   th:value="${tuitionFeeMap[subject.subjectId]}"
+                                   placeholder="Enter fee" min="0" step="0.01">
+                        </td>
+                    </tr>
+                    <tr th:if="${allSubjects.size() == 0}">
+                        <td colspan="7" class="text-center">No Subjects available</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn primary">
+                    <i class="fas fa-save"></i> Save Tuition Fees
+                </button>
+            </div>
+        </form>
+    </section>
+
 </div>
 </body>
 </html>

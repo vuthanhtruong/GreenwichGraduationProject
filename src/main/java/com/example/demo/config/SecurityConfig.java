@@ -15,6 +15,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -80,6 +81,17 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                        .addLogoutHandler((request, response, authentication) -> {
+                            try {
+                                PersistentTokenRepository tokenRepository = persistentTokenRepository();
+                                if (authentication != null) {
+                                    tokenRepository.removeUserTokens(authentication.getName());
+                                }
+                            } catch (Exception e) {
+                                // Log the error but don't fail the logout process
+                                System.err.println("Error during remember-me token cleanup: " + e.getMessage());
+                            }
+                        })
                         .permitAll()
                 )
                 .rememberMe(remember -> remember
@@ -185,6 +197,17 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
+        // Attempt to create the persistent_logins table if it doesn't exist
+        try {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS persistent_logins (" +
+                    "username VARCHAR(64) NOT NULL, " +
+                    "series VARCHAR(64) PRIMARY KEY, " +
+                    "token VARCHAR(64) NOT NULL, " +
+                    "last_used TIMESTAMP NOT NULL)");
+        } catch (Exception e) {
+            System.err.println("Failed to create persistent_logins table: " + e.getMessage());
+        }
         return tokenRepository;
     }
 }
