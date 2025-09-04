@@ -1,7 +1,8 @@
 package com.example.demo.lecturer.dao;
 
 import com.example.demo.authenticator.service.AuthenticatorsService;
-import com.example.demo.email_service.service.EmailServiceForLectureService;
+import com.example.demo.email_service.dto.LecturerEmailContext;
+import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.major.model.Majors;
@@ -18,6 +19,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,6 +32,51 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+    private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
+
+    private final PersonsService personsService;
+    private final StaffsService staffsService;
+    private final EmailServiceForLecturerService emailServiceForLectureService;
+    private final EmailServiceForStudentService emailServiceForStudentService;
+    private final AuthenticatorsService authenticatorsService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    // Base directory and URL for avatar storage
+    private static final String AVATAR_STORAGE_PATH = "avatars/";
+    private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
+
+    public LecturesDAOImpl(PersonsService personsService, EmailServiceForLecturerService emailServiceForLectureService,
+                           EmailServiceForStudentService emailServiceForStudentService,
+                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
+        this.personsService = personsService;
+        this.authenticatorsService = authenticatorsService;
+        if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
+            throw new IllegalArgumentException("Email services cannot be null");
+        }
+        this.emailServiceForLectureService = emailServiceForLectureService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.staffsService = staffsService;
+
+        // Ensure avatar storage directory exists
+        try {
+            Files.createDirectories(Paths.get(AVATAR_STORAGE_PATH));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create avatar storage directory: " + AVATAR_STORAGE_PATH, e);
+        }
+    }
+
+    private String saveAvatarAndGetPath(String lecturerId, byte[] avatarData) throws IOException {
+        if (avatarData == null || avatarData.length == 0) {
+            return null;
+        }
+        String fileName = lecturerId + "_" + System.currentTimeMillis() + ".jpg";
+        Path filePath = Paths.get(AVATAR_STORAGE_PATH, fileName);
+        Files.write(filePath, avatarData);
+        return AVATAR_BASE_URL + fileName;
+    }
+
     @Override
     public long minorLecturersCountByCampus(String campus) {
         if (campus == null || campus.trim().isEmpty()) {
@@ -46,30 +95,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusName", campus)
                 .getSingleResult();
-    }
-
-    private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
-
-    private final PersonsService personsService;
-    private final StaffsService staffsService;
-    private final EmailServiceForLectureService emailServiceForLectureService;
-    private final EmailServiceForStudentService emailServiceForStudentService;
-    private final AuthenticatorsService authenticatorsService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    public LecturesDAOImpl(PersonsService personsService, EmailServiceForLectureService emailServiceForLectureService,
-                           EmailServiceForStudentService emailServiceForStudentService,
-                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
-        this.personsService = personsService;
-        this.authenticatorsService = authenticatorsService;
-        if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
-            throw new IllegalArgumentException("Email services cannot be null");
-        }
-        this.emailServiceForLectureService = emailServiceForLectureService;
-        this.emailServiceForStudentService = emailServiceForStudentService;
-        this.staffsService = staffsService;
     }
 
     @Override
@@ -130,10 +155,19 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
-        if (lecturer.getEmail() != null && personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
-            errors.add("The email address is already associated with another account.");
+        // Check for duplicate email, handle null ID for new lecturers
+        if (lecturer.getEmail() != null) {
+            if (lecturer.getId() == null) {
+                if (personsService.existsByEmail(lecturer.getEmail())) {
+                    errors.add("The email address is already associated with another account.");
+                }
+            } else {
+                if (personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
+                    errors.add("The email address is already associated with another account.");
+                }
+            }
         }
-        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(),lecturer.getId())) {
+        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), lecturer.getId())) {
             errors.add("The phone number is already associated with another account.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {
@@ -177,12 +211,38 @@ public class LecturesDAOImpl implements LecturesDAO {
         lecturer.setCampus(staff.getCampus());
         lecturer.setMajorManagement(staff.getMajorManagement());
         lecturer.setCreator(staff);
+        lecturer.setCreatedDate(LocalDate.now());
         MajorLecturers savedLecturer = entityManager.merge(lecturer);
+
+        // Handle avatar
+        String avatarPath = null;
+        try {
+            avatarPath = saveAvatarAndGetPath(savedLecturer.getId(), savedLecturer.getAvatar());
+        } catch (IOException e) {
+            logger.error("Failed to save avatar for lecturer {}: {}", savedLecturer.getId(), e.getMessage());
+        }
+
+        // Create LecturerEmailContext
+        LecturerEmailContext context = new LecturerEmailContext(
+                savedLecturer.getId(),
+                savedLecturer.getFullName(),
+                savedLecturer.getEmail(),
+                savedLecturer.getPhoneNumber(),
+                savedLecturer.getBirthDate(),
+                savedLecturer.getGender() != null ? savedLecturer.getGender().toString() : null,
+                savedLecturer.getFullAddress(),
+                savedLecturer.getCampus() != null ? savedLecturer.getCampus().getCampusName() : null,
+                savedLecturer.getMajorManagement() != null ? savedLecturer.getMajorManagement().getMajorName() : null,
+                savedLecturer.getCreator() != null ? savedLecturer.getCreator().getFullName() : null,
+                savedLecturer.getCreatedDate(),
+                avatarPath
+        );
+
         try {
             String subject = "Your Lecturer Account Information";
-            emailServiceForLectureService.sendEmailToNotifyLoginInformation(lecturer.getEmail(), subject, lecturer, randomPassword);
+            emailServiceForLectureService.sendEmailToNotifyLoginInformation(savedLecturer.getEmail(), subject, context, randomPassword);
         } catch (Exception e) {
-            logger.error("Failed to schedule email to {}: {}", lecturer.getEmail(), e.getMessage());
+            logger.error("Failed to schedule email to {}: {}", savedLecturer.getEmail(), e.getMessage());
         }
         return savedLecturer;
     }
@@ -219,10 +279,42 @@ public class LecturesDAOImpl implements LecturesDAO {
         } else {
             lecturer.setAvatar(existingLecturer.getAvatar());
         }
+        // Validate lecturer before updating
+        List<String> validationErrors = lectureValidation(lecturer, avatarFile);
+        if (!validationErrors.isEmpty()) {
+            throw new IllegalArgumentException("Validation failed: " + String.join(", ", validationErrors));
+        }
+
         updateLecturerFields(existingLecturer, lecturer);
+
+        // Handle avatar
+        String avatarPath = null;
+        try {
+            avatarPath = saveAvatarAndGetPath(existingLecturer.getId(), existingLecturer.getAvatar());
+        } catch (IOException e) {
+            logger.error("Failed to save avatar for lecturer {}: {}", existingLecturer.getId(), e.getMessage());
+        }
+
         entityManager.merge(existingLecturer);
+
+        // Create LecturerEmailContext
+        LecturerEmailContext context = new LecturerEmailContext(
+                existingLecturer.getId(),
+                existingLecturer.getFullName(),
+                existingLecturer.getEmail(),
+                existingLecturer.getPhoneNumber(),
+                existingLecturer.getBirthDate(),
+                existingLecturer.getGender() != null ? existingLecturer.getGender().toString() : null,
+                existingLecturer.getFullAddress(),
+                existingLecturer.getCampus() != null ? existingLecturer.getCampus().getCampusName() : null,
+                existingLecturer.getMajorManagement() != null ? existingLecturer.getMajorManagement().getMajorName() : null,
+                existingLecturer.getCreator() != null ? existingLecturer.getCreator().getFullName() : null,
+                existingLecturer.getCreatedDate(),
+                avatarPath
+        );
+
         String subject = "Your lecturer account information after being edited";
-        emailServiceForLectureService.sendEmailToNotifyInformationAfterEditing(existingLecturer.getEmail(), subject, existingLecturer);
+        emailServiceForLectureService.sendEmailToNotifyInformationAfterEditing(existingLecturer.getEmail(), subject, context);
     }
 
     @Override
@@ -235,10 +327,11 @@ public class LecturesDAOImpl implements LecturesDAO {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
         return entityManager.createQuery(
-                        "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor and s.campus=:campuses", MajorLecturers.class)
+                        "SELECT s FROM MajorLecturers s WHERE s.majorManagement = :staffmajor AND s.campus = :campuses", MajorLecturers.class)
                 .setParameter("staffmajor", majors)
                 .setParameter("campuses", staff.getCampus())
                 .setMaxResults(pageSize)
+                .setFirstResult(firstResult)
                 .getResultList();
     }
 
@@ -247,6 +340,7 @@ public class LecturesDAOImpl implements LecturesDAO {
             throw new IllegalArgumentException("Email and phone number are required");
         }
     }
+
     @Override
     public List<MajorLecturers> searchLecturers(String searchType, String keyword, int firstResult, int pageSize) {
         String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator WHERE ";

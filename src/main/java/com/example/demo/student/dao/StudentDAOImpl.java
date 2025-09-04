@@ -3,7 +3,7 @@ package com.example.demo.student.dao;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.dto.StudentEmailContext;
-import com.example.demo.email_service.service.EmailServiceForLectureService;
+import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.staff.model.Staffs;
@@ -51,7 +51,7 @@ public class StudentDAOImpl implements StudentsDAO {
     @PersistenceContext
     private EntityManager entityManager;
     private final EmailServiceForStudentService emailServiceForStudentService;
-    private final EmailServiceForLectureService emailServiceForLectureService;
+    private final EmailServiceForLecturerService emailServiceForLectureService;
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
 
@@ -60,7 +60,7 @@ public class StudentDAOImpl implements StudentsDAO {
     private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
 
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
-                          EmailServiceForLectureService emailServiceForLectureService,
+                          EmailServiceForLecturerService emailServiceForLectureService,
                           AccountBalancesService accountBalancesService,
                           StaffsService staffsService, AuthenticatorsService authenticatorsService) {
         this.personsService = personsService;
