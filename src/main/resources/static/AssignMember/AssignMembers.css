@@ -1,0 +1,128 @@
+/* Base */
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    color: #1f2937;
+    font-size: 15px;
+}
+.win11-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Title */
+.win11-title-bar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    text-align: center;
+}
+.win11-title-bar h1 {
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: #2563eb;
+}
+
+/* Panels */
+.win11-panel {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.panel-header {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    color: #111827;
+    transition: 0.25s;
+}
+.btn:hover {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+.btn.primary {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+}
+.btn.primary:hover {
+    background: #1d4ed8;
+}
+.btn.danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+}
+.btn.danger:hover {
+    background: #b91c1c;
+}
+
+/* Alerts */
+.win11-alert {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.win11-alert.success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+.win11-alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+}
+
+/* Table */
+.table-container { overflow-x: auto; }
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.win11-table th, .win11-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+.text-center { text-align: center; }
+
+/* Form Actions */
+.form-actions {
+    margin-top: 12px;
+}

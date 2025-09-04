@@ -1,0 +1,97 @@
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 20px;
+    color: #1f2937;
+}
+.win11-container { max-width: 1250px; margin: auto; }
+
+/* Title */
+.win11-title-bar {
+    background: #fff;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    margin-bottom: 24px;
+}
+.win11-title-bar h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+/* Panel */
+.win11-panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.panel-header {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Alerts */
+.win11-alert {
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.win11-alert.success { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
+.win11-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #f87171; }
+
+/* Table */
+.table-container { overflow-x: auto; }
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.win11-table th, .win11-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+.avatar-img {
+    width: 40px; height: 40px; border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.25s;
+}
+.btn:hover { background: #2563eb; color: #fff; }
+.btn.primary { background: #2563eb; color: #fff; border: none; }
+.btn.primary:hover { background: #1d4ed8; }
+.btn.danger { background: #dc2626; color: #fff; border: none; }
+.btn.danger:hover { background: #b91c1c; }
+
+/* Form Actions */
+.form-actions { margin-top: 12px; }
