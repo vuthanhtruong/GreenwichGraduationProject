@@ -35,15 +35,14 @@
                 <div class="col-md-4">
                     <label for="editNameClass" class="form-label">Class Name:</label>
                     <input id="editNameClass" th:field="*{nameClass}" class="form-control" required type="text">
-                    <div class="text-danger" th:errors="*{nameClass}"></div>
-                    <div class="text-danger" th:if="${editErrors != null and editErrors.contains('Class name is already in use.')}" th:text="'Class name is already in use.'"></div>
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('nameClass') or error.contains('Name Class') or error.contains('Class name is already in use.')}" th:text="${error}"></div>
                 </div>
 
                 <!-- Slot Quantity -->
                 <div class="col-md-4">
                     <label for="editSlotQuantity" class="form-label">Total Slots:</label>
                     <input id="editSlotQuantity" th:field="*{slotQuantity}" class="form-control" required type="number" min="1">
-                    <div class="text-danger" th:errors="*{slotQuantity}"></div>
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('slotQuantity') or error.contains('Slot Quantity')}" th:text="${error}"></div>
                 </div>
 
                 <!-- Subject -->
@@ -53,13 +52,9 @@
                         <option value="">Select subject</option>
                         <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${subject.subjectId == class.subject.subjectId}"></option>
                     </select>
-                    <div class="text-danger" th:errors="*{subject.subjectId}"></div>
-                    <div class="text-danger" th:if="${editErrors != null and editErrors.contains('Invalid subject selected.')}" th:text="'Invalid subject selected.'"></div>
+                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('subject') or error.contains('Subject') or error.contains('Invalid subject selected.')}" th:text="${error}"></div>
                 </div>
             </div>
-
-            <!-- General Errors -->
-            <div class="text-danger mt-2" th:if="${editErrors != null}" th:each="error : ${editErrors}" th:text="${error}"></div>
 
             <div class="mt-3">
                 <button class="btn btn-success" type="submit">

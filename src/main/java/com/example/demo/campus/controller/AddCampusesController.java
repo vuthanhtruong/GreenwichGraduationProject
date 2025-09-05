@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin-home/campuses-list")
+@RequestMapping("/admin-home")
 public class AddCampusesController {
     private static final Logger logger = LoggerFactory.getLogger(ListCampusesController.class);
     private final CampusesService campusesService;
@@ -35,7 +35,7 @@ public class AddCampusesController {
         this.adminsService = adminsService;
     }
 
-    @PostMapping("/add-campus")
+    @PostMapping("/campuses-list/add-campus")
     public String addCampus(
             @Valid @ModelAttribute("campus") Campuses campus,
             BindingResult bindingResult,
@@ -56,6 +56,7 @@ public class AddCampusesController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("campus", campus); // thêm dòng này
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("campusCounts", campusesService.getCampusCounts());

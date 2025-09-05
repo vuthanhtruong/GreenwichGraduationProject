@@ -46,6 +46,7 @@ public class AddMajorSubjectController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("newSubject", newSubject); // rất quan trọng
             model.addAttribute("errors", errors);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());

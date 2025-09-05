@@ -11,14 +11,6 @@
     <i class="fas fa-edit"></i> Edit Online Room
 </h2>
 
-<!-- Error Messages -->
-<div th:if="${editErrors}" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <ul>
-        <li th:each="error : ${editErrors}" th:text="${error}"></li>
-    </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-
 <!-- Edit Form -->
 <form th:action="@{/staff-home/rooms-list/update-online-room}" method="post" th:object="${room}">
     <input type="hidden" th:field="*{roomId}"/>
@@ -34,13 +26,14 @@
         <label for="roomName" class="form-label">Room Name <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="roomName" th:field="*{roomName}" required
                placeholder="e.g., Room A123 or Lecture Hall 1 (max 50 chars)"/>
-        <div class="invalid-feedback" th:errors="*{roomName}"></div>
+        <div class="text-danger" th:each="error : ${editErrors}" th:if="${error.contains('roomName') or error.contains('Room Name') or error.contains('room name')}" th:text="${error}"></div>
     </div>
 
     <div class="mb-3">
         <label for="link" class="form-label">Meeting Link</label>
         <input type="url" class="form-control" id="link" name="link" th:value="${room.link}"
                placeholder="e.g., https://meet.jit.si/Meeting123 or https://zoom.us/j/123456789"/>
+        <div class="text-danger" th:each="error : ${editErrors}" th:if="${error.contains('link') or error.contains('Link')}" th:text="${error}"></div>
         <div class="form-text">Enter a valid URL (e.g., starts with http:// or https://).</div>
     </div>
 
@@ -57,15 +50,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const alert = document.querySelector('.alert');
-        if (alert) {
-            setTimeout(() => {
-                alert.classList.remove('show');
-                alert.classList.add('fade');
-                setTimeout(() => alert.remove(), 150);
-            }, 5000); // Hide alert after 5 seconds
-        }
-
         const form = document.querySelector('form');
         form.addEventListener('submit', function (event) {
             if (!form.checkValidity()) {

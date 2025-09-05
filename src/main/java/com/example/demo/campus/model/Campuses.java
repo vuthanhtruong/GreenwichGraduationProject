@@ -34,9 +34,8 @@ public class Campuses {
     private Admins creator;
 
     @Lob
-    @Column(name = "Avatar", nullable = true)
+    @Column(name = "Avatar", columnDefinition = "LONGBLOB",nullable = true)
     private byte[] avatar;
-
     // Constructors
     public Campuses() {
     }
