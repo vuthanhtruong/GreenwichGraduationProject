@@ -3,6 +3,7 @@ package com.example.demo.campus.dao;
 import com.example.demo.campus.model.Campuses;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,8 +19,16 @@ import java.util.Map;
 @Transactional
 public class CampusesDAOImpl implements CampusesDAO {
     @Override
+    public List<Campuses> existsCampusByName(String campusName) {
+        return entityManager.createQuery("from Campuses c where c.campusName=:campusname", Campuses.class).setParameter("campusname", campusName).getResultList();
+    }
+
+    @Override
     public List<String> validateCampus(Campuses campus, MultipartFile avatarFile) {
         List<String> errors = new ArrayList<>();
+        if(existsCampusByName(campus.getCampusName()) != null){
+            errors.add("Campus Name already exists.");
+        }
         if (campus.getCampusName() == null || campus.getCampusName().trim().isEmpty()) {
             errors.add("Campus Name is required.");
         } else if (!campus.getCampusName().matches("^[\\p{L}][\\p{L} .'-]{1,49}$")) {

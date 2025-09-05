@@ -20,7 +20,7 @@
         <!-- Back to Home -->
         <div class="form-actions mb-3">
             <a class="btn" th:href="@{/admin-home}">
-                <i class="fas fa-arrow-left"></i> Back to Home
+                <i class="fas fa-arrow-left"></i> Home
             </a>
         </div>
 
@@ -28,10 +28,6 @@
         <div th:if="${message}" class="win11-alert success">
             <i class="fas fa-check-circle"></i>
             <span th:text="${message}"></span>
-        </div>
-        <div th:if="${error}" class="win11-alert error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${error}"></span>
         </div>
 
         <!-- Add Campus Form -->
@@ -41,21 +37,22 @@
                 <div class="form-row">
                     <label for="campusName">Campus Name:</label>
                     <input id="campusName" class="input" th:field="*{campusName}" type="text" required>
-                    <div class="error-text" th:errors="*{campusName}"></div>
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('campusName') or error.contains('Campus Name')}" th:text="${error}"></div>
                 </div>
                 <div class="form-row">
                     <label for="openingDay">Opening Day:</label>
                     <input id="openingDay" class="input" th:field="*{openingDay}" type="date">
-                    <div class="error-text" th:errors="*{openingDay}"></div>
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('openingDay') or error.contains('Opening Day')}" th:text="${error}"></div>
                 </div>
                 <div class="form-row">
                     <label for="description">Description:</label>
                     <input id="description" class="input" th:field="*{description}" type="text">
-                    <div class="error-text" th:errors="*{description}"></div>
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('description') or error.contains('Description')}" th:text="${error}"></div>
                 </div>
                 <div class="form-row">
                     <label for="avatar">Avatar:</label>
                     <input id="avatar" class="input" type="file" name="avatarFile" accept="image/*">
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
                 </div>
                 <div class="form-actions">
                     <button class="btn primary" type="submit">

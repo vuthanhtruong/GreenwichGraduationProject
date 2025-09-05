@@ -2,6 +2,7 @@ package com.example.demo.campus.service;
 
 import com.example.demo.campus.dao.CampusesDAO;
 import com.example.demo.campus.model.Campuses;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,11 @@ import java.util.Map;
 
 @Service
 public class CampusesServiceImpl implements CampusesService{
+    @Override
+    public List<Campuses> existsCampusByName(String campusName) {
+        return campusesDAO.existsCampusByName(campusName);
+    }
+
     @Override
     public List<String> validateCampus(Campuses campus, MultipartFile avatarFile) {
         return campusesDAO.validateCampus(campus, avatarFile);

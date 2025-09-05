@@ -1,6 +1,7 @@
 package com.example.demo.campus.service;
 
 import com.example.demo.campus.model.Campuses;
+import jakarta.persistence.TypedQuery;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -19,4 +20,5 @@ public interface CampusesService {
     void updateCampusFields(Campuses existing, Campuses updated);
     Map<String, Map<String, Long>> getCampusCounts();
     List<String> validateCampus(Campuses campus, MultipartFile avatarFile);
+    List<Campuses> existsCampusByName(String campusName);
 }
