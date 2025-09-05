@@ -43,14 +43,10 @@ public class AddRoomController {
     @PostMapping("/add-offline-room")
     public String addOfflineRoom(
             @Valid @ModelAttribute("offlineRoom") OfflineRooms offlineRoom,
-            BindingResult result,
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
         List<String> errors = new ArrayList<>(roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress()));
-        if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("editErrors", errors);

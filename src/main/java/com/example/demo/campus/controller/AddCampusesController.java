@@ -38,17 +38,11 @@ public class AddCampusesController {
     @PostMapping("/campuses-list/add-campus")
     public String addCampus(
             @Valid @ModelAttribute("campus") Campuses campus,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
         errors.addAll(campusesService.validateCampus(campus, avatarFile));
-        if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList()));
-        }
 
         // Generate campusId if not provided
         if (campus.getCampusId() == null || campus.getCampusId().isBlank()) {

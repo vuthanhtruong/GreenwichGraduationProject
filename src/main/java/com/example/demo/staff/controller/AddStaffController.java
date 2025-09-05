@@ -55,7 +55,6 @@ public class AddStaffController {
     @PostMapping("/add-staff")
     public String addStaff(
             @Valid @ModelAttribute("staff") Staffs staff,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam("majorId") String majorId,
             @RequestParam("campusId") String campusId,
@@ -63,11 +62,6 @@ public class AddStaffController {
             RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
         errors.addAll(staffsService.validateStaff(staff, avatarFile,majorId,campusId));
-        if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList()));
-        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);

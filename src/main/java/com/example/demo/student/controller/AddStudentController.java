@@ -60,7 +60,6 @@ public class AddStudentController {
     @PostMapping("/add-student")
     public String addStudent(
             @Valid @ModelAttribute("student") Students student,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,

@@ -39,12 +39,9 @@ public class EditCampusesController {
     }
 
     @PostMapping("/edit-campus")
-    public String editCampus(@Valid @ModelAttribute("campus") Campuses campus, BindingResult bindingResult,
+    public String editCampus(@Valid @ModelAttribute("campus") Campuses campus,
                              RedirectAttributes redirectAttributes, Model model) {
         List<String> errors = campusesService.validateCampus(campus);
-        if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
-        }
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());

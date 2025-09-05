@@ -47,15 +47,11 @@ public class AddLectureController {
     @PostMapping("/add-lecturer")
     public String addLecture(
             @Valid @ModelAttribute("lecture") MajorLecturers lecture,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
         List<String> errors = new ArrayList<>();
         errors.addAll(lecturesService.lectureValidation(lecture, avatarFile));
-        if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
-        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);

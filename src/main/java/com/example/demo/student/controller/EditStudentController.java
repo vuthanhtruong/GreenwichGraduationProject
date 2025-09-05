@@ -90,7 +90,6 @@ public class EditStudentController {
     @PutMapping("/edit-student-form")
     public String editStudent(
             @Valid @ModelAttribute("student") Students student,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
