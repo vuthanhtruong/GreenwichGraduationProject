@@ -187,7 +187,7 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
                 // Banner cuối (bo góc dưới)
                 .append("<tr>")
                 .append("<td style='padding:0;text-align:center;'>")
-                .append("<img src='https://i.chungta.vn/2022/06/03/Image-249300564-ExtractWord-0-8238-5257-1654256975_1200x0.jpg' ")
+                .append("<img src='https://natajsc.com.vn/wp-content/uploads/2024/10/nata-greenwich02.jpg' ")
                 .append("alt='Greenwich Vietnam Ending Banner' width='100%' ")
                 .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:0 0 14px 14px;'>")
                 .append("</td>")

@@ -29,17 +29,6 @@
             <input type="hidden" name="source" th:value="${source}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-            <!-- Error Messages -->
-            <div th:if="${errors != null}" class="win11-alert error">
-                <i class="fas fa-exclamation-circle"></i>
-                <div>
-                    <h5>Errors:</h5>
-                    <ul>
-                        <li th:each="error : ${errors}" th:text="${error}"></li>
-                    </ul>
-                </div>
-            </div>
-
             <!-- Avatar -->
             <section class="win11-panel text-center">
                 <h2 class="panel-header">Avatar</h2>
@@ -56,30 +45,53 @@
                 </div>
                 <label for="avatarFile">Upload New Avatar (Optional):</label>
                 <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
-                <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('Avatar')}" th:text="${error}"></div>
+                <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
             </section>
 
             <!-- Deputy Staff Info -->
             <section class="win11-panel">
                 <h2 class="panel-header">Deputy Staff Information</h2>
                 <div class="form-group grid-2">
-                    <div class="form-row"><label for="firstName">First Name:</label><input id="firstName" th:field="*{firstName}" required class="input"><div class="error-text" th:errors="*{firstName}"></div></div>
-                    <div class="form-row"><label for="lastName">Last Name:</label><input id="lastName" th:field="*{lastName}" required class="input"><div class="error-text" th:errors="*{lastName}"></div></div>
-                    <div class="form-row"><label for="email">Email:</label><input id="email" th:field="*{email}" required type="email" class="input"><div class="error-text" th:errors="*{email}"></div></div>
-                    <div class="form-row"><label for="phoneNumber">Phone Number:</label><input id="phoneNumber" th:field="*{phoneNumber}" required class="input"><div class="error-text" th:errors="*{phoneNumber}"></div></div>
-                    <div class="form-row"><label for="birthDate">Birth Date:</label><input id="birthDate" th:field="*{birthDate}" type="date" class="input"><div class="error-text" th:errors="*{birthDate}"></div></div>
-                    <div class="form-row"><label for="gender">Gender:</label>
+                    <div class="form-row">
+                        <label for="firstName">First Name:</label>
+                        <input id="firstName" th:field="*{firstName}" required class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('firstName') or error.contains('First Name')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="lastName">Last Name:</label>
+                        <input id="lastName" th:field="*{lastName}" required class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('lastName') or error.contains('Last Name')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="email">Email:</label>
+                        <input id="email" th:field="*{email}" required type="email" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('email') or error.contains('Email')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="phoneNumber">Phone Number:</label>
+                        <input id="phoneNumber" th:field="*{phoneNumber}" required class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('phoneNumber') or error.contains('Phone Number')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="birthDate">Birth Date:</label>
+                        <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('birthDate') or error.contains('Birth Date')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="gender">Gender:</label>
                         <select id="gender" th:field="*{gender}" class="input">
                             <option value="">Select gender</option>
                             <option th:each="g : ${genders}" th:value="${g}" th:text="${g}" th:selected="${deputyStaff.gender == g}"></option>
                         </select>
-                        <div class="error-text" th:errors="*{gender}"></div>
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('gender') or error.contains('Gender')}" th:text="${error}"></div>
                     </div>
-                    <div class="form-row"><label for="campus">Campus:</label>
+                    <div class="form-row">
+                        <label for="campus">Campus:</label>
                         <select id="campus" name="campusId" class="input" required>
                             <option value="">Select campus</option>
                             <option th:each="c : ${campuses}" th:value="${c.campusId}" th:text="${c.campusName}" th:selected="${c.campusId == deputyStaff.campus?.campusId}"></option>
                         </select>
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('campusId') or error.contains('Campus')}" th:text="${error}"></div>
                     </div>
                 </div>
             </section>
@@ -88,13 +100,41 @@
             <section class="win11-panel">
                 <h2 class="panel-header">Address Information</h2>
                 <div class="form-group grid-2">
-                    <div class="form-row"><label for="country">Country:</label><input id="country" th:field="*{country}" class="input"></div>
-                    <div class="form-row"><label for="province">Province:</label><input id="province" th:field="*{province}" class="input"></div>
-                    <div class="form-row"><label for="city">City:</label><input id="city" th:field="*{city}" class="input"></div>
-                    <div class="form-row"><label for="district">District:</label><input id="district" th:field="*{district}" class="input"></div>
-                    <div class="form-row"><label for="ward">Ward:</label><input id="ward" th:field="*{ward}" class="input"></div>
-                    <div class="form-row"><label for="street">Street/House:</label><input id="street" th:field="*{street}" class="input"></div>
-                    <div class="form-row"><label for="postalCode">Postal Code:</label><input id="postalCode" th:field="*{postalCode}" class="input"></div>
+                    <div class="form-row">
+                        <label for="country">Country:</label>
+                        <input id="country" th:field="*{country}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('country') or error.contains('Country')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="province">Province:</label>
+                        <input id="province" th:field="*{province}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('province') or error.contains('Province')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="city">City:</label>
+                        <input id="city" th:field="*{city}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('city') or error.contains('City')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="district">District:</label>
+                        <input id="district" th:field="*{district}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('district') or error.contains('District')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="ward">Ward:</label>
+                        <input id="ward" th:field="*{ward}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('ward') or error.contains('Ward')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="street">Street/House:</label>
+                        <input id="street" th:field="*{street}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('street') or error.contains('Street')}" th:text="${error}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="postalCode">Postal Code:</label>
+                        <input id="postalCode" th:field="*{postalCode}" class="input">
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('postalCode') or error.contains('Postal Code')}" th:text="${error}"></div>
+                    </div>
                 </div>
             </section>
 

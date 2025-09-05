@@ -16,7 +16,7 @@
 
     <!-- Content -->
     <div class="win11-content">
-        <form method="post" th:action="@{/staff-home/lecturers-list/add-lecturer}" th:object="${lecture}" enctype="multipart/form-data">
+        <form method="post" th:action="@{/staff-home/lecturers-list/add-lecturer}" th:object="${lecturer}" enctype="multipart/form-data">
 
             <!-- CSRF -->
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
