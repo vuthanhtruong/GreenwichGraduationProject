@@ -45,7 +45,6 @@ public class EditMajorSubjectController {
     public String editSubject(
             @PathVariable("id") String id,
             @Valid @ModelAttribute("subject") MajorSubjects formSubject,
-            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
         MajorSubjects existingSubject = subjectsService.getSubjectById(id);
@@ -56,12 +55,10 @@ public class EditMajorSubjectController {
         }
 
         List<String> errors = new ArrayList<>(subjectsService.validateSubject(formSubject)); // Sao chép danh sách lỗi
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
+
 
         if (!errors.isEmpty()) {
-            model.addAttribute("editErrors", errors);
+            model.addAttribute("errors", errors);
             model.addAttribute("subject", formSubject);
             return "EditMajorSubjectForm";
         }

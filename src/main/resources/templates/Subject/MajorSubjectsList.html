@@ -28,10 +28,6 @@
             <i class="fas fa-check-circle"></i>
             <span th:text="${successMessage}"></span>
         </div>
-        <div th:if="${errorMessage != null}" class="win11-alert error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${errorMessage}"></span>
-        </div>
 
         <!-- Add Subject -->
         <section class="win11-panel">
@@ -46,12 +42,12 @@
                     <div class="form-row">
                         <label for="subjectName">Subject Name:</label>
                         <input id="subjectName" class="input" th:field="*{subjectName}" required type="text">
-                        <div class="error-text" th:if="${#fields.hasErrors('subjectName')}" th:errors="*{subjectName}"></div>
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('subjectName') or error.contains('Subject Name')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
                         <label for="semester">Semester:</label>
                         <input id="semester" class="input" type="number" th:field="*{semester}" min="1" required>
-                        <div class="error-text" th:if="${#fields.hasErrors('semester')}" th:errors="*{semester}"></div>
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('semester') or error.contains('Semester')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
                         <label for="learningProgramType">Program Type:</label>
@@ -59,7 +55,7 @@
                             <option value="">-- Select Program --</option>
                             <option th:each="t : ${learningProgramTypes}" th:value="${t}" th:text="${t}"></option>
                         </select>
-                        <div class="error-text" th:if="${#fields.hasErrors('learningProgramType')}" th:errors="*{learningProgramType}"></div>
+                        <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('learningProgramType') or error.contains('Learning Program Type')}" th:text="${error}"></div>
                     </div>
                 </div>
 

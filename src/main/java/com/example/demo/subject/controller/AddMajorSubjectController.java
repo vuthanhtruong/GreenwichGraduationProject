@@ -36,14 +36,10 @@ public class AddMajorSubjectController {
     @PostMapping("/major-subjects-list/add-subject")
     public String addSubject(
             @Valid @ModelAttribute("newSubject") MajorSubjects newSubject,
-            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject)); // Sao chép danh sách lỗi
-        if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
-        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("newSubject", newSubject); // rất quan trọng
