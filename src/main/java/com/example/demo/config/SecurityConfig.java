@@ -101,7 +101,6 @@ public class SecurityConfig {
                         .userDetailsService(userDetailsService)
                         .useSecureCookie(true)
                 );
-
         return http.build();
     }
 

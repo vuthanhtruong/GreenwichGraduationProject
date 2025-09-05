@@ -1,5 +1,4 @@
 package com.example.demo.campus.controller;
-
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
@@ -51,6 +50,11 @@ public class AddCampusesController {
                     .collect(Collectors.toList()));
         }
 
+        // Generate campusId if not provided
+        if (campus.getCampusId() == null || campus.getCampusId().isBlank()) {
+            campus.setCampusId(campusesService.generateUniqueCampusId(LocalDate.now()));
+        }
+
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());
@@ -59,6 +63,10 @@ public class AddCampusesController {
         }
 
         try {
+            // Set creator (e.g., current admin)
+            Admins currentAdmin = adminsService.getAdmin(); // Implement this method
+            campus.setCreator(currentAdmin);
+
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 campus.setAvatar(avatarFile.getBytes());
             }
@@ -66,12 +74,14 @@ public class AddCampusesController {
             redirectAttributes.addFlashAttribute("message", "Campus added successfully!");
             return "redirect:/admin-home/campuses-list";
         } catch (IOException e) {
+            logger.error("Failed to process avatar: {}", e.getMessage(), e);
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("campusCounts", campusesService.getCampusCounts());
             return "ListCampuses";
         } catch (Exception e) {
+            logger.error("Error adding campus: {}", e.getMessage(), e);
             errors.add("An error occurred while adding the campus: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());

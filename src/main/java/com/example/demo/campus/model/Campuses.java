@@ -22,10 +22,10 @@ public class Campuses {
     @Column(name = "CampusName", nullable = true)
     private String campusName;
 
-    @Column(name = "OpeningDay")
+    @Column(name = "OpeningDay", nullable = true)
     private LocalDate openingDay;
 
-    @Column(name = "Description")
+    @Column(name = "Description", nullable = true)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
