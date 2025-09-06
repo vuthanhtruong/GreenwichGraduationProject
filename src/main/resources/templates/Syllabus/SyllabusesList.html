@@ -15,14 +15,7 @@
         <h1><i class="fas fa-file-alt"></i> Syllabuses List</h1>
     </header>
 
-    <!-- Toolbar -->
-    <nav class="win11-toolbar">
-        <a th:href="@{/staff-home/major-subjects-list}" class="btn">
-            <i class="fas fa-arrow-left"></i> Subjects List
-        </a>
-    </nav>
-
-    <!-- Alerts -->
+    <!-- Alert Messages -->
     <div th:if="${successMessage}" class="win11-alert success">
         <i class="fas fa-check-circle"></i>
         <span th:text="${successMessage}"></span>
@@ -31,67 +24,49 @@
         <i class="fas fa-exclamation-circle"></i>
         <span th:text="${errorMessage}"></span>
     </div>
-    <div th:if="${errors != null}" class="win11-alert error">
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error}"></li>
-        </ul>
+
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home/major-subjects-list}" class="btn">
+                <i class="fas fa-arrow-left"></i> Subjects List
+            </a>
+        </div>
+
+        <!-- Center (không cần search syllabus nên để trống) -->
+        <div class="toolbar-center"></div>
+
+        <!-- Right -->
+        <div class="toolbar-right">
+            <div class="total-students">
+                <i class="fas fa-list"></i>
+                <p><strong>Total Syllabuses:</strong> <span th:text="${totalSyllabuses}"></span></p>
+            </div>
+            <button type="button" class="btn primary" onclick="openOverlay()">
+                <i class="fas fa-plus-circle"></i> Add Syllabus
+            </button>
+        </div>
     </div>
 
-    <!-- Add Syllabus Form -->
-    <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-plus-circle"></i> Add New Syllabus</h2>
-        <form method="post"
-              th:action="@{/staff-home/major-subjects-list/view-syllabus/syllabuses-list/add-syllabus}"
-              th:object="${newSyllabus}" enctype="multipart/form-data">
-
-            <input type="hidden" name="subjectId" th:value="${subject?.subjectId}"/>
-
-            <div class="form-group grid-4">
-                <div class="form-row">
-                    <label for="subjectId">Subject ID:</label>
-                    <input id="subjectId" class="input" th:value="${subject?.subjectId}" readonly>
-                </div>
-                <div class="form-row">
-                    <label for="syllabusName">Syllabus Name:</label>
-                    <input id="syllabusName" class="input" th:field="*{syllabusName}" required>
-                    <div class="error-text" th:errors="*{syllabusName}"></div>
-                </div>
-                <div class="form-row">
-                    <label for="status">Status:</label>
-                    <input id="status" class="input" th:field="*{status}">
-                    <div class="error-text" th:errors="*{status}"></div>
-                </div>
-                <div class="form-row">
-                    <label for="uploadFile">Upload File:</label>
-                    <input id="uploadFile" class="input" type="file"
-                           name="uploadFile" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" required>
-                    <div class="error-text" th:errors="*{fileData}"></div>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn primary">
-                    <i class="fas fa-save"></i> Save
-                </button>
-            </div>
-        </form>
-    </section>
-
     <!-- Subject Title -->
-    <h2 th:text="${subject != null} ? 'Syllabuses for ' + ${subject.subjectName} : 'No Subject Selected'"></h2>
-
-    <!-- Syllabuses Table -->
     <section class="win11-panel">
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i>
+            <span th:text="${subject != null} ? 'Syllabuses for ' + ${subject.subjectName} : 'No Subject Selected'"></span>
+        </h2>
+
+        <!-- Table -->
         <div class="table-container">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th>Syllabus ID</th>
-                    <th>Name</th>
-                    <th>Creator</th>
-                    <th>Status</th>
-                    <th>File Type</th>
-                    <th>Actions</th>
+                    <th><i class="fas fa-id-card"></i> ID</th>
+                    <th><i class="fas fa-file-alt"></i> Name</th>
+                    <th><i class="fas fa-user-shield"></i> Creator</th>
+                    <th><i class="fas fa-flag"></i> Status</th>
+                    <th><i class="fas fa-file"></i> File Type</th>
+                    <th><i class="fas fa-cogs"></i> Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -127,13 +102,63 @@
                         </div>
                     </td>
                 </tr>
-                <tr th:if="${syllabuses == null}">
+                <tr th:if="${syllabuses == null or #lists.isEmpty(syllabuses)}">
                     <td colspan="6" class="text-center">No syllabuses available.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </section>
+
+    <!-- Overlay Add Syllabus -->
+    <div id="addOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2><i class="fas fa-plus-circle"></i> Add New Syllabus</h2>
+            <form method="post"
+                  th:action="@{/staff-home/major-subjects-list/view-syllabus/syllabuses-list/add-syllabus}"
+                  th:object="${newSyllabus}" enctype="multipart/form-data">
+
+                <input type="hidden" name="subjectId" th:value="${subject?.subjectId}"/>
+
+                <section class="win11-panel">
+                    <h2 class="panel-header"><i class="fas fa-info-circle"></i> Syllabus Information</h2>
+                    <div class="form-group grid-2">
+                        <div class="form-row">
+                            <label for="syllabusName"><i class="fas fa-file-alt"></i> Name:</label>
+                            <input id="syllabusName" class="input" th:field="*{syllabusName}" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="status"><i class="fas fa-flag"></i> Status:</label>
+                            <input id="status" class="input" th:field="*{status}">
+                        </div>
+                        <div class="form-row">
+                            <label for="uploadFile"><i class="fas fa-upload"></i> Upload File:</label>
+                            <input id="uploadFile" class="input" type="file"
+                                   name="uploadFile" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" required>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button type="button" class="btn danger" onclick="closeOverlay()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    function openOverlay() {
+        document.getElementById('addOverlay').classList.add('active');
+    }
+    function closeOverlay() {
+        document.getElementById('addOverlay').classList.remove('active');
+    }
+</script>
 </body>
 </html>

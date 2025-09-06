@@ -26,9 +26,6 @@ public class CampusesDAOImpl implements CampusesDAO {
     @Override
     public List<String> validateCampus(Campuses campus, MultipartFile avatarFile) {
         List<String> errors = new ArrayList<>();
-        if(existsCampusByName(campus.getCampusName()) != null){
-            errors.add("Campus Name already exists.");
-        }
         if (campus.getCampusName() == null || campus.getCampusName().trim().isEmpty()) {
             errors.add("Campus Name is required.");
         } else if (!campus.getCampusName().matches("^[\\p{L}][\\p{L} .'-]{1,49}$")) {

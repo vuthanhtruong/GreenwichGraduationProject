@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subjects List</title>
-    <link rel="stylesheet" th:href="@{/StudyPlan.css}">
+    <title>Study Plan - Subjects List</title>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -12,77 +12,92 @@
 
     <!-- Title -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> Subjects List</h1>
+        <h1><i class="fas fa-graduation-cap"></i> Study Plan - Subjects List</h1>
     </header>
 
-    <!-- Toolbar -->
-    <nav class="win11-toolbar">
-        <a th:href="@{/staff-home}" class="btn">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-    </nav>
-
     <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="win11-alert error" th:text="${errorMessage}"></div>
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <!-- Center (Filter Form) -->
+        <form method="post" th:action="@{/staff-home/study-plan/filter-subjects}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <select name="learningProgramType" class="input">
+                <option value="" th:selected="${learningProgramType == null}">All Programs</option>
+                <option th:each="programType : ${LearningProgramTypes}"
+                        th:value="${programType}"
+                        th:text="${programType}"
+                        th:selected="${learningProgramType == programType}"></option>
+            </select>
+            <button type="submit" class="btn small primary">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <a th:if="${learningProgramType != null}" th:href="@{/staff-home/study-plan}" class="btn small danger">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+
+        <!-- Right (Total count) -->
+        <div class="toolbar-right">
+            <div class="total-students">
+                <i class="fas fa-list"></i>
+                <p><strong>Total Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
+            </div>
+        </div>
+    </div>
 
     <!-- Subjects Table -->
-    <section class="win11-panel">
-        <div class="panel-header">
-            <h2><i class="fas fa-list"></i> Subjects</h2>
-            <!-- Filter Form -->
-            <form method="post" th:action="@{/staff-home/study-plan/filter-subjects}" class="filter-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <select name="learningProgramType" class="input">
-                    <option value="" th:selected="${learningProgramType == null}">All Programs</option>
-                    <option th:each="programType : ${LearningProgramTypes}"
-                            th:value="${programType}"
-                            th:text="${programType}"
-                            th:selected="${learningProgramType == programType}"></option>
-                </select>
-                <button type="submit" class="btn small primary"><i class="fas fa-filter"></i> Filter</button>
-                <a th:if="${learningProgramType != null}" th:href="@{/staff-home/study-plan}" class="btn small danger">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            </form>
-        </div>
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> ID</th>
+                <th><i class="fas fa-book"></i> Subject Name</th>
+                <th><i class="fas fa-calendar"></i> Semester</th>
+                <th><i class="fas fa-user-shield"></i> Creator</th>
+                <th><i class="fas fa-graduation-cap"></i> Major</th>
+                <th><i class="fas fa-cogs"></i> Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="subject : ${subjects}">
+                <td th:text="${subject.subjectId}"></td>
+                <td th:text="${subject.subjectName}"></td>
+                <td th:text="${subject.semester ?: 'N/A'}"></td>
+                <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>
+                <td th:text="${subject.major != null} ? ${subject.major.majorName} : 'N/A'"></td>
+                <td>
+                    <form th:action="@{/staff-home/study-plan/assign-members}" method="post" class="inline-form">
+                        <input type="hidden" name="id" th:value="${subject.subjectId}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button class="btn small primary">
+                            <i class="fas fa-users"></i> Assign Members
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${subjects == null or #lists.isEmpty(subjects)}">
+                <td colspan="6" class="text-center">No subjects available.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-        <div class="table-container">
-            <table class="win11-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Subject Name</th>
-                    <th>Semester</th>
-                    <th>Creator</th>
-                    <th>Major</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="subject : ${subjects}">
-                    <td th:text="${subject.subjectId}"></td>
-                    <td th:text="${subject.subjectName}"></td>
-                    <td th:text="${subject.semester ?: 'N/A'}"></td>
-                    <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>
-                    <td th:text="${subject.major != null} ? ${subject.major.majorName} : 'N/A'"></td>
-                    <td>
-                        <form th:action="@{/staff-home/study-plan/assign-members}" method="post" class="inline-form">
-                            <input type="hidden" name="id" th:value="${subject.subjectId}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <button class="btn small primary">
-                                <i class="fas fa-users"></i> Assign Members
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                <tr th:if="${subjects == null or #lists.isEmpty(subjects)}">
-                    <td colspan="6" class="text-center">No subjects available.</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
 </div>
 </body>
 </html>

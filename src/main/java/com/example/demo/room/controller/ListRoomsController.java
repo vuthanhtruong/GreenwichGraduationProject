@@ -37,7 +37,7 @@ public class ListRoomsController {
     }
 
     @GetMapping("/rooms-list")
-    public String RoomsList(
+    public String roomsList(
             ModelMap model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int pageOffline,
@@ -67,7 +67,7 @@ public class ListRoomsController {
 
         // Encode addresses for offline rooms
         List<String> encodedAddresses = offlineRooms.stream()
-                .map(room -> encodeAddress(room.getAddress()))
+                .map(room -> room.getAddress() != null ? URLEncoder.encode(room.getAddress(), StandardCharsets.UTF_8) : "")
                 .collect(Collectors.toList());
 
         // Handle pagination for online rooms
@@ -88,18 +88,9 @@ public class ListRoomsController {
         model.addAttribute("totalPagesOnline", totalOnlinePages);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sortOrder", validatedSortOrder);
+        model.addAttribute("offlineRoom", new OfflineRooms());
+        model.addAttribute("onlineRoom", new OnlineRooms());
 
         return "RoomsList";
-    }
-
-    private String encodeAddress(String address) {
-        if (address == null || address.isEmpty()) {
-            return "";
-        }
-        try {
-            return URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
-        } catch (Exception e) {
-            return address; // Fallback to raw address if encoding fails
-        }
     }
 }

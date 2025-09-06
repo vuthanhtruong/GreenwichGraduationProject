@@ -55,6 +55,7 @@ public class SearchStudentsController {
             }
 
             if (totalStudents == 0) {
+                model.addAttribute("student", new Students());
                 model.addAttribute("students", new ArrayList<>());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);

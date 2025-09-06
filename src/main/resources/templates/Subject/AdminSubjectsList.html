@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Subjects</title>
-    <link rel="stylesheet" th:href="@{/SubjectsList.css}">
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -13,13 +13,6 @@
     <header class="win11-title-bar">
         <h1><i class="fas fa-book"></i> Manage Subjects</h1>
     </header>
-
-    <!-- Navigation -->
-    <div class="form-actions">
-        <a th:href="@{/admin-home}" class="btn">
-            <i class="fas fa-arrow-left"></i> Home
-        </a>
-    </div>
 
     <!-- Alerts -->
     <div th:if="${successMessage}" class="win11-alert success">
@@ -31,13 +24,19 @@
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <!-- Admission Year -->
-    <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-calendar-alt"></i> Select Admission Year</h2>
-        <form method="post" th:action="@{/admin-home/subjects-list}" class="inline-form">
-            <label for="admissionYear">Year:</label>
-            <select id="admissionYear" name="admissionYear" class="input"
-                    onchange="this.form.submit()">
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn">
+                <i class="fas fa-arrow-left"></i> Home
+            </a>
+        </div>
+
+        <!-- Center: Admission Year -->
+        <form method="post" th:action="@{/admin-home/subjects-list}" class="toolbar-center">
+            <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
+            <select id="admissionYear" name="admissionYear" class="input" onchange="this.form.submit()">
                 <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
                 <option th:each="year : ${admissionYears}"
                         th:value="${year}"
@@ -45,7 +44,15 @@
                         th:selected="${year == selectedYear}"></option>
             </select>
         </form>
-    </section>
+
+        <!-- Right (Total) -->
+        <div class="toolbar-right">
+            <div class="total-students">
+                <i class="fas fa-list"></i>
+                <p><strong>Total Subjects:</strong> <span th:text="${allSubjects.size()}"></span></p>
+            </div>
+        </div>
+    </div>
 
     <!-- Subjects Table -->
     <section class="win11-panel">
@@ -56,13 +63,13 @@
                 <table class="win11-table">
                     <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Semester</th>
-                        <th>Type</th>
-                        <th>Major</th>
-                        <th>Acceptor</th>
-                        <th>Tuition Fee</th>
+                        <th><i class="fas fa-id-card"></i> ID</th>
+                        <th><i class="fas fa-book"></i> Name</th>
+                        <th><i class="fas fa-calendar"></i> Semester</th>
+                        <th><i class="fas fa-graduation-cap"></i> Type</th>
+                        <th><i class="fas fa-university"></i> Major</th>
+                        <th><i class="fas fa-user-shield"></i> Acceptor</th>
+                        <th><i class="fas fa-coins"></i> Tuition Fee</th>
                     </tr>
                     </thead>
                     <tbody>

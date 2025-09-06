@@ -2,9 +2,9 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Member Arrangement</title>
-    <link rel="stylesheet" th:href="@{/MemberArrangement.css}">
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -12,16 +12,20 @@
 
     <!-- Title -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-chalkboard-teacher"></i> Member Arrangement for Class:
+        <h1>
+            <i class="fas fa-chalkboard-teacher"></i>
+            Member Arrangement for Class:
             <span th:text="${class != null} ? ${class.nameClass} : 'N/A'"></span>
         </h1>
     </header>
 
-    <!-- Navigation -->
-    <div class="form-actions">
-        <a class="btn" th:href="@{/staff-home/classes-list}">
-            <i class="fas fa-arrow-left"></i> Back to Classes List
-        </a>
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a class="btn" th:href="@{/staff-home/classes-list}">
+                <i class="fas fa-arrow-left"></i> Classes List
+            </a>
+        </div>
     </div>
 
     <!-- Alerts -->
@@ -41,17 +45,17 @@
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th>Avatar</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>MIS ID</th>
+                    <th><i class="fas fa-image"></i> Avatar</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><i class="fas fa-envelope"></i> Email</th>
+                    <th><i class="fas fa-id-card"></i> MIS ID</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="student : ${studentsInClass}">
                     <td class="text-center">
-                        <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}" class="avatar-img"/>
-                        <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}" class="avatar-img"/>
+                        <img th:if="${student.avatar != null}" th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}" class="avatar"/>
+                        <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}" class="avatar"/>
                     </td>
                     <td th:text="${student.fullName}"></td>
                     <td th:text="${student.email}"></td>
@@ -75,19 +79,19 @@
                 <table class="win11-table">
                     <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>Avatar</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Type</th>
+                        <th><i class="fas fa-check-square"></i> Select</th>
+                        <th><i class="fas fa-image"></i> Avatar</th>
+                        <th><i class="fas fa-user"></i> Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-user-tie"></i> Type</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="lecturer : ${lecturersInClass}">
                         <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}"></td>
                         <td class="text-center">
-                            <img th:if="${lecturer.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecturer.id}}" class="avatar-img"/>
-                            <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}" class="avatar-img"/>
+                            <img th:if="${lecturer.avatar != null}" th:src="@{'/staff-home/lectures-list/avatar/' + ${lecturer.id}}" class="avatar"/>
+                            <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}" class="avatar"/>
                         </td>
                         <td th:text="${lecturer.fullName}"></td>
                         <td th:text="${lecturer.email}"></td>
@@ -100,7 +104,8 @@
                 </table>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn danger" th:disabled="${lecturersInClass == null or lecturersInClass.isEmpty()}">
+                <button type="submit" class="btn danger"
+                        th:disabled="${lecturersInClass == null or lecturersInClass.isEmpty()}">
                     <i class="fas fa-trash"></i> Remove Selected Lecturers
                 </button>
             </div>
@@ -117,17 +122,19 @@
                 <table class="win11-table">
                     <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>Avatar</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>MIS ID</th>
+                        <th><i class="fas fa-check-square"></i> Select</th>
+                        <th><i class="fas fa-image"></i> Avatar</th>
+                        <th><i class="fas fa-user"></i> Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-id-card"></i> MIS ID</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="student : ${studentsFailedPaid}">
                         <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
-                        <td class="text-center"><img th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}" class="avatar-img"/></td>
+                        <td class="text-center">
+                            <img th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}" class="avatar"/>
+                        </td>
                         <td th:text="${student.fullName}"></td>
                         <td th:text="${student.email}"></td>
                         <td th:text="${student.misId}"></td>
@@ -139,12 +146,14 @@
                 </table>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn primary" th:disabled="${studentsFailedPaid == null or studentsFailedPaid.isEmpty()}">
+                <button type="submit" class="btn primary"
+                        th:disabled="${studentsFailedPaid == null or studentsFailedPaid.isEmpty()}">
                     <i class="fas fa-plus"></i> Add Selected Students
                 </button>
             </div>
         </form>
     </section>
+
 </div>
 </body>
 </html>

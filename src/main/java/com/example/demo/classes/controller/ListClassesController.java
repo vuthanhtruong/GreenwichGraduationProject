@@ -6,6 +6,7 @@ import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,46 +33,56 @@ public class ListClassesController {
 
     @GetMapping("")
     public String showClassesList(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "1") int pageClasses,
             @RequestParam(required = false) Integer pageSize,
             Model model,
-            HttpSession session) {
+            HttpSession session,
+            Authentication authentication) {
         try {
+            // Handle pageSize
             if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("pageSize");
+                pageSize = (Integer) session.getAttribute("classPageSize");
                 if (pageSize == null) {
                     pageSize = 5;
                 }
             }
-            session.setAttribute("pageSize", pageSize);
+            session.setAttribute("classPageSize", pageSize);
 
+            // Get staff's major
+            String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
+
+            // Handle pagination
             long totalClasses = classesService.numberOfClasses(staffsService.getStaffMajor());
-            List<MajorClasses> classes = classesService.getPaginatedClasses((page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
+            int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
+            pageClasses = Math.max(1, Math.min(pageClasses, totalPagesClasses));
+            int firstResult = (pageClasses - 1) * pageSize;
+
+            List<MajorClasses> classes = classesService.getPaginatedClasses(firstResult, pageSize, staffsService.getStaffMajor());
 
             if (totalClasses == 0) {
                 model.addAttribute("classes", new ArrayList<>());
-                model.addAttribute("currentPage", 1);
-                model.addAttribute("totalPages", 1);
+                model.addAttribute("currentPageClasses", 1);
+                model.addAttribute("totalPagesClasses", 1);
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
                 model.addAttribute("message", "No classes found for this major.");
+                model.addAttribute("alertClass", "alert-warning");
+                model.addAttribute("newClass", new MajorClasses());
                 return "ClassesList";
             }
 
-            int totalPages = (int) Math.ceil((double) totalClasses / pageSize);
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
-
             model.addAttribute("classes", classes);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("newClass", new MajorClasses());
+            model.addAttribute("currentPageClasses", pageClasses);
+            model.addAttribute("totalPagesClasses", totalPagesClasses);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
 
             return "ClassesList";
         } catch (Exception e) {
-            model.addAttribute("error", "An error occurred while retrieving classes: " + e.getMessage());
-            return "error";
+            model.addAttribute("errors", List.of("An error occurred while retrieving classes: " + e.getMessage()));
+            model.addAttribute("newClass", new MajorClasses());
+            return "ClassesList";
         }
     }
 }

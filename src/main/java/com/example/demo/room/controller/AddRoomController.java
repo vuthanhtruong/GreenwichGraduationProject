@@ -37,31 +37,35 @@ public class AddRoomController {
     @GetMapping("/add-offline-room")
     public String showAddOfflineRoomForm(ModelMap model) {
         model.addAttribute("offlineRoom", new OfflineRooms());
-        return "AddOfflineRoom";
+        return "RoomsList"; // Return to RoomsList to show overlay
     }
 
     @PostMapping("/add-offline-room")
     public String addOfflineRoom(
             @Valid @ModelAttribute("offlineRoom") OfflineRooms offlineRoom,
+            BindingResult result,
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
         List<String> errors = new ArrayList<>(roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress()));
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+        }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("editErrors", errors);
-            return "AddOfflineRoom";
+            redirectAttributes.addFlashAttribute("editErrors", errors);
+            redirectAttributes.addFlashAttribute("offlineRoom", offlineRoom); // Preserve form data
+            return "redirect:/staff-home/rooms-list";
         }
 
         try {
             String roomId = roomsService.generateUniqueRoomId(true); // true for offline
             offlineRoom.setRoomId(roomId);
             offlineRoom.setCreatedAt(LocalDateTime.now());
-            Staffs creator = staffsService.getStaff();
+            Staffs creator = staffsService.getStaff(); // Pass authentication
             if (creator == null) {
-                errors.add("Authenticated staff not found.");
-                model.addAttribute("editErrors", errors);
-                return "AddOfflineRoom";
+                redirectAttributes.addFlashAttribute("editErrors", List.of("Authenticated staff not found."));
+                return "redirect:/staff-home/rooms-list";
             }
             offlineRoom.setCreator(creator);
             roomsService.addOfflineRoom(offlineRoom);
@@ -69,16 +73,16 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            errors.add("Error adding offline room: " + e.getMessage());
-            model.addAttribute("editErrors", errors);
-            return "AddOfflineRoom";
+            redirectAttributes.addFlashAttribute("editErrors", List.of("Error adding offline room: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("offlineRoom", offlineRoom); // Preserve form data
+            return "redirect:/staff-home/rooms-list";
         }
     }
 
     @GetMapping("/add-online-room")
     public String showAddOnlineRoomForm(ModelMap model) {
         model.addAttribute("onlineRoom", new OnlineRooms());
-        return "AddOnlineRoom";
+        return "RoomsList"; // Return to RoomsList to show overlay
     }
 
     @PostMapping("/add-online-room")
@@ -94,19 +98,19 @@ public class AddRoomController {
         }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("editErrors", errors);
-            return "AddOnlineRoom";
+            redirectAttributes.addFlashAttribute("editErrors", errors);
+            redirectAttributes.addFlashAttribute("onlineRoom", onlineRoom); // Preserve form data
+            return "redirect:/staff-home/rooms-list";
         }
 
         try {
             String roomId = roomsService.generateUniqueRoomId(false); // false for online
             onlineRoom.setRoomId(roomId);
             onlineRoom.setCreatedAt(LocalDateTime.now());
-            Staffs creator = staffsService.getStaff();
+            Staffs creator = staffsService.getStaff(); // Pass authentication
             if (creator == null) {
-                errors.add("Authenticated staff not found.");
-                model.addAttribute("editErrors", errors);
-                return "AddOnlineRoom";
+                redirectAttributes.addFlashAttribute("editErrors", List.of("Authenticated staff not found."));
+                return "redirect:/staff-home/rooms-list";
             }
             onlineRoom.setCreator(creator);
             roomsService.addOnlineRoom(onlineRoom);
@@ -114,9 +118,9 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            errors.add("Error adding online room: " + e.getMessage());
-            model.addAttribute("editErrors", errors);
-            return "AddOnlineRoom";
+            redirectAttributes.addFlashAttribute("editErrors", List.of("Error adding online room: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("onlineRoom", onlineRoom); // Preserve form data
+            return "redirect:/staff-home/rooms-list";
         }
     }
 }

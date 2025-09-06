@@ -1,4 +1,5 @@
 package com.example.demo.campus.controller;
+
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
@@ -8,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +20,13 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin-home")
 public class AddCampusesController {
-    private static final Logger logger = LoggerFactory.getLogger(ListCampusesController.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(AddCampusesController.class);
+
     private final CampusesService campusesService;
     private final AdminsService adminsService;
 
@@ -41,6 +41,7 @@ public class AddCampusesController {
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
             RedirectAttributes redirectAttributes) {
+
         List<String> errors = new ArrayList<>();
         errors.addAll(campusesService.validateCampus(campus, avatarFile));
 
@@ -50,7 +51,7 @@ public class AddCampusesController {
         }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("campus", campus); // thêm dòng này
+            model.addAttribute("campus", campus);
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("campusCounts", campusesService.getCampusCounts());
@@ -58,30 +59,31 @@ public class AddCampusesController {
         }
 
         try {
-            // Set creator (e.g., current admin)
-            Admins currentAdmin = adminsService.getAdmin(); // Implement this method
+            // Set creator = current admin
+            Admins currentAdmin = adminsService.getAdmin(); // implement logic lấy admin hiện tại
             campus.setCreator(currentAdmin);
 
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 campus.setAvatar(avatarFile.getBytes());
             }
+
             campusesService.addCampus(campus);
             redirectAttributes.addFlashAttribute("message", "Campus added successfully!");
             return "redirect:/admin-home/campuses-list";
+
         } catch (IOException e) {
             logger.error("Failed to process avatar: {}", e.getMessage(), e);
             errors.add("Failed to process avatar: " + e.getMessage());
-            model.addAttribute("errors", errors);
-            model.addAttribute("campuses", campusesService.getCampuses());
-            model.addAttribute("campusCounts", campusesService.getCampusCounts());
-            return "ListCampuses";
         } catch (Exception e) {
             logger.error("Error adding campus: {}", e.getMessage(), e);
             errors.add("An error occurred while adding the campus: " + e.getMessage());
-            model.addAttribute("errors", errors);
-            model.addAttribute("campuses", campusesService.getCampuses());
-            model.addAttribute("campusCounts", campusesService.getCampusCounts());
-            return "ListCampuses";
         }
+
+        // Khi có lỗi bất kỳ
+        model.addAttribute("errors", errors);
+        model.addAttribute("campus", campus);
+        model.addAttribute("campuses", campusesService.getCampuses());
+        model.addAttribute("campusCounts", campusesService.getCampusCounts());
+        return "ListCampuses";
     }
 }

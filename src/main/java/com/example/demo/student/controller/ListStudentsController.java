@@ -4,6 +4,7 @@ import com.example.demo.student.model.Students;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class ListStudentsController {
                 }
             }
             session.setAttribute("pageSize", pageSize);
+            session.setAttribute("currentPage", page);
 
             Long totalStudents = studentsService.numberOfStudents();
 
@@ -49,6 +51,9 @@ public class ListStudentsController {
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
+                model.addAttribute("student", new Students());
+                model.addAttribute("editStudent", new Students());
+                model.addAttribute("relationshipTypes", RelationshipToStudent.values());
                 return "StudentsList";
             }
 
@@ -65,6 +70,9 @@ public class ListStudentsController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalStudents", totalStudents);
+            model.addAttribute("student", new Students());
+            model.addAttribute("editStudent", new Students());
+            model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());
@@ -78,7 +86,7 @@ public class ListStudentsController {
         Students student = studentsService.getStudentById(id);
         if (student != null && student.getAvatar() != null) {
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG) // Adjust based on your avatar format (JPEG, PNG, etc.)
+                    .contentType(MediaType.IMAGE_JPEG)
                     .body(student.getAvatar());
         }
         return ResponseEntity.notFound().build();

@@ -12,10 +12,8 @@ import com.example.demo.student.model.Students;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -50,16 +48,9 @@ public class AddStudentController {
         this.emailServiceForStudentService = emailServiceForStudentService;
     }
 
-    @GetMapping("/add-student")
-    public String showAddStudentPage(Model model) {
-        model.addAttribute("student", new Students());
-        model.addAttribute("relationshipTypes", RelationshipToStudent.values());
-        return "AddStudent";
-    }
-
     @PostMapping("/add-student")
     public String addStudent(
-            @Valid @ModelAttribute("student") Students student,
+            @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
@@ -73,10 +64,9 @@ public class AddStudentController {
 
         List<String> errors = new ArrayList<>();
         errors.addAll(studentsService.StudentValidation(student, avatarFile));
-        if(student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2)){
+        if (student.getEmail() != null && (student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2))) {
             errors.add("Student and parent emails cannot be duplicated.");
         }
-        // Validate parent inputs only if any field is provided
         boolean isParent1Provided = isAnyFieldProvided(parentEmail1, supportPhoneNumber1, parentRelationship1);
         if (isParent1Provided) {
             errors.addAll(parentAccountsService.validateParentLink(parentEmail1, supportPhoneNumber1, parentRelationship1, "Parent 1"));
@@ -95,6 +85,11 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
+            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
+            model.addAttribute("totalStudents", studentsService.numberOfStudents());
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
@@ -103,35 +98,30 @@ public class AddStudentController {
                     errors.add("Failed to store avatar temporarily: " + e.getMessage());
                 }
             }
-            return "AddStudent";
+            return "StudentsList";
         }
 
         try {
-            // Generate and set student ID
             String studentId = studentsService.generateUniqueStudentId(
                     staffsService.getStaff().getMajorManagement().getMajorId(),
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
 
-            // Handle avatar
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 student.setAvatar(avatarFile.getBytes());
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
 
-            // Add student
             String studentPassword = studentsService.generateRandomPassword(12);
             studentsService.addStudents(student, studentPassword);
 
-            // Create Authenticators for student
             Authenticators studentAuth = new Authenticators();
             studentAuth.setPersonId(studentId);
             studentAuth.setPerson(personsService.getPersonById(studentId));
             studentAuth.setPassword(studentPassword);
             authenticatorsService.createAuthenticator(studentAuth);
 
-            // Create AccountBalances
             AccountBalances accountBalances = new AccountBalances();
             accountBalances.setBalance(0.0);
             accountBalances.setStudent(studentsService.getStudentById(studentId));
@@ -139,21 +129,17 @@ public class AddStudentController {
             accountBalances.setLastUpdated(LocalDateTime.now());
             accountBalancesService.createAccountBalances(accountBalances);
 
-            // Handle Parent 1
             if (isParent1Provided) {
                 parentAccountsService.createParentLink(studentId, parentEmail1, supportPhoneNumber1, parentRelationship1);
             }
-
-            // Handle Parent 2
             if (isParent2Provided) {
                 parentAccountsService.createParentLink(studentId, parentEmail2, supportPhoneNumber2, parentRelationship2);
             }
 
-            // Clear session
             session.removeAttribute("tempAvatar");
             session.removeAttribute("tempAvatarName");
 
-            redirectAttributes.addFlashAttribute("successMessage", "Student added successfully!");
+            redirectAttributes.addFlashAttribute("message", "Student added successfully!");
             return "redirect:/staff-home/students-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
@@ -165,7 +151,12 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
-            return "AddStudent";
+            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
+            model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            return "StudentsList";
         } catch (Exception e) {
             errors.add("An error occurred while adding the student: " + e.getMessage());
             model.addAttribute("errors", errors);
@@ -176,7 +167,12 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
-            return "AddStudent";
+            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
+            model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            return "StudentsList";
         }
     }
 
