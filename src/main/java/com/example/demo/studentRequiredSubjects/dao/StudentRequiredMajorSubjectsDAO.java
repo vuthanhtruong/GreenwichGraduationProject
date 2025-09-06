@@ -9,4 +9,5 @@ import java.util.List;
 public interface StudentRequiredMajorSubjectsDAO {
     List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
     List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects);
+    List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType);
 }

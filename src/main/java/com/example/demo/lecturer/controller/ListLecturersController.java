@@ -67,6 +67,7 @@ public class ListLecturersController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalLecturers", totalTeachers);
             return "LecturersList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());

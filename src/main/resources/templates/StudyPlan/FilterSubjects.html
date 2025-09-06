@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subjects List</title>
+    <title>Filtered Subjects List</title>
     <link rel="stylesheet" th:href="@{/StudyPlan.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,7 +12,7 @@
 
     <!-- Title -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> Subjects List</h1>
+        <h1><i class="fas fa-book"></i> Filtered Subjects List</h1>
     </header>
 
     <!-- Toolbar -->
@@ -20,10 +20,12 @@
         <a th:href="@{/staff-home}" class="btn">
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
+        <a th:href="@{/staff-home/study-plan}" class="btn">
+            <i class="fas fa-list"></i> View All Subjects
+        </a>
     </nav>
 
     <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="win11-alert error" th:text="${errorMessage}"></div>
 
     <!-- Subjects Table -->
@@ -45,6 +47,11 @@
                     <i class="fas fa-times"></i> Clear
                 </a>
             </form>
+        </div>
+
+        <!-- Total Subjects Display -->
+        <div class="total-subjects">
+            <p><strong>Total Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
         </div>
 
         <div class="table-container">
@@ -69,6 +76,7 @@
                     <td>
                         <form th:action="@{/staff-home/study-plan/assign-members}" method="post" class="inline-form">
                             <input type="hidden" name="id" th:value="${subject.subjectId}">
+                            <input type="hidden" name="learningProgramType" th:value="${learningProgramType}">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <button class="btn small primary">
                                 <i class="fas fa-users"></i> Assign Members

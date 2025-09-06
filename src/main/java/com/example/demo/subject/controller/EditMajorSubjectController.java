@@ -41,13 +41,12 @@ public class EditMajorSubjectController {
         return "EditMajorSubjectForm";
     }
 
-    @PutMapping("/major-subjects-list/edit-subject/{id}")
+    @PutMapping("/major-subjects-list/edit-major-subject")
     public String editSubject(
-            @PathVariable("id") String id,
             @Valid @ModelAttribute("subject") MajorSubjects formSubject,
             Model model,
             RedirectAttributes redirectAttributes) {
-        MajorSubjects existingSubject = subjectsService.getSubjectById(id);
+        MajorSubjects existingSubject = subjectsService.getSubjectById(formSubject.getSubjectId());
         if (existingSubject == null) {
             redirectAttributes.addFlashAttribute("message", "Subject not found.");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
@@ -66,7 +65,8 @@ public class EditMajorSubjectController {
         try {
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
             existingSubject.setSemester(formSubject.getSemester());
-            subjectsService.editSubject(id, existingSubject);
+            subjectsService.editSubject(formSubject.getSubjectId(), existingSubject);
+
             redirectAttributes.addFlashAttribute("message", "Subject editd successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {

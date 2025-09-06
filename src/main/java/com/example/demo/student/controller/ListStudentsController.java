@@ -64,6 +64,7 @@ public class ListStudentsController {
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalStudents", totalStudents);
             return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());

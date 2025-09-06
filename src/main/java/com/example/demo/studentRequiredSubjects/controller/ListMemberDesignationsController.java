@@ -1,6 +1,8 @@
 package com.example.demo.studentRequiredSubjects.controller;
 
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.studentRequiredSubjects.dao.StudentRequiredMajorSubjectsDAO;
+import com.example.demo.studentRequiredSubjects.service.StudentRequiredSubjectsService;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
@@ -21,28 +23,32 @@ public class ListMemberDesignationsController {
 
     private final MajorSubjectsService majorSubjectsService;
     private final StaffsService staffsService;
-    private final StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO;
+    private final StudentRequiredSubjectsService studentRequiredSubjects;
 
     @Autowired
-    public ListMemberDesignationsController(MajorSubjectsService majorSubjectsService, StaffsService staffsService, StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO) {
+    public ListMemberDesignationsController(MajorSubjectsService majorSubjectsService, StaffsService staffsService, StudentRequiredSubjectsService studentRequiredSubjectsDAO, StudentRequiredSubjectsService studentRequiredSubjects) {
         this.majorSubjectsService = majorSubjectsService;
         this.staffsService = staffsService;
-        this.studentRequiredSubjectsDAO = studentRequiredSubjectsDAO;
+        this.studentRequiredSubjects = studentRequiredSubjects;
     }
 
     @PostMapping("/study-plan/assign-members")
-    public String assignMembersForm(@RequestParam("id") String subjectId, Model model) {
+    public String assignMembers(
+            @RequestParam("id") String subjectId,
+            @RequestParam(required = false) String learningProgramType,
+            Model model) {
         MajorSubjects subject = majorSubjectsService.getSubjectById(subjectId);
         if (subject == null) {
-            model.addAttribute("errorMessage", "Subject not found");
-            return "redirect:/staff-home/study-plan";
+            model.addAttribute("errorMessage", "Subject not found.");
+            model.addAttribute("LearningProgramTypes", LearningProgramTypes.values());
+            model.addAttribute("learningProgramType", learningProgramType);
+            return "FilterSubjects";
         }
-        List<Students> studentsNotRequired = studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subject);
-        List<StudentRequiredMajorSubjects>  studentRequiredSubjects = studentRequiredSubjectsDAO.getStudentRequiredMajorSubjects(subject);
+
         model.addAttribute("subject", subject);
-        model.addAttribute("studentsNotRequired", studentsNotRequired);
-        model.addAttribute("studentsNotRequired", studentRequiredSubjects);
-        // Add other necessary attributes, e.g., required students if needed
-        return "AssignMembers"; // Redirect to a new view for assigning members
+        model.addAttribute("studentsNotRequired", studentRequiredSubjects.getStudentNotRequiredMajorSubjects(subject));
+        model.addAttribute("studentRequiredSubjects", studentRequiredSubjects.getStudentRequiredMajorSubjects(subject));
+        model.addAttribute("learningProgramType", learningProgramType);
+        return "AssignMembers";
     }
 }

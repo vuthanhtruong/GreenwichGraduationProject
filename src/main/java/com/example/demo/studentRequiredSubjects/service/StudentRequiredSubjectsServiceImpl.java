@@ -9,6 +9,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
+    @Override
+    public List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType) {
+        return studentRequiredSubjectsDAO.getSubjectsByLearningProgramType(learningProgramType);
+    }
+
     private final StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO;
 
     public StudentRequiredSubjectsServiceImpl(StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO) {

@@ -1,5 +1,6 @@
 package com.example.demo.studentRequiredSubjects.dao;
 
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
@@ -32,14 +33,12 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     private boolean isValidSubjectAndMajor(MajorSubjects subjects) {
-        // Kiểm tra subject không null, major của staff không null, và môn học đã được chấp nhận
         return subjects != null &&
                 staffsService.getStaffMajor() != null &&
                 subjects.getAcceptor() != null;
     }
 
     private boolean hasPassedAllMajorPreparationSubjects(Students student) {
-        // Truy vấn kiểm tra xem sinh viên đã pass tất cả các môn MAJOR_PREPARATION
         List<Object[]> results = entityManager.createQuery(
                         "SELECT s.subjectId, t.grade FROM MajorAcademicTranscripts t " +
                                 "JOIN MajorSubjects s ON t.subject.subjectId = s.subjectId " +
@@ -49,12 +48,10 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("requirementType", SubjectTypes.MAJOR_PREPARATION)
                 .getResultList();
 
-        // Nếu không có môn MAJOR_PREPARATION nào, coi như pass
         if (results.isEmpty()) {
             return true;
         }
 
-        // Kiểm tra tất cả các môn MAJOR_PREPARATION phải có grade != REFER
         return results.stream().allMatch(result -> {
             Grades grade = (Grades) result[1];
             return grade == Grades.PASS || grade == Grades.MERIT || grade == Grades.DISTINCTION;
@@ -62,7 +59,6 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     private boolean isTuitionValidForSubject(MajorSubjects subject, Students student) {
-        // Kiểm tra xem môn học có học phí hợp lệ trong TuitionByYear
         List<Double> tuition = entityManager.createQuery(
                         "SELECT t.tuition FROM TuitionByYear t " +
                                 "WHERE t.subject.subjectId = :subjectId AND t.id.admissionYear = :admissionYear",
@@ -71,12 +67,10 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("admissionYear", student.getAdmissionYear().getYear())
                 .getResultList();
 
-        // Nếu có bản ghi trong TuitionByYear và tuition > 0, coi như hợp lệ
         return !tuition.isEmpty() && tuition.get(0) > 0;
     }
 
     private boolean hasCompletedEnglishStage(Students student) {
-        // Kiểm tra xem sinh viên có trạng thái COMPLETE_ENGLISH_STAGE trong UpgradeStudents
         List<UpgradeStudents> results = entityManager.createQuery(
                         "SELECT u FROM UpgradeStudents u WHERE u.student.id = :studentId AND u.id.upgradeStatus = :status",
                         UpgradeStudents.class)
@@ -93,7 +87,6 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
             return List.of();
         }
 
-        // Lấy danh sách sinh viên đã đăng ký môn học
         List<StudentRequiredMajorSubjects> results = entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredMajorSubjects srs " +
                                 "WHERE srs.subject = :subjects AND srs.student.major = :major",
@@ -102,7 +95,6 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
 
-        // Lọc những sinh viên đã pass MAJOR_PREPARATION, có học phí hợp lệ, và có trạng thái COMPLETE_ENGLISH_STAGE
         return results.stream()
                 .filter(srs -> hasPassedAllMajorPreparationSubjects(srs.getStudent()) &&
                         isTuitionValidForSubject(subjects, srs.getStudent()) &&
@@ -116,7 +108,6 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
             return List.of();
         }
 
-        // Lấy danh sách sinh viên chưa đăng ký môn học
         List<Students> students = entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN StudentRequiredMajorSubjects srs " +
                                 "ON s.id = srs.student.id AND srs.subject = :subjects " +
@@ -126,11 +117,39 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
 
-        // Lọc những sinh viên đã pass MAJOR_PREPARATION, có học phí hợp lệ, và có trạng thái COMPLETE_ENGLISH_STAGE
         return students.stream()
                 .filter(student -> hasPassedAllMajorPreparationSubjects(student) &&
                         isTuitionValidForSubject(subjects, student) &&
                         hasCompletedEnglishStage(student))
                 .toList();
+    }
+
+    @Override
+    public List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType) {
+        if (learningProgramType == null || learningProgramType.trim().isEmpty()) {
+            // Nếu learningProgramType rỗng, trả về tất cả môn học thuộc chuyên ngành của nhân viên
+            return entityManager.createQuery(
+                            "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
+                            MajorSubjects.class)
+                    .setParameter("major", staffsService.getStaffMajor())
+                    .getResultList();
+        }
+
+        // Chuyển đổi String thành enum LearningProgramTypes
+        LearningProgramTypes programType;
+        try {
+            programType = LearningProgramTypes.valueOf(learningProgramType);
+        } catch (IllegalArgumentException e) {
+            // Nếu learningProgramType không hợp lệ, trả về danh sách rỗng
+            return List.of();
+        }
+
+        // Trả về danh sách môn học theo learningProgramType và chuyên ngành của nhân viên
+        return entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.learningProgramType = :learningProgramType AND s.major = :major ORDER BY s.semester ASC",
+                        MajorSubjects.class)
+                .setParameter("learningProgramType", programType)
+                .setParameter("major", staffsService.getStaffMajor())
+                .getResultList();
     }
 }

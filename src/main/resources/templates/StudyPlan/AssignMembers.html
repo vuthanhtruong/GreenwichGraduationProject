@@ -12,14 +12,23 @@
 
     <!-- Title -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-users"></i> Assign Members to <span th:text="${subject.subjectName}"></span></h1>
+        <h1><i class="fas fa-users"></i> Assign Students to <span th:text="${subject.subjectName}"></span></h1>
     </header>
 
-    <!-- Navigation -->
     <div class="form-actions">
-        <a th:href="@{/staff-home/study-plan}" class="btn">
-            <i class="fas fa-arrow-left"></i> Back to Subjects List
-        </a>
+        <form th:action="@{/staff-home/study-plan/filter-subjects}" method="post" th:if="${learningProgramType != null}" class="inline-form">
+            <input type="hidden" name="learningProgramType" th:value="${learningProgramType}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn">
+                <i class="fas fa-arrow-left"></i> Back to Subjects List
+            </button>
+        </form>
+        <form th:action="@{/staff-home/study-plan}" method="get" th:unless="${learningProgramType != null}" class="inline-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn">
+                <i class="fas fa-arrow-left"></i> Back to Subjects List
+            </button>
+        </form>
     </div>
 
     <!-- Alerts -->
@@ -37,6 +46,7 @@
         <h2 class="panel-header"><i class="fas fa-user-plus"></i> Students Not Yet Assigned</h2>
         <form method="post" th:action="@{/staff-home/study-plan/assign-members/add}" th:if="${subject != null}">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}" />
+            <input type="hidden" name="learningProgramType" th:value="${learningProgramType}" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
             <div class="table-container">
@@ -76,6 +86,7 @@
         <h2 class="panel-header"><i class="fas fa-user-check"></i> Assigned Students</h2>
         <form method="post" th:action="@{/staff-home/study-plan/assign-members/remove}" th:if="${subject != null}">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}" />
+            <input type="hidden" name="learningProgramType" th:value="${learningProgramType}" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
             <div class="table-container">

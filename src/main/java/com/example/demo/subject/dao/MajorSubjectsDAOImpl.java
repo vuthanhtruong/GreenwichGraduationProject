@@ -64,7 +64,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         subject.setCreator(staffsService.getStaff());
         subject.setMajor(staffsService.getStaffMajor());
-        subject.setRequirementType(SubjectTypes.TOPUP_PREPARATION);
         entityManager.persist(subject);
     }
 
@@ -125,20 +124,13 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     @Override
     public MajorSubjects editSubject(String id, MajorSubjects subject) {
-        if (subject == null || id == null) {
-            throw new IllegalArgumentException("Subject object or ID cannot be null");
-        }
         MajorSubjects existingSubject = entityManager.find(MajorSubjects.class, id);
-        if (existingSubject == null) {
-            throw new IllegalArgumentException("Subject with ID " + id + " not found");
+        if(subject.getSubjectName() != null) {
+            existingSubject.setSubjectName(subject.getSubjectName());
         }
-        List<String> errors = validateSubject(subject);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
+        if (subject.getSemester() != null){
+            existingSubject.setSemester(subject.getSemester());
         }
-        existingSubject.setSubjectName(subject.getSubjectName());
-        if (subject.getSemester() != null) existingSubject.setSemester(subject.getSemester());
-        if (subject.getLearningProgramType() != null) existingSubject.setLearningProgramType(subject.getLearningProgramType());
         return entityManager.merge(existingSubject);
     }
 
@@ -199,9 +191,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         if (subject.getSemester() == null || subject.getSemester() < 1) {
             errors.add("Semester must be a positive number.");
-        }
-        if (subject.getLearningProgramType() == null) {
-            errors.add("Learning program type is required.");
         }
         return errors;
     }

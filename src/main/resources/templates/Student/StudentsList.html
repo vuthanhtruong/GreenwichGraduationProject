@@ -48,6 +48,10 @@
             <input type="number" id="pageSizeInput" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small" />
             <button type="submit" class="btn small">Apply</button>
         </div>
+        <!-- Total Students Display -->
+        <div class="total-students">
+            <p><strong>Total Students:</strong> <span th:text="${totalStudents}"></span></p>
+        </div>
     </form>
 
     <!-- Students Table -->
