@@ -23,150 +23,137 @@
 
             <!-- Avatar -->
             <section class="win11-panel">
-                <h2 class="panel-header">Avatar</h2>
+                <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
                 <div class="form-row">
-                    <label for="avatarFile">Select Avatar:</label>
+                    <label for="avatarFile"><i class="fas fa-upload"></i> Select Avatar:</label>
                     <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
                     <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
                     <div th:if="${session.tempAvatarName}" class="form-text">
-                        Previously selected: <span th:text="${session.tempAvatarName}"></span>
+                        <i class="fas fa-clock"></i> Previously selected: <span th:text="${session.tempAvatarName}"></span>
                     </div>
                 </div>
             </section>
 
             <!-- Student Info -->
             <section class="win11-panel">
-                <h2 class="panel-header">Student Information</h2>
+                <h2 class="panel-header"><i class="fas fa-user"></i> Student Information</h2>
                 <div class="form-group grid-2">
                     <div class="form-row">
-                        <label for="firstName">First Name:</label>
+                        <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
                         <input id="firstName" th:field="*{firstName}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name') or error.contains('First Name')}" th:text="${error}"></div>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="lastName">Last Name:</label>
+                        <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
                         <input id="lastName" th:field="*{lastName}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name') or error.contains('Last Name')}" th:text="${error}"></div>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="email">Email:</label>
+                        <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                         <input id="email" th:field="*{email}" required type="email" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email') or error.contains('Email')}" th:text="${error}"></div>
-                        <small class="form-text">Account details and password will be emailed.</small>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email')}" th:text="${error}"></div>
+                        <small class="form-text"><i class="fas fa-info-circle"></i> Account details and password will be emailed.</small>
                     </div>
                     <div class="form-row">
-                        <label for="phoneNumber">Phone Number:</label>
+                        <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
                         <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone') or error.contains('Phone')}" th:text="${error}"></div>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="birthDate">Birth Date:</label>
+                        <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
                         <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('birth') or error.contains('Birth')}" th:text="${error}"></div>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('birth')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="gender">Gender:</label>
+                        <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
                         <select id="gender" th:field="*{gender}" class="input">
                             <option value="">Select gender</option>
                             <option th:each="gender : ${T(com.example.demo.entity.Enums.Gender).values()}"
                                     th:value="${gender}" th:text="${gender}"></option>
                         </select>
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('gender') or error.contains('Gender')}" th:text="${error}"></div>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('gender')}" th:text="${error}"></div>
                     </div>
                 </div>
             </section>
 
             <!-- Address -->
             <section class="win11-panel">
-                <h2 class="panel-header">Address Information</h2>
+                <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information</h2>
                 <div class="form-group grid-2">
                     <div class="form-row">
-                        <label for="country">Country:</label>
+                        <label for="country"><i class="fas fa-flag"></i> Country:</label>
                         <input id="country" th:field="*{country}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('country') or error.contains('Country')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="province">Province:</label>
+                        <label for="province"><i class="fas fa-location-dot"></i> Province:</label>
                         <input id="province" th:field="*{province}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('province') or error.contains('Province')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="city">City:</label>
+                        <label for="city"><i class="fas fa-city"></i> City:</label>
                         <input id="city" th:field="*{city}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('city') or error.contains('City')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="district">District:</label>
+                        <label for="district"><i class="fas fa-map"></i> District:</label>
                         <input id="district" th:field="*{district}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('district') or error.contains('District')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="ward">Ward:</label>
+                        <label for="ward"><i class="fas fa-map-pin"></i> Ward:</label>
                         <input id="ward" th:field="*{ward}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('ward') or error.contains('Ward')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="street">Street/House:</label>
+                        <label for="street"><i class="fas fa-road"></i> Street/House:</label>
                         <input id="street" th:field="*{street}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('street') or error.contains('Street')}" th:text="${error}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="postalCode">Postal Code:</label>
+                        <label for="postalCode"><i class="fas fa-mail-bulk"></i> Postal Code:</label>
                         <input id="postalCode" th:field="*{postalCode}" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('postal') or error.contains('Postal')}" th:text="${error}"></div>
                     </div>
                 </div>
             </section>
 
             <!-- Parents -->
             <section class="win11-panel">
-                <h2 class="panel-header">Parent's Information (Optional)</h2>
-                <p class="form-text">Provide valid info for up to two parents.</p>
+                <h2 class="panel-header"><i class="fas fa-users"></i> Parent's Information (Optional)</h2>
+                <p class="form-text"><i class="fas fa-info-circle"></i> Provide valid info for up to two parents.</p>
                 <div class="form-group grid-2">
                     <!-- Parent 1 -->
                     <div class="parent-entry">
-                        <h3 class="sub-header">Parent 1</h3>
+                        <h3 class="sub-header"><i class="fas fa-user"></i> Parent 1</h3>
                         <div class="form-row">
-                            <label for="parentEmail1">Email:</label>
+                            <label for="parentEmail1"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="parentEmail1" name="parentEmail1" type="email" th:value="${parentEmail1}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1')}" th:text="${error}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="supportPhoneNumber1">Support Phone:</label>
+                            <label for="supportPhoneNumber1"><i class="fas fa-phone"></i> Support Phone:</label>
                             <input id="supportPhoneNumber1" name="supportPhoneNumber1" type="text" th:value="${supportPhoneNumber1}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and (error.contains('phone') or error.contains('Phone'))}" th:text="${error}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="parentRelationship1">Relationship:</label>
+                            <label for="parentRelationship1"><i class="fas fa-handshake"></i> Relationship:</label>
                             <select id="parentRelationship1" name="parentRelationship1" class="input">
                                 <option value="">Select</option>
                                 <option th:each="relationship : ${relationshipTypes}"
                                         th:value="${relationship}" th:text="${relationship}" th:selected="${parentRelationship1 == relationship.toString()}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 1') and (error.contains('relationship') or error.contains('Relationship'))}" th:text="${error}"></div>
                         </div>
                     </div>
                     <!-- Parent 2 -->
                     <div class="parent-entry">
-                        <h3 class="sub-header">Parent 2</h3>
+                        <h3 class="sub-header"><i class="fas fa-user"></i> Parent 2</h3>
                         <div class="form-row">
-                            <label for="parentEmail2">Email:</label>
+                            <label for="parentEmail2"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="parentEmail2" name="parentEmail2" type="email" th:value="${parentEmail2}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2')}" th:text="${error}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="supportPhoneNumber2">Support Phone:</label>
+                            <label for="supportPhoneNumber2"><i class="fas fa-phone"></i> Support Phone:</label>
                             <input id="supportPhoneNumber2" name="supportPhoneNumber2" type="text" th:value="${supportPhoneNumber2}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and (error.contains('phone') or error.contains('Phone'))}" th:text="${error}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="parentRelationship2">Relationship:</label>
+                            <label for="parentRelationship2"><i class="fas fa-handshake"></i> Relationship:</label>
                             <select id="parentRelationship2" name="parentRelationship2" class="input">
                                 <option value="">Select</option>
                                 <option th:each="relationship : ${relationshipTypes}"
                                         th:value="${relationship}" th:text="${relationship}" th:selected="${parentRelationship2 == relationship.toString()}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Parent 2') and (error.contains('relationship') or error.contains('Relationship'))}" th:text="${error}"></div>
                         </div>
                     </div>
                 </div>
