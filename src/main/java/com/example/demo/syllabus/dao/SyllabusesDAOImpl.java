@@ -9,27 +9,18 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
 @Transactional
 public class SyllabusesDAOImpl implements SyllabusesDAO {
-    @Override
-    public void deleteSyllabusBySubject(MajorSubjects subject) {
-        List<Syllabuses> syllabusesList=entityManager.createQuery("select s from Syllabuses s where s.subject=:subject",Syllabuses.class).
-                setParameter("subject",subject).getResultList();
-        for (Syllabuses syllabuses : syllabusesList) {
-            entityManager.remove(syllabuses);
-        }
-    }
 
-    private StaffsService staffsService;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final StaffsService staffsService;
 
     public SyllabusesDAOImpl(StaffsService staffsService) {
-        this.staffsService= staffsService;
-    }
-
-    @Override
-    public Syllabuses getSyllabusById(String syllabusId) {
-        return entityManager.find(Syllabuses.class, syllabusId);
+        this.staffsService = staffsService;
     }
 
     @Override
@@ -38,17 +29,41 @@ public class SyllabusesDAOImpl implements SyllabusesDAO {
         entityManager.persist(syllabus);
     }
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Override
-    public List<Syllabuses> syllabusesList() {
-        return entityManager.createQuery("from Syllabuses", Syllabuses.class).getResultList();
+    public Syllabuses getSyllabusById(String syllabusId) {
+        return entityManager.find(Syllabuses.class, syllabusId);
     }
 
     @Override
     public List<Syllabuses> getSyllabusesBySubject(MajorSubjects subject) {
-        return entityManager.createQuery("select s FROM Syllabuses s where s.subject=:subject", Syllabuses.class).
-                setParameter("subject", subject).getResultList();
+        return entityManager.createQuery("select s FROM Syllabuses s where s.subject = :subject", Syllabuses.class)
+                .setParameter("subject", subject)
+                .getResultList();
+    }
+
+    @Override
+    public void deleteSyllabusBySubject(MajorSubjects subject) {
+        List<Syllabuses> syllabusesList = entityManager.createQuery("select s from Syllabuses s where s.subject = :subject", Syllabuses.class)
+                .setParameter("subject", subject)
+                .getResultList();
+        for (Syllabuses syllabus : syllabusesList) {
+            entityManager.remove(syllabus);
+        }
+    }
+
+    @Override
+    public List<Syllabuses> getPaginatedSyllabuses(String subjectId, int firstResult, int pageSize) {
+        return entityManager.createQuery("select s from Syllabuses s where s.subject.subjectId = :subjectId", Syllabuses.class)
+                .setParameter("subjectId", subjectId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public Long numberOfSyllabuses(String subjectId) {
+        return entityManager.createQuery("select count(s) from Syllabuses s where s.subject.subjectId = :subjectId", Long.class)
+                .setParameter("subjectId", subjectId)
+                .getSingleResult();
     }
 }

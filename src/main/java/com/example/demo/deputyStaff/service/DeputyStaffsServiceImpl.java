@@ -57,13 +57,13 @@ public class DeputyStaffsServiceImpl implements DeputyStaffsService {
     }
 
     @Override
-    public String generateUniqueDeputyStaffId(String majorId, LocalDate createdDate) {
-        return deputyStaffsDAO.generateUniqueDeputyStaffId(majorId, createdDate);
+    public String generateUniqueDeputyStaffId( LocalDate createdDate) {
+        return deputyStaffsDAO.generateUniqueDeputyStaffId(createdDate);
     }
 
     @Override
-    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String majorId, String campusId) {
-        return deputyStaffsDAO.validateDeputyStaff(deputyStaff, avatarFile, majorId, campusId);
+    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
+        return deputyStaffsDAO.validateDeputyStaff(deputyStaff, avatarFile, campusId);
     }
 
     @Override

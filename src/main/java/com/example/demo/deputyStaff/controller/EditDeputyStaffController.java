@@ -68,7 +68,7 @@ public class EditDeputyStaffController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             RedirectAttributes redirectAttributes,
             Model model) {
-        List<String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, null, campusId);
+        List<String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
         if (bindingResult.hasErrors()) {
             errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
         }

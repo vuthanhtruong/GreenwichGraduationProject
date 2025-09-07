@@ -182,22 +182,21 @@ public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
     }
 
     @Override
-    public String generateUniqueDeputyStaffId(String majorId, LocalDate createdDate) {
-        String prefix = majorId != null ? majorId : "DSTF";
+    public String generateUniqueDeputyStaffId(LocalDate createdDate) {
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
         String deputyStaffId;
         SecureRandom random = new SecureRandom();
         do {
             String randomDigit = String.valueOf(random.nextInt(10));
-            deputyStaffId = prefix + year + date + randomDigit;
+            deputyStaffId = year + date + randomDigit;
         } while (personsService.existsPersonById(deputyStaffId));
         logger.info("Generated unique deputy staff ID: {}", deputyStaffId);
         return deputyStaffId;
     }
 
     @Override
-    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String majorId, String campusId) {
+    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
         List<String> errors = new ArrayList<>();
         if (deputyStaff.getFirstName() == null || !isValidName(deputyStaff.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
