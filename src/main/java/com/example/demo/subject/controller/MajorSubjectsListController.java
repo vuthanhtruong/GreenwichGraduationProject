@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -29,72 +30,58 @@ public class MajorSubjectsListController {
         this.staffsService = staffsService;
     }
 
-    @GetMapping
+    @GetMapping("")
     public String showSubjectsList(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(value = "successMessage", required = false) String successMessage,
-            @RequestParam(value = "errorMessage", required = false) String errorMessage,
             Model model,
-            HttpSession session) {
+            HttpSession session,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize) {
         try {
             if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("subjectsPageSize");
+                pageSize = (Integer) session.getAttribute("subjectPageSize");
                 if (pageSize == null) {
                     pageSize = 5;
                 }
             }
-            session.setAttribute("subjectsPageSize", pageSize);
+            session.setAttribute("subjectPageSize", pageSize);
 
-            if (staffsService.getStaffMajor() == null) {
-                model.addAttribute("errorMessage", "No major assigned to the current staff.");
-                model.addAttribute("subjects", List.of());
-                model.addAttribute("currentPage", 1);
-                model.addAttribute("totalPages", 1);
-                model.addAttribute("pageSize", pageSize);
-                model.addAttribute("newSubject", new MajorSubjects());
-                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-                return "MajorSubjectsList";
-            }
-
-            long totalSubjects = subjectsService.numberOfSubjects(staffsService.getStaffMajor());
-            List<MajorSubjects> subjects = subjectsService.getPaginatedSubjects((page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
+            Long totalSubjects = subjectsService.numberOfSubjects(staffsService.getStaffMajor());
+            int totalPages = Math.max(1, (int) Math.ceil((double) totalSubjects / pageSize));
+            page = Math.max(1, Math.min(page, totalPages));
+            session.setAttribute("subjectPage", page);
+            session.setAttribute("subjectTotalPages", totalPages);
 
             if (totalSubjects == 0) {
-                model.addAttribute("subjects", List.of());
+                model.addAttribute("subjects", new ArrayList<>());
+                model.addAttribute("newSubject", new MajorSubjects());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
-                model.addAttribute("newSubject", new MajorSubjects());
+                model.addAttribute("totalSubjects", 0);
+                model.addAttribute("message", "No subjects found for this major.");
+                model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-                model.addAttribute("message", successMessage != null ? successMessage : (errorMessage != null ? errorMessage : "No subjects found."));
                 return "MajorSubjectsList";
             }
 
-            int totalPages = (int) Math.ceil((double) totalSubjects / pageSize);
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
+            int firstResult = (page - 1) * pageSize;
+            List<MajorSubjects> subjects = subjectsService.getPaginatedSubjects(firstResult, pageSize, staffsService.getStaffMajor());
 
             model.addAttribute("subjects", subjects);
+            model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("newSubject", new MajorSubjects());
+            model.addAttribute("totalSubjects", totalSubjects);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-            if (successMessage != null) {
-                model.addAttribute("successMessage", successMessage);
-            } else if (errorMessage != null) {
-                model.addAttribute("errorMessage", errorMessage);
-            }
-
             return "MajorSubjectsList";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "An error occurred while loading subjects: " + e.getMessage());
-            model.addAttribute("subjects", List.of());
+            model.addAttribute("errors", List.of("An error occurred while retrieving subjects: " + e.getMessage()));
+            model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("newSubject", new MajorSubjects());
+            model.addAttribute("totalSubjects", 0);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             return "MajorSubjectsList";
         }

@@ -4,6 +4,7 @@ import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.classes.service.ClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -36,19 +38,26 @@ public class AddClassController {
             @RequestParam("slotQuantity") Integer slotQuantity,
             @RequestParam("subjectId") String subjectId,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
+        List<String> errors = new ArrayList<>();
         MajorClasses newClass = new MajorClasses();
         newClass.setNameClass(nameClass);
         newClass.setSlotQuantity(slotQuantity);
         newClass.setSubject(subjectsService.getSubjectById(subjectId));
 
-        List<String> errors = classesService.validateClass(newClass, null);
+        errors.addAll(classesService.validateClass(newClass, newClass.getClassId()));
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor()));
+            model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
+            model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
+            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
+            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaffMajor()));
             return "ClassesList";
         }
 
@@ -64,8 +73,13 @@ public class AddClassController {
         } catch (Exception e) {
             errors.add("Failed to add class: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("classes", classesService.ClassesByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor()));
+            model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
+            model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
+            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
+            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaffMajor()));
             return "ClassesList";
         }
     }

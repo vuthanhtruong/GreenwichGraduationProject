@@ -31,6 +31,6 @@ public abstract class Subjects {
     private Admins acceptor;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "RequirementType", nullable = false)
+    @Column(name = "RequirementType", nullable = true)
     private SubjectTypes requirementType;
 }

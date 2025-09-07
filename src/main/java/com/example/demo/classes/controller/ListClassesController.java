@@ -39,7 +39,6 @@ public class ListClassesController {
             HttpSession session,
             Authentication authentication) {
         try {
-            // Handle pageSize
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("classPageSize");
                 if (pageSize == null) {
@@ -48,15 +47,14 @@ public class ListClassesController {
             }
             session.setAttribute("classPageSize", pageSize);
 
-            // Get staff's major
             String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
-
-            // Handle pagination
             long totalClasses = classesService.numberOfClasses(staffsService.getStaffMajor());
             int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
             pageClasses = Math.max(1, Math.min(pageClasses, totalPagesClasses));
-            int firstResult = (pageClasses - 1) * pageSize;
+            session.setAttribute("currentPageClasses", pageClasses);
+            session.setAttribute("totalPagesClasses", totalPagesClasses);
 
+            int firstResult = (pageClasses - 1) * pageSize;
             List<MajorClasses> classes = classesService.getPaginatedClasses(firstResult, pageSize, staffsService.getStaffMajor());
 
             if (totalClasses == 0) {
@@ -64,10 +62,11 @@ public class ListClassesController {
                 model.addAttribute("currentPageClasses", 1);
                 model.addAttribute("totalPagesClasses", 1);
                 model.addAttribute("pageSize", pageSize);
+                model.addAttribute("totalClasses", 0);
                 model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
+                model.addAttribute("newClass", new MajorClasses());
                 model.addAttribute("message", "No classes found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
-                model.addAttribute("newClass", new MajorClasses());
                 return "ClassesList";
             }
 
@@ -76,12 +75,17 @@ public class ListClassesController {
             model.addAttribute("currentPageClasses", pageClasses);
             model.addAttribute("totalPagesClasses", totalPagesClasses);
             model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalClasses", totalClasses);
             model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
-
             return "ClassesList";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving classes: " + e.getMessage()));
             model.addAttribute("newClass", new MajorClasses());
+            model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("currentPageClasses", 1);
+            model.addAttribute("totalPagesClasses", 1);
+            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
+            model.addAttribute("totalClasses", 0);
             return "ClassesList";
         }
     }

@@ -1,7 +1,6 @@
 package com.example.demo.lecturer.controller;
 
 import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.staff.model.Staffs;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home")
+@RequestMapping("/staff-home/lecturers-list")
 public class ListLecturersController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
@@ -24,64 +23,75 @@ public class ListLecturersController {
 
     public ListLecturersController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
         this.staffsService = staffsService;
-        this.studentsService=studentsService;
+        this.studentsService = studentsService;
         this.lecturesService = lecturesService;
     }
 
-    @GetMapping("/lecturers-list")
-    public String listTeachers(
+    @GetMapping("")
+    public String listLecturers(
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize) {
         try {
-            Staffs staffs = staffsService.getStaff();
-
             if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("pageSize");
+                pageSize = (Integer) session.getAttribute("lecturerPageSize");
                 if (pageSize == null) {
                     pageSize = 5;
                 }
             }
-            session.setAttribute("pageSize", pageSize);
+            session.setAttribute("lecturerPageSize", pageSize);
 
-            Long totalTeachers = lecturesService.numberOfLecturers();
+            Long totalLecturers = lecturesService.numberOfLecturers();
+            int totalPages = Math.max(1, (int) Math.ceil((double) totalLecturers / pageSize));
+            page = Math.max(1, Math.min(page, totalPages));
+            session.setAttribute("lecturerPage", page);
+            session.setAttribute("lecturerTotalPages", totalPages);
 
-            if (totalTeachers == 0) {
+            if (totalLecturers == 0) {
                 model.addAttribute("teachers", new ArrayList<>());
+                model.addAttribute("lecturer", new MajorLecturers());
+                model.addAttribute("editLecturer", new MajorLecturers());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
+                model.addAttribute("totalLecturers", 0);
+                model.addAttribute("message", "No lecturers found.");
+                model.addAttribute("alertClass", "alert-warning");
                 return "LecturersList";
             }
 
-            int totalPages = (int) Math.ceil((double) totalTeachers / pageSize);
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
-
             int firstResult = (page - 1) * pageSize;
-
             List<MajorLecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
 
             model.addAttribute("teachers", teachers);
+            model.addAttribute("lecturer", new MajorLecturers());
+            model.addAttribute("editLecturer", new MajorLecturers());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("totalLecturers", totalTeachers);
+            model.addAttribute("totalLecturers", totalLecturers);
             return "LecturersList";
         } catch (SecurityException e) {
-            model.addAttribute("error", e.getMessage());
-            return "error";
+            model.addAttribute("errors", List.of("Security error: " + e.getMessage()));
+            model.addAttribute("lecturer", new MajorLecturers());
+            model.addAttribute("editLecturer", new MajorLecturers());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("totalLecturers", 0);
+            return "LecturersList";
         }
     }
-    @GetMapping("/lecturers-list/avatar/{id}")
+
+    @GetMapping("/avatar/{id}")
     @ResponseBody
-    public ResponseEntity<byte[]> getlectureAvatar(@PathVariable String id) {
-        MajorLecturers lectures = lecturesService.getLecturerById(id);
-        if (lectures != null && lectures.getAvatar() != null) {
+    public ResponseEntity<byte[]> getLecturerAvatar(@PathVariable String id) {
+        MajorLecturers lecturer = lecturesService.getLecturerById(id);
+        if (lecturer != null && lecturer.getAvatar() != null) {
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG) // Adjust based on your avatar format (JPEG, PNG, etc.)
-                    .body(lectures.getAvatar());
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(lecturer.getAvatar());
         }
         return ResponseEntity.notFound().build();
     }

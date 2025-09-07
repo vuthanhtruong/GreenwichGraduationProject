@@ -6,6 +6,7 @@ import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home/lecturers-list/")
+@RequestMapping("/staff-home/lecturers-list")
 public class AddLecturerController {
     private final StaffsService staffsService;
     private final LecturesService lecturesService;
@@ -34,38 +35,48 @@ public class AddLecturerController {
         this.authenticatorsService = authenticatorsService;
     }
 
-    @GetMapping("/add-lecturer")
-    public String showAddLecturePage(Model model) {
-        model.addAttribute("lecturer", new MajorLecturers());
-        model.addAttribute("majors", staffsService.getStaffMajor());
-        return "AddLecturer";
-    }
-
     @PostMapping("/add-lecturer")
-    public String addLecture(
+    public String addLecturer(
             @Valid @ModelAttribute("lecturer") MajorLecturers lecturer,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         List<String> errors = new ArrayList<>();
         errors.addAll(lecturesService.lectureValidation(lecturer, avatarFile));
 
         if (!errors.isEmpty()) {
-            model.addAttribute("lecturer", lecturer);
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecturer";
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    session.setAttribute("tempAvatar", avatarFile.getBytes());
+                    session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
+                } catch (IOException e) {
+                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                }
+            }
+            return "LecturersList";
         }
 
         try {
-            String randomPassword = lecturesService.generateRandomPassword(12);
             String lectureId = lecturesService.generateUniqueLectureId(
                     staffsService.getStaffMajor().getMajorId(),
                     lecturer.getCreatedDate() != null ? lecturer.getCreatedDate() : LocalDate.now());
             lecturer.setId(lectureId);
+
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 lecturer.setAvatar(avatarFile.getBytes());
+            } else if (session.getAttribute("tempAvatar") != null) {
+                lecturer.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
+
+            String randomPassword = lecturesService.generateRandomPassword(12);
             lecturesService.addLecturers(lecturer, randomPassword);
 
             Authenticators authenticators = new Authenticators();
@@ -74,18 +85,31 @@ public class AddLecturerController {
             authenticators.setPassword(randomPassword);
             authenticatorsService.createAuthenticator(authenticators);
 
-            redirectAttributes.addFlashAttribute("successMessage", "Lecture added successfully!");
+            session.removeAttribute("tempAvatar");
+            session.removeAttribute("tempAvatarName");
+
+            redirectAttributes.addFlashAttribute("message", "Lecturer added successfully!");
             return "redirect:/staff-home/lecturers-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecturer";
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            return "LecturersList";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the lecture: " + e.getMessage());
+            errors.add("An error occurred while adding the lecturer: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("majors", staffsService.getStaffMajor());
-            return "AddLecturer";
+            model.addAttribute("lecturer", lecturer);
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            return "LecturersList";
         }
     }
 }

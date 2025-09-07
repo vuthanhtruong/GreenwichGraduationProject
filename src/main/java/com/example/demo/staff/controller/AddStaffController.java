@@ -9,6 +9,7 @@ import com.example.demo.campus.service.CampusesService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.major.service.MajorsService;
 import com.example.demo.person.service.PersonsService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,14 +45,6 @@ public class AddStaffController {
         this.campusesService = campusesService;
     }
 
-    @GetMapping("/add-staff")
-    public String showAddStaffPage(Model model) {
-        model.addAttribute("staff", new Staffs());
-        model.addAttribute("majors", majorsService.getMajors());
-        model.addAttribute("campuses",campusesService.getCampuses());
-        return "AddStaff";
-    }
-
     @PostMapping("/add-staff")
     public String addStaff(
             @Valid @ModelAttribute("staff") Staffs staff,
@@ -59,15 +52,30 @@ public class AddStaffController {
             @RequestParam("majorId") String majorId,
             @RequestParam("campusId") String campusId,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
         List<String> errors = new ArrayList<>();
-        errors.addAll(staffsService.validateStaff(staff, avatarFile,majorId,campusId));
+        errors.addAll(staffsService.validateStaff(staff, avatarFile, majorId, campusId));
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            model.addAttribute("staff", staff);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
-            return "AddStaff";
+            model.addAttribute("staffs", staffsService.getPaginatedStaffs(0, (Integer) session.getAttribute("staffPageSize") != null ? (Integer) session.getAttribute("staffPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("staffPage") != null ? session.getAttribute("staffPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("staffTotalPages") != null ? session.getAttribute("staffTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("staffPageSize") != null ? session.getAttribute("staffPageSize") : 5);
+            model.addAttribute("totalStaffs", staffsService.numberOfStaffs());
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                try {
+                    session.setAttribute("tempAvatar", avatarFile.getBytes());
+                    session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
+                } catch (IOException e) {
+                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                }
+            }
+            return "StaffsList";
         }
 
         try {
@@ -75,14 +83,18 @@ public class AddStaffController {
             Campuses campus = campusesService.getCampusById(campusId);
             staff.setMajorManagement(major);
             staff.setCampus(campus);
-            String randomPassword = staffsService.generateRandomPassword(12);
             String staffId = staffsService.generateUniqueStaffId(
                     major != null ? major.getMajorId() : "STF",
                     staff.getCreatedDate() != null ? staff.getCreatedDate() : LocalDate.now());
             staff.setId(staffId);
+
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 staff.setAvatar(avatarFile.getBytes());
+            } else if (session.getAttribute("tempAvatar") != null) {
+                staff.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
+
+            String randomPassword = staffsService.generateRandomPassword(12);
             staffsService.addStaff(staff, randomPassword);
 
             Authenticators authenticators = new Authenticators();
@@ -91,20 +103,35 @@ public class AddStaffController {
             authenticators.setPassword(randomPassword);
             authenticatorsService.createAuthenticator(authenticators);
 
-            redirectAttributes.addFlashAttribute("successMessage", "Staff added successfully!");
+            session.removeAttribute("tempAvatar");
+            session.removeAttribute("tempAvatarName");
+
+            redirectAttributes.addFlashAttribute("message", "Staff added successfully!");
             return "redirect:/admin-home/staffs-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
+            model.addAttribute("staff", staff);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
-            return "AddStaff";
+            model.addAttribute("staffs", staffsService.getPaginatedStaffs(0, (Integer) session.getAttribute("staffPageSize") != null ? (Integer) session.getAttribute("staffPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("staffPage") != null ? session.getAttribute("staffPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("staffTotalPages") != null ? session.getAttribute("staffTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("staffPageSize") != null ? session.getAttribute("staffPageSize") : 5);
+            model.addAttribute("totalStaffs", staffsService.numberOfStaffs());
+            return "StaffsList";
         } catch (Exception e) {
             errors.add("An error occurred while adding the staff: " + e.getMessage());
             model.addAttribute("errors", errors);
+            model.addAttribute("staff", staff);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
-            return "AddStaff";
+            model.addAttribute("staffs", staffsService.getPaginatedStaffs(0, (Integer) session.getAttribute("staffPageSize") != null ? (Integer) session.getAttribute("staffPageSize") : 5));
+            model.addAttribute("currentPage", session.getAttribute("staffPage") != null ? session.getAttribute("staffPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("staffTotalPages") != null ? session.getAttribute("staffTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("staffPageSize") != null ? session.getAttribute("staffPageSize") : 5);
+            model.addAttribute("totalStaffs", staffsService.numberOfStaffs());
+            return "StaffsList";
         }
     }
 

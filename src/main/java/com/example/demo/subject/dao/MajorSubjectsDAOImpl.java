@@ -52,16 +52,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     @Override
     public void addSubject(MajorSubjects subject) {
-        if (subject == null) {
-            throw new IllegalArgumentException("Subject object cannot be null");
-        }
-        if (staffsService.getStaff() == null || staffsService.getStaffMajor() == null) {
-            throw new IllegalArgumentException("Staff or major not found");
-        }
-        List<String> errors = validateSubject(subject);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
-        }
         subject.setCreator(staffsService.getStaff());
         subject.setMajor(staffsService.getStaffMajor());
         entityManager.persist(subject);
