@@ -172,26 +172,53 @@ public class StudentDAOImpl implements StudentsDAO {
         return errors;
     }
 
+    /**
+     * Validate email theo chuẩn RFC 5322 (gọn gàng, thực tế).
+     * - Cho phép tên miền có dấu gạch ngang.
+     * - Cho phép TLD >= 2 ký tự.
+     * - Không chấp nhận ký tự đặc biệt lạ.
+     */
     private boolean isValidEmail(String email) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-        return email != null && email.matches(emailRegex);
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+        String emailRegex =
+                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
     }
 
+    /**
+     * Validate số điện thoại quốc tế.
+     * - Cho phép bắt đầu bằng +.
+     * - Độ dài 8–15 số (theo chuẩn E.164).
+     * - Không chứa khoảng trắng, dấu - hoặc ký hiệu khác.
+     */
     private boolean isValidPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            return true;
+            return true; // cho phép bỏ trống
         }
-        String phoneRegex = "^\\+?[0-9]{10,15}$";
+        String phoneRegex = "^\\+?[1-9][0-9]{7,14}$";
         return phoneNumber.matches(phoneRegex);
     }
 
+    /**
+     * Validate tên quốc tế thông minh.
+     * - Hỗ trợ Unicode: tiếng Việt, Nhật, Ả Rập, Nga, Hy Lạp, …
+     * - Cho phép khoảng trắng phân tách nhiều từ.
+     * - Cho phép dấu gạch nối (-), nháy (’ '), chấm (.)
+     * - Không cho phép số, emoji, ký tự lạ.
+     * - Độ dài 2–100 ký tự.
+     */
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}][\\p{L} .'-]{1,49}$";
+        if (name == null) return false;
+        name = name.trim();
+        if (name.isEmpty()) return false;
+
+        String nameRegex =
+                "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
         return name.matches(nameRegex);
     }
+
 
     @Override
     public Students getStudent() {
