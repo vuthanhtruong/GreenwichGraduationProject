@@ -176,7 +176,7 @@ public class ClassesDAOImpl implements ClassesDAO {
 
         if (classObj.getNameClass() != null && getClassByName(classObj.getNameClass()) != null &&
                 (excludeId == null || !getClassByName(classObj.getNameClass()).getClassId().equals(excludeId))) {
-            errors.add("Class name is already in use.");
+            errors.add("Class Name is already in use.");
         }
 
         return errors;

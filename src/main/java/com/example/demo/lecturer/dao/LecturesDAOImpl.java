@@ -140,36 +140,38 @@ public class LecturesDAOImpl implements LecturesDAO {
     @Override
     public List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
         List<String> errors = new ArrayList<>();
-        if (!isValidName(lecturer.getFirstName())) {
+
+        // Validate first name
+        if (lecturer.getFirstName() == null || !isValidName(lecturer.getFirstName())) {
             errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
-        if (!isValidName(lecturer.getLastName())) {
+
+        // Validate last name
+        if (lecturer.getLastName() == null || !isValidName(lecturer.getLastName())) {
             errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
+
+        // Validate email format
         if (lecturer.getEmail() != null && !isValidEmail(lecturer.getEmail())) {
             errors.add("Invalid email format.");
         }
+
+        // Validate phone number format
         if (lecturer.getPhoneNumber() != null && !isValidPhoneNumber(lecturer.getPhoneNumber())) {
-            errors.add("Invalid phone number format.");
+            errors.add("Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
         }
+
+        // Validate birth date
         if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
             errors.add("Date of birth must be in the past.");
         }
-        // Check for duplicate email, handle null ID for new lecturers
-        if (lecturer.getEmail() != null) {
-            if (lecturer.getId() == null) {
-                if (personsService.existsByEmail(lecturer.getEmail())) {
-                    errors.add("The email address is already associated with another account.");
-                }
-            } else {
-                if (personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
-                    errors.add("The email address is already associated with another account.");
-                }
-            }
+
+        // Gender required (để thống nhất với Student)
+        if (lecturer.getGender() == null) {
+            errors.add("Gender is required to assign a default avatar.");
         }
-        if (lecturer.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), lecturer.getId())) {
-            errors.add("The phone number is already associated with another account.");
-        }
+
+        // Validate avatar
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
@@ -179,8 +181,29 @@ public class LecturesDAOImpl implements LecturesDAO {
                 errors.add("Avatar file size must not exceed 5MB.");
             }
         }
+
+        // Duplicate email check (handle null ID for new lecturers)
+        if (lecturer.getEmail() != null) {
+            if (lecturer.getId() != null) {
+                if (personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
+                    errors.add("The email address is already associated with another account.");
+                }
+            } else {
+                if (personsService.existsByEmail(lecturer.getEmail())) {
+                    errors.add("The email address is already associated with another account.");
+                }
+            }
+        }
+
+        // Duplicate phone number check
+        if (lecturer.getPhoneNumber() != null &&
+                personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), lecturer.getId() != null ? lecturer.getId() : "")) {
+            errors.add("The phone number is already associated with another account.");
+        }
+
         return errors;
     }
+
 
     private boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";

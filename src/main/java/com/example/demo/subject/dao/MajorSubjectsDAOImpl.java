@@ -177,7 +177,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             errors.add("Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
         if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
-            errors.add("Subject name is already in use.");
+            errors.add("Subject Name is already in use.");
         }
         if (subject.getSemester() == null || subject.getSemester() < 1) {
             errors.add("Semester must be a positive number.");

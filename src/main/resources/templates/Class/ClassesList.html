@@ -147,42 +147,69 @@
            th:classappend="${currentPageClasses == totalPagesClasses} ? 'disabled'" class="page-btn">Last</a>
     </div>
 
-    <!-- Overlay Add Class -->
     <div id="addClassOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-plus-circle"></i> Add New Class</h2>
-            <form method="post" th:action="@{/staff-home/classes-list/add-class}" th:object="${newClass}" enctype="multipart/form-data">
+            <form method="post" th:action="@{/staff-home/classes-list/add-class}"
+                  th:object="${newClass}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-info-circle"></i> Class Information</h2>
                     <div class="form-group grid-2">
+
+                        <!-- Class Name -->
                         <div class="form-row">
                             <label for="nameClass"><i class="fas fa-chalkboard"></i> Class Name:</label>
                             <input id="nameClass" th:field="*{nameClass}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('nameClass') or error.contains('Class Name')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('class name')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
+                        <!-- Total Slots -->
                         <div class="form-row">
                             <label for="slotQuantity"><i class="fas fa-chair"></i> Total Slots:</label>
-                            <input id="slotQuantity" th:field="*{slotQuantity}" required type="number" min="1" class="input short-input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('slotQuantity') or error.contains('Total Slots')}" th:text="${error}"></div>
+                            <input id="slotQuantity" th:field="*{slotQuantity}" required type="number" min="1"
+                                   class="input short-input">
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('total slots')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
+                        <!-- Subject -->
                         <div class="form-row">
                             <label for="subjectId"><i class="fas fa-book"></i> Subject:</label>
                             <select id="subjectId" name="subjectId" class="input" required>
                                 <option value="">Select subject</option>
-                                <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}" th:selected="${newClass.subject != null and newClass.subject.subjectId == subject.subjectId}"></option>
+                                <option th:each="subject : ${subjects}" th:value="${subject.subjectId}"
+                                        th:text="${subject.subjectName}"
+                                        th:selected="${newClass.subject != null and newClass.subject.subjectId == subject.subjectId}">
+                                </option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('subjectId') or error.contains('Subject')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('subject')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
                     </div>
                 </section>
+
                 <div class="form-actions">
-                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save</button>
-                    <button type="button" class="btn danger" onclick="closeAddClassOverlay()"><i class="fas fa-times"></i> Cancel</button>
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button type="button" class="btn danger" onclick="closeAddClassOverlay()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
 </div>
 
 <script>

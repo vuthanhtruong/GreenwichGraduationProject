@@ -132,36 +132,63 @@
             <h2><i class="fas fa-plus"></i> Add New Subject</h2>
             <form method="post" th:action="@{/staff-home/major-subjects-list/add-subject}" th:object="${newSubject}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-info-circle"></i> Subject Information</h2>
                     <div class="form-group grid-3">
+
+                        <!-- Subject Name -->
                         <div class="form-row">
                             <label for="subjectName"><i class="fas fa-book"></i> Subject Name:</label>
                             <input id="subjectName" class="input" th:field="*{subjectName}" required type="text">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('subjectName') or error.contains('Subject Name')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('subject name')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
+                        <!-- Semester -->
                         <div class="form-row">
                             <label for="semester"><i class="fas fa-calendar"></i> Semester:</label>
                             <input id="semester" class="input" type="number" th:field="*{semester}" min="1" required>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('semester') or error.contains('Semester')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('semester')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
+                        <!-- Program Type -->
                         <div class="form-row">
                             <label for="learningProgramType"><i class="fas fa-graduation-cap"></i> Program Type:</label>
                             <select id="learningProgramType" class="input" th:field="*{learningProgramType}" required>
                                 <option value="">Select Program</option>
-                                <option th:each="type : ${learningProgramTypes}" th:value="${type}" th:text="${type}" th:selected="${newSubject.learningProgramType == type}"></option>
+                                <option th:each="type : ${learningProgramTypes}"
+                                        th:value="${type}"
+                                        th:text="${type}"
+                                        th:selected="${newSubject.learningProgramType == type}">
+                                </option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('learningProgramType') or error.contains('Program Type')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('program type')}"
+                                 th:text="${error}">
+                            </div>
                         </div>
+
                     </div>
                 </section>
+
                 <div class="form-actions">
-                    <button class="btn primary" type="submit"><i class="fas fa-save"></i> Save Subject</button>
-                    <button type="button" class="btn danger" onclick="closeOverlay()"><i class="fas fa-times"></i> Cancel</button>
+                    <button class="btn primary" type="submit">
+                        <i class="fas fa-save"></i> Save Subject
+                    </button>
+                    <button type="button" class="btn danger" onclick="closeOverlay()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
 </div>
 
 <script>
