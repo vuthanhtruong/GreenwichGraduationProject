@@ -43,6 +43,7 @@ public class AddMajorSubjectController {
         List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject));
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("errors", errors);
             model.addAttribute("newSubject", newSubject);
             model.addAttribute("subjects", subjectsService.getPaginatedSubjects(0, (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 5, staffsService.getStaffMajor()));

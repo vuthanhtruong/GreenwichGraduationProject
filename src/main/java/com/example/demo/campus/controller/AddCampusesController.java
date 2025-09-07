@@ -51,6 +51,7 @@ public class AddCampusesController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("campus", campus);
             model.addAttribute("errors", errors);
             model.addAttribute("campuses", campusesService.getCampuses());

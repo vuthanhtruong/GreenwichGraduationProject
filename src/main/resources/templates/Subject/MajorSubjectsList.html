@@ -199,5 +199,10 @@
         document.getElementById('addOverlay').classList.remove('active');
     }
 </script>
+<script th:if="${openAddOverlay}">
+    document.addEventListener("DOMContentLoaded", function () {
+        openOverlay();
+    });
+</script>
 </body>
 </html>

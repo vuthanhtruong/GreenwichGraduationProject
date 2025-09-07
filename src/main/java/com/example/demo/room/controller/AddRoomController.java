@@ -98,6 +98,7 @@ public class AddRoomController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("onlineRoom", onlineRoom); // Preserve form data
             return "redirect:/staff-home/rooms-list";

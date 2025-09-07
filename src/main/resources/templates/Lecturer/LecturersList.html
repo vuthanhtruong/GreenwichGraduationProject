@@ -215,16 +215,6 @@
                                  class="text-danger" th:text="${error}">
                             </div>
                         </div>
-                        <!-- Avatar -->
-                        <div class="form-row">
-                            <label for="avatar"><i class="fas fa-image"></i> Avatar:</label>
-                            <input id="avatar" name="avatarFile" type="file" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('avatar')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
-                        </div>
-
                     </div>
                 </section>
                 <!-- Address -->
@@ -279,6 +269,11 @@
     function closeOverlay() {
         document.getElementById('addOverlay').classList.remove('active');
     }
+</script>
+<script th:if="${openAddOverlay}">
+    document.addEventListener("DOMContentLoaded", function () {
+        openOverlay();
+    });
 </script>
 </body>
 </html>

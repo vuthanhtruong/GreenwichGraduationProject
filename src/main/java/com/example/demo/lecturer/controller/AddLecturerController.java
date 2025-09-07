@@ -46,6 +46,7 @@ public class AddLecturerController {
         errors.addAll(lecturesService.lectureValidation(lecturer, avatarFile));
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
             model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));

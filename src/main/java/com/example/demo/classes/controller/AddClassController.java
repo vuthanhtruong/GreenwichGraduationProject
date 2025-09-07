@@ -50,6 +50,7 @@ public class AddClassController {
         errors.addAll(classesService.validateClass(newClass, newClass.getClassId()));
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));

@@ -77,6 +77,7 @@ public class AddStudentController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("parentEmail1", parentEmail1);
