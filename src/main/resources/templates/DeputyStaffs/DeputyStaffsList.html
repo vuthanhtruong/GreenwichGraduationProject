@@ -181,6 +181,20 @@
                         </div>
                     </div>
                 </section>
+                <!-- Campus and Avatar -->
+                <section class="win11-panel">
+                    <h2 class="panel-header"><i class="fas fa-university"></i> Campus</h2>
+                    <div class="form-group grid-2">
+                        <div class="form-row">
+                            <label for="campus"><i class="fas fa-university"></i> Campus:</label>
+                            <select id="campus" name="campusId" class="input" required>
+                                <option value="">Select Campus</option>
+                                <option th:each="campus : ${campuses}" th:value="${campus.getCampusId()}" th:text="${campus.campusName}"></option>
+                            </select>
+                            <div th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('campus')}" class="text-danger" th:text="${error}"></div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Address Information -->
                 <section class="win11-panel">
@@ -216,22 +230,6 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- Campus and Avatar -->
-                <section class="win11-panel">
-                    <h2 class="panel-header"><i class="fas fa-university"></i> Campus & Avatar</h2>
-                    <div class="form-group grid-2">
-                        <div class="form-row">
-                            <label for="campus"><i class="fas fa-university"></i> Campus:</label>
-                            <select id="campus" name="campusId" class="input" required>
-                                <option value="">Select Campus</option>
-                                <option th:each="campus : ${campuses}" th:value="${campus.getCampusId()}" th:text="${campus.campusName}"></option>
-                            </select>
-                            <div th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('campus')}" class="text-danger" th:text="${error}"></div>
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Deputy Staff</button>
