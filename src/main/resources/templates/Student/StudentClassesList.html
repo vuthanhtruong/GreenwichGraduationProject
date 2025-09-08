@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Classes List — Win11</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand:#2563eb; --bg:#f3f3f3; --card:#ffffff;
+            --text:#1a1a1a; --muted:#6b7280;
+            --radius:14px; --shadow:0 3px 8px rgba(0,0,0,.08);
+        }
+        body {
+            margin:0; font-family:'Segoe UI Variable','Segoe UI',sans-serif;
+            background:var(--bg); color:var(--text);
+        }
+        .container { max-width:1100px; margin:auto; padding:32px 20px; }
+
+        /* Title bar */
+        .title-bar {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:24px;
+        }
+        h1 {
+            font-size:28px; font-weight:700; margin:0;
+            display:flex; align-items:center; gap:10px; color:var(--text);
+        }
+        .btn {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:10px 18px; border-radius:10px;
+            background:#fff; border:1px solid #ddd;
+            cursor:pointer; transition:.15s;
+            text-decoration:none; color:var(--text); font-size:15px;
+        }
+        .btn:hover { background:#f0f6ff; border-color:var(--brand); color:var(--brand) }
+
+        /* Table */
+        .table-container {
+            background:var(--card); border-radius:var(--radius);
+            box-shadow:var(--shadow); overflow:hidden;
+        }
+        table { width:100%; border-collapse:collapse }
+        thead { background:#f9fafb }
+        th, td { padding:14px 18px; font-size:15px; text-align:left; }
+        th {
+            font-weight:600; color:var(--muted); font-size:14px;
+            text-transform:uppercase; letter-spacing:.5px;
+            border-bottom:1px solid #eee;
+        }
+        tbody tr { border-bottom:1px solid #eee }
+        tbody tr:hover { background:#f0f6ff }
+        td { color:var(--text) }
+        td.muted { color:var(--muted) }
+        .empty {
+            text-align:center; padding:20px; font-size:15px; color:var(--muted);
+        }
+        /* Hàng có link */
+        .row-link {
+            position: relative;
+            cursor: pointer;
+        }
+        .row-link:hover { background:#f0f6ff; }
+
+        /* Cột phụ chứa link overlay */
+        .overlay-cell {
+            position: absolute; inset:0; padding:0; margin:0; border:none;
+        }
+
+        /* Link phủ cả hàng */
+        .overlay-link {
+            position: absolute; inset:0;
+            display:block; z-index:1;
+            text-indent:-9999px; /* ẩn text */
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Title bar -->
+    <div class="title-bar">
+        <a th:href="@{/student-home}" class="btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <h1><i class="fas fa-chalkboard"></i> My Classes</h1>
+
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th><i class="fas fa-chalkboard-teacher"></i> Class Name</th>
+                <th><i class="fas fa-calendar-alt"></i> Session</th>
+                <th><i class="fas fa-chair"></i> Slot Quantity</th>
+                <th><i class="fas fa-clock"></i> Created At</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="clazz : ${classes}" class="row-link">
+                <td th:text="${clazz.nameClass}"></td>
+                <td class="muted" th:text="${clazz.session}"></td>
+                <td class="muted" th:text="${clazz.slotQuantity}"></td>
+                <td class="muted" th:text="${clazz.createdAt}"></td>
+                <!-- Link invisible phủ cả hàng -->
+                <td class="overlay-cell">
+                    <a th:href="@{/student-home/classroom/{id}(id=${clazz.classId})}" class="overlay-link"></a>
+                </td>
+            </tr>
+            <tr th:if="${classes.isEmpty()}">
+                <td colspan="5" class="empty">No classes found.</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

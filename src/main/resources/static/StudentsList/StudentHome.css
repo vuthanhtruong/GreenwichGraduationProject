@@ -1,0 +1,53 @@
+:root{
+    --brand:#2563eb; --brand-2:#1e40af;
+    --bg:#f3f3f3; --card:#ffffff; --text:#1a1a1a; --muted:#6b7280;
+    --radius:14px; --shadow:0 3px 8px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI Variable','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+.win11-container{max-width:1400px;margin:auto;padding:24px}
+
+/* Banner */
+.win11-title-bar{
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    color:#fff;border-radius:var(--radius);
+    padding:28px 32px; box-shadow:0 3px 10px rgba(0,0,0,.12);
+    display:flex;align-items:flex-end;justify-content:space-between;min-height:140px
+}
+.title-text{margin:0;font-size:34px;font-weight:700;display:flex;gap:12px;align-items:center}
+.subtitle{margin:10px 0 0;font-size:18px;color:#e5edff}
+.banner-actions{display:flex;gap:12px}
+.banner-actions form{margin:0}
+
+/* Buttons */
+.btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 18px;border-radius:10px;background:#fff;border:1px solid #ddd;
+    cursor:pointer;transition:.15s;text-decoration:none;color:var(--text);min-height:40px;font-size:15px
+}
+.btn:hover{background:#f0f6ff;border-color:var(--brand);color:var(--brand)}
+.btn.danger{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+.btn.danger:hover{background:#fee2e2}
+
+/* Grid tiles */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px
+}
+.tile{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:28px; text-decoration:none; color:var(--text);
+    display:flex;gap:20px;align-items:center;
+    transition:.15s; border:1px solid #eee;
+}
+.tile:hover{transform:translateY(-2px);border-color:#dbeafe;box-shadow:0 6px 14px rgba(37,99,235,.18)}
+.tile .icon{
+    width:56px;height:56px;border-radius:14px;display:grid;place-items:center;
+    background:#eef2ff;color:var(--brand);font-size:24px;flex:0 0 auto
+}
+.tile .meta{display:flex;flex-direction:column}
+.tile .meta strong{font-size:20px}
+.tile .meta small{color:var(--muted);margin-top:4px;font-size:15px}
+
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}

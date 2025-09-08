@@ -7,7 +7,7 @@ import com.example.demo.lecturer_class.model.MajorLecturers_MajorClasses;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.lecturer_class.service.Lecturers_ClassesService;
 import com.example.demo.student.model.Students;
-import com.example.demo.entity.Students_MajorClasses;
+import com.example.demo.student_class.model.Students_MajorClasses;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.student_class.service.Students_ClassesService;
 import org.springframework.beans.factory.annotation.Autowired;

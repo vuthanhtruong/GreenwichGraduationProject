@@ -1,5 +1,6 @@
 package com.example.demo.student_class.dao;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.Grades;
@@ -9,6 +10,7 @@ import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.student.model.Students;
+import com.example.demo.student_class.model.Students_MajorClasses;
 import com.example.demo.subject.model.MajorSubjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,6 +25,17 @@ import java.util.List;
 @Repository
 @Transactional
 public class Students_ClassesDAOImpl implements Students_ClassesDAO {
+    @Override
+    public List<Classes> studentClassesList(Students student) {
+        if (student == null || student.getId() == null) {
+            throw new IllegalArgumentException("Student or student ID cannot be null");
+        }
+        return entityManager.createQuery(
+                        "SELECT sc.classEntity FROM Students_Classes sc WHERE sc.student.id = :studentId",
+                        Classes.class)
+                .setParameter("studentId", student.getId())
+                .getResultList();
+    }
 
     @PersistenceContext
     private EntityManager entityManager;

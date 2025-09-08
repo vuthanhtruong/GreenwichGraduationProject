@@ -1,8 +1,9 @@
 package com.example.demo.student_class.dao;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.student.model.Students;
-import com.example.demo.entity.Students_MajorClasses;
+import com.example.demo.student_class.model.Students_MajorClasses;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface Students_ClassesDAO {
     List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes);
     List<Students> listStudentsCompletedPreviousSemesterWithInsufficientBalance(MajorClasses classes);
     void addStudentsToClass(MajorClasses classes, List<String> studentIds);
+    List<Classes>  studentClassesList(Students student);
 }

@@ -1,8 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.student_class.model;
 
-import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.entity.AbstractClasses.Students_Classes;
-import com.example.demo.staff.model.Staffs;
+import com.example.demo.classes.model.MinorClasses;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,30 +12,30 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Students_MajorClasses")
+@Table(name = "Students_MinorClasses")
 @Getter
 @Setter
 @PrimaryKeyJoinColumns({
         @PrimaryKeyJoinColumn(name = "StudentID", referencedColumnName = "StudentID"),
         @PrimaryKeyJoinColumn(name = "ClassID",   referencedColumnName = "ClassID")
 })
-public class Students_MajorClasses extends Students_Classes {
+public class Students_MinorClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses majorClass;
+    private MinorClasses minorClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    private Staffs addedBy;
+    private DeputyStaffs addedBy;
 
-    public Students_MajorClasses() {}
+    public Students_MinorClasses() {}
 
-    public Students_MajorClasses(Students student, MajorClasses majorClass, LocalDateTime createdAt, Staffs addedBy) {
-        super(student, majorClass, createdAt);
-        this.majorClass = majorClass;
+    public Students_MinorClasses(Students student, MinorClasses minorClass, LocalDateTime createdAt, DeputyStaffs addedBy) {
+        super(student, minorClass, createdAt);
+        this.minorClass = minorClass;
         this.addedBy = addedBy;
     }
 }

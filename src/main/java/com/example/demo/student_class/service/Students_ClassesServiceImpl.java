@@ -1,9 +1,10 @@
 package com.example.demo.student_class.service;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.student_class.dao.Students_ClassesDAO;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.student.model.Students;
-import com.example.demo.entity.Students_MajorClasses;
+import com.example.demo.student_class.model.Students_MajorClasses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,11 @@ import java.util.List;
 
 @Service
 public class Students_ClassesServiceImpl implements Students_ClassesService {
+    @Override
+    public List<Classes> studentClassesList(Students student) {
+        return studentsClassesDAO.studentClassesList(student);
+    }
+
     @Override
     public List<Students> listStudentsCompletedPreviousSemesterWithSufficientBalance(MajorClasses classes) {
         return studentsClassesDAO.listStudentsCompletedPreviousSemesterWithSufficientBalance(classes);
