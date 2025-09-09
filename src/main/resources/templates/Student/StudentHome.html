@@ -1,11 +1,59 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Student Home</title>
-    <link rel="stylesheet" th:href="@{/StudentHome.css}" />
+    <title>Student Home — Win11</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root{
+            --brand:#2563eb; --brand-2:#1e40af;
+            --bg:#f3f3f3; --card:#ffffff; --text:#1a1a1a; --muted:#6b7280;
+            --radius:14px; --shadow:0 3px 8px rgba(0,0,0,.08);
+        }
+        *{box-sizing:border-box}
+        body{margin:0;font-family:'Segoe UI Variable','Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+        .win11-container{max-width:1400px;margin:auto;padding:24px}
+
+        /* Banner */
+        .win11-title-bar{
+            background:linear-gradient(135deg,var(--brand),var(--brand-2));
+            color:#fff;border-radius:var(--radius);
+            padding:28px 32px; box-shadow:0 3px 10px rgba(0,0,0,.12);
+            display:flex;align-items:flex-end;justify-content:space-between;min-height:140px
+        }
+        .title-text{margin:0;font-size:34px;font-weight:700;display:flex;gap:12px;align-items:center}
+        .subtitle{margin:10px 0 0;font-size:18px;color:#e5edff}
+        .banner-actions{display:flex;gap:12px}
+        .banner-actions form{margin:0}
+
+        /* Buttons */
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:10px 18px;border-radius:10px;background:#fff;border:1px solid #ddd;
+            cursor:pointer;transition:.15s;text-decoration:none;color:var(--text);min-height:40px;font-size:15px
+        }
+        .btn:hover{background:#f0f6ff;border-color:var(--brand);color:var(--brand)}
+        .btn.danger{background:#fef2f2;border-color:#fca5a5;color:#dc2626}
+        .btn.danger:hover{background:#fee2e2}
+
+        /* Tiles */
+        .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+        .tile{
+            background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+            padding:28px; text-decoration:none; color:var(--text);
+            display:flex;gap:20px;align-items:center; border:1px solid #eee; transition:.15s;
+        }
+        .tile:hover{transform:translateY(-2px);border-color:#dbeafe;box-shadow:0 6px 14px rgba(37,99,235,.18)}
+        .tile .icon{
+            width:56px;height:56px;border-radius:14px;display:grid;place-items:center;
+            background:#eef2ff;color:var(--brand);font-size:24px;flex:0 0 auto
+        }
+        .tile .meta{display:flex;flex-direction:column}
+        .tile .meta strong{font-size:20px}
+        .tile .meta small{color:var(--muted);margin-top:4px;font-size:15px}
+    </style>
 </head>
 <body>
 <div class="win11-container">
@@ -37,35 +85,39 @@
         <div class="grid">
             <a class="tile" th:href="@{/student-home/student-classes-list}">
                 <span class="icon"><i class="fas fa-chalkboard"></i></span>
-                <span class="meta"><strong>Classes List</strong><small>Danh sách lớp</small></span>
+                <span class="meta"><strong>Classes List</strong><small>Your enrolled classes</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/timetable}">
                 <span class="icon"><i class="fas fa-calendar-alt"></i></span>
-                <span class="meta"><strong>Timetable</strong><small>Lịch học</small></span>
+                <span class="meta"><strong>Timetable</strong><small>Weekly schedule</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/blogs}">
                 <span class="icon"><i class="fas fa-blog"></i></span>
-                <span class="meta"><strong>Blog</strong><small>Bài viết</small></span>
+                <span class="meta"><strong>Blog</strong><small>Posts & updates</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/messages}">
                 <span class="icon"><i class="fas fa-envelope"></i></span>
-                <span class="meta"><strong>Messages</strong><small>Tin nhắn</small></span>
+                <span class="meta"><strong>Messages</strong><small>Chats & emails</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/student-subject-roadmap}">
-                <span class="icon"><i class="fas fa-newspaper"></i></span>
-                <span class="meta"><strong>News</strong><small>Tin tức học vụ</small></span>
+                <span class="icon"><i class="fas fa-route"></i></span>
+                <span class="meta"><strong>Roadmap</strong><small>Study plan & subjects</small></span>
+            </a>
+            <a class="tile" th:href="@{/student-home/learning-process}">
+                <span class="icon"><i class="fas fa-tasks"></i></span>
+                <span class="meta"><strong>Learning Process</strong><small>Progress & milestones</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/personal}">
                 <span class="icon"><i class="fas fa-user"></i></span>
-                <span class="meta"><strong>Personal</strong><small>Hồ sơ</small></span>
+                <span class="meta"><strong>Personal</strong><small>Profile & settings</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/transcript}">
                 <span class="icon"><i class="fas fa-file-alt"></i></span>
-                <span class="meta"><strong>Transcript</strong><small>Bảng điểm</small></span>
+                <span class="meta"><strong>Transcript</strong><small>Grades & results</small></span>
             </a>
             <a class="tile" th:href="@{/student-home/attendance}">
                 <span class="icon"><i class="fas fa-check-circle"></i></span>
-                <span class="meta"><strong>Attendance</strong><small>Điểm danh</small></span>
+                <span class="meta"><strong>Attendance</strong><small>Attendance record</small></span>
             </a>
         </div>
     </section>
@@ -73,4 +125,3 @@
 </div>
 </body>
 </html>
-`

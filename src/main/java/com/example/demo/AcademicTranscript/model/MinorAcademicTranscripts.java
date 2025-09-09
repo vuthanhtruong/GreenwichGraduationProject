@@ -1,11 +1,10 @@
-package com.example.demo.entity;
+package com.example.demo.AcademicTranscript.model;
 
-import com.example.demo.entity.AbstractClasses.AcademicTranscripts;
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.staff.model.Staffs;
+import com.example.demo.lecturer.model.MinorLecturers;
 import com.example.demo.student.model.Students;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.subject.model.MinorSubjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,29 +14,29 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@DiscriminatorValue("MAJOR")
+@DiscriminatorValue("MINOR")
 @Getter
 @Setter
-public class MajorAcademicTranscripts extends AcademicTranscripts {
+public class MinorAcademicTranscripts extends AcademicTranscripts {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SubjectID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorSubjects subject;
+    private MinorSubjects subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Marker", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorLecturers marker;
+    private MinorLecturers marker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Staffs creator;
+    private DeputyStaffs creator;
 
-    public MajorAcademicTranscripts() {}
+    public MinorAcademicTranscripts() {}
 
-    public MajorAcademicTranscripts(String transcriptId, Students student, MajorSubjects subject, Grades grade, LocalDateTime createdAt, Staffs creator) {
+    public MinorAcademicTranscripts(String transcriptId, Students student, MinorSubjects subject, Grades grade, LocalDateTime createdAt, DeputyStaffs creator) {
         super(transcriptId, student, grade, createdAt);
         this.subject = subject;
         if (creator == null) {

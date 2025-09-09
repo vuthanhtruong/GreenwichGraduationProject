@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning Process</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-graduation-cap"></i> Learning Process</h1>
+    <div class="win11-panel">
+        <h3 class="panel-header"><i class="fas fa-user"></i> Student Information</h3>
+        <div class="form-group">
+            <div class="form-row">
+                <label>Name:</label>
+                <span th:text="${student != null ? student.name : 'N/A'}">Student Name</span>
+            </div>
+            <div class="form-row">
+                <label>Email:</label>
+                <span th:text="${student != null ? student.email : 'N/A'}">student@example.com</span>
+            </div>
+        </div>
+    </div>
+    <div class="win11-panel">
+        <h3 class="panel-header"><i class="fas fa-graduation-cap"></i> Major Transcripts</h3>
+        <div th:if="${studentMajorLearningProcess != null && #lists.size(studentMajorLearningProcess) > 0}" class="form-group">
+            <table class="transcript-table">
+                <thead>
+                <tr>
+                    <th>Transcript ID</th>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                    <th>Score</th>
+                    <th>Notification</th>
+                    <th>Marker</th>
+                    <th>Creator</th>
+                    <th>Session</th>
+                    <th>Created At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${studentMajorLearningProcess}">
+                    <td th:text="${transcript.transcriptId}">ID</td>
+                    <td th:text="${transcript.subject != null ? transcript.subject.name : 'N/A'}">Subject Name</td>
+                    <td th:text="${transcript.grade != null ? transcript.grade : 'N/A'}">Grade</td>
+                    <td th:text="${transcript.score != null ? transcript.score : 'N/A'}">Score</td>
+                    <td th:text="${transcript.notification != null ? transcript.notification : 'N/A'}">Notification</td>
+                    <td th:text="${transcript.marker != null ? transcript.marker.getFullName() : 'N/A'}">Marker Name</td>
+                    <td th:text="${transcript.creator != null ? transcript.creator.getFullName() : 'N/A'}">Creator Name</td>
+                    <td th:text="${transcript.subject != null ? transcript.getCla : 'N/A'}">Creator Name</td>
+                    <td th:text="${#temporals.format(transcript.createdAt, 'yyyy-MM-dd HH:mm:ss')}">Created At</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${studentMajorLearningProcess != null && #lists.size(studentMajorLearningProcess) > 0}" class="text-muted">
+            No major transcripts available.
+        </div>
+    </div>
+    <div class="win11-panel">
+        <h3 class="panel-header"><i class="fas fa-graduation-cap"></i> Minor Transcripts</h3>
+        <div th:if="${studentMinorLearningProcess != null && #lists.size(studentMinorLearningProcess) > 0}" class="form-group">
+            <table class="transcript-table">
+                <thead>
+                <tr>
+                    <th>Transcript ID</th>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                    <th>Score</th>
+                    <th>Notification</th>
+                    <th>Marker</th>
+                    <th>Creator</th>
+                    <th>Created At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${studentMinorLearningProcess}">
+                    <td th:text="${transcript.transcriptId}">ID</td>
+                    <td th:text="${transcript.subject != null ? transcript.subject.name : 'N/A'}">Subject Name</td>
+                    <td th:text="${transcript.grade != null ? transcript.grade : 'N/A'}">Grade</td>
+                    <td th:text="${transcript.score != null ? transcript.score : 'N/A'}">Score</td>
+                    <td th:text="${transcript.notification != null ? transcript.notification : 'N/A'}">Notification</td>
+                    <td th:text="${transcript.marker != null ? transcript.marker.name : 'N/A'}">Marker Name</td>
+                    <td th:text="${transcript.creator != null ? transcript.creator.name : 'N/A'}">Creator Name</td>
+                    <td th:text="${#temporals.format(transcript.createdAt, 'yyyy-MM-dd HH:mm:ss')}">Created At</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${studentMinorLearningProcess != null && #lists.size(studentMinorLearningProcess) > 0}" class="text-muted">
+            No minor transcripts available.
+        </div>
+    </div>
+    <div class="form-actions">
+        <a th:href="@{/student-home}" class="btn">Back to Dashboard</a>
+    </div>
+</div>
+</body>
+</html>

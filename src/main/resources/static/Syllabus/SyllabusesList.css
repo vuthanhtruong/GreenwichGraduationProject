@@ -96,7 +96,7 @@ body {
 }
 
 /* Total Students / Subjects */
-.total-students {
+.total {
     font-size: 15px;
     font-weight: 500;
     display: flex;

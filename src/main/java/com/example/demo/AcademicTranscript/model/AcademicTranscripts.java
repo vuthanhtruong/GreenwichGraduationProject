@@ -1,4 +1,4 @@
-package com.example.demo.entity.AbstractClasses;
+package com.example.demo.AcademicTranscript.model;
 
 import com.example.demo.entity.Enums.Grades;
 import com.example.demo.entity.Enums.Notifications;
