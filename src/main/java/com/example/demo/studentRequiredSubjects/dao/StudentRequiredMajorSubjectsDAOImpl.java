@@ -9,6 +9,7 @@ import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.entity.Enums.UpgradeStatus;
 import com.example.demo.entity.UpgradeStudents;
 import com.example.demo.staff.service.StaffsService;
+import com.example.demo.subject.model.MinorSubjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,25 @@ import java.util.List;
 @Repository
 @Transactional
 public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajorSubjectsDAO {
+    @Override
+    public List<MajorSubjects> studentMajorRoadmap(Students student) {
+        return entityManager.createQuery(
+                        "SELECT s.majorSubject FROM StudentRequiredMajorSubjects s WHERE s.student = :student",
+                        MajorSubjects.class
+                )
+                .setParameter("student", student)
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorSubjects> studentMinorRoadmap(Students student) {
+        return entityManager.createQuery(
+                        "SELECT s.minorSubject FROM StudentRequiredMinorSubjects s WHERE s.student = :student",
+                        MinorSubjects.class
+                )
+                .setParameter("student", student)
+                .getResultList();
+    }
 
     @PersistenceContext
     private EntityManager entityManager;

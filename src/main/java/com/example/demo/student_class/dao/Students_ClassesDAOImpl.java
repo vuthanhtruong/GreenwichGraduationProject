@@ -2,7 +2,6 @@ package com.example.demo.student_class.dao;
 
 import com.example.demo.classes.model.Classes;
 import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.entity.*;
 import com.example.demo.entity.Enums.Grades;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.major.model.Majors;
@@ -10,6 +9,7 @@ import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.student.model.Students;
+import com.example.demo.student_class.model.StudentsClassesId;
 import com.example.demo.student_class.model.Students_MajorClasses;
 import com.example.demo.subject.model.MajorSubjects;
 import jakarta.persistence.EntityManager;
