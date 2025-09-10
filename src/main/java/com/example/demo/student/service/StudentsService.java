@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface StudentsService {
+    Students findById(String studentId);
     List<Students> getStudents();
     Students addStudents(Students students, String randomPassword);
     long numberOfStudents();

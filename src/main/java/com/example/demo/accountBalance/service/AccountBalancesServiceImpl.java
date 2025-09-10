@@ -6,6 +6,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AccountBalancesServiceImpl implements AccountBalancesService {
+    @Override
+    public void save(AccountBalances accountBalances) {
+        accountBalancesDAO.save(accountBalances);
+    }
+
+    @Override
+    public AccountBalances findByStudentId(String studentId) {
+        return accountBalancesDAO.findByStudentId(studentId);
+    }
+
     private final AccountBalancesDAO accountBalancesDAO;
 
     public AccountBalancesServiceImpl(AccountBalancesDAO accountBalancesDAO) {

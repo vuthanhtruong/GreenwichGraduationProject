@@ -34,6 +34,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
     @Override
+    public Students findById(String studentId) {
+        return entityManager.find(Students.class, studentId);
+    }
+
+    @Override
     public long totalStudentsByCampus(String campusId) {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");

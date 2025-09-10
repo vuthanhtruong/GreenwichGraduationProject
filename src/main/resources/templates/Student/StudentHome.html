@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Student Home — Win11</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_LIVE_PAYPAL_CLIENT_ID&currency=USD"></script>
     <style>
         :root{
             --brand:#2563eb; --brand-2:#1e40af;
@@ -53,6 +54,21 @@
         .tile .meta{display:flex;flex-direction:column}
         .tile .meta strong{font-size:20px}
         .tile .meta small{color:var(--muted);margin-top:4px;font-size:15px}
+
+        /* Deposit Modal */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background-color: var(--card); border-radius: var(--radius); padding: 24px; width: 400px;
+            box-shadow: var(--shadow); text-align: center;
+        }
+        .modal-content h2 { margin-top: 0; }
+        .modal-content input {
+            width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .modal-content .btn { margin: 10px; }
     </style>
 </head>
 <body>
@@ -118,6 +134,10 @@
             <a class="tile" th:href="@{/student-home/attendance}">
                 <span class="icon"><i class="fas fa-check-circle"></i></span>
                 <span class="meta"><strong>Attendance</strong><small>Attendance record</small></span>
+            </a>
+            <a class="tile" href="#" onclick="openDepositModal()">
+                <span class="icon"><i class="fas fa-wallet"></i></span>
+                <span class="meta"><strong>Deposit</strong><small>Add funds to your account</small></span>
             </a>
         </div>
     </section>
