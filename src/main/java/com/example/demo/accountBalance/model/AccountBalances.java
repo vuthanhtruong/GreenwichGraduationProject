@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 public class AccountBalances {
 
     @Id
-    @Column(name = "StudentID")
+    @Column(name = "StudentID", unique = true, nullable = false)
     private String studentId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @MapsId
     @JoinColumn(name = "StudentID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

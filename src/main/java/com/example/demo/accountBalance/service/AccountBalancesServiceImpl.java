@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountBalancesServiceImpl implements AccountBalancesService {
     @Override
-    public void save(AccountBalances accountBalances) {
-        accountBalancesDAO.save(accountBalances);
+    public void DepositMoneyIntoAccount(AccountBalances accountBalances) {
+        accountBalancesDAO.DepositMoneyIntoAccount(accountBalances);
     }
 
     @Override

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Transactional
 public class AccountBalancesDAOImpl implements AccountBalancesDAO {
     @Override
-    public void save(AccountBalances accountBalances) {
+    public void DepositMoneyIntoAccount(AccountBalances accountBalances) {
         entityManager.persist(accountBalances);
     }
 

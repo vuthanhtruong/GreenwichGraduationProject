@@ -6,10 +6,9 @@ import com.example.demo.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "DepositHistory")
@@ -19,17 +18,15 @@ public class DepositHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "DepositHistoryID")
-    private String depositHistoryId;
+    @Column(name = "DepositHistoryID", updatable = false, nullable = false)
+    private UUID depositHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "StudentID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountBalanceID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private AccountBalances accountBalance;
 
     @Column(name = "Amount", nullable = false)
@@ -41,26 +38,14 @@ public class DepositHistory {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "Status", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
+    @Column(name = "Status", nullable = false, length = 50)
     private Status status;
 
-    @Column(name = "Description", nullable = true, length = 1000)
+    @Column(name = "Description", length = 1000)
     private String description;
 
-    // Constructors
-    public DepositHistory() {}
-
-    public DepositHistory(String depositHistoryId, Students student, AccountBalances accountBalance,
-                          Double amount, LocalDateTime depositTime, LocalDateTime createdAt,
-                          Status status, String description) {
-        this.depositHistoryId = depositHistoryId;
-        this.student = student;
-        this.accountBalance = accountBalance;
-        this.amount = amount;
-        this.depositTime = depositTime;
-        this.createdAt = createdAt;
-        this.status = status;
-        this.description = description;
-    }
+    @Version
+    @Column(name = "version")
+    private Long version;
 }
