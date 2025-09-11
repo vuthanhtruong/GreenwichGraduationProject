@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table(name = "DepositHistory")
 @Getter
 @Setter
-public class DepositHistory {
+public class DepositHistories {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

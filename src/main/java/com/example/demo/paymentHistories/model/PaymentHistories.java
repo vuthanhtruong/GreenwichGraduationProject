@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.paymentHistories.model;
 
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.subject.model.Subjects;

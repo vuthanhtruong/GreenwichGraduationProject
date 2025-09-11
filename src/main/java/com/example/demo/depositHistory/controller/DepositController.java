@@ -2,8 +2,8 @@ package com.example.demo.depositHistory.controller;
 
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.accountBalance.service.AccountBalancesService;
-import com.example.demo.depositHistory.model.DepositHistory;
-import com.example.demo.depositHistory.service.DepositHistoryService;
+import com.example.demo.depositHistory.model.DepositHistories;
+import com.example.demo.depositHistory.service.DepositHistoriesService;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.student.model.Students;
 import com.example.demo.student.service.StudentsService;
@@ -23,7 +23,7 @@ public class DepositController {
 
     private final StudentsService studentService;
     private final AccountBalancesService accountBalancesService;
-    private final DepositHistoryService depositHistoryService;
+    private final DepositHistoriesService depositHistoryService;
 
     @Value("${stripe.successUrl}")
     private String successUrl;
@@ -33,7 +33,7 @@ public class DepositController {
 
     public DepositController(StudentsService studentService,
                              AccountBalancesService accountBalancesService,
-                             DepositHistoryService depositHistoryService) {
+                             DepositHistoriesService depositHistoryService) {
         this.studentService = studentService;
         this.accountBalancesService = accountBalancesService;
         this.depositHistoryService = depositHistoryService;
@@ -92,7 +92,7 @@ public class DepositController {
             accountBalancesService.createAccountBalances(account);
         }
 
-        DepositHistory deposit = new DepositHistory();
+        DepositHistories deposit = new DepositHistories();
         deposit.setStudent(student);
         deposit.setAccountBalance(account);
         deposit.setAmount(amount);
@@ -123,7 +123,7 @@ public class DepositController {
             account.setLastUpdated(LocalDateTime.now());
             accountBalancesService.DepositMoneyIntoAccount(account);
 
-            DepositHistory deposit = depositHistoryService.findByStudentIdAndStatus(studentId, Status.PROCESSING);
+            DepositHistories deposit = depositHistoryService.findByStudentIdAndStatus(studentId, Status.PROCESSING);
             if (deposit != null) {
                 deposit.setStatus(Status.COMPLETED);
                 deposit.setDescription("Stripe deposit completed for student " + studentId);
@@ -141,8 +141,6 @@ public class DepositController {
     // Hủy thanh toán
     @GetMapping("/cancel")
     public String depositCancel(@RequestParam("studentId") String studentId, Model model) {
-        model.addAttribute("message", "Deposit cancelled.");
-        model.addAttribute("studentId", studentId);
-        return "deposit-cancel";
+        return "redirect:/student-home";
     }
 }

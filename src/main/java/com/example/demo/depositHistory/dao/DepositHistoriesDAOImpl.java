@@ -1,7 +1,6 @@
 package com.example.demo.depositHistory.dao;
 
-import com.example.demo.accountBalance.model.AccountBalances;
-import com.example.demo.depositHistory.model.DepositHistory;
+import com.example.demo.depositHistory.model.DepositHistories;
 import com.example.demo.entity.Enums.Status;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,16 +12,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-public class DepositHistoryDAOImpl implements DepositHistoryDAO {
+public class DepositHistoriesDAOImpl implements DepositHistoriesDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public DepositHistory findByStudentIdAndStatus(String studentId, Status status) {
+    public DepositHistories findByStudentIdAndStatus(String studentId, Status status) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<DepositHistory> query = cb.createQuery(DepositHistory.class);
-        Root<DepositHistory> root = query.from(DepositHistory.class);
+        CriteriaQuery<DepositHistories> query = cb.createQuery(DepositHistories.class);
+        Root<DepositHistories> root = query.from(DepositHistories.class);
 
         query.select(root).where(
                 cb.and(
@@ -40,12 +39,12 @@ public class DepositHistoryDAOImpl implements DepositHistoryDAO {
     }
 
     @Override
-    public void save(DepositHistory depositHistory) {
+    public void save(DepositHistories depositHistory) {
         entityManager.merge(depositHistory); // merge thay cho persist
     }
 
     @Override
-    public void createDepositHistory(DepositHistory depositHistory) {
+    public void createDepositHistory(DepositHistories depositHistory) {
         entityManager.merge(depositHistory); // luôn dùng merge để tránh detached
     }
 }
