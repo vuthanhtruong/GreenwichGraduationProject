@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.depositHistory.controller;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -48,11 +48,11 @@ public class PaymentController {
 
     @GetMapping("/payment/success")
     public String success() {
-        return "payment-success"; // template hiển thị kết quả
+        return "DepositSuccess"; // template hiển thị kết quả
     }
 
     @GetMapping("/payment/cancel")
     public String cancel() {
-        return "payment-cancel";
+        return "PaymentCancel";
     }
 }

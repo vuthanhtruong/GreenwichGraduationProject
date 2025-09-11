@@ -24,7 +24,8 @@
         </div>
         <div class="banner-actions">
             <a class="btn" th:href="@{/student-home/deposit}">
-                <i class="fas fa-wallet"></i> Deposit
+                <i class="fas fa-wallet"></i>
+                Deposit (<span th:text="${#numbers.formatDecimal(accountBalancesService.getBalance(), 1, 'COMMA', 2, 'POINT')}"></span> USD)
             </a>
             <a class="btn" th:href="@{/personal-page}">
                 <i class="fas fa-user-circle"></i> Personal Page

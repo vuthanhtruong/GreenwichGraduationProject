@@ -3,24 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>Deposit - Student Home</title>
-    <link rel="stylesheet" th:href="@{/StudentHome.css}" />
+    <link rel="stylesheet" th:href="@{/Deposit.css}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
+    <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-wallet"></i> Deposit</h1>
-        <p>Welcome, <span th:text="${student.lastName} + ' ' + ${student.firstName}"></span></p>
+        <div class="title-left">
+            <h1><i class="fas fa-wallet"></i> Deposit</h1>
+            <p>Welcome, <span th:text="${student.lastName} + ' ' + ${student.firstName}"></span></p>
+        </div>
+        <div class="title-actions">
+            <a th:href="@{/student-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
     </header>
 
+    <!-- Deposit Form -->
     <section class="card" style="margin-top:20px;">
-        <h2>Deposit Money</h2>
-        <form th:action="@{/student-home/deposit/create}" method="post">
+        <h2><i class="fas fa-money-bill-wave"></i> Deposit Money</h2>
+        <form th:action="@{/student-home/deposit/create}" method="post" class="deposit-form">
             <input type="hidden" name="studentId" th:value="${student.id}" />
-            <label for="amount">Amount (USD):</label>
-            <input type="number" id="amount" name="amount" min="1" required />
-            <button type="submit">Deposit with PayPal</button>
+
+            <!-- Custom amount -->
+            <div class="form-row-inline">
+                <label for="amount"><i class="fas fa-keyboard"></i> Enter amount (USD):</label>
+                <input type="number" id="amount" name="amount" min="1" required class="input short"/>
+            </div>
+
+            <div class="divider"><span>or quick select</span></div>
+
+            <!-- Quick select amounts -->
+            <div class="quick-amounts">
+                <button type="button" class="amount-btn" data-value="5">$5</button>
+                <button type="button" class="amount-btn" data-value="10">$10</button>
+                <button type="button" class="amount-btn" data-value="20">$20</button>
+                <button type="button" class="amount-btn" data-value="50">$50</button>
+                <button type="button" class="amount-btn" data-value="100">$100</button>
+                <button type="button" class="amount-btn" data-value="200">$200</button>
+                <button type="button" class="amount-btn" data-value="500">$500</button>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn primary compact">
+                    <i class="fas fa-credit-card"></i> Deposit
+                </button>
+            </div>
         </form>
     </section>
 </div>
+
+<script>
+    // Chọn số tiền nhanh
+    const amountInput = document.getElementById("amount");
+    document.querySelectorAll(".amount-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            // Gán giá trị vào input
+            amountInput.value = btn.dataset.value;
+
+            // Bỏ active ở nút khác
+            document.querySelectorAll(".amount-btn").forEach(b => b.classList.remove("active"));
+            // Active nút hiện tại
+            btn.classList.add("active");
+        });
+    });
+</script>
 </body>
 </html>
