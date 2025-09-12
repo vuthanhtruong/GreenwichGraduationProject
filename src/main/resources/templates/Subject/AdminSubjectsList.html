@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Subjects</title>
-    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
 </head>
 <body>
 <div class="win11-container">
@@ -28,7 +29,7 @@
     <div class="search-toolbar">
         <!-- Left -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home}" class="btn">
+            <a th:href="@{/admin-home}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Home
             </a>
         </div>
@@ -36,7 +37,7 @@
         <!-- Center: Admission Year -->
         <form method="post" th:action="@{/admin-home/subjects-list}" class="toolbar-center">
             <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
-            <select id="admissionYear" name="admissionYear" class="input" onchange="this.form.submit()">
+            <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
                 <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
                 <option th:each="year : ${admissionYears}"
                         th:value="${year}"
@@ -47,20 +48,22 @@
 
         <!-- Right (Total) -->
         <div class="toolbar-right">
-            <div class="total-students">
+            <div class="total">
                 <i class="fas fa-list"></i>
                 <p><strong>Total Subjects:</strong> <span th:text="${allSubjects.size()}"></span></p>
             </div>
         </div>
     </div>
 
-    <!-- Subjects Table -->
-    <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-list"></i> Subjects for <span th:text="${selectedYear}"></span></h2>
-        <form th:action="@{/admin-home/update-tuition}" method="post">
-            <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+    <!-- Form containing both tables -->
+    <form th:action="@{/admin-home/update-tuition}" method="post">
+        <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+
+        <!-- Subjects with Tuition Fees Table -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-coins"></i> Subjects with Tuition Fees for <span th:text="${selectedYear}"></span></h2>
             <div class="table-container">
-                <table class="win11-table">
+                <table class="win11-table table table-bordered table-striped">
                     <thead>
                     <tr>
                         <th><i class="fas fa-id-card"></i> ID</th>
@@ -73,7 +76,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="subject : ${allSubjects}">
+                    <tr th:each="subject : ${allSubjects}"
+                        th:if="${tuitionFeeMap[subject.subjectId] != null}">
                         <td th:text="${subject.subjectId}"></td>
                         <td th:text="${subject.subjectName}"></td>
                         <td th:text="${subject.semester ?: 'N/A'}"></td>
@@ -81,26 +85,64 @@
                         <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? (${subject.major != null} ? ${subject.major.majorName} : 'N/A') : 'N/A'"></td>
                         <td th:text="${subject.acceptor?.fullName ?: 'N/A'}"></td>
                         <td>
-                            <input type="number" class="input small"
+                            <input type="number" class="form-control input small"
                                    th:name="'tuitionFee_' + ${subject.subjectId}"
                                    th:value="${tuitionFeeMap[subject.subjectId]}"
                                    placeholder="Enter fee" min="0" step="0.01">
                         </td>
+
                     </tr>
-                    <tr th:if="${allSubjects.size() == 0}">
-                        <td colspan="7" class="text-center">No Subjects available</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="form-actions">
-                <button type="submit" class="btn primary">
-                    <i class="fas fa-save"></i> Save Tuition Fees
-                </button>
+        </section>
+
+        <!-- Subjects without Tuition Fees Table -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-list"></i> Subjects without Tuition Fees for <span th:text="${selectedYear}"></span></h2>
+            <div class="table-container">
+                <table class="win11-table table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-id-card"></i> ID</th>
+                        <th><i class="fas fa-book"></i> Name</th>
+                        <th><i class="fas fa-calendar"></i> Semester</th>
+                        <th><i class="fas fa-graduation-cap"></i> Type</th>
+                        <th><i class="fas fa-university"></i> Major</th>
+                        <th><i class="fas fa-user-shield"></i> Acceptor</th>
+                        <th><i class="fas fa-coins"></i> Tuition Fee</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="subject : ${allSubjects}"
+                        th:if="${tuitionFeeMap[subject.subjectId] == null}">
+                        <td th:text="${subject.subjectId}"></td>
+                        <td th:text="${subject.subjectName}"></td>
+                        <td th:text="${subject.semester ?: 'N/A'}"></td>
+                        <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? 'Major' : 'Minor'"></td>
+                        <td th:text="${subject instanceof T(com.example.demo.subject.model.MajorSubjects)} ? (${subject.major != null} ? ${subject.major.majorName} : 'N/A') : 'N/A'"></td>
+                        <td th:text="${subject.acceptor?.fullName ?: 'N/A'}"></td>
+                        <td>
+                            <input type="number" class="form-control input small"
+                                   th:name="'tuitionFee_' + ${subject.subjectId}"
+                                   placeholder="Enter fee" min="0" step="0.01">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-        </form>
-    </section>
+        </section>
+
+        <div class="form-actions">
+            <button type="submit" class="btn primary">
+                <i class="fas fa-save"></i> Save Tuition Fees
+            </button>
+        </div>
+    </form>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

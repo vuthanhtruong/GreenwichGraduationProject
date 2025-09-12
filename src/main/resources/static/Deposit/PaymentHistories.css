@@ -1,0 +1,155 @@
+/* ===== Base ===== */
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef2f7, #f9fafc);
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1.6;
+}
+
+.win11-container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 24px;
+}
+
+/* ===== Title Bar ===== */
+.win11-title-bar {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.win11-title-bar h1 {
+    font-size: 26px;
+    margin: 0;
+    color: #2563eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.subtitle {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #4b5563;
+}
+
+/* ===== Card ===== */
+.win11-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* ===== Table ===== */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.win11-table thead {
+    background: #2563eb;
+    color: #fff;
+}
+
+.win11-table th,
+.win11-table td {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.win11-table th {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.win11-table tbody tr:hover {
+    background: #f0f5ff;
+    transition: background 0.3s ease;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* ===== Status Badges ===== */
+.status {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.status.success {
+    background: linear-gradient(135deg, #16a34a, #065f46);
+}
+
+.status.warning {
+    background: linear-gradient(135deg, #d97706, #92400e);
+}
+
+.status.danger {
+    background: linear-gradient(135deg, #dc2626, #7f1d1d);
+}
+
+/* ===== Actions ===== */
+.actions {
+    margin-top: 16px;
+    text-align: right;
+}
+
+.btn {
+    background: #f9fafc;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.btn:hover {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+    transform: translateY(-2px);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .win11-title-bar h1 {
+        font-size: 22px;
+    }
+    .win11-table th,
+    .win11-table td {
+        font-size: 13px;
+        padding: 10px;
+    }
+}

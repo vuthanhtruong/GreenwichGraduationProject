@@ -15,6 +15,6 @@ public class PaymentHistoriesDAOImpl implements PaymentHistoriesDAO {
 
     @Override
     public List<PaymentHistories> getStudentHistoriesPaymentDAO(Students student) {
-        return entityManager.createQuery("from DepositHistories d where d.student=:student", PaymentHistories.class).setParameter("student", student).getResultList();
+        return entityManager.createQuery("from PaymentHistories d where d.student=:student", PaymentHistories.class).setParameter("student", student).getResultList();
     }
 }

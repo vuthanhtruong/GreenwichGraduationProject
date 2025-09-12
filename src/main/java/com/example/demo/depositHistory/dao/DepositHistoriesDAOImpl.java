@@ -2,6 +2,7 @@ package com.example.demo.depositHistory.dao;
 
 import com.example.demo.depositHistory.model.DepositHistories;
 import com.example.demo.entity.Enums.Status;
+import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -10,9 +11,15 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @Transactional
 public class DepositHistoriesDAOImpl implements DepositHistoriesDAO {
+    @Override
+    public List<DepositHistories> getStudentDepositHistories(Students student) {
+        return entityManager.createQuery("from DepositHistories d where d.student=:student", DepositHistories.class).setParameter("student", student).getResultList();
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
