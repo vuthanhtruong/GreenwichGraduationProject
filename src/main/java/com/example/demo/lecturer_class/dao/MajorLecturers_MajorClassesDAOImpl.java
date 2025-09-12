@@ -2,7 +2,7 @@ package com.example.demo.lecturer_class.dao;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.entity.LecturersClassesId; // Corrected from MajorLecturersClassesId
+import com.example.demo.lecturer_class.model.LecturersClassesId; // Corrected from MajorLecturersClassesId
 import com.example.demo.lecturer_class.model.MajorLecturers_MajorClasses;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.person.service.PersonsService;

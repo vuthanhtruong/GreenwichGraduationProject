@@ -2,7 +2,6 @@ package com.example.demo.lecturer_class.model;
 
 import com.example.demo.classes.model.Classes;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.entity.LecturersClassesId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

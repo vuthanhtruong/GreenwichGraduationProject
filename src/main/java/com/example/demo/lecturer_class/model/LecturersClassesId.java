@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.lecturer_class.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
