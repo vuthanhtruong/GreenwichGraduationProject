@@ -121,6 +121,12 @@ body {
     transform: scale(1.2);
 }
 
+.dashboard-card.scholarship {
+    background: linear-gradient(135deg, #9333ea, #6b21a8); /* tím nổi bật */
+    color: #fff;
+}
+
+
 /* Color Variants */
 .dashboard-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); }
 .dashboard-card.secondary { background: linear-gradient(135deg, #6b7280, #374151); }
