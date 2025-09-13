@@ -17,13 +17,11 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home/lecturers-list")
 public class ListLecturersController {
-    private final StaffsService staffsService;
-    private final StudentsService studentsService;
+
     private final LecturesService lecturesService;
 
-    public ListLecturersController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
-        this.staffsService = staffsService;
-        this.studentsService = studentsService;
+    public ListLecturersController(StaffsService staffsService, LecturesService lecturesService) {
+
         this.lecturesService = lecturesService;
     }
 

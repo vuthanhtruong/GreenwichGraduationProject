@@ -1,9 +1,6 @@
 package com.example.demo.scholarship.model;
 
 import com.example.demo.admin.model.Admins;
-import com.example.demo.entity.Enums.Status;
-import com.example.demo.student.model.Students;
-import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,35 +17,29 @@ import java.time.LocalDateTime;
 public class Scholarships {
 
     @Id
-    @Column(name = "ScholarshipID", nullable = false)
+    @Column(name = "ScholarshipID", nullable = true)
     private String scholarshipId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StudentID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Students student;
-
-    @Column(name = "TypeName", nullable = false, length = 255)
+    @Column(name = "TypeName", nullable = true, length = 255)
     private String typeName;
 
-    @Column(name = "AwardDate", nullable = false)
+    @Column(name = "AwardDate", nullable = true)
     private LocalDate awardDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Creator", nullable = false)
+    @JoinColumn(name = "Creator", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
-    @Column(name = "CreatedAt", nullable = false)
+    @Column(name = "CreatedAt", nullable = true)
     private LocalDateTime createdAt;
 
     public Scholarships() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Scholarships(String scholarshipId, Students student, String typeName, Double amount, LocalDate awardDate, Admins creator, LocalDateTime createdAt) {
+    public Scholarships(String scholarshipId, String typeName, Double amount, LocalDate awardDate, Admins creator, LocalDateTime createdAt) {
         this.scholarshipId = scholarshipId;
-        this.student = student;
         this.typeName = typeName;
         this.awardDate = awardDate;
         this.creator = creator;

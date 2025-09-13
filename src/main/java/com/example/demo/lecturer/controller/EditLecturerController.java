@@ -26,14 +26,10 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/staff-home/lecturers-list")
 public class EditLecturerController {
-    private final StaffsService staffsService;
-    private final StudentsService studentsService;
     private final LecturesService lecturesService;
     private final PersonsService personsService;
 
-    public EditLecturerController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
-        this.staffsService = staffsService;
-        this.studentsService = studentsService;
+    public EditLecturerController(LecturesService lecturesService,  PersonsService personsService) {
         this.lecturesService = lecturesService;
         this.personsService = personsService;
     }

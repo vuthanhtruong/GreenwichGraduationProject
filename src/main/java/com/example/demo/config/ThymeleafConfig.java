@@ -204,5 +204,15 @@ public class ThymeleafConfig {
         resolver.setCheckExistence(true);
         return resolver;
     }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver20() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/Scholarship/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(19);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
 
 }

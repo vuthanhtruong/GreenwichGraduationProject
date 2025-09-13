@@ -10,7 +10,7 @@ import java.util.Objects;
 @Embeddable
 @Getter
 @Setter
-class ScholarshipByYearId implements Serializable {
+public class ScholarshipByYearId implements Serializable {
 
     @Column(name = "ScholarshipID", nullable = false)
     private String scholarshipId;
