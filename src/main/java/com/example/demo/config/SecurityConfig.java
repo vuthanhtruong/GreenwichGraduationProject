@@ -12,6 +12,8 @@ import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -35,6 +37,8 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     private final CustomUserDetailsService userDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -74,13 +78,16 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOAuth2UserService))
                         .successHandler(oauth2SuccessHandler())
-                        .failureHandler((req, res, ex) -> res.sendRedirect("/login?error"))
+                        .failureHandler((req, res, ex) -> {
+                            logger.error("OAuth2 authentication failed", ex);
+                            res.sendRedirect("/login?error=oauth2_failed");
+                        })
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .addLogoutHandler((request, response, authentication) -> {
                             try {
                                 PersistentTokenRepository tokenRepository = persistentTokenRepository();
@@ -88,8 +95,7 @@ public class SecurityConfig {
                                     tokenRepository.removeUserTokens(authentication.getName());
                                 }
                             } catch (Exception e) {
-                                // Log the error but don't fail the logout process
-                                System.err.println("Error during remember-me token cleanup: " + e.getMessage());
+                                logger.error("Error during remember-me token cleanup", e);
                             }
                         })
                         .permitAll()
@@ -119,31 +125,43 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler oauth2SuccessHandler() {
         return (request, response, authentication) -> {
-            String email = extractEmailFromOAuth2Principal(authentication.getPrincipal());
-            if (email == null) {
-                response.sendRedirect("/login?error=no_email");
-                return;
-            }
+            try {
+                String email = extractEmailFromOAuth2Principal(authentication.getPrincipal());
+                if (email == null) {
+                    logger.warn("OAuth2 authentication succeeded but no email found");
+                    response.sendRedirect("/login?error=no_email");
+                    return;
+                }
 
-            Persons person = findActivePersonByEmail(email);
-            String role = determineRole(person);
-            var authorities = List.of(new SimpleGrantedAuthority(role));
-            var principal = new CustomUserPrincipal(
-                    email,
-                    "N/A",
-                    authorities,
-                    person
-            );
+                Persons person = findActivePersonByEmail(email);
+                if (person == null) {
+                    logger.warn("OAuth2 user {} not found in database", email);
+                    response.sendRedirect("/login?error=user_not_found");
+                    return;
+                }
 
-            var newAuth = new UsernamePasswordAuthenticationToken(principal, "N/A", authorities);
-            newAuth.setDetails(authentication.getDetails());
-            SecurityContextHolder.getContext().setAuthentication(newAuth);
+                String role = determineRole(person);
+                var authorities = List.of(new SimpleGrantedAuthority(role));
+                var principal = new CustomUserPrincipal(
+                        email,
+                        "{noop}OAUTH2_USER", // Safe placeholder for OAuth2 users
+                        authorities,
+                        person
+                );
 
-            String redirectUrl = getRedirectUrlByRole(authorities);
-            if (redirectUrl != null) {
-                response.sendRedirect(redirectUrl);
-            } else {
-                response.sendRedirect("/login?error=no_role");
+                var newAuth = new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                newAuth.setDetails(authentication.getDetails());
+                SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+                String redirectUrl = getRedirectUrlByRole(authorities);
+                if (redirectUrl != null) {
+                    response.sendRedirect(redirectUrl);
+                } else {
+                    response.sendRedirect("/login?error=no_role");
+                }
+            } catch (Exception e) {
+                logger.error("Error during OAuth2 success handling", e);
+                response.sendRedirect("/login?error=oauth2_processing");
             }
         };
     }
@@ -205,7 +223,7 @@ public class SecurityConfig {
                     "token VARCHAR(64) NOT NULL, " +
                     "last_used TIMESTAMP NOT NULL)");
         } catch (Exception e) {
-            System.err.println("Failed to create persistent_logins table: " + e.getMessage());
+            logger.error("Failed to create persistent_logins table", e);
         }
         return tokenRepository;
     }

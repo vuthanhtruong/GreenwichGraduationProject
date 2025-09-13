@@ -56,11 +56,20 @@ public class CustomUserDetailsService implements UserDetailsService {
             var authorities = List.of(new SimpleGrantedAuthority(role));
             String effectiveUsername = person.getEmail() != null ? person.getEmail() : person.getId();
 
+            // Handle empty or null passwords
+            String password = auth.getPassword();
+            if (password == null || password.trim().isEmpty()) {
+                // For OAuth2 users or accounts without passwords, use a placeholder
+                // This should never be used for actual authentication
+                password = "{noop}OAUTH2_USER_NO_PASSWORD";
+                logger.debug("User {} has no password set, using OAuth2 placeholder", username);
+            }
+
             logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - start);
 
             return new CustomUserPrincipal(
                     effectiveUsername,
-                    auth.getPassword(),
+                    password,
                     authorities,
                     person
             );
