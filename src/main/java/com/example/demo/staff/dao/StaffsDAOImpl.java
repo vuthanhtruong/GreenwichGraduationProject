@@ -98,16 +98,15 @@ public class StaffsDAOImpl implements StaffsDAO {
 
     @Override
     public Staffs getStaff() {
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
-                throw new IllegalStateException("No authenticated principal");
-            }
-            return (Staffs) principal.getPerson();
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving current staff: " + e.getMessage(), e);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            throw new IllegalStateException("No authenticated principal");
         }
+        String staffId = principal.getPerson().getId();
+        return entityManager.find(Staffs.class, staffId);
     }
+
+
 
     @Override
     public Majors getStaffMajor() {

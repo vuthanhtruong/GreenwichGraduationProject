@@ -4,7 +4,9 @@ package com.example.demo.TuitionByYear.controller;
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.model.TuitionByYearId;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
+import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.subject.service.SubjectsService;
@@ -54,8 +56,8 @@ public class UpdateTuitionController {
             session.setAttribute("admissionYear", admissionYear);
 
             // Lấy admin và campus
-            var admin = adminsService.getAdmin();
-            var adminCampus = adminsService.getAdminCampus();
+            Admins admin = adminsService.getAdmin();
+            Campuses adminCampus = adminsService.getAdminCampus();
 
             List<Subjects> allSubjects = subjectService.getSubjects();
 
@@ -81,11 +83,14 @@ public class UpdateTuitionController {
                             existing.setTuition(tuition);
                             existing.setCreator(admin);
                             existing.setCampus(adminCampus);
+                            existing.setSubject(subject);
                             tuitionService.updateTuition(existing);
                         } else {
-                            TuitionByYear tuitionByYear = new TuitionByYear(
-                                    subject, admissionYear, adminCampus, tuition, admin
-                            );
+                            TuitionByYear tuitionByYear = new TuitionByYear();
+                            tuitionByYear.setTuition(tuition);
+                            tuitionByYear.setCreator(admin);
+                            tuitionByYear.setCampus(adminCampus);
+                            tuitionByYear.setSubject(subject);
                             tuitionService.createTuition(tuitionByYear);
                         }
                     } catch (NumberFormatException e) {

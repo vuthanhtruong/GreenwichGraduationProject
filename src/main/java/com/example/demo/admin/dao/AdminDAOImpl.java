@@ -56,8 +56,10 @@ public class AdminDAOImpl implements AdminsDAO {
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
             throw new IllegalStateException("No authenticated principal");
         }
-        return (Admins) principal.getPerson();
+        String adminId = principal.getPerson().getId();
+        return entityManager.find(Admins.class, adminId); // luôn trả về managed entity
     }
+
 
     @Override
     public List<Admins> getAdmins() {

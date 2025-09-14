@@ -6,6 +6,7 @@ import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
+import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
@@ -227,13 +228,12 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public Students getStudent() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.email = :username OR s.id = :username",
-                        Students.class)
-                .setParameter("username", authentication.getName())
-                .setMaxResults(1)
-                .getSingleResult();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
+            throw new IllegalStateException("No authenticated principal");
+        }
+        String studentId = principal.getPerson().getId();
+        return entityManager.find(Students.class, studentId);
     }
 
     @Override

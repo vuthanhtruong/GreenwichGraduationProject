@@ -35,17 +35,13 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
     @Override
     public void updateTuition(TuitionByYear tuition) {
-        tuition.setSubject(entityManager.getReference(Subjects.class, tuition.getSubject().getSubjectId()));
-        tuition.setCampus(entityManager.getReference(Campuses.class, tuition.getCampus().getCampusId()));
-        tuition.setCreator(entityManager.getReference(Admins.class, tuition.getCreator().getId()));
+
         entityManager.merge(tuition);
     }
 
     @Override
     public void createTuition(TuitionByYear tuition) {
-        tuition.setSubject(entityManager.getReference(Subjects.class, tuition.getSubject().getSubjectId()));
-        tuition.setCampus(entityManager.getReference(Campuses.class, tuition.getCampus().getCampusId()));
-        tuition.setCreator(entityManager.getReference(Admins.class, tuition.getCreator().getId()));
+
         entityManager.persist(tuition);
     }
 
