@@ -1,7 +1,7 @@
 package com.example.demo.TuitionByYear.dao;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
-import com.example.demo.entity.TuitionByYearId;
+import com.example.demo.TuitionByYear.model.TuitionByYearId;
 
 import java.util.List;
 

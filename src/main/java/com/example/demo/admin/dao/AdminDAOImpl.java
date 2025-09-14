@@ -1,6 +1,7 @@
 package com.example.demo.admin.dao;
 
 import com.example.demo.admin.model.Admins;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.security.model.CustomUserPrincipal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -16,6 +17,10 @@ import java.util.List;
 @Repository
 @Transactional
 public class AdminDAOImpl implements AdminsDAO {
+    @Override
+    public Campuses getAdminCampus() {
+        return getAdmin().getCampus();
+    }
 
     @PersistenceContext
     private EntityManager entityManager;

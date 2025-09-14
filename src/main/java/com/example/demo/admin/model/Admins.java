@@ -1,9 +1,12 @@
 package com.example.demo.admin.model;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "Admins")
@@ -11,6 +14,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Admins extends Persons {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CampusID", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Campuses campus;
 
     @Lob
     @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
