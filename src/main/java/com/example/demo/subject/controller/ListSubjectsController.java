@@ -45,46 +45,45 @@ public class ListSubjectsController {
         return listSubjects(model, admissionYear, session);
     }
 
-    // Xử lý form POST khi chọn admissionYear
     @PostMapping("/subjects-list")
-    public String listSubjects(Model model, @RequestParam(value = "admissionYear", required = false) Integer admissionYear, HttpSession session) {
+    public String listSubjects(Model model,
+                               @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
+                               HttpSession session) {
         // Lưu admissionYear vào session
         if (admissionYear != null) {
             session.setAttribute("admissionYear", admissionYear);
         }
+
         // Lấy danh sách tất cả admission years duy nhất từ TuitionByYear
         List<Integer> admissionYearsFromTuition = tuitionService.getAllAdmissionYears();
-        // Thêm năm hiện tại và 5 năm tương lai (từ năm hiện tại đến +5)
+
+        // Thêm năm hiện tại và 5 năm tương lai
         int currentYear = LocalDate.now().getYear();
         List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
                 .boxed()
                 .filter(year -> !admissionYearsFromTuition.contains(year))
-                .collect(Collectors.toList());
+                .toList();
         admissionYearsFromTuition.addAll(futureYears);
+
         // Sắp xếp lại danh sách theo thứ tự giảm dần
         List<Integer> admissionYears = admissionYearsFromTuition.stream()
                 .sorted(Comparator.reverseOrder())
-                .collect(Collectors.toList());
+                .toList();
+
         // Nếu không có admissionYear được chọn, mặc định là năm hiện tại
         Integer selectedYear = admissionYear != null ? admissionYear : currentYear;
-        // Lấy tất cả môn học và sắp xếp theo semester, rồi subjectId
-        List<Subjects> allSubjects = subjectService.getSubjects();
-        // Lấy danh sách TuitionByYear cho admissionYear được chọn
-        List<TuitionByYear> tuitionByYears = tuitionService.getTuitionsByYear(selectedYear);
-        // Tạo map để tra cứu tuitionFee theo subjectId
-        Map<String, Double> tuitionFeeMap = tuitionByYears.stream()
-                .collect(Collectors.toMap(
-                        t -> t.getId().getSubjectId(),
-                        TuitionByYear::getTuition,
-                        (existing, replacement) -> existing // Giữ giá trị đầu tiên nếu có trùng lặp
-                ));
 
-        // Thêm dữ liệu vào model
-        model.addAttribute("allSubjects", allSubjects);
+        // Gọi 2 hàm mới để lấy danh sách tách biệt
+        List<TuitionByYear> tuitionWithFee = tuitionService.getTuitionsWithFeeByYear(selectedYear);
+        List<TuitionByYear> tuitionWithoutFee = tuitionService.getTuitionsWithoutFeeByYear(selectedYear);
+
+        // Đưa vào model
         model.addAttribute("admissionYears", admissionYears);
         model.addAttribute("selectedYear", selectedYear);
-        model.addAttribute("tuitionFeeMap", tuitionFeeMap);
+        model.addAttribute("tuitionWithFee", tuitionWithFee);
+        model.addAttribute("tuitionWithoutFee", tuitionWithoutFee);
 
         return "AdminSubjectsList";
     }
+
 }

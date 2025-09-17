@@ -17,6 +17,7 @@ import java.util.List;
 @Repository
 @Transactional
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
+
     private final AdminsService adminsService;
     private final SubjectsService subjectsService;
 
@@ -35,20 +36,24 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
     @Override
     public void updateTuition(TuitionByYear tuition) {
-
+        if(tuition.getCreator()==null) {
+            tuition.setCreator(adminsService.getAdmin());
+        }
         entityManager.merge(tuition);
     }
 
     @Override
     public void createTuition(TuitionByYear tuition) {
-
+        if(tuition.getCreator()==null) {
+            tuition.setCreator(adminsService.getAdmin());
+        }
         entityManager.persist(tuition);
     }
 
 
 
     @Override
-    public List<TuitionByYear> getTuitionsByYear(Integer admissionYear) {
+    public List<TuitionByYear> getTuitionsWithFeeByYear(Integer admissionYear) {
         if (admissionYear == null) {
             throw new IllegalArgumentException("Admission year cannot be null");
         }
@@ -56,14 +61,40 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
         if (adminCampus == null) {
             throw new IllegalStateException("Admin's campus not found.");
         }
+
         return entityManager.createQuery(
-                        "SELECT t FROM TuitionByYear t JOIN FETCH t.subject JOIN FETCH t.campus JOIN FETCH t.creator " +
-                                "WHERE t.id.admissionYear = :admissionYear AND t.id.campusId = :campusId",
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.id.admissionYear = :admissionYear " +
+                                "AND t.campus = :campus " +
+                                "AND t.tuition IS NOT NULL " +
+                                "AND t.tuition > 0",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
-                .setParameter("campusId", adminCampus.getCampusId())
+                .setParameter("campus", adminCampus)
                 .getResultList();
     }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutFeeByYear(Integer admissionYear) {
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        Campuses adminCampus = adminsService.getAdminCampus();
+        if (adminCampus == null) {
+            throw new IllegalStateException("Admin's campus not found.");
+        }
+
+        return entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.id.admissionYear = :admissionYear " +
+                                "AND ((t.tuition IS NULL OR t.tuition <= 0)"+
+                                "Or ((t.tuition IS NULL OR t.tuition <= 0) AND t.campus=:campus))",
+                        TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campus", adminCampus)
+                .getResultList();
+    }
+
 
     @Override
     public List<Integer> getAllAdmissionYears() {

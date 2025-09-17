@@ -9,6 +9,16 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public List<TuitionByYear> getTuitionsWithFeeByYear(Integer admissionYear) {
+        return tuitionByYearDAO.getTuitionsWithFeeByYear(admissionYear);
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutFeeByYear(Integer admissionYear) {
+        return tuitionByYearDAO.getTuitionsWithoutFeeByYear(admissionYear);
+    }
+
+    @Override
     public TuitionByYear findById(TuitionByYearId id) {
         return tuitionByYearDAO.findById(id);
     }
@@ -23,10 +33,6 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
         tuitionByYearDAO.createTuition(tuition);
     }
 
-    @Override
-    public List<TuitionByYear> getTuitionsByYear(Integer admissionYear) {
-        return tuitionByYearDAO.getTuitionsByYear(admissionYear);
-    }
 
     @Override
     public List<Integer> getAllAdmissionYears() {

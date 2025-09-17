@@ -836,22 +836,6 @@ public class DemoApplication {
                 System.out.println("Added Subject: " + seed.id + " - " + seed.name);
             }
 
-            // Create/Update TuitionByYear if tuition > 0
-            if (seed.tuition != null && seed.tuition > 0) {
-                TuitionByYearId tyId = new TuitionByYearId(seed.id, currentYear, defaultCampus.getCampusId());
-                TuitionByYear ty = em.find(TuitionByYear.class, tyId);
-                if (ty == null) {
-                    ty = new TuitionByYear(subj, currentYear, defaultCampus, seed.tuition, creatorAdmin);
-                    em.persist(ty);
-                    System.out.println("Added Tuition: " + seed.id + "@" + currentYear + "@" + defaultCampus.getCampusId() + " = " + seed.tuition);
-                } else {
-                    if (!Objects.equals(ty.getTuition(), seed.tuition)) {
-                        ty.setTuition(seed.tuition);
-                        em.merge(ty);
-                        System.out.println("Updated Tuition: " + seed.id + "@" + currentYear + "@" + defaultCampus.getCampusId() + " = " + seed.tuition);
-                    }
-                }
-            }
         }
     }
 
