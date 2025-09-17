@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import com.example.demo.staff.model.Staffs;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.lecturer.model.MajorLecturers;
@@ -8,6 +7,7 @@ import com.example.demo.person.model.Persons;
 import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.security.service.CustomOAuth2UserService;
 import com.example.demo.security.service.CustomUserDetailsService;
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -111,6 +112,22 @@ public class SecurityConfig {
     }
 
     @Bean
+    public DaoAuthenticationProvider daoAuthProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+
+        // Ngăn không cho BCrypt xử lý OAuth2 user (password chứa "OAUTH2")
+        provider.setPreAuthenticationChecks(user -> {
+            if (user.getPassword() != null && user.getPassword().contains("OAUTH2")) {
+                throw new IllegalStateException("OAuth2 user must login via OAuth2");
+            }
+        });
+
+        return provider;
+    }
+
+    @Bean
     public AuthenticationSuccessHandler formSuccessHandler() {
         return (request, response, authentication) -> {
             String redirectUrl = getRedirectUrlByRole(authentication.getAuthorities());
@@ -144,7 +161,7 @@ public class SecurityConfig {
                 var authorities = List.of(new SimpleGrantedAuthority(role));
                 var principal = new CustomUserPrincipal(
                         email,
-                        "{noop}OAUTH2_USER", // Safe placeholder for OAuth2 users
+                        "{noop}OAUTH2_USER", // Không dùng BCrypt cho OAuth2
                         authorities,
                         person
                 );
@@ -214,7 +231,6 @@ public class SecurityConfig {
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        // Attempt to create the persistent_logins table if it doesn't exist
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS persistent_logins (" +
