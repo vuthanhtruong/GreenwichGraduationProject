@@ -211,3 +211,8 @@ body {
     margin-top: 8px;
     color: #f3f4f6;
 }
+.dashboard-card.award {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+    color: #fff;
+}
+

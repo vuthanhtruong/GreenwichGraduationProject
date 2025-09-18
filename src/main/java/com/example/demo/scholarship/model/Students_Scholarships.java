@@ -33,8 +33,8 @@ public class Students_Scholarships {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Scholarships scholarship;
 
-    @Column(name = "Amount", nullable = false)
-    private Double amount;
+    @Column(name = "AdmissionYear", nullable = false)
+    private Integer admissionYear;
 
     @Column(name = "AwardDate", nullable = false)
     private LocalDate awardDate;
@@ -55,11 +55,10 @@ public class Students_Scholarships {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Students_Scholarships(String studentId, Students student, Scholarships scholarship, Double amount, LocalDate awardDate, Staffs creator, ActivityStatus status, LocalDateTime createdAt) {
+    public Students_Scholarships(String studentId, Students student, Scholarships scholarship, LocalDate awardDate, Staffs creator, ActivityStatus status, LocalDateTime createdAt) {
         this.studentId = studentId;
         this.student = student;
         this.scholarship = scholarship;
-        this.amount = amount;
         this.awardDate = awardDate;
         this.creator = creator;
         this.status = status;

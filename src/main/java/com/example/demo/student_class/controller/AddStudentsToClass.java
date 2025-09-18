@@ -23,25 +23,13 @@ import java.util.List;
 public class AddStudentsToClass {
 
     private final Students_ClassesService studentsClassesService;
-    private final Lecturers_ClassesService lecturersClassesService;
     private final ClassesService classesService;
-    private final StudentsService studentsService;
-    private final LecturesService lecturersService;
-    private final PersonsService personsService;
 
     @Autowired
     public AddStudentsToClass(Students_ClassesService studentsClassesService,
-                              Lecturers_ClassesService lecturersClassesService,
-                              ClassesService classesService,
-                              StudentsService studentsService,
-                              LecturesService lecturersService,
-                              PersonsService personsService) {
+                              ClassesService classesService) {
         this.studentsClassesService = studentsClassesService;
-        this.lecturersClassesService = lecturersClassesService;
         this.classesService = classesService;
-        this.studentsService = studentsService;
-        this.lecturersService = lecturersService;
-        this.personsService = personsService;
     }
 
     @PostMapping("/add-students-to-class")

@@ -1,5 +1,6 @@
 package com.example.demo.security.service;
 
+import com.example.demo.staff.model.Staffs;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.AccountStatus;
@@ -7,7 +8,6 @@ import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.parentAccount.model.ParentAccounts;
 import com.example.demo.person.model.Persons;
 import com.example.demo.security.model.CustomUserPrincipal;
-import com.example.demo.staff.model.Staffs;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -56,11 +56,13 @@ public class CustomUserDetailsService implements UserDetailsService {
             var authorities = List.of(new SimpleGrantedAuthority(role));
             String effectiveUsername = person.getEmail() != null ? person.getEmail() : person.getId();
 
-            // Nếu không có password => chỉ cho phép login bằng OAuth2
+            // Handle empty or null passwords
             String password = auth.getPassword();
             if (password == null || password.trim().isEmpty()) {
+                // For OAuth2 users or accounts without passwords, use a placeholder
+                // This should never be used for actual authentication
                 password = "{noop}OAUTH2_USER_NO_PASSWORD";
-                logger.debug("User {} has no password set, must use OAuth2", username);
+                logger.debug("User {} has no password set, using OAuth2 placeholder", username);
             }
 
             logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - start);

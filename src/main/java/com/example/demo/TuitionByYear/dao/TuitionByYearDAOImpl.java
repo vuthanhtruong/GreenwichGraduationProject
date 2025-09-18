@@ -67,7 +67,8 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.campus = :campus " +
                                 "AND t.tuition IS NOT NULL " +
-                                "AND t.tuition > 0",
+                                "AND t.tuition > 0"+
+                        " order by t.subject.requirementType",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", adminCampus)
@@ -88,7 +89,8 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                         "SELECT t FROM TuitionByYear t " +
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND ((t.tuition IS NULL OR t.tuition <= 0)"+
-                                "Or ((t.tuition IS NULL OR t.tuition <= 0) AND t.campus=:campus))",
+                                "Or ((t.tuition IS NULL OR t.tuition <= 0) AND t.campus=:campus))"+
+                        " order by t.subject.requirementType",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", adminCampus)
