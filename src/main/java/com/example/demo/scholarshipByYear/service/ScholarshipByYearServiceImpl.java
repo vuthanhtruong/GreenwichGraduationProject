@@ -1,17 +1,12 @@
-package com.example.demo.scholarship.service;
+package com.example.demo.scholarshipByYear.service;
 
-import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
-import com.example.demo.entity.Enums.ActivityStatus;
-import com.example.demo.scholarship.dao.ScholarshipByYearDAO;
-import com.example.demo.scholarship.model.ScholarshipByYear;
-import com.example.demo.scholarship.model.ScholarshipByYearId;
-import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.scholarship.service.ScholarshipsService;
+import com.example.demo.scholarshipByYear.dao.ScholarshipByYearDAO;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service

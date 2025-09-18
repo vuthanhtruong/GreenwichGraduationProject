@@ -1,12 +1,13 @@
-package com.example.demo.scholarship.dao;
+package com.example.demo.student_scholarship.dao;
 
-import com.example.demo.scholarship.model.ScholarshipByYear;
-import com.example.demo.scholarship.model.Students_Scholarships;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.student_scholarship.model.Students_Scholarships;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudentScholarshipDAO {
-    List<Students_Scholarships> getAwardedScholarshipsByYear(Integer admissionYear);
+    Map<String, Map<String, Object>> getAwardedScholarshipsByYear(Integer admissionYear);
     void assignScholarship(String studentId, String scholarshipId, Integer admissionYear);
     List<String> validateScholarshipAward(String studentId, String scholarshipId, Integer admissionYear);
     ScholarshipByYear getScholarshipByYear(String scholarshipId, Integer admissionYear);

@@ -361,12 +361,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public Students getStudentById(String id) {
-        return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
-                        Students.class
-                )
-                .setParameter("id", id)
-                .getSingleResult();
+        return entityManager.find(Students.class, id);
     }
 
     @Override
@@ -374,7 +369,7 @@ public class StudentDAOImpl implements StudentsDAO {
         Staffs staff = staffsService.getStaff();
         Majors majors = staff.getMajorManagement();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.major = :staffmajor AND s.campus = :campuses",
+                        "SELECT s FROM Students s  WHERE s.major = :staffmajor AND s.campus = :campuses",
                         Students.class)
                 .setParameter("staffmajor", majors)
                 .setParameter("campuses", staff.getCampus())

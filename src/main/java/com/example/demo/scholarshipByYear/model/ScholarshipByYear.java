@@ -1,8 +1,8 @@
-package com.example.demo.scholarship.model;
+package com.example.demo.scholarshipByYear.model;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.ActivityStatus;
-import com.example.demo.entity.Enums.Status;
+import com.example.demo.scholarship.model.Scholarships;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

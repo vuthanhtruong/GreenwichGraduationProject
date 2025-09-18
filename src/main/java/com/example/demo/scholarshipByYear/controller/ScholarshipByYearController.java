@@ -1,8 +1,8 @@
-package com.example.demo.scholarship.controller;
+package com.example.demo.scholarshipByYear.controller;
 
-import com.example.demo.scholarship.model.ScholarshipByYear;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.scholarship.model.Scholarships;
-import com.example.demo.scholarship.service.ScholarshipByYearService;
+import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
 import com.example.demo.scholarship.service.ScholarshipsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

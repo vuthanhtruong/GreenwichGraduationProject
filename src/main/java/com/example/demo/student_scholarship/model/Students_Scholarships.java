@@ -1,6 +1,7 @@
-package com.example.demo.scholarship.model;
+package com.example.demo.student_scholarship.model;
 
 import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.student.model.Students;
 import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;

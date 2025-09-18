@@ -1,12 +1,10 @@
-package com.example.demo.scholarship.dao;
-import com.example.demo.admin.service.AdminsService;
+package com.example.demo.student_scholarship.dao;
 import com.example.demo.entity.Enums.ActivityStatus;
-import com.example.demo.scholarship.model.ScholarshipByYear;
-import com.example.demo.scholarship.model.Students_Scholarships;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.student_scholarship.model.Students_Scholarships;
 import com.example.demo.scholarship.service.ScholarshipsService;
 import com.example.demo.student.model.Students;
 import com.example.demo.student.service.StudentsService;
-import com.example.demo.scholarship.service.ScholarshipByYearService;
 import com.example.demo.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,7 +14,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -53,17 +53,45 @@ public class StudentScholarshipDAOImpl implements StudentScholarshipDAO {
     }
 
     @Override
-    public List<Students_Scholarships> getAwardedScholarshipsByYear(Integer admissionYear) {
+    public Map<String, Map<String, Object>> getAwardedScholarshipsByYear(Integer admissionYear) {
+        Map<String, Map<String, Object>> awardMap = new HashMap<>();
+
         if (admissionYear == null) {
-            return List.of();
+            return awardMap;
         }
-        return entityManager.createQuery(
-                        "SELECT ss FROM Students_Scholarships ss "+
+
+        List<Object[]> results = entityManager.createQuery(
+                        "SELECT ss, sby " +
+                                "FROM Students_Scholarships ss " +
+                                "JOIN ScholarshipByYear sby " +
+                                "  ON sby.scholarship.scholarshipId = ss.scholarship.scholarshipId " +
+                                " AND sby.id.admissionYear = ss.admissionYear " +
                                 "WHERE ss.admissionYear = :admissionYear",
-                        Students_Scholarships.class)
+                        Object[].class)
                 .setParameter("admissionYear", admissionYear)
                 .getResultList();
+
+        for (Object[] row : results) {
+            Students_Scholarships ss = (Students_Scholarships) row[0];
+            ScholarshipByYear sby = (ScholarshipByYear) row[1];
+
+            // tạo key duy nhất: studentId + scholarshipId
+            String key = ss.getStudent().getId() + "-" + ss.getScholarship().getScholarshipId();
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("studentId", ss.getStudent().getId());
+            details.put("studentName", ss.getStudent().getFullName());
+            details.put("scholarshipName", ss.getScholarship().getTypeName());
+            details.put("awardDate", ss.getAwardDate());
+            details.put("scholarship", ss.getScholarship().getScholarshipId());
+            details.put("discountPercentage", sby.getDiscountPercentage());
+
+            awardMap.put(key, details);
+        }
+
+        return awardMap;
     }
+
 
     @Override
     public void assignScholarship(String studentId, String scholarshipId, Integer admissionYear) {

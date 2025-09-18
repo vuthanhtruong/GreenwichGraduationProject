@@ -1,38 +1,41 @@
-package com.example.demo.scholarship.controller;
+package com.example.demo.student_scholarship.controller;
 
 import com.example.demo.scholarship.model.Scholarships;
-import com.example.demo.scholarship.model.Students_Scholarships;
-import com.example.demo.scholarship.service.ScholarshipByYearService;
+import com.example.demo.student_scholarship.model.Students_Scholarships;
+import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
 import com.example.demo.scholarship.service.ScholarshipsService;
-import com.example.demo.scholarship.service.StudentScholarshipService;
-import com.example.demo.student.service.StudentsService;
+import com.example.demo.student_scholarship.service.StudentScholarshipService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/staff-home/award-scholarships")
 @PreAuthorize("hasRole('STAFF')")
-public class AwardScholarshipsController {
+public class ListAwardScholarshipsController {
 
     private final ScholarshipsService scholarshipsService;
     private final ScholarshipByYearService scholarshipByYearService;
     private final StudentScholarshipService studentScholarshipService;
 
     @Autowired
-    public AwardScholarshipsController(ScholarshipsService scholarshipsService,
-                                       ScholarshipByYearService scholarshipByYearService,
-                                       StudentScholarshipService studentScholarshipService) {
+    public ListAwardScholarshipsController(
+            ScholarshipsService scholarshipsService,
+            ScholarshipByYearService scholarshipByYearService,
+            StudentScholarshipService studentScholarshipService) {
         this.scholarshipsService = scholarshipsService;
         this.scholarshipByYearService = scholarshipByYearService;
         this.studentScholarshipService = studentScholarshipService;
@@ -41,41 +44,57 @@ public class AwardScholarshipsController {
     @GetMapping("")
     public String showAwardScholarships(Model model, HttpSession session) {
         Integer admissionYear = (Integer) session.getAttribute("awardAdmissionYear");
+        if (admissionYear == null) {
+            admissionYear = LocalDate.now().getYear();
+            session.setAttribute("awardAdmissionYear", admissionYear);
+        }
         model.addAttribute("studentsScholarship", new Students_Scholarships());
         return listAwardedScholarships(model, admissionYear, session);
     }
 
     @PostMapping("")
-    public String listAwardedScholarships(Model model,
-                                          @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
-                                          HttpSession session) {
+    public String listAwardedScholarships(
+            Model model,
+            @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
+            HttpSession session) {
         try {
-            if (admissionYear != null) {
-                session.setAttribute("awardAdmissionYear", admissionYear);
+            // Xử lý admissionYear
+            Integer selectedYear = admissionYear;
+            if (selectedYear == null) {
+                selectedYear = (Integer) session.getAttribute("awardAdmissionYear");
+                if (selectedYear == null) {
+                    selectedYear = LocalDate.now().getYear();
+                }
             }
+            session.setAttribute("awardAdmissionYear", selectedYear);
 
+            // Lấy danh sách năm nhập học
             List<Integer> admissionYears = scholarshipByYearService.getAllAdmissionYears();
             int currentYear = LocalDate.now().getYear();
-            List<Integer> finalAdmissionYears = admissionYears;
+            // Sử dụng biến tạm để đảm bảo effectively final
+            final List<Integer> existingAdmissionYears = admissionYears;
             List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
                     .boxed()
-                    .filter(year -> !finalAdmissionYears.contains(year))
+                    .filter(year -> !existingAdmissionYears.contains(year))
                     .collect(Collectors.toList());
 
+            // Gộp và sắp xếp danh sách năm
             admissionYears.addAll(futureYears);
             admissionYears = admissionYears.stream()
                     .sorted(Comparator.reverseOrder())
                     .collect(Collectors.toList());
 
-            Integer selectedYear = admissionYear != null ? admissionYear : currentYear;
+            // Lấy danh sách học bổng và học bổng đã cấp
             List<Scholarships> availableScholarships = scholarshipsService.getAllScholarships();
-            List<Students_Scholarships> awardedScholarships =
-                    studentScholarshipService.getAwardedScholarshipsByYear(admissionYear);
+            Map<String, Map<String, Object>> awardedScholarships =
+                    studentScholarshipService.getAwardedScholarshipsByYear(selectedYear);
 
+            // Thêm dữ liệu vào model
             model.addAttribute("admissionYears", admissionYears);
             model.addAttribute("selectedYear", selectedYear);
             model.addAttribute("availableScholarships", availableScholarships);
             model.addAttribute("awardedScholarships", awardedScholarships);
+            model.addAttribute("studentsScholarship", new Students_Scholarships());
 
             return "AwardScholarships";
         } catch (Exception e) {
@@ -84,38 +103,8 @@ public class AwardScholarshipsController {
             model.addAttribute("selectedYear", LocalDate.now().getYear());
             model.addAttribute("availableScholarships", List.of());
             model.addAttribute("awardedScholarships", List.of());
+            model.addAttribute("studentsScholarship", new Students_Scholarships());
             return "AwardScholarships";
         }
     }
-
-    @PostMapping("/assign")
-    public String assignScholarship(
-            @RequestParam("studentId") String studentId,
-            @RequestParam("scholarshipId") String scholarshipId,
-            Model model,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
-
-        Integer selectedYear = (Integer) session.getAttribute("awardAdmissionYear");
-        if (selectedYear == null) {
-            selectedYear = LocalDate.now().getYear();
-        }
-
-        List<String> errors = studentScholarshipService.validateScholarshipAward(studentId, scholarshipId, selectedYear);
-        if (!errors.isEmpty()) {
-            model.addAttribute("errors", errors);
-            return listAwardedScholarships(model, selectedYear, session);
-        }
-
-        try {
-            studentScholarshipService.assignScholarship(studentId, scholarshipId, selectedYear);
-            redirectAttributes.addFlashAttribute("successMessage", "Scholarship awarded successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to award scholarship: " + e.getMessage());
-            return listAwardedScholarships(model, selectedYear, session);
-        }
-
-        return "redirect:/staff-home/award-scholarships";
-    }
-
 }

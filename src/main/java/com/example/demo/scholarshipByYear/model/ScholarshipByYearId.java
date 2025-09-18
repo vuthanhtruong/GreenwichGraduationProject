@@ -1,4 +1,4 @@
-package com.example.demo.scholarship.model;
+package com.example.demo.scholarshipByYear.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

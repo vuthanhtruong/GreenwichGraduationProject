@@ -1,6 +1,6 @@
-package com.example.demo.scholarship.service;
+package com.example.demo.scholarshipByYear.service;
 
-import com.example.demo.scholarship.model.ScholarshipByYear;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 
 import java.util.List;
 
