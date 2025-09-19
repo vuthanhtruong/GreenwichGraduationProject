@@ -33,12 +33,6 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
         tuitionByYearDAO.createTuition(tuition);
     }
 
-
-    @Override
-    public List<Integer> getAllAdmissionYears() {
-        return tuitionByYearDAO.getAllAdmissionYears();
-    }
-
     private final TuitionByYearDAO  tuitionByYearDAO;
 
     public TuitionByYearServiceImpl(TuitionByYearDAO tuitionByYearDAO) {
@@ -54,4 +48,5 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
     public List<Integer> findAllAdmissionYears() {
         return tuitionByYearDAO.findAllAdmissionYears();
     }
+
 }

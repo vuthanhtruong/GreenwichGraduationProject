@@ -30,13 +30,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     private final StaffsService staffsService;
     private final SyllabusesService syllabusesService;
     private final ClassesService classesService;
-    private final TuitionByYearService  tuitionByYearService;
 
-    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService, TuitionByYearService tuitionByYearService) {
-        this.tuitionByYearService = tuitionByYearService;
-        if (staffsService == null || syllabusesService == null || classesService == null) {
-            throw new IllegalArgumentException("Services cannot be null");
-        }
+    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
         this.staffsService = staffsService;
         this.syllabusesService = syllabusesService;
         this.classesService = classesService;
@@ -60,14 +55,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         subject.setCreator(staffsService.getStaff());
         subject.setMajor(staffsService.getStaffMajor());
         entityManager.persist(subject);
-
-        TuitionByYear tuitionByYear = new TuitionByYear();
-        TuitionByYearId tuitionId = new TuitionByYearId();
-        tuitionId.setSubjectId(subject.getSubjectId());
-        tuitionByYear.setId(tuitionId);
-        tuitionByYear.setSubject(subject);
-        tuitionByYear.setTuition(0.0);
-        entityManager.persist(tuitionByYear);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.example.demo.TuitionByYear.controller;
 
-
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.model.TuitionByYearId;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
@@ -27,12 +26,14 @@ import java.util.Map;
 @RequestMapping("/admin-home")
 @PreAuthorize("hasRole('ADMIN')")
 public class UpdateTuitionController {
+
     private final MajorSubjectsService majorSubjectsService;
     private final TuitionByYearService tuitionService;
     private final SubjectsService subjectService;
     private final AdminsService adminsService;
 
-    public UpdateTuitionController(MajorSubjectsService majorSubjectsService, TuitionByYearService tuitionService, SubjectsService subjectService, AdminsService adminsService) {
+    public UpdateTuitionController(MajorSubjectsService majorSubjectsService, TuitionByYearService tuitionService,
+                                   SubjectsService subjectService, AdminsService adminsService) {
         this.majorSubjectsService = majorSubjectsService;
         this.tuitionService = tuitionService;
         this.subjectService = subjectService;
@@ -58,6 +59,10 @@ public class UpdateTuitionController {
             // Lấy admin và campus
             Admins admin = adminsService.getAdmin();
             Campuses adminCampus = adminsService.getAdminCampus();
+            if (adminCampus == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Admin's campus not found.");
+                return "redirect:/admin-home/subjects-list";
+            }
 
             List<Subjects> allSubjects = subjectService.getSubjects();
 
@@ -87,6 +92,7 @@ public class UpdateTuitionController {
                             tuitionService.updateTuition(existing);
                         } else {
                             TuitionByYear tuitionByYear = new TuitionByYear();
+                            tuitionByYear.setId(tuitionId); // Explicitly set the ID
                             tuitionByYear.setTuition(tuition);
                             tuitionByYear.setCreator(admin);
                             tuitionByYear.setCampus(adminCampus);
@@ -106,5 +112,4 @@ public class UpdateTuitionController {
         }
         return "redirect:/admin-home/subjects-list";
     }
-
 }

@@ -55,18 +55,18 @@
             <div class="total">
                 <i class="fas fa-list"></i>
                 <p><strong>Total Subjects:</strong>
-                    <span th:text="${tuitionWithFee.size() + tuitionWithoutFee.size()}"></span></p>
+                    <span th:text="${withFee.size() + withoutFee.size()}"></span></p>
             </div>
         </div>
     </div>
 
-    <!-- Form cho bảng đã có giá tiền -->
+    <!-- Form: Subjects with Fee -->
     <form th:action="@{/admin-home/update-tuition}" method="post">
         <input type="hidden" name="admissionYear" th:value="${selectedYear}">
 
         <section class="win11-panel">
             <h2 class="panel-header">
-                <i class="fas fa-coins"></i> The list of subjects has been updated with price list -
+                <i class="fas fa-coins"></i> Subjects already updated with fee -
                 <span th:text="${selectedYear}"></span>
             </h2>
             <div class="table-container">
@@ -75,21 +75,19 @@
                     <tr>
                         <th>Subject ID</th>
                         <th>Subject Name</th>
-                        <th>Campus</th>
                         <th>Creator</th>
                         <th>Tuition Fee</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="tuition : ${tuitionWithFee}">
-                        <td th:text="${tuition.id.subjectId}"></td>
-                        <td th:text="${tuition.subject.subjectName ?: 'N/A'}"></td>
-                        <td th:text="${tuition.campus.getCampusName() ?: 'N/A'}"></td>
-                        <td th:text="${tuition.creator.getFullName() ?: 'N/A'}"></td>
+                    <tr th:each="subj : ${withFee}">
+                        <td th:text="${subj.subjectId}"></td>
+                        <td th:text="${subj.subjectName}"></td>
+                        <td th:text="${subj.creator != null ? subj.creator.fullName : 'N/A'}"></td>
                         <td>
                             <input type="number" class="form-control input small"
-                                   th:name="'tuitionFee_' + ${tuition.id.subjectId}"
-                                   th:value="${tuition.tuition}"
+                                   th:name="'tuitionFee_' + ${subj.subjectId}"
+                                   th:value="${tuitionMap[subj.subjectId].tuition}"
                                    min="0" step="0.01">
                         </td>
                     </tr>
@@ -105,13 +103,13 @@
         </div>
     </form>
 
-    <!-- Form cho bảng chưa có giá tiền -->
+    <!-- Form: Subjects without Fee -->
     <form th:action="@{/admin-home/update-tuition}" method="post">
         <input type="hidden" name="admissionYear" th:value="${selectedYear}">
 
         <section class="win11-panel">
             <h2 class="panel-header">
-                <i class="fas fa-coins"></i> The list of subjects has not been updated with price list -
+                <i class="fas fa-coins"></i> Subjects not updated with fee -
                 <span th:text="${selectedYear}"></span>
             </h2>
             <div class="table-container">
@@ -120,22 +118,20 @@
                     <tr>
                         <th>Subject ID</th>
                         <th>Subject Name</th>
-                        <th>Campus</th>
                         <th>Creator</th>
                         <th>Tuition Fee</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="tuition : ${tuitionWithoutFee}">
-                        <td th:text="${tuition.id.subjectId}"></td>
-                        <td th:text="${tuition.subject.subjectName ?: 'N/A'}"></td>
-                        <td th:text="${tuition.campus.getCampusName() ?: 'N/A'}"></td>
-                        <td th:text="${tuition.creator.getFullName() ?: 'N/A'}"></td>
+                    <tr th:each="subj : ${withoutFee}">
+                        <td th:text="${subj.subjectId}"></td>
+                        <td th:text="${subj.subjectName}"></td>
+                        <td th:text="${subj.creator != null ? subj.creator.fullName : 'N/A'}"></td>
                         <td>
                             <input type="number" class="form-control input small"
-                                   th:name="'tuitionFee_' + ${tuition.id.subjectId}"
-                                   th:value="${tuition.tuition}"
-                                   placeholder="Enter fee" min="0" step="0.01">
+                                   th:name="'tuitionFee_' + ${subj.subjectId}"
+                                   placeholder="Enter fee"
+                                   min="0" step="0.01">
                         </td>
                     </tr>
                     </tbody>
