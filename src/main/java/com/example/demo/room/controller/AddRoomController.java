@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/rooms-list")
@@ -37,7 +37,8 @@ public class AddRoomController {
     @GetMapping("/add-offline-room")
     public String showAddOfflineRoomForm(ModelMap model) {
         model.addAttribute("offlineRoom", new OfflineRooms());
-        return "RoomsList"; // Return to RoomsList to show overlay
+        model.addAttribute("openAddOfflineOverlay", true); // Thêm cờ để mở overlay
+        return "RoomsList";
     }
 
     @PostMapping("/add-offline-room")
@@ -47,14 +48,18 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        List<String> errors = new ArrayList<>(roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress()));
+        Map<String, String> errors = new HashMap<>(roomsService.validateOfflineRoom(offlineRoom, offlineRoom.getAddress()));
         if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            result.getAllErrors().forEach(error -> {
+                String field = result.getFieldError() != null ? result.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
         }
 
         if (!errors.isEmpty()) {
             redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("offlineRoom", offlineRoom); // Preserve form data
+            redirectAttributes.addFlashAttribute("openAddOfflineOverlay", true); // Mở lại overlay
             return "redirect:/staff-home/rooms-list";
         }
 
@@ -64,7 +69,9 @@ public class AddRoomController {
             offlineRoom.setCreatedAt(LocalDateTime.now());
             Staffs creator = staffsService.getStaff(); // Pass authentication
             if (creator == null) {
-                redirectAttributes.addFlashAttribute("editErrors", List.of("Authenticated staff not found."));
+                errors.put("general", "Authenticated staff not found.");
+                redirectAttributes.addFlashAttribute("editErrors", errors);
+                redirectAttributes.addFlashAttribute("openAddOfflineOverlay", true);
                 return "redirect:/staff-home/rooms-list";
             }
             offlineRoom.setCreator(creator);
@@ -73,8 +80,10 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("editErrors", List.of("Error adding offline room: " + e.getMessage()));
+            errors.put("general", "Error adding offline room: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("offlineRoom", offlineRoom); // Preserve form data
+            redirectAttributes.addFlashAttribute("openAddOfflineOverlay", true);
             return "redirect:/staff-home/rooms-list";
         }
     }
@@ -82,7 +91,8 @@ public class AddRoomController {
     @GetMapping("/add-online-room")
     public String showAddOnlineRoomForm(ModelMap model) {
         model.addAttribute("onlineRoom", new OnlineRooms());
-        return "RoomsList"; // Return to RoomsList to show overlay
+        model.addAttribute("openAddOnlineOverlay", true); // Thêm cờ để mở overlay
+        return "RoomsList";
     }
 
     @PostMapping("/add-online-room")
@@ -92,15 +102,18 @@ public class AddRoomController {
             RedirectAttributes redirectAttributes,
             ModelMap model,
             Authentication authentication) {
-        List<String> errors = new ArrayList<>(roomsService.validateOnlineRoom(onlineRoom, onlineRoom.getLink()));
+        Map<String, String> errors = new HashMap<>(roomsService.validateOnlineRoom(onlineRoom, onlineRoom.getLink()));
         if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            result.getAllErrors().forEach(error -> {
+                String field = result.getFieldError() != null ? result.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
         }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("onlineRoom", onlineRoom); // Preserve form data
+            redirectAttributes.addFlashAttribute("openAddOnlineOverlay", true); // Mở lại overlay
             return "redirect:/staff-home/rooms-list";
         }
 
@@ -110,7 +123,9 @@ public class AddRoomController {
             onlineRoom.setCreatedAt(LocalDateTime.now());
             Staffs creator = staffsService.getStaff(); // Pass authentication
             if (creator == null) {
-                redirectAttributes.addFlashAttribute("editErrors", List.of("Authenticated staff not found."));
+                errors.put("general", "Authenticated staff not found.");
+                redirectAttributes.addFlashAttribute("editErrors", errors);
+                redirectAttributes.addFlashAttribute("openAddOnlineOverlay", true);
                 return "redirect:/staff-home/rooms-list";
             }
             onlineRoom.setCreator(creator);
@@ -119,8 +134,10 @@ public class AddRoomController {
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/rooms-list";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("editErrors", List.of("Error adding online room: " + e.getMessage()));
+            errors.put("general", "Error adding online room: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("onlineRoom", onlineRoom); // Preserve form data
+            redirectAttributes.addFlashAttribute("openAddOnlineOverlay", true);
             return "redirect:/staff-home/rooms-list";
         }
     }

@@ -17,9 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -196,44 +194,46 @@ public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
     }
 
     @Override
-    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
+        Map<String, String> errors = new HashMap<>();
+
         if (deputyStaff.getFirstName() == null || !isValidName(deputyStaff.getFirstName())) {
-            errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("firstName", "First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (deputyStaff.getLastName() == null || !isValidName(deputyStaff.getLastName())) {
-            errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("lastName", "Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (deputyStaff.getEmail() == null || !isValidEmail(deputyStaff.getEmail())) {
-            errors.add("Email is required and must be in a valid format.");
+            errors.put("email", "Email is required and must be in a valid format.");
         }
         if (deputyStaff.getPhoneNumber() == null || !isValidPhoneNumber(deputyStaff.getPhoneNumber())) {
-            errors.add("Phone number is required and must be 10-15 digits, optionally starting with '+'.");
+            errors.put("phoneNumber", "Phone number is required and must be 10-15 digits, optionally starting with '+'.");
         }
         if (deputyStaff.getBirthDate() != null && deputyStaff.getBirthDate().isAfter(LocalDate.now())) {
-            errors.add("Date of birth must be in the past.");
+            errors.put("birthDate", "Date of birth must be in the past.");
         }
         if (deputyStaff.getEmail() != null && personsService.existsByEmailExcludingId(deputyStaff.getEmail(), deputyStaff.getId() != null ? deputyStaff.getId() : "")) {
-            errors.add("The email address is already associated with another account.");
+            errors.put("email", "The email address is already associated with another account.");
         }
         if (deputyStaff.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(deputyStaff.getPhoneNumber(), deputyStaff.getId() != null ? deputyStaff.getId() : "")) {
-            errors.add("The phone number is already associated with another account.");
+            errors.put("phoneNumber", "The phone number is already associated with another account.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                errors.add("Avatar must be an image file.");
+                errors.put("avatarFile", "Avatar must be an image file.");
             }
             if (avatarFile.getSize() > 5 * 1024 * 1024) {
-                errors.add("Avatar file size must not exceed 5MB.");
+                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
         }
         if (deputyStaff.getGender() == null) {
-            errors.add("Gender is required to assign a default avatar.");
+            errors.put("gender", "Gender is required to assign a default avatar.");
         }
         if (campusId == null || campusId.isEmpty() || campusesService.getCampusById(campusId) == null) {
-            errors.add("A valid campus must be selected.");
+            errors.put("campusId", "A valid campus must be selected.");
         }
+
         if (!errors.isEmpty()) {
             logger.warn("Validation errors for deputy staff: {}", errors);
         }

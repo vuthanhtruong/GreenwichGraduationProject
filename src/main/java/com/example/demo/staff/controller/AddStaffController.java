@@ -21,9 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin-home/staffs-list/")
@@ -33,8 +32,7 @@ public class AddStaffController {
     private final PersonsService personsService;
     private final AuthenticatorsService authenticatorsService;
     private final MajorsService majorsService;
-    private final CampusesService  campusesService;
-
+    private final CampusesService campusesService;
 
     public AddStaffController(StaffsService staffsService, PersonsService personsService,
                               AuthenticatorsService authenticatorsService, MajorsService majorsService, CampusesService campusesService) {
@@ -48,14 +46,22 @@ public class AddStaffController {
     @PostMapping("/add-staff")
     public String addStaff(
             @Valid @ModelAttribute("staff") Staffs staff,
+            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam("majorId") String majorId,
             @RequestParam("campusId") String campusId,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
-        List<String> errors = new ArrayList<>();
-        errors.addAll(staffsService.validateStaff(staff, avatarFile, majorId, campusId));
+        Map<String, String> errors = staffsService.validateStaff(staff, avatarFile, majorId, campusId);
+
+        // Xử lý lỗi từ BindingResult
+        if (bindingResult.hasErrors()) {
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            }
+        }
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
@@ -72,7 +78,7 @@ public class AddStaffController {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
                     session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
                 } catch (IOException e) {
-                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                    errors.put("avatarFile", "Failed to store avatar temporarily: " + e.getMessage());
                 }
             }
             return "StaffsList";
@@ -109,8 +115,9 @@ public class AddStaffController {
             redirectAttributes.addFlashAttribute("message", "Staff added successfully!");
             return "redirect:/admin-home/staffs-list";
         } catch (IOException e) {
-            errors.add("Failed to process avatar: " + e.getMessage());
-            model.addAttribute("errors", errors);
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "Failed to process avatar: " + e.getMessage());
+            model.addAttribute("errors", errorsCatch);
             model.addAttribute("staff", staff);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
@@ -121,8 +128,9 @@ public class AddStaffController {
             model.addAttribute("totalStaffs", staffsService.numberOfStaffs());
             return "StaffsList";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the staff: " + e.getMessage());
-            model.addAttribute("errors", errors);
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "An error occurred while adding the staff: " + e.getMessage());
+            model.addAttribute("errors", errorsCatch);
             model.addAttribute("staff", staff);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
@@ -134,5 +142,4 @@ public class AddStaffController {
             return "StaffsList";
         }
     }
-
 }

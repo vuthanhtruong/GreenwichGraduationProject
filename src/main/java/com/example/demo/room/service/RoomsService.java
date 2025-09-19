@@ -5,6 +5,7 @@ import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.room.model.Rooms;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoomsService {
     Rooms getRoomById(String id);
@@ -29,6 +30,7 @@ public interface RoomsService {
     long totalOfflineRooms();
     long totalOnlineRooms();
     String generateUniqueRoomId(boolean isOffline);
-    List<String> validateOnlineRoom(OnlineRooms room, String link);
-    List<String> validateOfflineRoom(OfflineRooms room, String address);
+    boolean existsByRoomExcludingName(String roomName, String excludeId);
+    Map<String, String> validateOfflineRoom(OfflineRooms room, String address);
+    Map<String, String> validateOnlineRoom(OnlineRooms room, String link);
 }

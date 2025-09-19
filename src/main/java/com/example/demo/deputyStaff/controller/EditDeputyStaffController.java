@@ -17,8 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin-home/deputy-staffs-list")
@@ -44,6 +44,12 @@ public class EditDeputyStaffController {
             @RequestParam(required = false) Integer pageSize,
             Model model) {
         DeputyStaffs deputyStaff = deputyStaffsService.getDeputyStaffById(id);
+        if (deputyStaff == null) {
+            if ("search".equals(source)) {
+                return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs?error=Deputy+Staff+not+found&searchType=" + (searchType != null ? searchType : "") + "&keyword=" + (keyword != null ? keyword : "") + "&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            }
+            return "redirect:/admin-home/deputy-staffs-list?error=Deputy+Staff+not+found&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+        }
         model.addAttribute("deputyStaff", deputyStaff);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("campuses", campusesService.getCampuses());
@@ -68,9 +74,14 @@ public class EditDeputyStaffController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             RedirectAttributes redirectAttributes,
             Model model) {
-        List<String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
+        Map<String, String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
+
+        // Xử lý lỗi từ BindingResult
         if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            }
         }
 
         if (!errors.isEmpty()) {
@@ -95,7 +106,7 @@ public class EditDeputyStaffController {
                     redirectAttributes.addFlashAttribute("pageSize", pageSize);
                     return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs";
                 }
-                return "redirect:/admin-home/deputy-staffs-list";
+                return "redirect:/admin-home/deputy-staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
             }
             Campuses campus = campusesService.getCampusById(campusId);
             deputyStaff.setCampus(campus);
@@ -110,15 +121,17 @@ public class EditDeputyStaffController {
             }
             return "redirect:/admin-home/deputy-staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "Error updating deputy staff: " + e.getMessage());
-            if ("search".equals(source)) {
-                redirectAttributes.addFlashAttribute("searchType", searchType);
-                redirectAttributes.addFlashAttribute("keyword", keyword);
-                redirectAttributes.addFlashAttribute("page", page);
-                redirectAttributes.addFlashAttribute("pageSize", pageSize);
-                return "redirect:/admin-home/deputy-staffs-list/search-deputy-staffs";
-            }
-            return "redirect:/admin-home/deputy-staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "Error updating deputy staff: " + e.getMessage());
+            model.addAttribute("errors", errorsCatch);
+            model.addAttribute("genders", Arrays.asList(Gender.values()));
+            model.addAttribute("campuses", campusesService.getCampuses());
+            model.addAttribute("source", source);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("page", page);
+            model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            return "EditDeputyStaffForm";
         }
     }
 }

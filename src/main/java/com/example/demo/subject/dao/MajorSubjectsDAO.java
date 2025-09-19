@@ -5,6 +5,7 @@ import com.example.demo.subject.model.MajorSubjects;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface MajorSubjectsDAO {
     void addSubject(MajorSubjects subject);
@@ -17,7 +18,7 @@ public interface MajorSubjectsDAO {
     MajorSubjects editSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
     String generateUniqueSubjectId(String majorId, LocalDate createdDate);
-    List<String> validateSubject(MajorSubjects subject);
+    Map<String, String> validateSubject(MajorSubjects subject);
     boolean existsBySubjectExcludingName(String SubjectName, String SubjectId);
     List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
     long numberOfSubjects(Majors major);

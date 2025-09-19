@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/rooms-list")
@@ -88,9 +89,12 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> errors = roomsService.validateOfflineRoom(formRoom, address);
+        Map<String, String> errors = new HashMap<>(roomsService.validateOfflineRoom(formRoom, address));
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            bindingResult.getAllErrors().forEach(error -> {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
         }
 
         if (!errors.isEmpty()) {
@@ -109,9 +113,8 @@ public class UpdateRoomController {
             redirectAttributes.addFlashAttribute("message", "Offline room updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Error updating offline room: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            model.addAttribute("editErrors", List.of("Error updating offline room: " + e.getMessage()));
+            errors.put("general", "Error updating offline room: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             model.addAttribute("room", formRoom);
             return "EditOfflineRoomForm";
         }
@@ -133,9 +136,12 @@ public class UpdateRoomController {
             return "redirect:/staff-home/rooms-list";
         }
 
-        List<String> errors = roomsService.validateOnlineRoom(formRoom, link);
+        Map<String, String> errors = new HashMap<>(roomsService.validateOnlineRoom(formRoom, link));
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            bindingResult.getAllErrors().forEach(error -> {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
         }
 
         if (!errors.isEmpty()) {
@@ -154,9 +160,8 @@ public class UpdateRoomController {
             redirectAttributes.addFlashAttribute("message", "Online room updated successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Error updating online room: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            model.addAttribute("editErrors", List.of("Error updating online room: " + e.getMessage()));
+            errors.put("general", "Error updating online room: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             model.addAttribute("room", formRoom);
             return "EditOnlineRoomForm";
         }

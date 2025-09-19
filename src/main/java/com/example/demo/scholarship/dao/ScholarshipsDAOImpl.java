@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -113,17 +111,21 @@ public class ScholarshipsDAOImpl implements ScholarshipsDAO {
     }
 
     @Override
-    public List<String> validateScholarship(Scholarships scholarship) {
-        List<String> errors = new ArrayList<>();
-        if(!getScScholarshipsByName(scholarship.getTypeName()).isEmpty() || getScScholarshipsByName(scholarship.getTypeName()).size()!=0){
-            errors.add("Scholarship type name is already exist.");
+    public Map<String, String> validateScholarship(Scholarships scholarship) {
+        Map<String, String> errors = new HashMap<>();
+
+        // Check for duplicate typeName
+        if (!getScScholarshipsByName(scholarship.getTypeName()).isEmpty() || getScScholarshipsByName(scholarship.getTypeName()).size() != 0) {
+            errors.put("typeName", "Scholarship type name is already exist.");
         }
+
         // Validate typeName
         if (scholarship.getTypeName() == null || scholarship.getTypeName().trim().isEmpty()) {
-            errors.add("Scholarship type name is required.");
+            errors.put("typeName", "Scholarship type name is required.");
         } else if (!scholarship.getTypeName().matches("^[\\p{L}\\s\\-']{2,100}$")) {
-            errors.add("Scholarship type name is invalid. Only letters, spaces, hyphens, and apostrophes are allowed (2-100 characters).");
+            errors.put("typeName", "Scholarship type name is invalid. Only letters, spaces, hyphens, and apostrophes are allowed (2-100 characters).");
         }
+
         return errors;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface StaffsService {
     Staffs getStaff();
@@ -19,7 +20,7 @@ public interface StaffsService {
     void addStaff(Staffs staff, String randomPassword);
     List<Staffs> getStaffs();
     void editStaff(Staffs staff, MultipartFile avatarFile) throws IOException, MessagingException;
-    List<String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId);
+    Map<String, String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId);
     List<Staffs> getPaginatedStaffs(int firstResult, int pageSize);
     void deleteStaff(String id);
     Staffs getStaffById(String id);

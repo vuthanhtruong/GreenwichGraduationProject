@@ -18,7 +18,9 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -169,19 +171,23 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
-    public List<String> validateSubject(MajorSubjects subject) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateSubject(MajorSubjects subject) {
+        Map<String, String> errors = new HashMap<>();
+
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
-            errors.add("Subject name cannot be blank.");
+            errors.put("subjectName", "Subject name cannot be blank.");
         } else if (!isValidName(subject.getSubjectName())) {
-            errors.add("Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+            errors.put("subjectName", "Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
-        if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
-            errors.add("Subject Name is already in use.");
+
+        if (subject.getSubjectName() != null && existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+            errors.put("subjectName", "Subject Name is already in use.");
         }
+
         if (subject.getSemester() == null || subject.getSemester() < 1) {
-            errors.add("Semester must be a positive number.");
+            errors.put("semester", "Semester must be a positive number.");
         }
+
         return errors;
     }
 

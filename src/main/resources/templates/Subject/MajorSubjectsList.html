@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subjects List</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/MajorSubjectsList.css}">
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
@@ -15,9 +15,13 @@
     </header>
 
     <!-- Alert Messages -->
-    <div th:if="${message}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
+    <div th:if="${message}" class="win11-alert" th:classappend="${alertClass}" role="alert">
+        <i class="fas fa-info-circle"></i>
         <span th:text="${message}"></span>
+    </div>
+    <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${editErrors.get('general')}"></span>
     </div>
 
     <!-- Unified Toolbar -->
@@ -56,7 +60,7 @@
                 <i class="fas fa-list"></i>
                 <p><strong>Total Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
             </div>
-            <button type="button" class="btn primary" onclick="openOverlay()">
+            <button type="button" class="btn primary" onclick="openAddOverlay()">
                 <i class="fas fa-plus"></i> Add Subject
             </button>
         </div>
@@ -131,6 +135,10 @@
     <div id="addOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-plus"></i> Add New Subject</h2>
+            <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${editErrors.get('general')}"></span>
+            </div>
             <form method="post" th:action="@{/staff-home/major-subjects-list/add-subject}" th:object="${newSubject}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
@@ -140,20 +148,14 @@
                         <!-- Subject Name -->
                         <div class="form-row">
                             <label for="subjectName"><i class="fas fa-book"></i> Subject Name:</label>
-                            <input id="subjectName" class="input" th:field="*{subjectName}" required type="text">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('subject name')}"
-                                 th:text="${error}">
-                            </div>
+                            <input id="subjectName" class="input uppercase-input" th:field="*{subjectName}" required type="text">
+                            <div th:if="${editErrors != null and editErrors.containsKey('subjectName')}" class="text-danger" th:text="${editErrors.get('subjectName')}"></div>
                         </div>
                         <!-- Semester -->
                         <div class="form-row">
                             <label for="semester"><i class="fas fa-calendar"></i> Semester:</label>
                             <input id="semester" class="input" type="number" th:field="*{semester}" min="1" required>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('semester')}"
-                                 th:text="${error}">
-                            </div>
+                            <div th:if="${editErrors != null and editErrors.containsKey('semester')}" class="text-danger" th:text="${editErrors.get('semester')}"></div>
                         </div>
                         <!-- Program Type -->
                         <div class="form-row">
@@ -166,10 +168,7 @@
                                         th:selected="${newSubject.learningProgramType == type}">
                                 </option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('program type')}"
-                                 th:text="${error}">
-                            </div>
+                            <div th:if="${editErrors != null and editErrors.containsKey('learningProgramType')}" class="text-danger" th:text="${editErrors.get('learningProgramType')}"></div>
                         </div>
                     </div>
                 </section>
@@ -178,7 +177,7 @@
                     <button class="btn primary" type="submit">
                         <i class="fas fa-save"></i> Save Subject
                     </button>
-                    <button type="button" class="btn danger" onclick="closeOverlay()">
+                    <button type="button" class="btn danger" onclick="closeAddOverlay()">
                         <i class="fas fa-times"></i> Cancel
                     </button>
                 </div>

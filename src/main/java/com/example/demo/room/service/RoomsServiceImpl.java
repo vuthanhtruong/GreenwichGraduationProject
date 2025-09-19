@@ -8,17 +8,23 @@ import io.jsonwebtoken.io.IOException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RoomsServiceImpl implements RoomsService {
     @Override
-    public List<String> validateOnlineRoom(OnlineRooms room, String link) {
-        return roomsDAO.validateOnlineRoom(room, link);
+    public boolean existsByRoomExcludingName(String roomName, String excludeId) {
+        return roomsDAO.existsByRoomExcludingName(roomName, excludeId);
     }
 
     @Override
-    public List<String> validateOfflineRoom(OfflineRooms room, String address) {
+    public Map<String, String> validateOfflineRoom(OfflineRooms room, String address) {
         return roomsDAO.validateOfflineRoom(room, address);
+    }
+
+    @Override
+    public Map<String, String> validateOnlineRoom(OnlineRooms room, String link) {
+        return roomsDAO.validateOnlineRoom(room, link);
     }
 
     @Override

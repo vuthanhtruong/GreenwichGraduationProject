@@ -6,9 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ScholarshipsServiceImpl implements ScholarshipsService {
+    @Override
+    public Map<String, String> validateScholarship(Scholarships scholarship) {
+        return scholarshipsDAO.validateScholarship(scholarship);
+    }
+
+    @Override
+    public List<Scholarships> getScScholarshipsByName(String scholarshipName) {
+        return scholarshipsDAO.getScScholarshipsByName(scholarshipName);
+    }
+
     @Override
     public String generateUniqueScholarshipId() {
         return scholarshipsDAO.generateUniqueScholarshipId();
@@ -17,11 +28,6 @@ public class ScholarshipsServiceImpl implements ScholarshipsService {
     @Override
     public Scholarships addScholarship(Scholarships scholarship) {
         return scholarshipsDAO.addScholarship(scholarship);
-    }
-
-    @Override
-    public List<String> validateScholarship(Scholarships scholarship) {
-        return scholarshipsDAO.validateScholarship(scholarship);
     }
 
     private final ScholarshipsDAO scholarshipsDAO;

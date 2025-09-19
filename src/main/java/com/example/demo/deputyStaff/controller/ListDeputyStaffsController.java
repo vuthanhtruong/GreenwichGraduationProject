@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin-home")
@@ -77,7 +79,9 @@ public class ListDeputyStaffsController {
             model.addAttribute("newDeputyStaff", new DeputyStaffs());
             return "DeputyStaffsList";
         } catch (Exception e) {
-            model.addAttribute("errors", List.of("An unexpected error occurred: " + e.getMessage()));
+            Map<String, String> errors = new HashMap<>();
+            errors.put("general", "An unexpected error occurred: " + e.getMessage());
+            model.addAttribute("errors", errors);
             return "DeputyStaffsList";
         }
     }
@@ -102,8 +106,10 @@ public class ListDeputyStaffsController {
             Model model,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+        Map<String, String> errors = new HashMap<>();
+
         try {
-            List<String> errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
+            errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
             if (!errors.isEmpty()) {
                 model.addAttribute("openAddOverlay", true);
                 model.addAttribute("errors", errors);
@@ -127,8 +133,9 @@ public class ListDeputyStaffsController {
             redirectAttributes.addFlashAttribute("message", "Deputy staff added successfully!");
             return "redirect:/admin-home/deputy-staffs-list";
         } catch (Exception e) {
+            errors.put("general", "An error occurred while adding deputy staff: " + e.getMessage());
             model.addAttribute("openAddOverlay", true);
-            model.addAttribute("errors", List.of("An error occurred while adding deputy staff: " + e.getMessage()));
+            model.addAttribute("errors", errors);
             model.addAttribute("newDeputyStaff", deputyStaff);
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("deputyStaffs", deputyStaffsService.getPaginatedDeputyStaffs(0, (Integer) session.getAttribute("deputyStaffPageSize") != null ? (Integer) session.getAttribute("deputyStaffPageSize") : 5));

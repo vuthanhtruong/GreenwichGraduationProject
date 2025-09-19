@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -78,7 +80,6 @@ public class RoomsDAOImpl implements RoomsDAO {
     @Override
     public Rooms updateOnlineRoom(String id, OnlineRooms room) {
         Rooms existingRoom = entityManager.find(Rooms.class, id);
-        List<String> errors = validateOnlineRoom(room, room.getLink());
         existingRoom.setRoomName(room.getRoomName());
         if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
         if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
@@ -260,42 +261,42 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public List<String> validateOfflineRoom(OfflineRooms room, String address) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateOfflineRoom(OfflineRooms room, String address) {
+        Map<String, String> errors = new HashMap<>();
 
         if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
-            errors.add("Room name cannot be blank.");
+            errors.put("roomName", "Room name cannot be blank.");
         } else if (!isValidName(room.getRoomName())) {
-            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+            errors.put("roomName", "Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
 
         if (room.getRoomName() != null && existsByRoomExcludingName(room.getRoomName(), room.getRoomId())) {
-            errors.add("Room name is already in use.");
+            errors.put("roomName", "Room name is already in use.");
         }
 
         if (address != null && !address.isEmpty() && !isValidAddress(address)) {
-            errors.add("Invalid address format.");
+            errors.put("address", "Invalid address format.");
         }
 
         return errors;
     }
 
     @Override
-    public List<String> validateOnlineRoom(OnlineRooms room, String link) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateOnlineRoom(OnlineRooms room, String link) {
+        Map<String, String> errors = new HashMap<>();
 
         if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
-            errors.add("Room name cannot be blank.");
+            errors.put("roomName", "Room name cannot be blank.");
         } else if (!isValidName(room.getRoomName())) {
-            errors.add("Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+            errors.put("roomName", "Room name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
         }
 
         if (room.getRoomName() != null && existsByRoomExcludingName(room.getRoomName(), room.getRoomId())) {
-            errors.add("Room name is already in use.");
+            errors.put("roomName", "Room name is already in use.");
         }
 
         if (link != null && !link.isEmpty() && !isValidLink(link)) {
-            errors.add("Invalid meeting link format. Must be a valid URL.");
+            errors.put("link", "Invalid link format.");
         }
 
         return errors;

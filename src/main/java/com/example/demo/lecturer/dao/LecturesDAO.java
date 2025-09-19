@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface LecturesDAO {
     long lecturersCountByCampus(String campus);
@@ -13,7 +14,7 @@ public interface LecturesDAO {
 
     String generateUniqueLectureId(String majorId, LocalDate createdDate);
 
-    List<String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile);
+    Map<String, String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile);
 
     List<MajorLecturers> getLecturers();
 

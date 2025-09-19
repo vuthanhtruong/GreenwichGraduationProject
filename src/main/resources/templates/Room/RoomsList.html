@@ -19,6 +19,10 @@
         <i class="fas fa-info-circle"></i>
         <span th:text="${message}"></span>
     </div>
+    <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${editErrors.get('general')}"></span>
+    </div>
 
     <!-- Unified Toolbar -->
     <div class="search-toolbar">
@@ -107,10 +111,12 @@
                             <div class="actions">
                                 <form th:action="@{/staff-home/rooms-list/edit-offline-room}" method="post" class="inline-form">
                                     <input type="hidden" name="id" th:value="${room.roomId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <button class="btn small"><i class="fas fa-edit"></i> Edit</button>
                                 </form>
                                 <form th:action="@{/staff-home/rooms-list/delete-offline-room/{id}(id=${room.roomId})}" method="post" class="inline-form" onsubmit="return confirm('Delete this room?');">
                                     <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <button class="btn small danger"><i class="fas fa-trash-alt"></i> Delete</button>
                                 </form>
                             </div>
@@ -158,10 +164,12 @@
                             <div class="actions">
                                 <form th:action="@{/staff-home/rooms-list/edit-online-room}" method="post" class="inline-form">
                                     <input type="hidden" name="id" th:value="${room.roomId}">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <button class="btn small"><i class="fas fa-edit"></i> Edit</button>
                                 </form>
                                 <form th:action="@{/staff-home/rooms-list/delete-online-room/{id}(id=${room.roomId})}" method="post" class="inline-form" onsubmit="return confirm('Delete this room?');">
                                     <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <button class="btn small danger"><i class="fas fa-trash-alt"></i> Delete</button>
                                 </form>
                             </div>
@@ -184,6 +192,10 @@
     <div id="offlineOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-door-open text-primary"></i> Add New Offline Room</h2>
+            <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${editErrors.get('general')}"></span>
+            </div>
             <form method="post" th:action="@{/staff-home/rooms-list/add-offline-room}" th:object="${offlineRoom}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <section class="win11-panel">
@@ -191,11 +203,13 @@
                     <div class="form-group">
                         <div class="form-row">
                             <label for="roomNameOffline"><i class="fas fa-door-open"></i> Room Name:</label>
-                            <input id="roomNameOffline" class="input uppercase-input" th:field="*{roomName}" type="text">
+                            <input id="roomNameOffline" class="input uppercase-input" th:field="*{roomName}" type="text" required>
+                            <div th:if="${editErrors != null and editErrors.containsKey('roomName')}" class="text-danger" th:text="${editErrors.get('roomName')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="address"><i class="fas fa-map-marker-alt"></i> Address:</label>
                             <input id="address" class="input" th:field="*{address}" type="text">
+                            <div th:if="${editErrors != null and editErrors.containsKey('address')}" class="text-danger" th:text="${editErrors.get('address')}"></div>
                         </div>
                     </div>
                 </section>
@@ -211,6 +225,10 @@
     <div id="onlineOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-laptop text-success"></i> Add New Online Room</h2>
+            <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${editErrors.get('general')}"></span>
+            </div>
             <form method="post" th:action="@{/staff-home/rooms-list/add-online-room}" th:object="${onlineRoom}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <section class="win11-panel">
@@ -218,11 +236,13 @@
                     <div class="form-group">
                         <div class="form-row">
                             <label for="roomNameOnline"><i class="fas fa-door-open"></i> Room Name:</label>
-                            <input id="roomNameOnline" class="input uppercase-input" th:field="*{roomName}" type="text">
+                            <input id="roomNameOnline" class="input uppercase-input" th:field="*{roomName}" type="text" required>
+                            <div th:if="${editErrors != null and editErrors.containsKey('roomName')}" class="text-danger" th:text="${editErrors.get('roomName')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="link"><i class="fas fa-link"></i> Meeting Link:</label>
                             <input id="link" class="input" th:field="*{link}" type="text">
+                            <div th:if="${editErrors != null and editErrors.containsKey('link')}" class="text-danger" th:text="${editErrors.get('link')}"></div>
                         </div>
                     </div>
                 </section>
@@ -257,10 +277,13 @@
             });
         });
     });
-</script>
-<script th:if="${openAddOverlay}">
     document.addEventListener("DOMContentLoaded", function () {
-        openOverlay();
+        if ([[{openAddOfflineOverlay}]] === true) {
+            openOfflineOverlay();
+        }
+        if ([[{openAddOnlineOverlay}]] === true) {
+            openOnlineOverlay();
+        }
     });
 </script>
 </body>

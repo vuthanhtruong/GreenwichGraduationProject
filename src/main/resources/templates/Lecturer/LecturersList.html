@@ -141,10 +141,11 @@
                 <!-- Avatar -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
+                    <!-- Avatar -->
                     <div class="form-row">
                         <label for="avatarFile"><i class="fas fa-upload"></i> Select Avatar:</label>
                         <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
+                        <div th:if="${errors != null and errors.containsKey('avatarFile')}" class="text-danger" th:text="${errors.get('avatarFile')}"></div>
                         <div th:if="${session.tempAvatarName}" class="form-text">
                             <i class="fas fa-clock"></i> Previously selected: <span th:text="${session.tempAvatarName}"></span>
                         </div>
@@ -155,53 +156,44 @@
                     <h2 class="panel-header"><i class="fas fa-user"></i> Lecturer Information</h2>
                     <div class="form-group grid-2">
                         <!-- First Name -->
+                        <!-- First Name -->
                         <div class="form-row">
                             <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
                             <input id="firstName" th:field="*{firstName}" required type="text" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('first name')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('firstName')}" class="text-danger" th:text="${errors.get('firstName')}"></div>
                         </div>
+
                         <!-- Last Name -->
                         <div class="form-row">
                             <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
                             <input id="lastName" th:field="*{lastName}" required type="text" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('last name')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('lastName')}" class="text-danger" th:text="${errors.get('lastName')}"></div>
                         </div>
+
                         <!-- Email -->
                         <div class="form-row">
                             <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="email" th:field="*{email}" required type="email" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('email')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('email')}" class="text-danger" th:text="${errors.get('email')}"></div>
                             <small class="form-text">
                                 <i class="fas fa-info-circle"></i> Account details and password will be emailed.
                             </small>
                         </div>
+
                         <!-- Phone -->
                         <div class="form-row">
                             <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
                             <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('phone')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('phoneNumber')}" class="text-danger" th:text="${errors.get('phoneNumber')}"></div>
                         </div>
+
                         <!-- Birth Date -->
                         <div class="form-row">
                             <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
                             <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('birth')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('birthDate')}" class="text-danger" th:text="${errors.get('birthDate')}"></div>
                         </div>
+
                         <!-- Gender -->
                         <div class="form-row">
                             <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
@@ -210,10 +202,7 @@
                                 <option th:each="gender : ${T(com.example.demo.entity.Enums.Gender).values()}"
                                         th:value="${gender}" th:text="${gender}"></option>
                             </select>
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('gender')}"
-                                 class="text-danger" th:text="${error}">
-                            </div>
+                            <div th:if="${errors != null and errors.containsKey('gender')}" class="text-danger" th:text="${errors.get('gender')}"></div>
                         </div>
                     </div>
                 </section>

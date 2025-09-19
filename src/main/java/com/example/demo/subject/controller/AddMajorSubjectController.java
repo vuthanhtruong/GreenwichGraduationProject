@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/major-subjects-list")
@@ -36,37 +37,33 @@ public class AddMajorSubjectController {
     @PostMapping("/add-subject")
     public String addSubject(
             @Valid @ModelAttribute("newSubject") MajorSubjects newSubject,
+            BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
-        List<String> errors = new ArrayList<>(subjectsService.validateSubject(newSubject));
+        Map<String, String> errors = new HashMap<>(subjectsService.validateSubject(newSubject));
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> {
+                String field = result.getFieldError() != null ? result.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
+        }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
-            model.addAttribute("errors", errors);
-            model.addAttribute("newSubject", newSubject);
-            model.addAttribute("subjects", subjectsService.getPaginatedSubjects(0, (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 5, staffsService.getStaffMajor()));
-            model.addAttribute("currentPage", session.getAttribute("subjectPage") != null ? session.getAttribute("subjectPage") : 1);
-            model.addAttribute("totalPages", session.getAttribute("subjectTotalPages") != null ? session.getAttribute("subjectTotalPages") : 1);
-            model.addAttribute("pageSize", session.getAttribute("subjectPageSize") != null ? session.getAttribute("subjectPageSize") : 5);
-            model.addAttribute("totalSubjects", subjectsService.numberOfSubjects(staffsService.getStaffMajor()));
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-            return "MajorSubjectsList";
+            redirectAttributes.addFlashAttribute("editErrors", errors);
+            redirectAttributes.addFlashAttribute("newSubject", newSubject);
+            redirectAttributes.addFlashAttribute("openAddOverlay", true); // Mở lại overlay
+            return "redirect:/staff-home/major-subjects-list";
         }
 
         try {
             if (staffsService.getStaff() == null || staffsService.getStaffMajor() == null) {
-                errors.add("Staff or major not found.");
-                model.addAttribute("errors", errors);
-                model.addAttribute("newSubject", newSubject);
-                model.addAttribute("subjects", subjectsService.getPaginatedSubjects(0, (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 5, staffsService.getStaffMajor()));
-                model.addAttribute("currentPage", session.getAttribute("subjectPage") != null ? session.getAttribute("subjectPage") : 1);
-                model.addAttribute("totalPages", session.getAttribute("subjectTotalPages") != null ? session.getAttribute("subjectTotalPages") : 1);
-                model.addAttribute("pageSize", session.getAttribute("subjectPageSize") != null ? session.getAttribute("subjectPageSize") : 5);
-                model.addAttribute("totalSubjects", subjectsService.numberOfSubjects(staffsService.getStaffMajor()));
-                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-                return "MajorSubjectsList";
+                errors.put("general", "Staff or major not found.");
+                redirectAttributes.addFlashAttribute("editErrors", errors);
+                redirectAttributes.addFlashAttribute("newSubject", newSubject);
+                redirectAttributes.addFlashAttribute("openAddOverlay", true);
+                return "redirect:/staff-home/major-subjects-list";
             }
 
             newSubject.setCreator(staffsService.getStaff());
@@ -76,18 +73,14 @@ public class AddMajorSubjectController {
 
             subjectsService.addSubject(newSubject);
             redirectAttributes.addFlashAttribute("message", "Subject added successfully!");
+            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/major-subjects-list";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the subject: " + e.getMessage());
-            model.addAttribute("errors", errors);
-            model.addAttribute("newSubject", newSubject);
-            model.addAttribute("subjects", subjectsService.getPaginatedSubjects(0, (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 5, staffsService.getStaffMajor()));
-            model.addAttribute("currentPage", session.getAttribute("subjectPage") != null ? session.getAttribute("subjectPage") : 1);
-            model.addAttribute("totalPages", session.getAttribute("subjectTotalPages") != null ? session.getAttribute("subjectTotalPages") : 1);
-            model.addAttribute("pageSize", session.getAttribute("subjectPageSize") != null ? session.getAttribute("subjectPageSize") : 5);
-            model.addAttribute("totalSubjects", subjectsService.numberOfSubjects(staffsService.getStaffMajor()));
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-            return "MajorSubjectsList";
+            errors.put("general", "An error occurred while adding the subject: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editErrors", errors);
+            redirectAttributes.addFlashAttribute("newSubject", newSubject);
+            redirectAttributes.addFlashAttribute("openAddOverlay", true);
+            return "redirect:/staff-home/major-subjects-list";
         }
     }
 }

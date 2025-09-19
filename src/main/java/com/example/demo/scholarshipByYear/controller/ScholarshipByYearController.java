@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -78,7 +80,9 @@ public class ScholarshipByYearController {
 
             return "AdminScholarshipByYearList";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Failed to load scholarships: " + e.getMessage());
+            Map<String, String> errors = new HashMap<>();
+            errors.put("general", "Failed to load scholarships: " + e.getMessage());
+            model.addAttribute("editErrors", errors);
             model.addAttribute("allScholarships", List.of());
             model.addAttribute("admissionYears", List.of());
             model.addAttribute("selectedYear", LocalDate.now().getYear());
@@ -107,7 +111,9 @@ public class ScholarshipByYearController {
             }
             redirectAttributes.addFlashAttribute("successMessage", "Scholarship amounts updated successfully!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update scholarship amounts: " + e.getMessage());
+            Map<String, String> errors = new HashMap<>();
+            errors.put("general", "Failed to update scholarship amounts: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editErrors", errors);
         }
         session.setAttribute("scholarshipAdmissionYear", admissionYear);
         return "redirect:/admin-home/scholarship-by-year-list";
@@ -116,10 +122,19 @@ public class ScholarshipByYearController {
     @PostMapping("/add-scholarship")
     public String addScholarship(
             @Valid @ModelAttribute("scholarship") Scholarships scholarship,
+            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
-        List<String> errors = scholarshipsService.validateScholarship(scholarship);
+        Map<String, String> errors = new HashMap<>(scholarshipsService.validateScholarship(scholarship));
+
+        // Xử lý lỗi từ BindingResult
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
+        }
 
         Integer selectedYear = (Integer) session.getAttribute("scholarshipAdmissionYear");
         if (selectedYear == null) {
@@ -128,7 +143,7 @@ public class ScholarshipByYearController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("openAddOverlay", true);
-            model.addAttribute("errors", errors);
+            model.addAttribute("editErrors", errors);
             model.addAttribute("scholarship", scholarship);
             return listScholarshipsByYear(model, selectedYear, session);
         }
@@ -142,9 +157,9 @@ public class ScholarshipByYearController {
             redirectAttributes.addFlashAttribute("successMessage", "Scholarship added successfully!");
             return "redirect:/admin-home/scholarship-by-year-list";
         } catch (Exception e) {
-            errors.add("Failed to add scholarship: " + e.getMessage());
+            errors.put("general", "Failed to add scholarship: " + e.getMessage());
             model.addAttribute("openAddOverlay", true);
-            model.addAttribute("errors", errors);
+            model.addAttribute("editErrors", errors);
             model.addAttribute("scholarship", scholarship);
             return listScholarshipsByYear(model, selectedYear, session);
         }

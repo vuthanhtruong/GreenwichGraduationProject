@@ -8,9 +8,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
+    @Override
+    public Map<String, String> validateSubject(MajorSubjects subject) {
+        return subjectsDAO.validateSubject(subject);
+    }
+
     @Override
     public List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major) {
         return subjectsDAO.getPaginatedSubjects(firstResult, pageSize, major);
@@ -39,11 +45,6 @@ public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
     public String generateUniqueSubjectId(String majorId, LocalDate createdDate) {
         return subjectsDAO.generateUniqueSubjectId(majorId, createdDate);
-    }
-
-    @Override
-    public List<String> validateSubject(MajorSubjects subject) {
-        return subjectsDAO.validateSubject(subject);
     }
 
     @Override

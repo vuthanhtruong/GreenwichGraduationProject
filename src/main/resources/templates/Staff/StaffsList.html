@@ -20,6 +20,10 @@
         <i class="fas fa-check-circle"></i>
         <span th:text="${message}"></span>
     </div>
+    <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errors.get('general')}"></span>
+    </div>
 
     <!-- Unified Toolbar -->
     <div class="search-toolbar">
@@ -149,7 +153,7 @@
                     <div class="form-row">
                         <label for="avatarFile"><i class="fas fa-upload"></i> Select Avatar:</label>
                         <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
+                        <div th:if="${errors != null and errors.containsKey('avatarFile')}" class="text-danger" th:text="${errors.get('avatarFile')}"></div>
                         <div th:if="${session.tempAvatarName}" class="form-text">
                             <i class="fas fa-clock"></i> Previously selected: <span th:text="${session.tempAvatarName}"></span>
                         </div>
@@ -163,28 +167,28 @@
                         <div class="form-row">
                             <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
                             <input id="firstName" th:field="*{firstName}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name') or error.contains('First Name')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('firstName')}" class="text-danger" th:text="${errors.get('firstName')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
                             <input id="lastName" th:field="*{lastName}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name') or error.contains('Last Name')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('lastName')}" class="text-danger" th:text="${errors.get('lastName')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="email" th:field="*{email}" required type="email" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email') or error.contains('Email')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('email')}" class="text-danger" th:text="${errors.get('email')}"></div>
                             <small class="form-text"><i class="fas fa-info-circle"></i> Account details and password will be emailed.</small>
                         </div>
                         <div class="form-row">
                             <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
                             <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone') or error.contains('Phone')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('phoneNumber')}" class="text-danger" th:text="${errors.get('phoneNumber')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
                             <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('birth') or error.contains('Birth')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('birthDate')}" class="text-danger" th:text="${errors.get('birthDate')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
@@ -193,7 +197,7 @@
                                 <option th:each="gender : ${T(com.example.demo.entity.Enums.Gender).values()}"
                                         th:value="${gender}" th:text="${gender}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('gender') or error.contains('Gender')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('gender')}" class="text-danger" th:text="${errors.get('gender')}"></div>
                         </div>
                     </div>
                 </section>
@@ -209,7 +213,7 @@
                                 <option th:each="major : ${majors}"
                                         th:value="${major.majorId}" th:text="${major.majorName}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('major') or error.contains('Major')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('majorId')}" class="text-danger" th:text="${errors.get('majorId')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="campus"><i class="fas fa-map-marker-alt"></i> Campus:</label>
@@ -218,7 +222,7 @@
                                 <option th:each="campus : ${campuses}"
                                         th:value="${campus.campusId}" th:text="${campus.campusName}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('campus') or error.contains('Campus')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
                         </div>
                     </div>
                 </section>
@@ -230,37 +234,37 @@
                         <div class="form-row">
                             <label for="country"><i class="fas fa-flag"></i> Country:</label>
                             <input id="country" th:field="*{country}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('country') or error.contains('Country')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('country')}" class="text-danger" th:text="${errors.get('country')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="province"><i class="fas fa-location-dot"></i> Province:</label>
                             <input id="province" th:field="*{province}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('province') or error.contains('Province')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('province')}" class="text-danger" th:text="${errors.get('province')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="city"><i class="fas fa-city"></i> City:</label>
                             <input id="city" th:field="*{city}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('city') or error.contains('City')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('city')}" class="text-danger" th:text="${errors.get('city')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="district"><i class="fas fa-map"></i> District:</label>
                             <input id="district" th:field="*{district}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('district') or error.contains('District')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('district')}" class="text-danger" th:text="${errors.get('district')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="ward"><i class="fas fa-map-pin"></i> Ward:</label>
                             <input id="ward" th:field="*{ward}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('ward') or error.contains('Ward')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('ward')}" class="text-danger" th:text="${errors.get('ward')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="street"><i class="fas fa-road"></i> Street/House:</label>
                             <input id="street" th:field="*{street}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('street') or error.contains('Street')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('street')}" class="text-danger" th:text="${errors.get('street')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="postalCode"><i class="fas fa-mail-bulk"></i> Postal Code:</label>
                             <input id="postalCode" th:field="*{postalCode}" class="input">
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('postal') or error.contains('Postal')}" th:text="${error}"></div>
+                            <div th:if="${errors != null and errors.containsKey('postalCode')}" class="text-danger" th:text="${errors.get('postalCode')}"></div>
                         </div>
                     </div>
                 </section>
@@ -273,20 +277,20 @@
             </form>
         </div>
     </div>
-</div>
 
-<script>
-    function openOverlay() {
-        document.getElementById('addOverlay').classList.add('active');
-    }
-    function closeOverlay() {
-        document.getElementById('addOverlay').classList.remove('active');
-    }
-</script>
-<script th:if="${openAddOverlay}">
-    document.addEventListener("DOMContentLoaded", function () {
-        openOverlay();
-    });
-</script>
+    <script>
+        function openOverlay() {
+            document.getElementById('addOverlay').classList.add('active');
+        }
+        function closeOverlay() {
+            document.getElementById('addOverlay').classList.remove('active');
+        }
+    </script>
+    <script th:if="${openAddOverlay}">
+        document.addEventListener("DOMContentLoaded", function () {
+            openOverlay();
+        });
+    </script>
+</div>
 </body>
 </html>

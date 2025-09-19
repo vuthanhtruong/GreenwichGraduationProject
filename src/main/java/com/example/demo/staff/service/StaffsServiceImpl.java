@@ -12,9 +12,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StaffsServiceImpl implements StaffsService {
+    @Override
+    public Map<String, String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
+        return staffsDAO.validateStaff(staff, avatarFile, majorId, campusId);
+    }
+
     @Override
     public long countSearchResults(String searchType, String keyword) {
         return staffsDAO.countSearchResults(searchType, keyword);
@@ -53,12 +59,6 @@ public class StaffsServiceImpl implements StaffsService {
     @Override
     public List<Staffs> getStaffs() {
         return staffsDAO.getStaffs();
-    }
-    
-
-    @Override
-    public  List<String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
-        return staffsDAO.validateStaff(staff, avatarFile, majorId, campusId);
     }
 
     @Override

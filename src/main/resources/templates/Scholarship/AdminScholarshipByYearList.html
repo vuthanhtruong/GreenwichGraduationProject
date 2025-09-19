@@ -1,40 +1,49 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Scholarships by Year</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
+    <!-- Title Bar -->
     <header class="win11-title-bar">
         <h1><i class="fas fa-award"></i> Manage Scholarships by Year</h1>
     </header>
 
-    <div th:if="${successMessage}" class="win11-alert success">
+    <!-- Alert Messages -->
+    <div th:if="${successMessage}" class="win11-alert" th:classappend="'alert-success'" role="alert">
         <i class="fas fa-check-circle"></i>
         <span th:text="${successMessage}"></span>
     </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
+    <div th:if="${errorMessage}" class="win11-alert" th:classappend="'alert-danger'" role="alert">
         <i class="fas fa-exclamation-circle"></i>
         <span th:text="${errorMessage}"></span>
     </div>
+    <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${editErrors.get('general')}"></span>
+    </div>
 
+    <!-- Unified Toolbar -->
     <div class="search-toolbar">
+        <!-- Left: Home and Add -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home}" class="btn btn-secondary">
+            <a th:href="@{/admin-home}" class="btn">
                 <i class="fas fa-arrow-left"></i> Home
             </a>
-            <button type="button" class="btn btn-primary" onclick="openOverlay()">
+            <button type="button" class="btn primary" onclick="openAddOverlay()">
                 <i class="fas fa-plus"></i> Add Scholarship
             </button>
         </div>
+        <!-- Center: Year Selector -->
         <form method="post" th:action="@{/admin-home/scholarship-by-year-list}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
-            <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
+            <select id="admissionYear" name="admissionYear" class="input" onchange="this.form.submit()">
                 <option value="" disabled th:unless="${admissionYears != null and admissionYears.size() > 0}">No years available</option>
                 <option th:each="year : ${admissionYears}"
                         th:value="${year}"
@@ -42,6 +51,7 @@
                         th:selected="${year == selectedYear}"></option>
             </select>
         </form>
+        <!-- Right: Total -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-list"></i>
@@ -50,6 +60,7 @@
         </div>
     </div>
 
+    <!-- Scholarships with Amounts -->
     <form th:action="@{/admin-home/update-scholarship-by-year}" method="post">
         <input type="hidden" name="admissionYear" th:value="${selectedYear}">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -57,7 +68,7 @@
         <section class="win11-panel">
             <h2 class="panel-header"><i class="fas fa-coins"></i> Scholarships with Amounts for <span th:text="${selectedYear}"></span></h2>
             <div class="table-container">
-                <table class="win11-table table table-bordered table-striped">
+                <table class="win11-table">
                     <thead>
                     <tr>
                         <th><i class="fas fa-id-card"></i> ID</th>
@@ -73,16 +84,16 @@
                         th:if="${scholarshipByYearMap[scholarship.scholarshipId] != null}">
                         <td th:text="${scholarship.scholarshipId}"></td>
                         <td th:text="${scholarship.typeName}"></td>
-                        <td th:text="${scholarship.awardDate}"></td>
+                        <td th:text="${scholarship.awardDate != null ? #temporals.format(scholarship.awardDate, 'dd-MM-yyyy') : 'N/A'}"></td>
                         <td th:text="${scholarship.creator?.fullName ?: 'N/A'}"></td>
                         <td>
-                            <input type="number" class="form-control input small"
+                            <input type="number" class="input small"
                                    th:name="'amount_' + ${scholarship.scholarshipId}"
                                    th:value="${scholarshipByYearMap[scholarship.scholarshipId].amount}"
                                    placeholder="Enter amount" min="0" step="0.01">
                         </td>
                         <td>
-                            <input type="number" class="form-control input small"
+                            <input type="number" class="input small"
                                    th:name="'discountPercentage_' + ${scholarship.scholarshipId}"
                                    th:value="${scholarshipByYearMap[scholarship.scholarshipId].discountPercentage}"
                                    placeholder="Enter discount" min="0" max="100" step="0.01">
@@ -93,10 +104,11 @@
             </div>
         </section>
 
+        <!-- Scholarships without Amounts -->
         <section class="win11-panel">
             <h2 class="panel-header"><i class="fas fa-list"></i> Scholarships without Amounts for <span th:text="${selectedYear}"></span></h2>
             <div class="table-container">
-                <table class="win11-table table table-bordered table-striped">
+                <table class="win11-table">
                     <thead>
                     <tr>
                         <th><i class="fas fa-id-card"></i> ID</th>
@@ -112,15 +124,15 @@
                         th:if="${scholarshipByYearMap[scholarship.scholarshipId] == null}">
                         <td th:text="${scholarship.scholarshipId}"></td>
                         <td th:text="${scholarship.typeName}"></td>
-                        <td th:text="${scholarship.awardDate}"></td>
+                        <td th:text="${scholarship.awardDate != null ? #temporals.format(scholarship.awardDate, 'dd-MM-yyyy') : 'N/A'}"></td>
                         <td th:text="${scholarship.creator?.fullName ?: 'N/A'}"></td>
                         <td>
-                            <input type="number" class="form-control input small"
+                            <input type="number" class="input small"
                                    th:name="'amount_' + ${scholarship.scholarshipId}"
                                    placeholder="Enter amount" min="0" step="0.01">
                         </td>
                         <td>
-                            <input type="number" class="form-control input small"
+                            <input type="number" class="input small"
                                    th:name="'discountPercentage_' + ${scholarship.scholarshipId}"
                                    placeholder="Enter discount" min="0" max="100" step="0.01">
                         </td>
@@ -140,28 +152,26 @@
     <!-- Overlay Add Scholarship -->
     <div id="addOverlay" class="overlay">
         <div class="overlay-content">
-            <h2><i class="fas fa-award"></i> Add New Scholarship</h2>
+            <h2><i class="fas fa-award text-primary"></i> Add New Scholarship</h2>
+            <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${editErrors.get('general')}"></span>
+            </div>
             <form method="post" th:action="@{/admin-home/add-scholarship}" th:object="${scholarship}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-info-circle"></i> Scholarship Information</h2>
-                    <div class="form-group grid-2">
-                        <!-- Type Name -->
+                    <div class="form-group">
                         <div class="form-row">
                             <label for="typeName"><i class="fas fa-award"></i> Scholarship Type Name:</label>
-                            <input id="typeName" th:field="*{typeName}" required type="text" class="input form-control">
-                            <div th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('type name')}"
-                                 class="text-danger" th:text="${error}"></div>
+                            <input id="typeName" class="input uppercase-input" th:field="*{typeName}" required type="text">
+                            <div th:if="${editErrors != null and editErrors.containsKey('typeName')}" class="text-danger" th:text="${editErrors.get('typeName')}"></div>
                         </div>
                     </div>
                 </section>
-
-                <!-- Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Scholarship</button>
-                    <button type="button" class="btn danger" onclick="closeOverlay()"><i class="fas fa-times"></i> Cancel</button>
+                    <button type="button" class="btn danger" onclick="closeAddOverlay()"><i class="fas fa-times"></i> Cancel</button>
                 </div>
             </form>
         </div>

@@ -23,9 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -281,51 +279,50 @@ public class StaffsDAOImpl implements StaffsDAO {
     }
 
     @Override
-    public List<String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
+        Map<String, String> errors = new HashMap<>();
+
         if (staff.getFirstName() == null || !isValidName(staff.getFirstName())) {
-            errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("firstName", "First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (staff.getLastName() == null || !isValidName(staff.getLastName())) {
-            errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("lastName", "Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (staff.getEmail() == null || !isValidEmail(staff.getEmail())) {
-            errors.add("Email is required and must be in a valid format.");
+            errors.put("email", "Email is required and must be in a valid format.");
         }
         if (staff.getPhoneNumber() == null || !isValidPhoneNumber(staff.getPhoneNumber())) {
-            errors.add("Phone number is required and must be 10-15 digits, optionally starting with '+'.");
+            errors.put("phoneNumber", "Phone number is required and must be 10-15 digits, optionally starting with '+'.");
         }
         if (staff.getBirthDate() != null && staff.getBirthDate().isAfter(LocalDate.now())) {
-            errors.add("Date of birth must be in the past.");
+            errors.put("birthDate", "Date of birth must be in the past.");
         }
         if (staff.getEmail() != null && personsService.existsByEmailExcludingId(staff.getEmail(), staff.getId() != null ? staff.getId() : "")) {
-            errors.add("The email address is already associated with another account.");
+            errors.put("email", "The email address is already associated with another account.");
         }
         if (staff.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(staff.getPhoneNumber(), staff.getId() != null ? staff.getId() : "")) {
-            errors.add("The phone number is already associated with another account.");
+            errors.put("phoneNumber", "The phone number is already associated with another account.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                errors.add("Avatar must be an image file.");
+                errors.put("avatarFile", "Avatar must be an image file.");
             }
             if (avatarFile.getSize() > 5 * 1024 * 1024) {
-                errors.add("Avatar file size must not exceed 5MB.");
+                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
         }
         if (staff.getGender() == null) {
-            errors.add("Gender is required to assign a default avatar.");
+            errors.put("gender", "Gender is required to assign a default avatar.");
         }
         if (majorId == null || majorId.isEmpty() || majorsService.getByMajorId(majorId) == null) {
-            errors.add("A valid major must be selected.");
+            errors.put("majorId", "A valid major must be selected.");
         }
         if (campusId == null || campusId.isEmpty() || campusesService.getCampusById(campusId) == null) {
-            errors.add("A valid campus must be selected.");
+            errors.put("campusId", "A valid campus must be selected.");
         }
         return errors;
     }
-
-
     /**
      * Validate email theo chuẩn RFC 5322 (gọn gàng, thực tế).
      * - Cho phép tên miền có dấu gạch ngang.

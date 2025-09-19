@@ -5,6 +5,7 @@ import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.room.model.Rooms;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoomsDAO {
     Rooms getRoomById(String id);
@@ -30,6 +31,6 @@ public interface RoomsDAO {
     long totalOnlineRooms();
     String generateUniqueRoomId(boolean isOffline);
     boolean existsByRoomExcludingName(String roomName, String excludeId);
-    List<String> validateOnlineRoom(OnlineRooms room, String link);
-    List<String> validateOfflineRoom(OfflineRooms room, String address);
+    Map<String, String> validateOfflineRoom(OfflineRooms room, String address);
+    Map<String, String> validateOnlineRoom(OnlineRooms room, String link);
 }

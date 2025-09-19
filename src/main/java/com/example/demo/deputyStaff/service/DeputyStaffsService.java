@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface DeputyStaffsService {
     List<DeputyStaffs> getDeputyStaffs();
@@ -17,7 +18,7 @@ public interface DeputyStaffsService {
     void editDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile) throws IOException;
     String generateRandomPassword(int length);
     String generateUniqueDeputyStaffId(LocalDate createdDate);
-    List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId);
+    Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId);
     List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
 }

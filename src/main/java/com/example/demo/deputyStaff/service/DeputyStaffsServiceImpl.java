@@ -8,8 +8,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class DeputyStaffsServiceImpl implements DeputyStaffsService {
+    @Override
+    public Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
+        return deputyStaffsDAO.validateDeputyStaff(deputyStaff, avatarFile, campusId);
+    }
+
     private final DeputyStaffsDAO deputyStaffsDAO;
 
     public DeputyStaffsServiceImpl(DeputyStaffsDAO deputyStaffsDAO) {
@@ -61,10 +68,6 @@ public class DeputyStaffsServiceImpl implements DeputyStaffsService {
         return deputyStaffsDAO.generateUniqueDeputyStaffId(createdDate);
     }
 
-    @Override
-    public List<String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
-        return deputyStaffsDAO.validateDeputyStaff(deputyStaff, avatarFile, campusId);
-    }
 
     @Override
     public List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize) {

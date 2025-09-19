@@ -3,6 +3,7 @@ package com.example.demo.scholarship.service;
 import com.example.demo.scholarship.model.Scholarships;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ScholarshipsService {
     boolean existsScholarshipById(String scholarshipId);
@@ -14,5 +15,6 @@ public interface ScholarshipsService {
     long countSearchResults(String searchType, String keyword);
     String generateUniqueScholarshipId();
     Scholarships addScholarship(Scholarships scholarship);
-    List<String> validateScholarship(Scholarships scholarship);
+    Map<String, String> validateScholarship(Scholarships scholarship);
+    List<Scholarships> getScScholarshipsByName(String scholarshipName);
 }

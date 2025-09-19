@@ -12,8 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home")
@@ -44,6 +44,7 @@ public class EditMajorSubjectController {
     @PutMapping("/major-subjects-list/edit-major-subject")
     public String editSubject(
             @Valid @ModelAttribute("subject") MajorSubjects formSubject,
+            BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
         MajorSubjects existingSubject = subjectsService.getSubjectById(formSubject.getSubjectId());
@@ -53,11 +54,16 @@ public class EditMajorSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
 
-        List<String> errors = new ArrayList<>(subjectsService.validateSubject(formSubject)); // Sao chép danh sách lỗi
-
+        Map<String, String> errors = new HashMap<>(subjectsService.validateSubject(formSubject));
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            });
+        }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("errors", errors);
+            model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
             return "EditMajorSubjectForm";
         }
@@ -67,10 +73,10 @@ public class EditMajorSubjectController {
             existingSubject.setSemester(formSubject.getSemester());
             subjectsService.editSubject(formSubject.getSubjectId(), existingSubject);
 
-            redirectAttributes.addFlashAttribute("message", "Subject editd successfully!");
+            redirectAttributes.addFlashAttribute("message", "Subject edited successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
-            errors.add("Error updating subject: " + e.getMessage());
+            errors.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
             return "EditMajorSubjectForm";

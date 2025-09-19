@@ -4,8 +4,6 @@ import com.example.demo.entity.Enums.Gender;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.person.service.PersonsService;
-import com.example.demo.staff.service.StaffsService;
-import com.example.demo.student.service.StudentsService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -20,8 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/lecturers-list")
@@ -29,7 +27,7 @@ public class EditLecturerController {
     private final LecturesService lecturesService;
     private final PersonsService personsService;
 
-    public EditLecturerController(LecturesService lecturesService,  PersonsService personsService) {
+    public EditLecturerController(LecturesService lecturesService, PersonsService personsService) {
         this.lecturesService = lecturesService;
         this.personsService = personsService;
     }
@@ -73,9 +71,14 @@ public class EditLecturerController {
             RedirectAttributes redirectAttributes,
             ModelMap modelMap,
             HttpSession session) {
-        List<String> errors = lecturesService.lectureValidation(lecture, avatarFile);
+        Map<String, String> errors = lecturesService.lectureValidation(lecture, avatarFile);
+
+        // Xử lý lỗi từ BindingResult
         if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            }
         }
 
         if (!errors.isEmpty()) {
@@ -119,7 +122,9 @@ public class EditLecturerController {
             redirectAttributes.addFlashAttribute("pageSize", pageSize);
             return "redirect:/staff-home/lecturers-list";
         } catch (IOException | MessagingException e) {
-            modelMap.addAttribute("errors", List.of("Error updating lecturer: " + e.getMessage()));
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "Error updating lecturer: " + e.getMessage());
+            modelMap.addAttribute("errors", errorsCatch);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
             modelMap.addAttribute("searchType", searchType);
             modelMap.addAttribute("keyword", keyword);

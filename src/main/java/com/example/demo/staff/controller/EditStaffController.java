@@ -20,8 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin-home/staffs-list")
@@ -49,6 +49,12 @@ public class EditStaffController {
             @RequestParam(required = false) Integer pageSize,
             Model model) {
         Staffs staff = staffsService.getStaffById(id);
+        if (staff == null) {
+            if ("search".equals(source)) {
+                return "redirect:/admin-home/staffs-list/search-staffs?error=Staff+not+found&searchType=" + (searchType != null ? searchType : "") + "&keyword=" + (keyword != null ? keyword : "") + "&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            }
+            return "redirect:/admin-home/staffs-list?error=Staff+not+found&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+        }
         model.addAttribute("staff", staff);
         model.addAttribute("genders", Arrays.asList(Gender.values()));
         model.addAttribute("majors", majorsService.getMajors());
@@ -75,9 +81,14 @@ public class EditStaffController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             RedirectAttributes redirectAttributes,
             Model model) {
-        List<String> errors = staffsService.validateStaff(staff, avatarFile, majorId, campusId);
+        Map<String, String> errors = staffsService.validateStaff(staff, avatarFile, majorId, campusId);
+
+        // Xử lý lỗi từ BindingResult
         if (bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.toList()));
+            for (ObjectError error : bindingResult.getAllErrors()) {
+                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
+                errors.put(field, error.getDefaultMessage());
+            }
         }
 
         if (!errors.isEmpty()) {
@@ -103,7 +114,7 @@ public class EditStaffController {
                     redirectAttributes.addFlashAttribute("pageSize", pageSize);
                     return "redirect:/admin-home/staffs-list/search-staffs";
                 }
-                return "redirect:/admin-home/staffs-list";
+                return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
             }
             Majors majors = majorsService.getByMajorId(majorId);
             Campuses campuses = campusesService.getCampusById(campusId);
@@ -120,15 +131,18 @@ public class EditStaffController {
             }
             return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
         } catch (IOException | MessagingException e) {
-            redirectAttributes.addFlashAttribute("error", "Error updating staff: " + e.getMessage());
-            if ("search".equals(source)) {
-                redirectAttributes.addFlashAttribute("searchType", searchType);
-                redirectAttributes.addFlashAttribute("keyword", keyword);
-                redirectAttributes.addFlashAttribute("page", page);
-                redirectAttributes.addFlashAttribute("pageSize", pageSize);
-                return "redirect:/admin-home/staffs-list/search-staffs";
-            }
-            return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "Error updating staff: " + e.getMessage());
+            model.addAttribute("errors", errorsCatch);
+            model.addAttribute("genders", Arrays.asList(Gender.values()));
+            model.addAttribute("majors", majorsService.getMajors());
+            model.addAttribute("campuses", campusesService.getCampuses());
+            model.addAttribute("source", source);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("page", page);
+            model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+            return "EditStaffForm";
         }
     }
 }

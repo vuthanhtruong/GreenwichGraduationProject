@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/lecturers-list")
@@ -42,8 +43,7 @@ public class AddLecturerController {
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
-        List<String> errors = new ArrayList<>();
-        errors.addAll(lecturesService.lectureValidation(lecturer, avatarFile));
+        Map<String, String> errors = lecturesService.lectureValidation(lecturer, avatarFile);
 
         if (!errors.isEmpty()) {
             model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
@@ -59,7 +59,7 @@ public class AddLecturerController {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
                     session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
                 } catch (IOException e) {
-                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                    errors.put("avatarFile", "Failed to store avatar temporarily: " + e.getMessage());
                 }
             }
             return "LecturersList";
@@ -92,7 +92,6 @@ public class AddLecturerController {
             redirectAttributes.addFlashAttribute("message", "Lecturer added successfully!");
             return "redirect:/staff-home/lecturers-list";
         } catch (IOException e) {
-            errors.add("Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
             model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
@@ -102,7 +101,6 @@ public class AddLecturerController {
             model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
             return "LecturersList";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the lecturer: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
             model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
