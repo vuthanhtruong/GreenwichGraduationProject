@@ -1,5 +1,6 @@
 package com.example.demo.student_scholarship.service;
 
+import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.student_scholarship.dao.StudentScholarshipDAO;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.student_scholarship.model.Students_Scholarships;
@@ -10,6 +11,11 @@ import java.util.Map;
 
 @Service
 public class StudentScholarshipServiceImpl implements StudentScholarshipService {
+    @Override
+    public Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship) {
+        return studentScholarshipDAO.getCountStudentScholarshipByYear(admissionYear, scholarship);
+    }
+
     @Override
     public Map<String, Map<String, Object>> getAwardedScholarshipsByYear(Integer admissionYear) {
         return studentScholarshipDAO.getAwardedScholarshipsByYear(admissionYear);

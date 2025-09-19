@@ -18,6 +18,7 @@ import java.util.List;
 @Repository
 @Transactional
 public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
+
     private final ScholarshipsService scholarshipsService;
     private final AdminsService adminsService;
 
@@ -26,10 +27,42 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
         this.adminsService = adminsService;
     }
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Override
+    public Long getCountScholarshipByYear(Integer admissionYear) {
+        if (admissionYear == null) {
+            return 0L;
+        }
+        return entityManager.createQuery(
+                        "SELECT COUNT(sby) FROM ScholarshipByYear sby WHERE sby.id.admissionYear = :admissionYear",
+                        Long.class)
+                .setParameter("admissionYear", admissionYear)
+                .getSingleResult();
+    }
+
+    @Override
+    public ScholarshipByYear getScholarshipByYear(String scholarshipId, Integer admissionYear) {
+        if (scholarshipId == null || admissionYear == null) {
+            return null;
+        }
+        return entityManager.createQuery(
+                        "SELECT sby FROM ScholarshipByYear sby " +
+                                "WHERE sby.id.scholarshipId = :scholarshipId AND sby.id.admissionYear = :admissionYear",
+                        ScholarshipByYear.class)
+                .setParameter("scholarshipId", scholarshipId)
+                .setParameter("admissionYear", admissionYear)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
     @Override
     public void updateScholarshipByYear(String scholarshipId, Integer admissionYear, Double amount, Double discountPercentage) {
         if (amount == null && discountPercentage == null) {
-            return; // Không cập nhật nếu cả hai trường đều null
+            return;
         }
 
         Scholarships scholarship = scholarshipsService.getScholarshipById(scholarshipId);
@@ -42,17 +75,12 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
         scholarshipByYear.setScholarship(scholarship);
         scholarshipByYear.setAmount(amount != null ? amount : 0.0);
         scholarshipByYear.setDiscountPercentage(discountPercentage);
-        scholarshipByYear.setStatus(ActivityStatus.ACTIVATED); // Sửa thành ACTIVE để đồng bộ với enum
-
-        // Giả định người tạo là admin đang đăng nhập
+        scholarshipByYear.setStatus(ActivityStatus.ACTIVATED);
         Admins creator = adminsService.getAdmin();
         scholarshipByYear.setCreator(creator);
         scholarshipByYear.setCreatedAt(LocalDateTime.now());
         saveOrUpdate(scholarshipByYear);
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     public List<ScholarshipByYear> getScholarshipsByYear(Integer admissionYear) {
@@ -68,7 +96,9 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
 
     @Override
     public List<Integer> getAllAdmissionYears() {
-        return entityManager.createQuery("SELECT DISTINCT sby.id.admissionYear FROM ScholarshipByYear sby ORDER BY sby.id.admissionYear DESC", Integer.class)
+        return entityManager.createQuery(
+                        "SELECT DISTINCT sby.id.admissionYear FROM ScholarshipByYear sby ORDER BY sby.id.admissionYear DESC",
+                        Integer.class)
                 .getResultList();
     }
 

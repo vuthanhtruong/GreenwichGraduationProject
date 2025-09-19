@@ -1,5 +1,6 @@
 package com.example.demo.student_scholarship.dao;
 import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.student_scholarship.model.Students_Scholarships;
 import com.example.demo.scholarship.service.ScholarshipsService;
@@ -21,6 +22,19 @@ import java.util.Map;
 @Repository
 @Transactional
 public class StudentScholarshipDAOImpl implements StudentScholarshipDAO {
+    @Override
+    public Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship) {
+        if (admissionYear == null || scholarship == null) {
+            return 0L;
+        }
+        return entityManager.createQuery(
+                        "SELECT COUNT(ss) FROM Students_Scholarships ss " +
+                                "WHERE ss.admissionYear = :admissionYear AND ss.scholarship.scholarshipId = :scholarshipId",
+                        Long.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("scholarshipId", scholarship.getScholarshipId())
+                .getSingleResult();
+    }
 
     private final StudentsService studentsService;
     private final StaffsService staffsService;

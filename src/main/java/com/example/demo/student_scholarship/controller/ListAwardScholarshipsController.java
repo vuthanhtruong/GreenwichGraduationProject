@@ -2,6 +2,7 @@ package com.example.demo.student_scholarship.controller;
 
 import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.student_scholarship.model.Students_Scholarships;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
 import com.example.demo.scholarship.service.ScholarshipsService;
 import com.example.demo.student_scholarship.service.StudentScholarshipService;
@@ -10,13 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,8 +83,21 @@ public class ListAwardScholarshipsController {
                     .sorted(Comparator.reverseOrder())
                     .collect(Collectors.toList());
 
-            // Lấy danh sách học bổng và học bổng đã cấp
+            // Lấy danh sách học bổng
             List<Scholarships> availableScholarships = scholarshipsService.getAllScholarships();
+
+            // Tính toán số lượng còn lại cho mỗi học bổng
+            Map<String, Long> remainingCounts = new HashMap<>();
+            for (Scholarships scholarship : availableScholarships) {
+                String scholarshipId = scholarship.getScholarshipId();
+                ScholarshipByYear scholarshipByYear = scholarshipByYearService.getScholarshipByYear(scholarshipId, selectedYear);
+                Double amount = (scholarshipByYear != null) ? scholarshipByYear.getAmount() : 0.0;
+                Long awardedCount = studentScholarshipService.getCountStudentScholarshipByYear(selectedYear, scholarship);
+                Long remaining = Math.max(0, amount.longValue() - awardedCount);
+                remainingCounts.put(scholarshipId, remaining);
+            }
+
+            // Lấy danh sách học bổng đã cấp
             Map<String, Map<String, Object>> awardedScholarships =
                     studentScholarshipService.getAwardedScholarshipsByYear(selectedYear);
 
@@ -94,6 +106,7 @@ public class ListAwardScholarshipsController {
             model.addAttribute("selectedYear", selectedYear);
             model.addAttribute("availableScholarships", availableScholarships);
             model.addAttribute("awardedScholarships", awardedScholarships);
+            model.addAttribute("remainingCounts", remainingCounts);
             model.addAttribute("studentsScholarship", new Students_Scholarships());
 
             return "AwardScholarships";
@@ -102,7 +115,8 @@ public class ListAwardScholarshipsController {
             model.addAttribute("admissionYears", List.of());
             model.addAttribute("selectedYear", LocalDate.now().getYear());
             model.addAttribute("availableScholarships", List.of());
-            model.addAttribute("awardedScholarships", List.of());
+            model.addAttribute("awardedScholarships", Map.of());
+            model.addAttribute("remainingCounts", Map.of());
             model.addAttribute("studentsScholarship", new Students_Scholarships());
             return "AwardScholarships";
         }
