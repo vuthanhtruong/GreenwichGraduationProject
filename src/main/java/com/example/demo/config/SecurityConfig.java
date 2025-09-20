@@ -5,7 +5,7 @@ import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.person.model.Persons;
-import com.example.demo.security.model.CustomUserPrincipal;
+import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.security.service.CustomOAuth2UserService;
 import com.example.demo.security.service.CustomUserDetailsService;
 import com.example.demo.student.model.Students;
@@ -122,11 +122,12 @@ public class SecurityConfig {
 
                 String role = determineRole(person);
                 var authorities = List.of(new SimpleGrantedAuthority(role));
-                var principal = new CustomUserPrincipal(
+
+                var principal = new OAuth2UserPrincipal(
                         email,
-                        "{noop}OAUTH2_USER",
+                        person,
                         authorities,
-                        person
+                        ((org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal()).getAttributes()
                 );
 
                 var newAuth = new UsernamePasswordAuthenticationToken(principal, null, authorities);

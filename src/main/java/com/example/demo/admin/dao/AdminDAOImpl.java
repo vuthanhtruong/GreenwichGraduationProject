@@ -2,7 +2,9 @@ package com.example.demo.admin.dao;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
-import com.example.demo.security.model.CustomUserPrincipal;
+import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.OAuth2UserPrincipal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -53,12 +55,26 @@ public class AdminDAOImpl implements AdminsDAO {
     @Override
     public Admins getAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
-            throw new IllegalStateException("No authenticated principal");
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
         }
-        String adminId = principal.getPerson().getId();
-        return entityManager.find(Admins.class, adminId); // luôn trả về managed entity
+
+        Object principal = auth.getPrincipal();
+
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        if (!(person instanceof Admins admin)) {
+            throw new IllegalStateException("Authenticated user is not an admin");
+        }
+
+        // luôn trả về entity managed từ EntityManager
+        return entityManager.find(Admins.class, admin.getId());
     }
+
 
 
     @Override

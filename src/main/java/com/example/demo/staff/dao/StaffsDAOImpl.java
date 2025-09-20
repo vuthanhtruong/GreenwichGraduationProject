@@ -4,9 +4,11 @@ import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
+import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.major.service.MajorsService;
-import com.example.demo.security.model.CustomUserPrincipal;
 import com.example.demo.person.service.PersonsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
@@ -97,12 +99,25 @@ public class StaffsDAOImpl implements StaffsDAO {
     @Override
     public Staffs getStaff() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
-            throw new IllegalStateException("No authenticated principal");
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
         }
-        String staffId = principal.getPerson().getId();
-        return entityManager.find(Staffs.class, staffId);
+
+        Object principal = auth.getPrincipal();
+
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        if (!(person instanceof Staffs staff)) {
+            throw new IllegalStateException("Authenticated user is not a staff");
+        }
+
+        return staff;
     }
+
 
 
 

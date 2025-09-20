@@ -6,7 +6,9 @@ import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
-import com.example.demo.security.model.CustomUserPrincipal;
+import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
@@ -229,12 +231,25 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public Students getStudent() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof CustomUserPrincipal principal)) {
-            throw new IllegalStateException("No authenticated principal");
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
         }
-        String studentId = principal.getPerson().getId();
-        return entityManager.find(Students.class, studentId);
+
+        Object principal = auth.getPrincipal();
+
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        if (!(person instanceof Students student)) {
+            throw new IllegalStateException("Authenticated user is not a student");
+        }
+
+        return entityManager.find(Students.class, student.getId());
     }
+
 
     @Override
     public Majors getStudentMajor() {

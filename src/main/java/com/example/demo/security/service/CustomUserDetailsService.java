@@ -7,14 +7,13 @@ import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.parentAccount.model.ParentAccounts;
 import com.example.demo.person.model.Persons;
-import com.example.demo.security.model.CustomUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,18 +54,14 @@ public class CustomUserDetailsService implements UserDetailsService {
             var authorities = List.of(new SimpleGrantedAuthority(role));
             String effectiveUsername = person.getEmail() != null ? person.getEmail() : person.getId();
 
-            // Handle empty or null passwords
             String password = auth.getPassword();
             if (password == null || password.trim().isEmpty()) {
-                // For OAuth2 users or accounts without passwords, use a placeholder
-                // This should never be used for actual authentication
-                password = "{noop}OAUTH2_USER_NO_PASSWORD";
-                logger.debug("User {} has no password set, using OAuth2 placeholder", username);
+                throw new UsernameNotFoundException("User has no password set: " + username);
             }
 
             logger.info("Loaded user {} in {} ms", username, System.currentTimeMillis() - start);
 
-            return new CustomUserPrincipal(
+            return new DatabaseUserPrincipal(
                     effectiveUsername,
                     password,
                     authorities,
