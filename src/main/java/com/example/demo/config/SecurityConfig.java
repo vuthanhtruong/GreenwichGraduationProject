@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,8 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
 import java.util.Collection;
@@ -87,25 +84,8 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "remember-me")
-                        .addLogoutHandler((request, response, authentication) -> {
-                            try {
-                                PersistentTokenRepository tokenRepository = persistentTokenRepository();
-                                if (authentication != null) {
-                                    tokenRepository.removeUserTokens(authentication.getName());
-                                }
-                            } catch (Exception e) {
-                                logger.error("Error during remember-me token cleanup", e);
-                            }
-                        })
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
-                )
-                .rememberMe(remember -> remember
-                        .tokenRepository(persistentTokenRepository())
-                        .tokenValiditySeconds(7 * 24 * 60 * 60)
-                        .key(environment.getProperty("security.remember-me.key", "your-secret-key-1234567890"))
-                        .userDetailsService(userDetailsService)
-                        .useSecureCookie(true)
                 );
         return http.build();
     }
@@ -144,7 +124,7 @@ public class SecurityConfig {
                 var authorities = List.of(new SimpleGrantedAuthority(role));
                 var principal = new CustomUserPrincipal(
                         email,
-                        "{noop}OAUTH2_USER", // Safe placeholder for OAuth2 users
+                        "{noop}OAUTH2_USER",
                         authorities,
                         person
                 );
@@ -194,7 +174,7 @@ public class SecurityConfig {
         if (person instanceof MajorLecturers) return "ROLE_LECTURER";
         if (person instanceof Students) return "ROLE_STUDENT";
         if (person instanceof Admins) return "ROLE_ADMIN";
-        return "ROLE_STUDENT"; // Default
+        return "ROLE_USER";
     }
 
     private String getRedirectUrlByRole(Collection<?> authorities) {
@@ -208,23 +188,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public PersistentTokenRepository persistentTokenRepository() {
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
-        // Attempt to create the persistent_logins table if it doesn't exist
-        try {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS persistent_logins (" +
-                    "username VARCHAR(64) NOT NULL, " +
-                    "series VARCHAR(64) PRIMARY KEY, " +
-                    "token VARCHAR(64) NOT NULL, " +
-                    "last_used TIMESTAMP NOT NULL)");
-        } catch (Exception e) {
-            logger.error("Failed to create persistent_logins table", e);
-        }
-        return tokenRepository;
     }
 }
