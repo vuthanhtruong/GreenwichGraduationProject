@@ -27,14 +27,12 @@ import java.util.Map;
 @PreAuthorize("hasRole('ADMIN')")
 public class UpdateTuitionController {
 
-    private final MajorSubjectsService majorSubjectsService;
     private final TuitionByYearService tuitionService;
     private final SubjectsService subjectService;
     private final AdminsService adminsService;
 
-    public UpdateTuitionController(MajorSubjectsService majorSubjectsService, TuitionByYearService tuitionService,
+    public UpdateTuitionController(TuitionByYearService tuitionService,
                                    SubjectsService subjectService, AdminsService adminsService) {
-        this.majorSubjectsService = majorSubjectsService;
         this.tuitionService = tuitionService;
         this.subjectService = subjectService;
         this.adminsService = adminsService;

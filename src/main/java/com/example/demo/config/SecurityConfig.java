@@ -49,7 +49,10 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler((req, res, auth) -> {
+                            String redirectUrl = getRedirectUrlByRole(auth.getAuthorities());
+                            res.sendRedirect(redirectUrl != null ? redirectUrl : "/login");
+                        })
                         .failureHandler(flashErrorHandler("Invalid username or password."))
                         .permitAll()
                 )

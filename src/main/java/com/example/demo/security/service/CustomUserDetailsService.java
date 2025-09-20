@@ -38,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         try {
             Persons person = entityManager.createQuery(
                             "SELECT p FROM Persons p JOIN Authenticators a ON p.id = a.personId " +
-                                    "WHERE (p.id = :u OR p.email = :u) AND a.accountStatus = :st",
+                                    "WHERE (p.id = :u OR p.email = :u OR p.phoneNumber =: u) AND a.accountStatus = :st",
                             Persons.class)
                     .setParameter("u", username)
                     .setParameter("st", AccountStatus.ACTIVE)
