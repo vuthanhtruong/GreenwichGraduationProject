@@ -5,6 +5,7 @@ import com.example.demo.campus.service.CampusesService;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.staff.model.Staffs;
@@ -107,7 +108,7 @@ public class StaffsDAOImpl implements StaffsDAO {
 
         Persons person = switch (principal) {
             case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
-            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
@@ -117,9 +118,6 @@ public class StaffsDAOImpl implements StaffsDAO {
 
         return staff;
     }
-
-
-
 
     @Override
     public Majors getStaffMajor() {

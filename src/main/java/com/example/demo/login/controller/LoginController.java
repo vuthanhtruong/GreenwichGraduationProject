@@ -1,28 +1,30 @@
 package com.example.demo.login.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/")
 public class LoginController {
 
     @GetMapping("/login")
-    public String showLoginPage(@RequestParam(value = "error", required = false) String error,
-                                @RequestParam(value = "logout", required = false) String logout,
-                                Model model) {
-        if (error != null) {
-            if (error.equals("no_email")) {
-                model.addAttribute("error", "No email found for OAuth2 login. Please use a valid account.");
-            } else if (error.equals("no_role")) {
-                model.addAttribute("error", "No role assigned to this account. Please contact the administrator.");
-            } else {
-                model.addAttribute("error", "Invalid email or password.");
-            }
+    public String showLoginPage(HttpServletRequest request, Model model) {
+        // Lấy error/message từ session (Flash attribute)
+        Object errorMsg = request.getSession().getAttribute("error");
+        Object successMsg = request.getSession().getAttribute("message");
+
+        if (errorMsg != null) {
+            model.addAttribute("error", errorMsg);
+            request.getSession().removeAttribute("error"); // Xóa sau khi dùng
         }
-        if (logout != null) {
-            model.addAttribute("message", "You have been logged out successfully.");
+        if (successMsg != null) {
+            model.addAttribute("message", successMsg);
+            request.getSession().removeAttribute("message");
         }
-        return "login";
+
+        return "login"; // login.html
     }
 }

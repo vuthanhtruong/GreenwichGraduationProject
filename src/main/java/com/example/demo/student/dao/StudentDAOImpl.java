@@ -7,6 +7,7 @@ import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.staff.model.Staffs;
@@ -227,7 +228,6 @@ public class StudentDAOImpl implements StudentsDAO {
         return name.matches(nameRegex);
     }
 
-
     @Override
     public Students getStudent() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -239,7 +239,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
         Persons person = switch (principal) {
             case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
-            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
@@ -247,9 +247,9 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalStateException("Authenticated user is not a student");
         }
 
+        // luôn trả về managed entity thay vì detached
         return entityManager.find(Students.class, student.getId());
     }
-
 
     @Override
     public Majors getStudentMajor() {

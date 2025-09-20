@@ -3,6 +3,7 @@ package com.example.demo.admin.dao;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.security.model.OAuth2UserPrincipal;
 import jakarta.persistence.EntityManager;
@@ -63,7 +64,7 @@ public class AdminDAOImpl implements AdminsDAO {
 
         Persons person = switch (principal) {
             case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
-            case OAuth2UserPrincipal oauthPrincipal -> oauthPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
@@ -74,8 +75,6 @@ public class AdminDAOImpl implements AdminsDAO {
         // luôn trả về entity managed từ EntityManager
         return entityManager.find(Admins.class, admin.getId());
     }
-
-
 
     @Override
     public List<Admins> getAdmins() {
