@@ -61,7 +61,6 @@ public class EditLecturerController {
     @PutMapping("/edit-lecturer-form")
     public String updateLecture(
             @Valid @ModelAttribute("lecture") MajorLecturers lecture,
-            BindingResult bindingResult,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
@@ -72,15 +71,6 @@ public class EditLecturerController {
             ModelMap modelMap,
             HttpSession session) {
         Map<String, String> errors = lecturesService.lectureValidation(lecture, avatarFile);
-
-        // Xử lý lỗi từ BindingResult
-        if (bindingResult.hasErrors()) {
-            for (ObjectError error : bindingResult.getAllErrors()) {
-                String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
-                errors.put(field, error.getDefaultMessage());
-            }
-        }
-
         if (!errors.isEmpty()) {
             modelMap.addAttribute("errors", errors);
             modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
