@@ -125,6 +125,12 @@ body {
     background: linear-gradient(135deg, #9333ea, #6b21a8); /* tím nổi bật */
     color: #fff;
 }
+/* Email Templates */
+.dashboard-card.email {
+    background: linear-gradient(135deg, #3b82f6, #1e3a8a); /* xanh tím than */
+    color: #fff;
+}
+
 
 
 /* Color Variants */

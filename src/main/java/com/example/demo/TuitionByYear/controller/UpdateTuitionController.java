@@ -7,7 +7,6 @@ import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.subject.model.Subjects;
-import com.example.demo.subject.service.MajorSubjectsService;
 import com.example.demo.subject.service.SubjectsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.prepost.PreAuthorize;

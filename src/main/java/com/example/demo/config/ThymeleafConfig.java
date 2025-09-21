@@ -210,7 +210,17 @@ public class ThymeleafConfig {
         resolver.setPrefix("classpath:/templates/Scholarship/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
-        resolver.setOrder(19);
+        resolver.setOrder(20);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver21() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/ListEmailTemplate/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(21);
         resolver.setCheckExistence(true);
         return resolver;
     }
