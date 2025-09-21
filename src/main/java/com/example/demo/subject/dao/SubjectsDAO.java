@@ -1,5 +1,7 @@
 package com.example.demo.subject.dao;
 
+import com.example.demo.major.model.Majors;
+import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
 
 import java.util.List;
@@ -13,4 +15,6 @@ public interface SubjectsDAO {
     long numberOfSubjects();
     List<Subjects> getPaginatedSubjects(int firstResult, int pageSize);
     boolean existsSubjectById(String subjectId);
+    List<Subjects> YetAcceptedSubjects();
+    void approveSubjects(List<String> subjectIds, String acceptorId);
 }

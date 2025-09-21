@@ -13,4 +13,6 @@ public interface SubjectsService {
     long numberOfSubjects();
     List<Subjects> getPaginatedSubjects(int firstResult, int pageSize);
     boolean existsSubjectById(String subjectId);
+    List<Subjects> YetAcceptedSubjects();
+    void approveSubjects(List<String> subjectIds, String acceptorId);
 }

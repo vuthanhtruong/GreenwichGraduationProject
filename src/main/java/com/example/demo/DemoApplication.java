@@ -1,7 +1,4 @@
 package com.example.demo;
-
-import com.example.demo.TuitionByYear.model.TuitionByYear;
-import com.example.demo.TuitionByYear.model.TuitionByYearId;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;

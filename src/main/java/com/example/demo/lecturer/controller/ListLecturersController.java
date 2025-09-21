@@ -54,7 +54,6 @@ public class ListLecturersController {
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalLecturers", 0);
-                model.addAttribute("message", "No lecturers found.");
                 model.addAttribute("alertClass", "alert-warning");
                 return "LecturersList";
             }

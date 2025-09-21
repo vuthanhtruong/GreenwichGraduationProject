@@ -14,6 +14,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class SubjectsDAOImpl implements SubjectsDAO {
     @Override
+    public List<Subjects> YetAcceptedSubjects() {
+        return entityManager.createQuery(
+                        "SELECT s FROM Subjects s WHERE s.acceptor is null ORDER BY s.semester ASC",
+                        Subjects.class)
+                .getResultList();
+    }
+
+    @Override
     public boolean existsSubjectById(String subjectId) {
         return entityManager.find(Subjects.class, subjectId) != null;
     }
@@ -35,7 +43,7 @@ public class SubjectsDAOImpl implements SubjectsDAO {
 
     @Override
     public List<Subjects> getSubjects() {
-        return entityManager.createQuery("SELECT s FROM Subjects s LEFT JOIN FETCH s.acceptor", Subjects.class)
+        return entityManager.createQuery("SELECT s FROM Subjects s where s.acceptor is not null ", Subjects.class)
                 .getResultList()
                 .stream()
                 .sorted(Comparator.comparing(
@@ -120,4 +128,16 @@ public class SubjectsDAOImpl implements SubjectsDAO {
         }
         return null;
     }
+    @Override
+    public void approveSubjects(List<String> subjectIds, String acceptorId) {
+        if (subjectIds == null || subjectIds.isEmpty() || acceptorId == null) {
+            return;
+        }
+        entityManager.createQuery(
+                        "UPDATE Subjects s SET s.acceptor.id = :acceptorId WHERE s.subjectId IN :subjectIds AND s.acceptor is null")
+                .setParameter("acceptorId", acceptorId)
+                .setParameter("subjectIds", subjectIds)
+                .executeUpdate();
+    }
+
 }

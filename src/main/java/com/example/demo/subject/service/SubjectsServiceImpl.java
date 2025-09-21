@@ -8,6 +8,16 @@ import java.util.List;
 @Service
 public class SubjectsServiceImpl implements SubjectsService {
     @Override
+    public void approveSubjects(List<String> subjectIds, String acceptorId) {
+        subjectsDAO.approveSubjects(subjectIds, acceptorId);
+    }
+
+    @Override
+    public List<Subjects> YetAcceptedSubjects() {
+        return subjectsDAO.YetAcceptedSubjects();
+    }
+
+    @Override
     public boolean existsSubjectById(String subjectId) {
         return subjectsDAO.existsSubjectById(subjectId);
     }

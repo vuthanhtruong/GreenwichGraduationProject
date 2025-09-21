@@ -35,7 +35,15 @@
             <a th:href="@{/admin-home/add-subject}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add Subject
             </a>
+            <form th:action="@{/admin-home/subjects-list/approve-subjects}" method="post" class="d-inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Approve Subjects
+                </button>
+            </form>
         </div>
+
 
         <!-- Center: Admission Year -->
         <form method="post" th:action="@{/admin-home/subjects-list}" class="toolbar-center">
