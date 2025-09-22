@@ -1,14 +1,20 @@
 package com.example.demo.email_service.dao;
 
+import com.example.demo.EmailTemplates.dto.EmailTemplateDTO;
+import com.example.demo.EmailTemplates.model.EmailTemplates;
+import com.example.demo.EmailTemplates.service.EmailTemplatesService;
 import com.example.demo.email_service.dto.LecturerEmailContext;
+import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 @Repository
 public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDAO {
@@ -16,14 +22,15 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private EmailTemplatesService emailTemplatesService;
+
     @Value("${app.base-url}")
     private String baseUrl;
 
     private String generateEmailTemplate(
             LecturerEmailContext context,
-            String title,
-            String subtitle,
-            String mainMessage,
+            EmailTemplateDTO template,
             boolean includeCredentials,
             String lecturerId,
             String rawPassword
@@ -32,16 +39,33 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
         java.util.function.Function<java.time.LocalDate, String> safeDate = d -> d != null ? d.toString() : "N/A";
         String year = String.valueOf(java.time.Year.now().getValue());
 
-        String preheader = "Welcome to our community — your account details and next steps inside.";
+        // Lấy dữ liệu từ template, fallback về giá trị mặc định nếu null
+        String title = template.getSalutation() != null ? template.getSalutation() : "Access Your Lecturer Account";
+        String subtitle = template.getGreeting() != null ? template.getGreeting() : "Welcome to Our University";
+        String mainMessage = template.getBody() != null ? template.getBody() : "Your lecturer account has been successfully created. Below are your account details and important information.";
+        String preheader = template.getGreeting() != null ? template.getGreeting() : "Welcome to our community — your account details and next steps inside.";
 
         String campus = safe.apply(context.campusName());
         String major = safe.apply(context.majorName());
         String creator = safe.apply(context.creatorName());
 
-        // ** Sử dụng baseUrl từ cấu hình **
-        String loginUrl = baseUrl + "/login";
-        String supportEmail = "support@university.example.com";
-        String addressLine = "123 University Avenue, City, Country";
+        // Sử dụng baseUrl từ cấu hình và template
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : "/login";
+        String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
+        String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
+        String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
+
+        // Social media links
+        String facebookLink = template.getLinkFacebook() != null ? template.getLinkFacebook() : "https://www.facebook.com/GreenwichVietnam";
+        String instagramLink = "#"; // Có thể thêm field này vào template nếu cần
+        String tiktokLink = template.getLinkTiktok() != null ? template.getLinkTiktok() : "https://www.tiktok.com/@greenwichvietnam";
+
+        // Xử lý ảnh - sử dụng CID hoặc URL mặc định
+        boolean hasHeaderImage = template.getHeaderImage() != null && template.getHeaderImage().length > 0;
+        boolean hasBannerImage = template.getBannerImage() != null && template.getBannerImage().length > 0;
+
+        String headerImageSrc = hasHeaderImage ? "cid:headerImage" : "https://cms.theuniguide.com/sites/default/files/2022-07/banner-university-of-greenwich-1786x642-2022.png";
+        String bannerImageSrc = hasBannerImage ? "cid:bannerImage" : "https://natajsc.com.vn/wp-content/uploads/2024/10/nata-greenwich02.jpg";
 
         StringBuilder html = new StringBuilder();
         html.append("<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>")
@@ -50,7 +74,7 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
                 .append("<style>@media only screen and (max-width:600px){.container{width:100%!important;margin:0!important;border-radius:0!important}.px{padding-left:16px!important;padding-right:16px!important}.h2{font-size:18px!important}.btn{padding:12px 18px!important;font-size:14px!important}}</style>")
                 .append("</head><body style='margin:0;padding:0;background:#f5f7fa;font-family:sans-serif;color:#1f2937;'>")
 
-                // Preheader “ẩn”
+                // Preheader "ẩn"
                 .append("<div style='display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;'>")
                 .append(preheader)
                 .append("</div>")
@@ -64,8 +88,8 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
                 // Banner đầu (bo góc trên)
                 .append("<tr>")
                 .append("<td style='padding:0;text-align:center;'>")
-                .append("<img src='https://cms.theuniguide.com/sites/default/files/2022-07/banner-university-of-greenwich-1786x642-2022.png' ")
-                .append("alt='Greenwich University Banner' width='100%' ")
+                .append("<img src='").append(headerImageSrc).append("' ")
+                .append("alt='University Banner' width='100%' ")
                 .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:14px 14px 0 0;'>")
                 .append("</td>")
                 .append("</tr>")
@@ -174,21 +198,22 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
 
                 // Footer
                 .append("<tr><td style='background:#f8fafc;padding:18px 24px;text-align:center;border-top:1px solid #eef2f7;'>")
-                .append("<p style='margin:0 0 6px 0;font-size:12px;color:#9ca3af;font-family:sans-serif;'>&copy; ").append(year).append(" University Name. All rights reserved.</p>")
+                .append("<p style='margin:0 0 6px 0;font-size:12px;color:#9ca3af;font-family:sans-serif;'>&copy; ").append(year).append(" ").append(copyrightNotice).append("</p>")
                 .append("<p style='margin:0 0 10px 0;font-size:12px;color:#9ca3af;font-family:sans-serif;'>").append(addressLine).append("</p>")
                 .append("<p style='margin:0;font-size:12px;'>")
-                .append("<a href='https://www.facebook.com/GreenwichVietnam' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
+                .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
                 .append("<span style='color:#d1d5db;'>|</span>")
-                .append("<a href='https://www.instagram.com/universityofgreenwichvn' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Instagram</a>")
+                .append("<a href='").append(instagramLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Instagram</a>")
                 .append("<span style='color:#d1d5db;'>|</span>")
-                .append("<a href='https://www.tiktok.com/@greenwichvietnam' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
+                .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
                 .append("</p>")
                 .append("</td></tr>")
+
                 // Banner cuối (bo góc dưới)
                 .append("<tr>")
                 .append("<td style='padding:0;text-align:center;'>")
-                .append("<img src='https://natajsc.com.vn/wp-content/uploads/2024/10/nata-greenwich02.jpg' ")
-                .append("alt='Greenwich Vietnam Ending Banner' width='100%' ")
+                .append("<img src='").append(bannerImageSrc).append("' ")
+                .append("alt='University Ending Banner' width='100%' ")
                 .append("style='display:block;width:100%;max-width:600px;height:auto;border-radius:0 0 14px 14px;'>")
                 .append("</td>")
                 .append("</tr>")
@@ -202,42 +227,89 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyLoginInformation(String to, String subject, LecturerEmailContext context, String rawPassword) throws MessagingException {
-        String htmlMessage = generateEmailTemplate(
-                context,
-                "Access Your Lecturer Account",
-                "Welcome to Our University",
-                "Your lecturer account has been successfully created. Below are your account details and important information.",
-                true,
-                context.lecturerId(),
-                rawPassword
-        );
+        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_ADD);
+        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+
+        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        String htmlMessage = generateEmailTemplate(context, templateDTO, true, context.lecturerId(), rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlMessage, true);
+
+        // Attach images as inline resources nếu có
+        boolean hasHeaderImage = templateDTO.getHeaderImage() != null && templateDTO.getHeaderImage().length > 0;
+        boolean hasBannerImage = templateDTO.getBannerImage() != null && templateDTO.getBannerImage().length > 0;
+
+        if (hasHeaderImage) {
+            helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+        }
+        if (hasBannerImage) {
+            helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+        }
+
         mailSender.send(message);
     }
 
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyInformationAfterEditing(String to, String subject, LecturerEmailContext context) throws MessagingException {
-        String htmlMessage = generateEmailTemplate(
-                context,
-                "Lecturer Account Updated",
-                "University Notification",
-                "Your lecturer account information has been updated. Please review the details below and contact support if any information is incorrect.",
-                false,
-                "",
-                ""
-        );
+        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_EDIT);
+        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+
+        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(htmlMessage, true);
+
+        // Attach images as inline resources nếu có
+        boolean hasHeaderImage = templateDTO.getHeaderImage() != null && templateDTO.getHeaderImage().length > 0;
+        boolean hasBannerImage = templateDTO.getBannerImage() != null && templateDTO.getBannerImage().length > 0;
+
+        if (hasHeaderImage) {
+            helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+        }
+        if (hasBannerImage) {
+            helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+        }
+
+        mailSender.send(message);
+    }
+
+    @Async("emailTaskExecutor")
+    public void sendEmailToNotifyLecturerDeletion(String to, String subject, LecturerEmailContext context) throws MessagingException {
+        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_DELETE);
+        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+
+        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlMessage, true);
+
+        // Attach images as inline resources nếu có
+        boolean hasHeaderImage = templateDTO.getHeaderImage() != null && templateDTO.getHeaderImage().length > 0;
+        boolean hasBannerImage = templateDTO.getBannerImage() != null && templateDTO.getBannerImage().length > 0;
+
+        if (hasHeaderImage) {
+            helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+        }
+        if (hasBannerImage) {
+            helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+        }
+
         mailSender.send(message);
     }
 }

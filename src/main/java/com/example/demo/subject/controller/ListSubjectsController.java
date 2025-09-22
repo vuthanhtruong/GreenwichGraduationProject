@@ -2,6 +2,7 @@ package com.example.demo.subject.controller;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
+import com.example.demo.campus.service.CampusesService;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.SubjectsService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,10 +26,12 @@ public class ListSubjectsController {
 
     private final TuitionByYearService tuitionService;
     private final SubjectsService subjectService;
+    private final CampusesService campusService;
 
-    public ListSubjectsController(TuitionByYearService tuitionService, SubjectsService subjectService) {
+    public ListSubjectsController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService) {
         this.tuitionService = tuitionService;
         this.subjectService = subjectService;
+        this.campusService = campusService;
     }
 
     // Hiển thị trang ban đầu
@@ -84,6 +87,7 @@ public class ListSubjectsController {
         model.addAttribute("withFee", withFee);
         model.addAttribute("withoutFee", withoutFee);
         model.addAttribute("tuitionMap", tuitionMap);
+        model.addAttribute("Campuses", campusService.getCampuses());
 
         return "AdminSubjectsList";
     }

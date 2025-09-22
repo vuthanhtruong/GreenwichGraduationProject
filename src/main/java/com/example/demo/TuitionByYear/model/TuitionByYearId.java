@@ -13,7 +13,7 @@ public class TuitionByYearId implements Serializable {
     @Column(name = "SubjectID", nullable = false)
     private String subjectId;
 
-    @Column(name = "Admission_Year", nullable = false)
+    @Column(name = "AdmissionYear", nullable = false)
     private Integer admissionYear;
 
     @Column(name = "CampusID", nullable = false)

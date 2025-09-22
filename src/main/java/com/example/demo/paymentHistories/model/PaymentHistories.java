@@ -1,9 +1,10 @@
 package com.example.demo.paymentHistories.model;
 
 import com.example.demo.accountBalance.model.AccountBalances;
-import com.example.demo.subject.model.Subjects;
+import com.example.demo.entity.AbstractClasses.FinancialHistories;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.student.model.Students;
+import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,49 +15,25 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PaymentHistories")
+@PrimaryKeyJoinColumn(name = "HistoryID")
 @Getter
 @Setter
-public class PaymentHistories {
-
-    @Id
-    @Column(name = "PaymentHistoryID")
-    private String paymentHistoryId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "StudentID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Students student;
+public class PaymentHistories extends FinancialHistories {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SubjectID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Subjects subject;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AccountBalanceID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private AccountBalances accountBalance;
-
     @Column(name = "PaymentTime", nullable = false)
     private LocalDateTime paymentTime;
 
-    @Column(name = "CreatedAt", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Status", nullable = false)
-    private Status status;
-
     public PaymentHistories() {}
 
-    public PaymentHistories(String paymentHistoryId, Students student, Subjects subject, AccountBalances accountBalance,
-                          LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
-        this.paymentHistoryId = paymentHistoryId;
-        this.student = student;
+    public PaymentHistories(String historyId, Students student, Subjects subject, AccountBalances accountBalance,
+                            LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
+        super(historyId, student, accountBalance, createdAt, status);
         this.subject = subject;
-        this.accountBalance = accountBalance;
         this.paymentTime = paymentTime;
-        this.createdAt = createdAt;
-        this.status = status;
     }
 }
