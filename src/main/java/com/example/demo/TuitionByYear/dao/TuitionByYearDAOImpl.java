@@ -18,6 +18,18 @@ import java.util.List;
 @Transactional
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
+    @Override
+    public List<TuitionByYear> tuitionFeesByCampus(String campusId, Integer admissionYear) {
+        return entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.campus.campusId = :campusId " +
+                                "AND t.admissionYear = :admissionYear " +
+                                "ORDER BY t.subject.subjectId", TuitionByYear.class)
+                .setParameter("campusId", campusId)
+                .setParameter("admissionYear", admissionYear)
+                .getResultList();
+    }
+
     private final AdminsService adminsService;
     private final SubjectsService subjectsService;
 

@@ -9,6 +9,18 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public List<TuitionByYear> tuitionFeesByCampus(String campusId, Integer admissionYear) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID cannot be null or empty");
+        }
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        return tuitionByYearDAO.tuitionFeesByCampus(campusId.trim(), admissionYear); // ✅ gọi DAO
+    }
+
+
+    @Override
     public List<TuitionByYear> getTuitionsWithFeeByYear(Integer admissionYear) {
         return tuitionByYearDAO.getTuitionsWithFeeByYear(admissionYear);
     }

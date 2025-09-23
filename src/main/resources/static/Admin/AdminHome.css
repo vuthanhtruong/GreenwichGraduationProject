@@ -149,3 +149,8 @@ body {
         gap: 8px;
     }
 }
+/* Support Tickets */
+.dashboard-card.support {
+    background: linear-gradient(135deg, #10b981, #047857); /* xanh ngọc đậm */
+    color: #fff;
+}
