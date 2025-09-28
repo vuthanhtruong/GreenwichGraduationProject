@@ -14,4 +14,6 @@ public interface TuitionByYearService {
     void createTuition(TuitionByYear tuition);
     List<TuitionByYear> findByAdmissionYear(Integer admissionYear);
     List<Integer> findAllAdmissionYears();
+    List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear);
+    List<TuitionByYear> getTuitionsWithoutReStudyFeeByYear(Integer admissionYear);
 }

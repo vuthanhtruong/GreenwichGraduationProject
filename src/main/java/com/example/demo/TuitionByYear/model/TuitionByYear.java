@@ -2,6 +2,7 @@ package com.example.demo.TuitionByYear.model;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,6 +35,13 @@ public class TuitionByYear {
     @Column(name = "Tuition", nullable = true)
     private Double tuition;
 
+    @Column(name = "ReStudyTuition", nullable = true)
+    private Double reStudyTuition;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ContractStatus", nullable = true)
+    private ContractStatus contractStatus;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorId", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -44,12 +52,14 @@ public class TuitionByYear {
         this.id = new TuitionByYearId();
     }
 
-    public TuitionByYear(Subjects subject, Campuses campus, Integer admissionYear, Double tuition, Admins creator) {
+    public TuitionByYear(Subjects subject, Campuses campus, Integer admissionYear, Double tuition, Double reStudyTuition, ContractStatus contractStatus, Admins creator) {
         this.id = new TuitionByYearId(subject.getSubjectId(), admissionYear, campus.getCampusId());
         this.subject = subject;
         this.campus = campus;
         this.admissionYear = admissionYear;
         this.tuition = tuition;
+        this.reStudyTuition = reStudyTuition;
+        this.contractStatus = contractStatus;
         this.creator = creator;
     }
 }

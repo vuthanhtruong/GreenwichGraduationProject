@@ -2,10 +2,8 @@ package com.example.demo.TuitionByYear.dao;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.model.TuitionByYearId;
-import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
-import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.SubjectsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,6 +16,17 @@ import java.util.List;
 @Transactional
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final AdminsService adminsService;
+    private final SubjectsService subjectsService;
+
+    public TuitionByYearDAOImpl(AdminsService adminsService, SubjectsService subjectsService) {
+        this.adminsService = adminsService;
+        this.subjectsService = subjectsService;
+    }
+
     @Override
     public List<TuitionByYear> tuitionFeesByCampus(String campusId, Integer admissionYear) {
         return entityManager.createQuery(
@@ -28,17 +37,6 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                 .setParameter("campusId", campusId)
                 .setParameter("admissionYear", admissionYear)
                 .getResultList();
-    }
-
-    private final AdminsService adminsService;
-    private final SubjectsService subjectsService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    public TuitionByYearDAOImpl(AdminsService adminsService, SubjectsService subjectsService) {
-        this.adminsService = adminsService;
-        this.subjectsService = subjectsService;
     }
 
     @Override
@@ -103,6 +101,51 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.id.campusId = :campusId " +
                                 "AND (t.tuition IS NULL OR t.tuition <= 0) " +
+                                "ORDER BY t.subject.requirementType",
+                        TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campusId", adminCampus.getCampusId())
+                .getResultList();
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear) {
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        Campuses adminCampus = adminsService.getAdminCampus();
+        if (adminCampus == null) {
+            throw new IllegalStateException("Admin's campus not found.");
+        }
+
+        return entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.id.admissionYear = :admissionYear " +
+                                "AND t.id.campusId = :campusId " +
+                                "AND t.reStudyTuition IS NOT NULL " +
+                                "AND t.reStudyTuition > 0 " +
+                                "ORDER BY t.subject.requirementType",
+                        TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campusId", adminCampus.getCampusId())
+                .getResultList();
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutReStudyFeeByYear(Integer admissionYear) {
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        Campuses adminCampus = adminsService.getAdminCampus();
+        if (adminCampus == null) {
+            throw new IllegalStateException("Admin's campus not found.");
+        }
+
+        return entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.id.admissionYear = :admissionYear " +
+                                "AND t.id.campusId = :campusId " +
+                                "AND (t.reStudyTuition IS NULL OR t.reStudyTuition <= 0) " +
                                 "ORDER BY t.subject.requirementType",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)

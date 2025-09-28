@@ -154,3 +154,13 @@ body {
     background: linear-gradient(135deg, #10b981, #047857); /* xanh ngọc đậm */
     color: #fff;
 }
+/* Annual Re-study Fee */
+.dashboard-card.fee {
+    background: linear-gradient(135deg, #f59e0b, #b45309); /* golden/orange tones */
+    color: #fff;
+}
+/* Academic Contracts */
+.dashboard-card.contract {
+    background: linear-gradient(135deg, #8b5cf6, #4c1d95); /* elegant purple gradient */
+    color: #fff;
+}

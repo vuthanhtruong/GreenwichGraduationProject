@@ -9,6 +9,16 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear) {
+        return tuitionByYearDAO.getTuitionsWithReStudyFeeByYear(admissionYear);
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutReStudyFeeByYear(Integer admissionYear) {
+        return tuitionByYearDAO.getTuitionsWithoutReStudyFeeByYear(admissionYear);
+    }
+
+    @Override
     public List<TuitionByYear> tuitionFeesByCampus(String campusId, Integer admissionYear) {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID cannot be null or empty");
