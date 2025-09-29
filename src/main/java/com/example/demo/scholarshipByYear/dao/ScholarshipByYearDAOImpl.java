@@ -70,9 +70,13 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
             throw new IllegalArgumentException("Scholarship with ID " + scholarshipId + " not found");
         }
 
-        ScholarshipByYear scholarshipByYear = new ScholarshipByYear();
-        scholarshipByYear.setId(new ScholarshipByYearId(scholarshipId, admissionYear));
-        scholarshipByYear.setScholarship(scholarship);
+        ScholarshipByYear scholarshipByYear = getScholarshipByYear(scholarshipId, admissionYear);
+        if (scholarshipByYear == null) {
+            scholarshipByYear = new ScholarshipByYear();
+            scholarshipByYear.setId(new ScholarshipByYearId(scholarshipId, admissionYear));
+            scholarshipByYear.setScholarship(scholarship);
+        }
+
         scholarshipByYear.setAmount(amount != null ? amount : 0.0);
         scholarshipByYear.setDiscountPercentage(discountPercentage);
         scholarshipByYear.setStatus(ActivityStatus.ACTIVATED);
@@ -105,5 +109,19 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
     @Override
     public void saveOrUpdate(ScholarshipByYear scholarshipByYear) {
         entityManager.merge(scholarshipByYear);
+    }
+
+    @Override
+    public void finalizeScholarshipContracts(Integer admissionYear) {
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        entityManager.createQuery(
+                        "UPDATE ScholarshipByYear sby SET sby.status = :status " +
+                                "WHERE sby.id.admissionYear = :admissionYear " +
+                                "AND (sby.amount IS NOT NULL OR sby.discountPercentage IS NOT NULL)")
+                .setParameter("status", ActivityStatus.ACTIVATED)
+                .setParameter("admissionYear", admissionYear)
+                .executeUpdate();
     }
 }

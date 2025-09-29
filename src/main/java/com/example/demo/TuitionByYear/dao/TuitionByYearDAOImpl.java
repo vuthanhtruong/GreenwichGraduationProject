@@ -4,6 +4,7 @@ import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.model.TuitionByYearId;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.subject.service.SubjectsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -188,5 +189,25 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campusId", adminCampus.getCampusId())
                 .getResultList();
+    }
+
+    @Override
+    public void finalizeContracts(Integer admissionYear) {
+        if (admissionYear == null) {
+            throw new IllegalArgumentException("Admission year cannot be null");
+        }
+        Campuses adminCampus = adminsService.getAdminCampus();
+        if (adminCampus == null) {
+            throw new IllegalStateException("Admin's campus not found.");
+        }
+        entityManager.createQuery(
+                        "UPDATE TuitionByYear t SET t.contractStatus = :status " +
+                                "WHERE t.id.admissionYear = :admissionYear " +
+                                "AND t.id.campusId = :campusId " +
+                                "AND t.tuition IS NOT NULL AND t.tuition > 0")
+                .setParameter("status", ContractStatus.ACTIVE)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campusId", adminCampus.getCampusId())
+                .executeUpdate();
     }
 }

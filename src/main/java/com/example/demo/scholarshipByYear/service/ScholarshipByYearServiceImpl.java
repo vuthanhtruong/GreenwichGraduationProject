@@ -9,6 +9,10 @@ import java.util.List;
 
 @Service
 public class ScholarshipByYearServiceImpl implements ScholarshipByYearService {
+    @Override
+    public void finalizeScholarshipContracts(Integer admissionYear) {
+        scholarshipByYearDAO.finalizeScholarshipContracts(admissionYear);
+    }
 
     private final ScholarshipByYearDAO scholarshipByYearDAO;
 

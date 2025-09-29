@@ -9,6 +9,11 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public void finalizeContracts(Integer admissionYear) {
+        tuitionByYearDAO.finalizeContracts(admissionYear);
+    }
+
+    @Override
     public List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear) {
         return tuitionByYearDAO.getTuitionsWithReStudyFeeByYear(admissionYear);
     }
