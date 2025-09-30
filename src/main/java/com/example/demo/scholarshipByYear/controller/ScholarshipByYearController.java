@@ -1,14 +1,20 @@
 package com.example.demo.scholarshipByYear.controller;
 
-import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.admin.model.Admins;
+import com.example.demo.admin.service.AdminsService;
+import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.scholarship.model.Scholarships;
-import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYearId;
 import com.example.demo.scholarship.service.ScholarshipsService;
+import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -30,11 +37,15 @@ public class ScholarshipByYearController {
 
     private final ScholarshipsService scholarshipsService;
     private final ScholarshipByYearService scholarshipByYearService;
+    private final AdminsService adminsService;
 
     @Autowired
-    public ScholarshipByYearController(ScholarshipsService scholarshipsService, ScholarshipByYearService scholarshipByYearService) {
+    public ScholarshipByYearController(ScholarshipsService scholarshipsService,
+                                       ScholarshipByYearService scholarshipByYearService,
+                                       AdminsService adminsService) {
         this.scholarshipsService = scholarshipsService;
         this.scholarshipByYearService = scholarshipByYearService;
+        this.adminsService = adminsService;
     }
 
     @GetMapping("/scholarship-by-year-list")
@@ -44,7 +55,9 @@ public class ScholarshipByYearController {
     }
 
     @PostMapping("/scholarship-by-year-list")
-    public String listScholarshipsByYear(Model model, @RequestParam(value = "admissionYear", required = false) Integer admissionYear, HttpSession session) {
+    public String listScholarshipsByYear(Model model,
+                                         @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
+                                         HttpSession session) {
         try {
             if (admissionYear != null) {
                 session.setAttribute("scholarshipAdmissionYear", admissionYear);
@@ -93,27 +106,168 @@ public class ScholarshipByYearController {
     }
 
     @PostMapping("/update-scholarship-by-year")
+    @Transactional
     public String updateScholarshipByYear(
             @RequestParam("admissionYear") Integer admissionYear,
             @RequestParam Map<String, String> params,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
         try {
+            int currentYear = LocalDate.now().getYear();
+            if (admissionYear == null || admissionYear < currentYear) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot update scholarships for past years or invalid year.");
+                return "redirect:/admin-home/scholarship-by-year-list";
+            }
+
+            Admins admin = adminsService.getAdmin();
+            if (admin == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Admin not found.");
+                return "redirect:/admin-home/scholarship-by-year-list";
+            }
+
+            List<String> errors = new ArrayList<>();
+            boolean anyUpdate = false;
+
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 if (entry.getKey().startsWith("amount_")) {
                     String scholarshipId = entry.getKey().substring("amount_".length());
-                    Double amount = entry.getValue().isEmpty() ? null : Double.parseDouble(entry.getValue());
-                    Double discountPercentage = params.get("discountPercentage_" + scholarshipId) != null
-                            ? (params.get("discountPercentage_" + scholarshipId).isEmpty() ? null : Double.parseDouble(params.get("discountPercentage_" + scholarshipId)))
-                            : null;
-                    scholarshipByYearService.updateScholarshipByYear(scholarshipId, admissionYear, amount, discountPercentage);
+                    String amountValue = entry.getValue();
+                    String discountValue = params.get("discountPercentage_" + scholarshipId);
+
+                    try {
+                        Double amount = amountValue.isEmpty() ? null : Double.parseDouble(amountValue);
+                        Double discountPercentage = discountValue != null && !discountValue.isEmpty() ?
+                                Double.parseDouble(discountValue) : null;
+
+                        if (amount != null && amount < 0) {
+                            errors.add("Amount for scholarship " + scholarshipId + " cannot be negative.");
+                            continue;
+                        }
+                        if (discountPercentage != null && (discountPercentage < 0 || discountPercentage > 100)) {
+                            errors.add("Discount percentage for scholarship " + scholarshipId + " must be between 0 and 100.");
+                            continue;
+                        }
+
+                        ScholarshipByYear existing = scholarshipByYearService.findById(
+                                new ScholarshipByYearId(scholarshipId, admissionYear));
+                        if (existing == null) {
+                            errors.add("No existing scholarship record found for ID " + scholarshipId);
+                            continue;
+                        }
+                        if (existing.getContractStatus() == ContractStatus.ACTIVE) {
+                            errors.add("Cannot update scholarship " + scholarshipId + ": Contract is finalized.");
+                            continue;
+                        }
+                        if (existing.getStatus() == ActivityStatus.DEACTIVATED) {
+                            errors.add("Cannot update scholarship " + scholarshipId + ": Scholarship is deactivated.");
+                            continue;
+                        }
+
+                        existing.setAmount(amount != null ? amount : existing.getAmount());
+                        existing.setDiscountPercentage(discountPercentage != null ? discountPercentage : existing.getDiscountPercentage());
+                        existing.setCreator(admin);
+                        scholarshipByYearService.updateScholarshipByYear(existing);
+                        anyUpdate = true;
+                    } catch (NumberFormatException e) {
+                        errors.add("Invalid format for scholarship " + scholarshipId + ": " + e.getMessage());
+                    }
                 }
             }
-            redirectAttributes.addFlashAttribute("successMessage", "Scholarship amounts updated successfully!");
+
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", String.join("; ", errors));
+            }
+            if (anyUpdate) {
+                redirectAttributes.addFlashAttribute("successMessage", "Scholarship amounts updated successfully!");
+            } else if (errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No scholarship amounts were updated.");
+            }
         } catch (Exception e) {
-            Map<String, String> errors = new HashMap<>();
-            errors.put("general", "Failed to update scholarship amounts: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("editErrors", errors);
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update scholarship amounts: " + e.getMessage());
+        }
+        session.setAttribute("scholarshipAdmissionYear", admissionYear);
+        return "redirect:/admin-home/scholarship-by-year-list";
+    }
+
+    @PostMapping("/update-scholarship-by-year-without")
+    @Transactional
+    public String updateScholarshipByYearWithout(
+            @RequestParam("admissionYear") Integer admissionYear,
+            @RequestParam Map<String, String> params,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        try {
+            int currentYear = LocalDate.now().getYear();
+            if (admissionYear == null || admissionYear < currentYear) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot update scholarships for past years or invalid year.");
+                return "redirect:/admin-home/scholarship-by-year-list";
+            }
+
+            Admins admin = adminsService.getAdmin();
+            if (admin == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Admin not found.");
+                return "redirect:/admin-home/scholarship-by-year-list";
+            }
+
+            List<String> errors = new ArrayList<>();
+            boolean anyUpdate = false;
+
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (entry.getKey().startsWith("amount_")) {
+                    String scholarshipId = entry.getKey().substring("amount_".length());
+                    String amountValue = entry.getValue();
+                    String discountValue = params.get("discountPercentage_" + scholarshipId);
+
+                    try {
+                        Double amount = amountValue.isEmpty() ? null : Double.parseDouble(amountValue);
+                        Double discountPercentage = discountValue != null && !discountValue.isEmpty() ?
+                                Double.parseDouble(discountValue) : null;
+
+                        if (amount == null && discountPercentage == null) {
+                            continue; // Bỏ qua nếu cả hai đều rỗng
+                        }
+                        if (amount != null && amount < 0) {
+                            errors.add("Amount for scholarship " + scholarshipId + " cannot be negative.");
+                            continue;
+                        }
+                        if (discountPercentage != null && (discountPercentage < 0 || discountPercentage > 100)) {
+                            errors.add("Discount percentage for scholarship " + scholarshipId + " must be between 0 and 100.");
+                            continue;
+                        }
+
+                        Scholarships scholarship = scholarshipsService.getScholarshipById(scholarshipId);
+                        if (scholarship == null) {
+                            errors.add("Scholarship not found for ID " + scholarshipId);
+                            continue;
+                        }
+
+                        ScholarshipByYear newScholarshipByYear = new ScholarshipByYear(
+                                scholarship,
+                                admissionYear,
+                                amount != null ? amount : 0.0,
+                                discountPercentage,
+                                admin,
+                                ActivityStatus.ACTIVATED
+                        );
+                        newScholarshipByYear.setContractStatus(ContractStatus.DRAFT);
+                        scholarshipByYearService.createScholarshipByYear(newScholarshipByYear);
+                        anyUpdate = true;
+                    } catch (NumberFormatException e) {
+                        errors.add("Invalid format for scholarship " + scholarshipId + ": " + e.getMessage());
+                    }
+                }
+            }
+
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", String.join("; ", errors));
+            }
+            if (anyUpdate) {
+                redirectAttributes.addFlashAttribute("successMessage", "Scholarship amounts created successfully!");
+            } else if (errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No scholarship amounts were created.");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to create scholarship amounts: " + e.getMessage());
         }
         session.setAttribute("scholarshipAdmissionYear", admissionYear);
         return "redirect:/admin-home/scholarship-by-year-list";

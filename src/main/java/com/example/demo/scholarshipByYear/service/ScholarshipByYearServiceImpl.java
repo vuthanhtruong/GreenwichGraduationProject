@@ -2,6 +2,7 @@ package com.example.demo.scholarshipByYear.service;
 
 import com.example.demo.scholarshipByYear.dao.ScholarshipByYearDAO;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYearId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,21 @@ import java.util.List;
 
 @Service
 public class ScholarshipByYearServiceImpl implements ScholarshipByYearService {
+    @Override
+    public void updateScholarshipByYear(ScholarshipByYear scholarshipByYear) {
+        scholarshipByYearDAO.updateScholarshipByYear(scholarshipByYear);
+    }
+
+    @Override
+    public ScholarshipByYear findById(ScholarshipByYearId id) {
+        return scholarshipByYearDAO.findById(id);
+    }
+
+    @Override
+    public void createScholarshipByYear(ScholarshipByYear scholarshipByYear) {
+        scholarshipByYearDAO.createScholarshipByYear(scholarshipByYear);
+    }
+
     @Override
     public void finalizeScholarshipContracts(Integer admissionYear) {
         scholarshipByYearDAO.finalizeScholarshipContracts(admissionYear);

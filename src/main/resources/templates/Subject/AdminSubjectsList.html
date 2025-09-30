@@ -46,6 +46,7 @@
 
         <!-- Center: Admission Year -->
         <form method="post" th:action="@{/admin-home/subjects-list}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
             <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto"
                     onchange="this.form.submit()">
@@ -73,6 +74,7 @@
     <!-- Form: Subjects with Fee -->
     <form th:action="@{/admin-home/update-tuition}" method="post">
         <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <section class="win11-panel">
             <h2 class="panel-header">
                 <i class="fas fa-coins"></i> Subjects already updated with fee -
@@ -89,6 +91,7 @@
                         <th>Creator Email</th>
                         <th>Campus</th>
                         <th>Tuition Fee</th>
+                        <th>Contract Status</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -103,8 +106,14 @@
                             <input type="number" class="form-control input small"
                                    th:name="'tuitionFee_' + ${subj.subjectId}"
                                    th:value="${tuitionMap[subj.subjectId].tuition}"
-                                   min="0" step="0.01">
+                                   min="0" step="0.01"
+                                   th:disabled="${tuitionMap[subj.subjectId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}">
+                            <div th:if="${tuitionMap[subj.subjectId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}"
+                                 class="text-danger mt-1">
+                                Contract finalized, cannot update tuition fee.
+                            </div>
                         </td>
+                        <td th:text="${tuitionMap[subj.subjectId].contractStatus}"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -120,6 +129,7 @@
     <!-- Form: Subjects without Fee -->
     <form th:action="@{/admin-home/update-tuition}" method="post">
         <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         <section class="win11-panel">
             <h2 class="panel-header">
                 <i class="fas fa-coins"></i> Subjects not updated with fee -
@@ -136,6 +146,7 @@
                         <th>Creator Email</th>
                         <th>Campus</th>
                         <th>Tuition Fee</th>
+                        <th>Contract Status</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -150,8 +161,14 @@
                             <input type="number" class="form-control input small"
                                    th:name="'tuitionFee_' + ${subj.subjectId}"
                                    placeholder="Enter fee"
-                                   min="0" step="0.01">
+                                   min="0" step="0.01"
+                                   th:disabled="${tuitionMap[subj.subjectId] != null && tuitionMap[subj.subjectId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}">
+                            <div th:if="${tuitionMap[subj.subjectId] != null && tuitionMap[subj.subjectId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}"
+                                 class="text-danger mt-1">
+                                Contract finalized, cannot update tuition fee.
+                            </div>
                         </td>
+                        <td th:text="${tuitionMap[subj.subjectId] != null ? tuitionMap[subj.subjectId].contractStatus : 'N/A'}"></td>
                     </tr>
                     </tbody>
                 </table>

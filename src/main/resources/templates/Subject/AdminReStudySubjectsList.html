@@ -95,7 +95,10 @@
                             <input type="number" class="form-control input small"
                                    th:name="'tuitionFee_' + ${tuition.subject.subjectId}"
                                    th:value="${tuition.reStudyTuition}"
-                                   min="0" step="0.01">
+                                   min="0" step="0.01"
+                                   th:disabled="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}"
+                                   th:classappend="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'disabled' : ''"
+                                   title="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'Cannot edit: Contract is finalized' : ''">
                         </td>
                     </tr>
                     </tbody>
@@ -144,7 +147,10 @@
                             <input type="number" class="form-control input small"
                                    th:name="'tuitionFee_' + ${tuition.subject.subjectId}"
                                    placeholder="Enter fee"
-                                   min="0" step="0.01">
+                                   min="0" step="0.01"
+                                   th:disabled="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE}"
+                                   th:classappend="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'disabled' : ''"
+                                   title="${tuition.contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'Cannot edit: Contract is finalized' : ''">
                         </td>
                     </tr>
                     </tbody>

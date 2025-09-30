@@ -6,6 +6,7 @@ import com.example.demo.TuitionByYear.service.TuitionByYearService;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.SubjectsService;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,8 @@ public class UpdateTuitionController {
             }
 
             List<Subjects> allSubjects = subjectService.getSubjects();
+            List<String> errors = new ArrayList<>();
+            boolean anyUpdate = false;
 
             for (Subjects subject : allSubjects) {
                 String tuitionKey = "tuitionFee_" + subject.getSubjectId();
@@ -70,8 +74,7 @@ public class UpdateTuitionController {
                     try {
                         Double tuition = Double.parseDouble(tuitionValue);
                         if (tuition < 0) {
-                            redirectAttributes.addFlashAttribute("errorMessage",
-                                    "Tuition fee for " + subject.getSubjectName() + " cannot be negative.");
+                            errors.add("Tuition fee for " + subject.getSubjectName() + " cannot be negative.");
                             continue;
                         }
 
@@ -81,6 +84,11 @@ public class UpdateTuitionController {
 
                         TuitionByYear existing = tuitionService.findById(tuitionId);
 
+                        if (existing != null && existing.getContractStatus() == ContractStatus.ACTIVE) {
+                            errors.add("Cannot update tuition fee for " + subject.getSubjectName() + ": Contract is already finalized.");
+                            continue;
+                        }
+
                         if (existing != null) {
                             existing.setTuition(tuition);
                             existing.setCreator(admin);
@@ -89,22 +97,29 @@ public class UpdateTuitionController {
                             tuitionService.updateTuition(existing);
                         } else {
                             TuitionByYear tuitionByYear = new TuitionByYear();
-                            tuitionByYear.setId(tuitionId); // Explicitly set the ID
+                            tuitionByYear.setId(tuitionId);
                             tuitionByYear.setTuition(tuition);
                             tuitionByYear.setCreator(admin);
                             tuitionByYear.setCampus(adminCampus);
                             tuitionByYear.setSubject(subject);
+                            tuitionByYear.setContractStatus(ContractStatus.DRAFT);
                             tuitionService.createTuition(tuitionByYear);
                         }
+                        anyUpdate = true;
                     } catch (NumberFormatException e) {
-                        redirectAttributes.addFlashAttribute("errorMessage",
-                                "Invalid tuition fee format for " + subject.getSubjectName());
+                        errors.add("Invalid tuition fee format for " + subject.getSubjectName());
                     }
                 }
             }
-            redirectAttributes.addFlashAttribute("successMessage", "Tuition fees updated successfully!");
+
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", String.join("; ", errors));
+            }
+            if (anyUpdate) {
+                redirectAttributes.addFlashAttribute("successMessage", "Tuition fees updated successfully!");
+            }
         } catch (Exception e) {
-            e.printStackTrace(); // log lỗi gốc
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Error updating tuition fees: " + e.getMessage());
         }
         return "redirect:/admin-home/subjects-list";

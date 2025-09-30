@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -112,15 +113,47 @@ public class ContractsListController {
                                     HttpSession session) {
         try {
             int currentYear = LocalDate.now().getYear();
-            if (admissionYear < currentYear) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Cannot finalize contracts for past years.");
+            if (admissionYear == null || admissionYear < currentYear) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot finalize contracts for past years or invalid year.");
                 return "redirect:/admin-home/contracts-list";
             }
 
-            // Kiểm tra dữ liệu trước khi chốt
+            // Kiểm tra dữ liệu học phí
             List<TuitionByYear> tuitions = tuitionService.getTuitionsWithFeeByYear(admissionYear);
             if (tuitions.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "No tuition fees found for the selected year.");
+                return "redirect:/admin-home/contracts-list";
+            }
+
+            List<String> tuitionErrors = new ArrayList<>();
+            for (TuitionByYear tuition : tuitions) {
+                if (tuition.getTuition() == null || tuition.getTuition() <= 0) {
+                    tuitionErrors.add("Tuition fee for subject " + tuition.getSubject().getSubjectId() + " is missing or invalid.");
+                }
+                if (tuition.getReStudyTuition() == null || tuition.getReStudyTuition() <= 0) {
+                    tuitionErrors.add("Re-study fee for subject " + tuition.getSubject().getSubjectId() + " is missing or invalid.");
+                }
+            }
+
+            // Kiểm tra dữ liệu học bổng
+            List<ScholarshipByYear> scholarshipByYears = scholarshipByYearService.getScholarshipsByYear(admissionYear);
+            List<String> scholarshipErrors = new ArrayList<>();
+            for (ScholarshipByYear scholarship : scholarshipByYears) {
+                if (scholarship.getAmount() == null || scholarship.getAmount() <= 0) {
+                    scholarshipErrors.add("Amount for scholarship " + scholarship.getId().getScholarshipId() + " is missing or invalid.");
+                }
+                if (scholarship.getDiscountPercentage() == null || scholarship.getDiscountPercentage() <= 0) {
+                    scholarshipErrors.add("Discount percentage for scholarship " + scholarship.getId().getScholarshipId() + " is missing or invalid.");
+                }
+            }
+
+            // Kết hợp lỗi và kiểm tra
+            List<String> allErrors = new ArrayList<>();
+            allErrors.addAll(tuitionErrors);
+            allErrors.addAll(scholarshipErrors);
+
+            if (!allErrors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot finalize contracts. Please ensure all tuition and scholarship records have valid fees: " + String.join("; ", allErrors));
                 return "redirect:/admin-home/contracts-list";
             }
 

@@ -90,21 +90,37 @@
                             <input type="number" class="input small"
                                    th:name="'amount_' + ${scholarship.scholarshipId}"
                                    th:value="${scholarshipByYearMap[scholarship.scholarshipId].amount}"
-                                   placeholder="Enter amount" min="0" step="0.01">
+                                   placeholder="Enter amount" min="0" step="0.01"
+                                   th:disabled="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE or scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED}"
+                                   th:classappend="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE or scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED} ? 'disabled' : ''"
+                                   title="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'Cannot edit: Scholarship contract is finalized' : ${scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED} ? 'Cannot edit: Scholarship is deactivated' : ''">
                         </td>
                         <td>
                             <input type="number" class="input small"
                                    th:name="'discountPercentage_' + ${scholarship.scholarshipId}"
                                    th:value="${scholarshipByYearMap[scholarship.scholarshipId].discountPercentage}"
-                                   placeholder="Enter discount" min="0" max="100" step="0.01">
+                                   placeholder="Enter discount" min="0" max="100" step="0.01"
+                                   th:disabled="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE or scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED}"
+                                   th:classappend="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE or scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED} ? 'disabled' : ''"
+                                   title="${scholarshipByYearMap[scholarship.scholarshipId].contractStatus == T(com.example.demo.entity.Enums.ContractStatus).ACTIVE} ? 'Cannot edit: Scholarship contract is finalized' : ${scholarshipByYearMap[scholarship.scholarshipId].status == T(com.example.demo.entity.Enums.ActivityStatus).DEACTIVATED} ? 'Cannot edit: Scholarship is deactivated' : ''">
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+            <div class="form-actions">
+                <button type="submit" class="btn primary">
+                    <i class="fas fa-save"></i> Save Scholarship Amounts
+                </button>
+            </div>
         </section>
+    </form>
 
-        <!-- Scholarships without Amounts -->
+    <!-- Scholarships without Amounts -->
+    <form th:action="@{/admin-home/update-scholarship-by-year-without}" method="post">
+        <input type="hidden" name="admissionYear" th:value="${selectedYear}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
         <section class="win11-panel">
             <h2 class="panel-header"><i class="fas fa-list"></i> Scholarships without Amounts for <span th:text="${selectedYear}"></span></h2>
             <div class="table-container">
@@ -140,13 +156,12 @@
                     </tbody>
                 </table>
             </div>
+            <div class="form-actions">
+                <button type="submit" class="btn primary">
+                    <i class="fas fa-save"></i> Save Scholarship Amounts
+                </button>
+            </div>
         </section>
-
-        <div class="form-actions">
-            <button type="submit" class="btn primary">
-                <i class="fas fa-save"></i> Save Scholarship Amounts
-            </button>
-        </div>
     </form>
 
     <!-- Overlay Add Scholarship -->

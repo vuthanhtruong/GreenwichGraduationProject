@@ -2,6 +2,7 @@ package com.example.demo.scholarshipByYear.model;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.scholarship.model.Scholarships;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,6 +41,10 @@ public class ScholarshipByYear {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     private ActivityStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ContractStatus", nullable = true)
+    private ContractStatus contractStatus;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;

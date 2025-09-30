@@ -3,6 +3,7 @@ package com.example.demo.scholarshipByYear.dao;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYearId;
 import com.example.demo.scholarship.model.Scholarships;
@@ -18,6 +19,20 @@ import java.util.List;
 @Repository
 @Transactional
 public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
+    @Override
+    public void updateScholarshipByYear(ScholarshipByYear scholarshipByYear) {
+        if (scholarshipByYear == null || scholarshipByYear.getId() == null) {
+            throw new IllegalArgumentException("ScholarshipByYear or its ID cannot be null");
+        }
+        if (scholarshipByYear.getContractStatus() == ContractStatus.ACTIVE) {
+            throw new IllegalStateException("Cannot update scholarship " + scholarshipByYear.getId().getScholarshipId() + ": Contract is finalized.");
+        }
+        if (scholarshipByYear.getStatus() == ActivityStatus.DEACTIVATED) {
+            throw new IllegalStateException("Cannot update scholarship " + scholarshipByYear.getId().getScholarshipId() + ": Scholarship is deactivated.");
+        }
+        scholarshipByYear.setCreatedAt(LocalDateTime.now());
+        entityManager.merge(scholarshipByYear);
+    }
 
     private final ScholarshipsService scholarshipsService;
     private final AdminsService adminsService;
@@ -60,6 +75,22 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
     }
 
     @Override
+    public ScholarshipByYear findById(ScholarshipByYearId id) {
+        if (id == null || id.getScholarshipId() == null || id.getAdmissionYear() == null) {
+            return null;
+        }
+        return entityManager.find(ScholarshipByYear.class, id);
+    }
+
+    @Override
+    public void createScholarshipByYear(ScholarshipByYear scholarshipByYear) {
+        if (scholarshipByYear == null || scholarshipByYear.getId() == null) {
+            throw new IllegalArgumentException("ScholarshipByYear or its ID cannot be null");
+        }
+        entityManager.persist(scholarshipByYear);
+    }
+
+    @Override
     public void updateScholarshipByYear(String scholarshipId, Integer admissionYear, Double amount, Double discountPercentage) {
         if (amount == null && discountPercentage == null) {
             return;
@@ -75,12 +106,23 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
             scholarshipByYear = new ScholarshipByYear();
             scholarshipByYear.setId(new ScholarshipByYearId(scholarshipId, admissionYear));
             scholarshipByYear.setScholarship(scholarship);
+        } else {
+            if (scholarshipByYear.getContractStatus() == ContractStatus.ACTIVE) {
+                throw new IllegalStateException("Cannot update scholarship " + scholarshipId + ": Contract is finalized.");
+            }
+            if (scholarshipByYear.getStatus() == ActivityStatus.DEACTIVATED) {
+                throw new IllegalStateException("Cannot update scholarship " + scholarshipId + ": Scholarship is deactivated.");
+            }
         }
 
         scholarshipByYear.setAmount(amount != null ? amount : 0.0);
         scholarshipByYear.setDiscountPercentage(discountPercentage);
         scholarshipByYear.setStatus(ActivityStatus.ACTIVATED);
+        scholarshipByYear.setContractStatus(ContractStatus.DRAFT);
         Admins creator = adminsService.getAdmin();
+        if (creator == null) {
+            throw new IllegalStateException("Admin not found");
+        }
         scholarshipByYear.setCreator(creator);
         scholarshipByYear.setCreatedAt(LocalDateTime.now());
         saveOrUpdate(scholarshipByYear);
@@ -117,9 +159,10 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
             throw new IllegalArgumentException("Admission year cannot be null");
         }
         entityManager.createQuery(
-                        "UPDATE ScholarshipByYear sby SET sby.status = :status " +
+                        "UPDATE ScholarshipByYear sby SET sby.contractStatus = :contractStatus, sby.status = :status " +
                                 "WHERE sby.id.admissionYear = :admissionYear " +
                                 "AND (sby.amount IS NOT NULL OR sby.discountPercentage IS NOT NULL)")
+                .setParameter("contractStatus", ContractStatus.ACTIVE)
                 .setParameter("status", ActivityStatus.ACTIVATED)
                 .setParameter("admissionYear", admissionYear)
                 .executeUpdate();

@@ -6,6 +6,7 @@ import com.example.demo.TuitionByYear.service.TuitionByYearService;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.SubjectsService;
 import jakarta.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ public class UpdateAnnualReStudyFeeController {
     }
 
     @PostMapping("/update-tuition")
+    @Transactional
     public String updateTuition(
             @RequestParam("admissionYear") Integer admissionYear,
             @RequestParam Map<String, String> allParams,
@@ -46,8 +49,8 @@ public class UpdateAnnualReStudyFeeController {
             HttpSession session) {
         try {
             int currentYear = LocalDate.now().getYear();
-            if (admissionYear < currentYear) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Cannot update re-study fees for past years.");
+            if (admissionYear == null || admissionYear < currentYear) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Cannot update re-study fees for past years or invalid year.");
                 return "redirect:/admin-home/annual-restudy-fee";
             }
 
@@ -67,6 +70,9 @@ public class UpdateAnnualReStudyFeeController {
                     .map(TuitionByYear::getSubject)
                     .toList();
 
+            List<String> errors = new ArrayList<>();
+            boolean anyUpdate = false;
+
             for (Subjects subject : eligibleSubjects) {
                 String tuitionKey = "tuitionFee_" + subject.getSubjectId();
                 String tuitionValue = allParams.get(tuitionKey);
@@ -74,8 +80,7 @@ public class UpdateAnnualReStudyFeeController {
                     try {
                         Double reStudyTuition = Double.parseDouble(tuitionValue);
                         if (reStudyTuition < 0) {
-                            redirectAttributes.addFlashAttribute("errorMessage",
-                                    "Re-study fee for " + subject.getSubjectName() + " cannot be negative.");
+                            errors.add("Re-study fee for " + subject.getSubjectName() + " cannot be negative.");
                             continue;
                         }
 
@@ -85,22 +90,34 @@ public class UpdateAnnualReStudyFeeController {
 
                         TuitionByYear existing = tuitionService.findById(tuitionId);
 
-                        if (existing != null) {
-                            existing.setReStudyTuition(reStudyTuition);
-                            existing.setCreator(admin);
-                            tuitionService.updateTuition(existing);
-                        } else {
-                            redirectAttributes.addFlashAttribute("errorMessage",
-                                    "No existing tuition record found for " + subject.getSubjectName() + ". Cannot set re-study fee without standard tuition.");
+                        if (existing == null) {
+                            errors.add("No existing tuition record found for " + subject.getSubjectName() + ". Cannot set re-study fee without standard tuition.");
                             continue;
                         }
+
+                        if (existing.getContractStatus() == ContractStatus.ACTIVE) {
+                            errors.add("Cannot update re-study fee for " + subject.getSubjectName() + ": Contract is already finalized.");
+                            continue;
+                        }
+
+                        existing.setReStudyTuition(reStudyTuition);
+                        existing.setCreator(admin);
+                        tuitionService.updateTuition(existing);
+                        anyUpdate = true;
                     } catch (NumberFormatException e) {
-                        redirectAttributes.addFlashAttribute("errorMessage",
-                                "Invalid re-study fee format for " + subject.getSubjectName());
+                        errors.add("Invalid re-study fee format for " + subject.getSubjectName());
                     }
                 }
             }
-            redirectAttributes.addFlashAttribute("successMessage", "Re-study fees updated successfully!");
+
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", String.join("; ", errors));
+            }
+            if (anyUpdate) {
+                redirectAttributes.addFlashAttribute("successMessage", "Re-study fees updated successfully!");
+            } else if (errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No re-study fees were updated.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Error updating re-study fees: " + e.getMessage());
