@@ -11,6 +11,21 @@ import java.util.List;
 @Service
 public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
     @Override
+    public boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId) {
+        return studentId.equals(subjectId);
+    }
+
+    @Override
+    public void addStudentRequiredMajorSubject(StudentRequiredMajorSubjects srm) {
+        studentRequiredSubjectsDAO.addStudentRequiredMajorSubject(srm);
+    }
+
+    @Override
+    public boolean removeStudentRequiredMajorSubject(String studentId, String subjectId) {
+        return studentRequiredSubjectsDAO.removeStudentRequiredMajorSubject(studentId, subjectId);
+    }
+
+    @Override
     public List<MajorSubjects> studentMajorRoadmap(Students student) {
         return studentRequiredSubjectsDAO.studentMajorRoadmap(student);
     }

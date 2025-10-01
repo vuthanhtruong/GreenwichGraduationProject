@@ -38,7 +38,6 @@ public class AnnualReStudyFeeReferenceController {
     private void populateCommonAttributes(Model model, HttpSession session) {
         Campuses adminCampus = adminsService.getAdminCampus();
         List<Campuses> campuses = campusesService.getCampuses();
-        campuses.removeIf(c -> c.getCampusId().equals(adminCampus.getCampusId()));
         List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYears();
         model.addAttribute("Campuses", campuses);
         model.addAttribute("admissionYears", admissionYears);

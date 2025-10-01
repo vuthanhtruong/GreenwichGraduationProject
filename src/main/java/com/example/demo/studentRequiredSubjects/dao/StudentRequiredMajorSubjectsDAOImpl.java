@@ -4,10 +4,6 @@ import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
-import com.example.demo.entity.Enums.Grades;
-import com.example.demo.entity.Enums.SubjectTypes;
-import com.example.demo.entity.Enums.UpgradeStatus;
-import com.example.demo.entity.UpgradeStudents;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.model.MinorSubjects;
 import jakarta.persistence.EntityManager;
@@ -23,7 +19,8 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     @Override
     public List<MajorSubjects> studentMajorRoadmap(Students student) {
         return entityManager.createQuery(
-                        "SELECT s.majorSubject FROM StudentRequiredMajorSubjects s WHERE s.student = :student",
+                        "SELECT srs.subject FROM StudentRequiredMajorSubjects srs " +
+                                "WHERE srs.student = :student",
                         MajorSubjects.class
                 )
                 .setParameter("student", student)
@@ -33,7 +30,8 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     @Override
     public List<MinorSubjects> studentMinorRoadmap(Students student) {
         return entityManager.createQuery(
-                        "SELECT s.minorSubject FROM StudentRequiredMinorSubjects s WHERE s.student = :student",
+                        "SELECT srs.subject FROM StudentRequiredMinorSubjects srs " +
+                                "WHERE srs.student = :student",
                         MinorSubjects.class
                 )
                 .setParameter("student", student)
@@ -52,83 +50,28 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
         this.staffsService = staffsService;
     }
 
-    private boolean isValidSubjectAndMajor(MajorSubjects subjects) {
-        return subjects != null &&
-                staffsService.getStaffMajor() != null &&
-                subjects.getAcceptor() != null;
-    }
-
-    private boolean hasPassedAllMajorPreparationSubjects(Students student) {
-        List<Object[]> results = entityManager.createQuery(
-                        "SELECT s.subjectId, t.grade FROM MajorAcademicTranscripts t " +
-                                "JOIN MajorSubjects s ON t.subject.subjectId = s.subjectId " +
-                                "WHERE t.student.id = :studentId AND s.requirementType = :requirementType",
-                        Object[].class)
-                .setParameter("studentId", student.getId())
-                .setParameter("requirementType", SubjectTypes.MAJOR_PREPARATION)
-                .getResultList();
-
-        if (results.isEmpty()) {
-            return true;
-        }
-
-        return results.stream().allMatch(result -> {
-            Grades grade = (Grades) result[1];
-            return grade == Grades.PASS || grade == Grades.MERIT || grade == Grades.DISTINCTION;
-        });
-    }
-
-    private boolean isTuitionValidForSubject(MajorSubjects subject, Students student) {
-        List<Double> tuition = entityManager.createQuery(
-                        "SELECT t.tuition FROM TuitionByYear t " +
-                                "WHERE t.subject.subjectId = :subjectId AND t.id.admissionYear = :admissionYear",
-                        Double.class)
-                .setParameter("subjectId", subject.getSubjectId())
-                .setParameter("admissionYear", student.getAdmissionYear().getYear())
-                .getResultList();
-
-        return !tuition.isEmpty() && tuition.get(0) > 0;
-    }
-
-    private boolean hasCompletedEnglishStage(Students student) {
-        List<UpgradeStudents> results = entityManager.createQuery(
-                        "SELECT u FROM UpgradeStudents u WHERE u.student.id = :studentId AND u.id.upgradeStatus = :status",
-                        UpgradeStudents.class)
-                .setParameter("studentId", student.getId())
-                .setParameter("status", UpgradeStatus.COMPLETE_ENGLISH_STAGE)
-                .getResultList();
-
-        return !results.isEmpty();
-    }
-
     @Override
     public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects) {
-        if (!isValidSubjectAndMajor(subjects)) {
+        if (subjects == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
 
-        List<StudentRequiredMajorSubjects> results = entityManager.createQuery(
+        return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredMajorSubjects srs " +
                                 "WHERE srs.subject = :subjects AND srs.student.major = :major",
                         StudentRequiredMajorSubjects.class)
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
-
-        return results.stream()
-                .filter(srs -> hasPassedAllMajorPreparationSubjects(srs.getStudent()) &&
-                        isTuitionValidForSubject(subjects, srs.getStudent()) &&
-                        hasCompletedEnglishStage(srs.getStudent()))
-                .toList();
     }
 
     @Override
     public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects) {
-        if (!isValidSubjectAndMajor(subjects)) {
+        if (subjects == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
 
-        List<Students> students = entityManager.createQuery(
+        return entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN StudentRequiredMajorSubjects srs " +
                                 "ON s.id = srs.student.id AND srs.subject = :subjects " +
                                 "WHERE s.major = :major AND srs.student.id IS NULL",
@@ -136,12 +79,6 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
-
-        return students.stream()
-                .filter(student -> hasPassedAllMajorPreparationSubjects(student) &&
-                        isTuitionValidForSubject(subjects, student) &&
-                        hasCompletedEnglishStage(student))
-                .toList();
     }
 
     @Override
@@ -171,5 +108,46 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                 .setParameter("learningProgramType", programType)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
+    }
+
+    @Override
+    public boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId) {
+        if (studentId == null || subjectId == null) {
+            return false;
+        }
+
+        Long count = entityManager.createQuery(
+                        "SELECT COUNT(srs) FROM StudentRequiredMajorSubjects srs " +
+                                "WHERE srs.student.id = :studentId AND srs.subject.subjectId = :subjectId",
+                        Long.class)
+                .setParameter("studentId", studentId)
+                .setParameter("subjectId", subjectId)
+                .getSingleResult();
+
+        return count > 0;
+    }
+
+    @Override
+    public void addStudentRequiredMajorSubject(StudentRequiredMajorSubjects srm) {
+        if (srm == null) {
+            throw new IllegalArgumentException("StudentRequiredMajorSubjects cannot be null");
+        }
+        entityManager.persist(srm);
+    }
+
+    @Override
+    public boolean removeStudentRequiredMajorSubject(String studentId, String subjectId) {
+        if (studentId == null || subjectId == null) {
+            return false;
+        }
+
+        Long count = (long) entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMajorSubjects srs " +
+                                "WHERE srs.student.id = :studentId AND srs.subject.subjectId = :subjectId")
+                .setParameter("studentId", studentId)
+                .setParameter("subjectId", subjectId)
+                .executeUpdate();
+
+        return count > 0;
     }
 }

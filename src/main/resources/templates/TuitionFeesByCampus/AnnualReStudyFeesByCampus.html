@@ -54,14 +54,16 @@
                             th:selected="${campus.campusId == selectedCampusId}"></option>
                 </select>
                 <label for="admissionYear" class="me-2"><i class="fas fa-calendar-alt"></i> Year:</label>
-                <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto" required
-                        onchange="this.form.submit()">
+                <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto me-3" required>
                     <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
                     <option th:each="year : ${admissionYears}"
                             th:value="${year}"
                             th:text="${year}"
                             th:selected="${year == selectedYear}"></option>
                 </select>
+                <button type="submit" class="btn btn-info">
+                    <i class="fas fa-search"></i> Reference
+                </button>
             </div>
         </form>
 

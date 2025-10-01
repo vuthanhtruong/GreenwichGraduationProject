@@ -61,15 +61,15 @@
                         <th><i class="fas fa-check-square"></i> Select</th>
                         <th><i class="fas fa-user"></i> Name</th>
                         <th><i class="fas fa-envelope"></i> Email</th>
-                        <th><i class="fas fa-id-card"></i> MIS ID</th>
+                        <th><i class="fas fa-id-card"></i> ID</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="student : ${studentsNotRequired}" th:if="${studentsNotRequired != null}">
                         <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
-                        <td th:text="${student.student.fullName}"></td>
-                        <td th:text="${student.student.email}"></td>
-                        <td th:text="${student.student.id}"></td>
+                        <td th:text="${student.getFullName()}"></td>
+                        <td th:text="${student.getEmail()}"></td>
+                        <td th:text="${student.getId()}"></td>
                     </tr>
                     <tr th:if="${studentsNotRequired == null or studentsNotRequired.isEmpty()}">
                         <td colspan="4" class="text-center">No students available to assign.</td>
@@ -102,7 +102,7 @@
                         <th><i class="fas fa-check-square"></i> Select</th>
                         <th><i class="fas fa-user"></i> Name</th>
                         <th><i class="fas fa-envelope"></i> Email</th>
-                        <th><i class="fas fa-id-card"></i> MIS ID</th>
+                        <th><i class="fas fa-id-card"></i> ID</th>
                     </tr>
                     </thead>
                     <tbody>

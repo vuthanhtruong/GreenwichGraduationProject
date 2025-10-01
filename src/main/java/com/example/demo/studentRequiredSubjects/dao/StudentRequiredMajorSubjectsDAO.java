@@ -13,4 +13,7 @@ public interface StudentRequiredMajorSubjectsDAO {
     List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType);
     List<MajorSubjects> studentMajorRoadmap(Students student);
     List<MinorSubjects> studentMinorRoadmap(Students student);
+    boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId);
+    void addStudentRequiredMajorSubject(StudentRequiredMajorSubjects srm);
+    boolean removeStudentRequiredMajorSubject(String studentId, String subjectId);
 }
