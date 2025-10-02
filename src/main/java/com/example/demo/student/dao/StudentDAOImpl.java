@@ -38,6 +38,19 @@ import java.util.stream.Collectors;
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
     @Override
+    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Students.class)
+                .setParameter("campusId", campusId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
     public Students findById(String studentId) {
         return entityManager.find(Students.class, studentId);
     }

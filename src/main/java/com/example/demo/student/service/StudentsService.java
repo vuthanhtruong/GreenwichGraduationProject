@@ -10,19 +10,20 @@ import java.util.List;
 
 public interface StudentsService {
     Students findById(String studentId);
+    long totalStudentsByCampus(String campusId);
+    String generateRandomPassword(int length);
+    String generateUniqueStudentId(String majorId, java.time.LocalDate createdDate);
+    List<String> StudentValidation(Students student, MultipartFile avatarFile);
+    Students getStudent();
+    com.example.demo.major.model.Majors getStudentMajor();
     List<Students> getStudents();
     Students addStudents(Students students, String randomPassword);
     long numberOfStudents();
     void deleteStudent(String id);
-    void editStudent(String id, Students student) throws MessagingException;
+    void editStudent(String id, Students student) throws jakarta.mail.MessagingException;
     Students getStudentById(String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
-    Majors getStudentMajor();
-    Students getStudent();
-    List<String> StudentValidation(Students student, MultipartFile avatarFile);
-    String generateUniqueStudentId(String majorId, LocalDate createdDate);
-    String generateRandomPassword(int length);
-    long countSearchResults(String searchType, String keyword);
     List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize);
-    long totalStudentsByCampus(String campus);
+    long countSearchResults(String searchType, String keyword);
+    List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize);
 }

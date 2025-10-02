@@ -13,6 +13,11 @@ import java.util.List;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
+    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
+        return studentsDAO.getPaginatedStudentsByCampus(campusId, firstResult, pageSize);
+    }
+
+    @Override
     public Students findById(String studentId) {
         return studentsDAO.findById(studentId);
     }
