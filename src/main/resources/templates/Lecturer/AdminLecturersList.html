@@ -35,7 +35,7 @@
         </div>
 
         <!-- Center: Search -->
-        <form method="post" th:action="@{/admin-home/lecturers-list/search}" class="toolbar-center">
+        <form method="post" th:action="@{/admin-home/lecturers-list/search-lecturers}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="campusId" th:value="${campusId}" />
             <select name="searchType" class="input">

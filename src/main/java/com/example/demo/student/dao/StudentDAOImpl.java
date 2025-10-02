@@ -17,6 +17,7 @@ import com.example.demo.student.model.Students;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -437,6 +438,34 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
+    public List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
+        }
+
+        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator " +
+                "WHERE s.campus.id = :campusId";
+
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND s.id LIKE :keyword";
+        } else {
+            return List.of();
+        }
+
+        return entityManager.createQuery(queryString, Students.class)
+                .setParameter("campusId", campusId)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
     public long countSearchResults(String searchType, String keyword) {
         String queryString = "SELECT COUNT(s) FROM Students s WHERE ";
         if ("name".equals(searchType)) {
@@ -466,5 +495,45 @@ public class StudentDAOImpl implements StudentsDAO {
         if (editd.getAvatar() != null) existing.setAvatar(editd.getAvatar());
         if (editd.getCampus() != null) existing.setCampus(editd.getCampus());
         if (editd.getCreator() != null) existing.setCreator(editd.getCreator());
+    }
+    @Override
+    public List<Integer> getUniqueAdmissionYears() {
+        Staffs staff = staffsService.getStaff();
+        String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
+                "WHERE s.major = :staffmajor AND s.campus = :campuses " +
+                "ORDER BY YEAR(s.admissionYear) ASC";
+        List<Integer> years = entityManager.createQuery(jpql, Integer.class)
+                .setParameter("staffmajor", staff.getMajorManagement())
+                .setParameter("campuses", staff.getCampus())
+                .getResultList();
+        return years.stream().filter(year -> year != null).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
+
+            String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND s.id = :keyword";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%");
+            return query.getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Error counting search results by campus: " + e.getMessage(), e);
+        }
     }
 }

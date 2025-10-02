@@ -27,4 +27,8 @@ public interface LecturesDAO {
     List<MajorLecturers> getPaginatedLecturersByCampus(String campusId, int firstResult, int pageSize);
     List<MinorLecturers> getPaginatedMinorLecturersByCampus(String campusId, int firstResult, int pageSize);
     MinorLecturers getMinorLecturerById(String id);
+    long countMinorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword);
+    long countMajorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword);
+    List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
+    List<MajorLecturers> searchMajorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
 }

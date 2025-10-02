@@ -17,6 +17,16 @@ import java.util.Map;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
+    public List<Staffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        return staffsDAO.searchStaffsByCampus(campusId, searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        return staffsDAO.countSearchResultsByCampus(campusId, searchType, keyword);
+    }
+
+    @Override
     public Map<String, String> validateStaff(Staffs staff, MultipartFile avatarFile, String majorId, String campusId) {
         return staffsDAO.validateStaff(staff, avatarFile, majorId, campusId);
     }

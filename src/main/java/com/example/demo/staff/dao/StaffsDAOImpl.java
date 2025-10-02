@@ -382,5 +382,65 @@ public class StaffsDAOImpl implements StaffsDAO {
                 "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
         return name.matches(nameRegex);
     }
+    @Override
+    public List<Staffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+                return List.of();
+            }
+
+            String queryString = "SELECT s FROM Staffs s JOIN FETCH s.campus JOIN FETCH s.majorManagement JOIN FETCH s.creator " +
+                    "WHERE s.campus.id = :campusId";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND s.id = :keyword";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<Staffs> query = entityManager.createQuery(queryString, Staffs.class)
+                    .setParameter("campusId", campusId)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%")
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching staff by campus: {}", e.getMessage());
+            throw new RuntimeException("Error searching staff by campus: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
+
+            String queryString = "SELECT COUNT(s) FROM Staffs s WHERE s.campus.id = :campusId";
+            if ("name".equalsIgnoreCase(searchType)) {
+                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND s.id = :keyword";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId)
+                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%");
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting search results by campus: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results by campus: " + e.getMessage(), e);
+        }
+    }
 
 }

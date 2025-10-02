@@ -29,4 +29,6 @@ public interface StaffsService {
     String generateRandomPassword(int length);
     List<Staffs> searchStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
+    List<Staffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchResultsByCampus(String campusId, String searchType, String keyword);
 }

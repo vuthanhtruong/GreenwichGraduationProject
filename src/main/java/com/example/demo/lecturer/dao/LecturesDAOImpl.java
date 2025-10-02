@@ -31,11 +31,6 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
-    @Override
-    public MinorLecturers getMinorLecturerById(String id) {
-        return entityManager.find(MinorLecturers.class, id);
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
 
     private final PersonsService personsService;
@@ -437,5 +432,114 @@ public class LecturesDAOImpl implements LecturesDAO {
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
+    }
+
+    @Override
+    public MinorLecturers getMinorLecturerById(String id) {
+        return entityManager.find(MinorLecturers.class, id);
+    }
+
+    @Override
+    public List<MajorLecturers> searchMajorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
+        }
+
+        String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator " +
+                "WHERE l.campus.id = :campusId";
+
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND l.id LIKE :keyword";
+        } else {
+            return List.of();
+        }
+
+        return entityManager.createQuery(queryString, MajorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
+        }
+
+        String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus " +
+                "WHERE l.campus.id = :campusId";
+
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND l.id LIKE :keyword";
+        } else {
+            return List.of();
+        }
+
+        return entityManager.createQuery(queryString, MinorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countMajorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND l.id LIKE :keyword";
+        } else {
+            return 0L;
+        }
+
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .getSingleResult();
+    }
+
+    @Override
+    public long countMinorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
+        if ("name".equals(searchType)) {
+            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND l.id LIKE :keyword";
+        } else {
+            return 0L;
+        }
+
+        return entityManager.createQuery(queryString, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("keyword", "%" + keyword.trim() + "%")
+                .getSingleResult();
     }
 }

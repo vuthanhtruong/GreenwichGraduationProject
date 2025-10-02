@@ -13,6 +13,21 @@ import java.util.List;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
+    public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        return studentsDAO.countSearchResultsByCampus(campusId, searchType, keyword);
+    }
+
+    @Override
+    public List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        return studentsDAO.searchStudentsByCampus(campusId, searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public List<Integer> getUniqueAdmissionYears() {
+        return studentsDAO.getUniqueAdmissionYears();
+    }
+
+    @Override
     public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
         return studentsDAO.getPaginatedStudentsByCampus(campusId, firstResult, pageSize);
     }

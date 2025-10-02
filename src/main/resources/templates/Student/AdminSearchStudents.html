@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Search Lecturers</title>
+    <title>Admin - Search Students</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudentsList.css}" />
 </head>
@@ -12,7 +12,7 @@
 
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-chalkboard-teacher"></i> Admin - Search Lecturers</h1>
+        <h1><i class="fas fa-user-graduate"></i> Admin - Search Students</h1>
     </header>
 
     <!-- Alert Messages -->
@@ -32,26 +32,29 @@
             <a th:href="@{/admin-home}" class="btn">
                 <i class="fas fa-home"></i> Home
             </a>
+            <a th:href="@{/admin-home/students-list}" class="btn">
+                <i class="fas fa-list"></i> Full Students List
+            </a>
         </div>
 
         <!-- Center: Search -->
-        <form method="post" th:action="@{/admin-home/lecturers-list/search}" class="toolbar-center">
+        <form method="post" th:action="@{/admin-home/students-list/search-students}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="campusId" th:value="${campusId}" />
             <select name="searchType" class="input">
                 <option value="name" th:selected="${searchType == 'name'}">Name</option>
                 <option value="id" th:selected="${searchType == 'id'}">ID</option>
             </select>
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input" />
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." class="input" />
             <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
-            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/lecturers-list(campusId=${campusId})}" class="btn danger">
-                <i class="fas fa-list"></i> Full Lecturers List
+            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/students-list}" class="btn danger">
+                <i class="fas fa-times"></i> Clear
             </a>
         </form>
 
         <!-- Right: Show + Total -->
         <div class="toolbar-right">
-            <form method="post" th:action="@{/admin-home/lecturers-list/search}" class="page-size-form">
+            <form method="post" th:action="@{/admin-home/students-list/search-students}" class="page-size-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="searchType" th:value="${searchType}" />
                 <input type="hidden" name="keyword" th:value="${keyword}" />
@@ -63,12 +66,12 @@
             </form>
             <div class="total">
                 <i class="fas fa-users"></i>
-                <p><strong>Total Lecturers:</strong> <span th:text="${totalLecturers}"></span></p>
+                <p><strong>Total Students:</strong> <span th:text="${totalStudents}"></span></p>
             </div>
         </div>
     </div>
 
-    <!-- Lecturers Table -->
+    <!-- Students Table -->
     <div class="table-container">
         <table class="win11-table">
             <thead>
@@ -80,24 +83,26 @@
                 <th><i class="fas fa-phone"></i> Phone</th>
                 <th><i class="fas fa-birthday-cake"></i> Birth Date</th>
                 <th><i class="fas fa-venus-mars"></i> Gender</th>
-                <th><i class="fas fa-user-shield"></i> Creator</th>
+                <th><i class="fas fa-graduation-cap"></i> Major</th>
+                <th><i class="fas fa-building"></i> Campus</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="lecturer : ${teachers}">
-                <td th:text="${lecturer.id}"></td>
+            <tr th:each="student : ${students}">
+                <td th:text="${student.id}"></td>
                 <td>
-                    <img th:if="${lecturer.avatar != null}" th:src="@{'/admin-home/lecturers-list/avatar/' + ${lecturer.id}}"
-                         class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
-                    <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}"
-                         class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
+                    <img th:if="${student.avatar != null}" th:src="@{'/admin-home/students-list/avatar/' + ${student.id}}"
+                         class="avatar" th:alt="${student.firstName + ' ' + student.lastName}" />
+                    <img th:if="${student.avatar == null}" th:src="${student.defaultAvatarPath}"
+                         class="avatar" th:alt="${student.firstName + ' ' + student.lastName}" />
                 </td>
-                <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
-                <td th:text="${lecturer.email}"></td>
-                <td th:text="${lecturer.phoneNumber}"></td>
-                <td th:text="${lecturer.birthDate}"></td>
-                <td th:text="${lecturer.gender}"></td>
-                <td th:text="${lecturer.creator?.id}"></td>
+                <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                <td th:text="${student.email}"></td>
+                <td th:text="${student.phoneNumber}"></td>
+                <td th:text="${student.birthDate}"></td>
+                <td th:text="${student.gender}"></td>
+                <td th:text="${student.major?.majorName}"></td>
+                <td th:text="${student.campus?.campusName}"></td>
             </tr>
             </tbody>
         </table>
@@ -105,17 +110,17 @@
 
     <!-- Pagination -->
     <div class="pagination">
-        <a th:href="@{/admin-home/lecturers-list/search(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+        <a th:href="@{/admin-home/students-list/search-students(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
-        <a th:href="@{/admin-home/lecturers-list/search(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+        <a th:href="@{/admin-home/students-list/search-students(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
         <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/admin-home/lecturers-list/search(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+            <a th:href="@{/admin-home/students-list/search-students(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
                th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
         </span>
-        <a th:href="@{/admin-home/lecturers-list/search(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+        <a th:href="@{/admin-home/students-list/search-students(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
-        <a th:href="@{/admin-home/lecturers-list/search(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+        <a th:href="@{/admin-home/students-list/search-students(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
     </div>
 </div>

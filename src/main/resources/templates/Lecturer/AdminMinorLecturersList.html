@@ -34,6 +34,20 @@
             </a>
         </div>
 
+        <form method="post" th:action="@{/admin-home/minor-lecturers-list/search-lecturers}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="campusId" th:value="${campusId}" />
+            <select name="searchType" class="input">
+                <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                <option value="id" th:selected="${searchType == 'id'}">ID</option>
+            </select>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." class="input" />
+            <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
+            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/minor-lecturers-list/search-lecturers(campusId=${campusId})}" class="btn danger">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+
         <!-- Right: Show + Total -->
         <div class="toolbar-right">
             <form method="post" th:action="@{/admin-home/minor-lecturers-list}" class="page-size-form">
