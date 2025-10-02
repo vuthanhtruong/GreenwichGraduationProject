@@ -35,16 +35,40 @@ public class StaffsDAOImpl implements StaffsDAO {
     @Override
     public long countSearchResults(String searchType, String keyword) {
         try {
-            String queryString = "SELECT COUNT(s) FROM Staffs s WHERE ";
-            if ("name".equalsIgnoreCase(searchType)) {
-                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
-            } else if ("id".equalsIgnoreCase(searchType)) {
-                queryString += "s.id = :keyword";
-            } else {
-                return 0;
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
             }
-            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
-                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%");
+
+            String queryString = "SELECT COUNT(s) FROM Staffs s WHERE ";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += nameCondition.toString();
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
             return query.getSingleResult();
         } catch (Exception e) {
             logger.error("Error counting search results: {}", e.getMessage());
@@ -55,18 +79,42 @@ public class StaffsDAOImpl implements StaffsDAO {
     @Override
     public List<Staffs> searchStaffs(String searchType, String keyword, int firstResult, int pageSize) {
         try {
-            String queryString = "SELECT s FROM Staffs s WHERE ";
-            if ("name".equalsIgnoreCase(searchType)) {
-                queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
-            } else if ("id".equalsIgnoreCase(searchType)) {
-                queryString += "s.id = :keyword";
-            } else {
-                return new ArrayList<>();
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || firstResult < 0) {
+                return List.of();
             }
+
+            String queryString = "SELECT s FROM Staffs s JOIN FETCH s.campus JOIN FETCH s.majorManagement JOIN FETCH s.creator WHERE ";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += nameCondition.toString();
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += "LOWER(s.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
             TypedQuery<Staffs> query = entityManager.createQuery(queryString, Staffs.class)
-                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword + "%")
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
             return query.getResultList();
         } catch (Exception e) {
             logger.error("Error searching staff: {}", e.getMessage());
@@ -388,25 +436,44 @@ public class StaffsDAOImpl implements StaffsDAO {
             if (campusId == null || campusId.trim().isEmpty()) {
                 throw new IllegalArgumentException("Campus ID must not be null or empty");
             }
-            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || firstResult < 0) {
                 return List.of();
             }
 
             String queryString = "SELECT s FROM Staffs s JOIN FETCH s.campus JOIN FETCH s.majorManagement JOIN FETCH s.creator " +
                     "WHERE s.campus.id = :campusId";
+
             if ("name".equalsIgnoreCase(searchType)) {
-                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
             } else if ("id".equalsIgnoreCase(searchType)) {
-                queryString += " AND s.id = :keyword";
+                queryString += " AND LOWER(s.id) = LOWER(:keyword)";
             } else {
                 return List.of();
             }
 
             TypedQuery<Staffs> query = entityManager.createQuery(queryString, Staffs.class)
                     .setParameter("campusId", campusId)
-                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%")
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
             return query.getResultList();
         } catch (Exception e) {
             logger.error("Error searching staff by campus: {}", e.getMessage());
@@ -425,17 +492,36 @@ public class StaffsDAOImpl implements StaffsDAO {
             }
 
             String queryString = "SELECT COUNT(s) FROM Staffs s WHERE s.campus.id = :campusId";
+
             if ("name".equalsIgnoreCase(searchType)) {
-                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
             } else if ("id".equalsIgnoreCase(searchType)) {
-                queryString += " AND s.id = :keyword";
+                queryString += " AND LOWER(s.id) = LOWER(:keyword)";
             } else {
                 return 0L;
             }
 
             TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
-                    .setParameter("campusId", campusId)
-                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%");
+                    .setParameter("campusId", campusId);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
             return query.getSingleResult();
         } catch (Exception e) {
             logger.error("Error counting search results by campus: {}", e.getMessage());

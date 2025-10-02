@@ -13,6 +13,7 @@ import com.example.demo.person.service.PersonsService;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -352,30 +353,107 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public List<MajorLecturers> searchLecturers(String searchType, String keyword, int firstResult, int pageSize) {
-        String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator WHERE ";
-        if ("name".equals(searchType)) {
-            queryString += "LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword)";
-        } else {
-            queryString += "l.id LIKE :keyword";
+        try {
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || firstResult < 0) {
+                return List.of();
+            }
+
+            Staffs staff = staffsService.getStaff();
+            if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+                return List.of();
+            }
+
+            String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator " +
+                    "WHERE l.majorManagement = :staffmajor AND l.campus = :campuses";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<MajorLecturers> query = entityManager.createQuery(queryString, MajorLecturers.class)
+                    .setParameter("staffmajor", staff.getMajorManagement())
+                    .setParameter("campuses", staff.getCampus())
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching major lecturers: {}", e.getMessage());
+            throw new RuntimeException("Error searching major lecturers: " + e.getMessage(), e);
         }
-        return entityManager.createQuery(queryString, MajorLecturers.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
     }
 
     @Override
     public long countSearchResults(String searchType, String keyword) {
-        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE ";
-        if ("name".equals(searchType)) {
-            queryString += "LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword)";
-        } else {
-            queryString += "l.id LIKE :keyword";
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
+
+            Staffs staff = staffsService.getStaff();
+            if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+                return 0L;
+            }
+
+            String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.majorManagement = :staffmajor AND l.campus = :campuses";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("staffmajor", staff.getMajorManagement())
+                    .setParameter("campuses", staff.getCampus());
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting search results for major lecturers: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results for major lecturers: " + e.getMessage(), e);
         }
-        return entityManager.createQuery(queryString, Long.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .getSingleResult();
     }
 
     private void updateLecturerFields(MajorLecturers existing, MajorLecturers updated) {
@@ -441,105 +519,198 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public List<MajorLecturers> searchMajorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
-            return List.of();
-        }
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || firstResult < 0) {
+                return List.of();
+            }
 
-        String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator " +
-                "WHERE l.campus.id = :campusId";
+            String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator " +
+                    "WHERE l.campus.id = :campusId";
 
-        if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
-        } else if ("id".equals(searchType)) {
-            queryString += " AND l.id LIKE :keyword";
-        } else {
-            return List.of();
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<MajorLecturers> query = entityManager.createQuery(queryString, MajorLecturers.class)
+                    .setParameter("campusId", campusId)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching major lecturers by campus: {}", e.getMessage());
+            throw new RuntimeException("Error searching major lecturers by campus: " + e.getMessage(), e);
         }
-
-        return entityManager.createQuery(queryString, MajorLecturers.class)
-                .setParameter("campusId", campusId)
-                .setParameter("keyword", "%" + keyword.trim() + "%")
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
     }
 
     @Override
     public List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
-            return List.of();
-        }
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || firstResult < 0) {
+                return List.of();
+            }
 
-        String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus " +
-                "WHERE l.campus.id = :campusId";
+            String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.id = :campusId";
 
-        if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
-        } else if ("id".equals(searchType)) {
-            queryString += " AND l.id LIKE :keyword";
-        } else {
-            return List.of();
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<MinorLecturers> query = entityManager.createQuery(queryString, MinorLecturers.class)
+                    .setParameter("campusId", campusId)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching minor lecturers by campus: {}", e.getMessage());
+            throw new RuntimeException("Error searching minor lecturers by campus: " + e.getMessage(), e);
         }
-
-        return entityManager.createQuery(queryString, MinorLecturers.class)
-                .setParameter("campusId", campusId)
-                .setParameter("keyword", "%" + keyword.trim() + "%")
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
     }
 
     @Override
     public long countMajorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return 0L;
-        }
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
 
-        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
-        if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
-        } else if ("id".equals(searchType)) {
-            queryString += " AND l.id LIKE :keyword";
-        } else {
-            return 0L;
-        }
+            String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
 
-        return entityManager.createQuery(queryString, Long.class)
-                .setParameter("campusId", campusId)
-                .setParameter("keyword", "%" + keyword.trim() + "%")
-                .getSingleResult();
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting search results for major lecturers by campus: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results for major lecturers by campus: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public long countMinorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return 0L;
-        }
+        try {
+            if (campusId == null || campusId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Campus ID must not be null or empty");
+            }
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
 
-        String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
-        if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(l.firstName) LIKE LOWER(:keyword) OR LOWER(l.lastName) LIKE LOWER(:keyword))";
-        } else if ("id".equals(searchType)) {
-            queryString += " AND l.id LIKE :keyword";
-        } else {
-            return 0L;
-        }
+            String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
 
-        return entityManager.createQuery(queryString, Long.class)
-                .setParameter("campusId", campusId)
-                .setParameter("keyword", "%" + keyword.trim() + "%")
-                .getSingleResult();
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i).append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting search results for minor lecturers by campus: {}", e.getMessage());
+            throw new RuntimeException("Error counting search results for minor lecturers by campus: " + e.getMessage(), e);
+        }
     }
 }

@@ -9,7 +9,6 @@ import com.example.demo.major.model.Majors;
 import com.example.demo.person.model.Persons;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
-import com.example.demo.security.model.OAuth2UserPrincipal;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
@@ -417,24 +416,43 @@ public class StudentDAOImpl implements StudentsDAO {
         if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
             return List.of();
         }
+
         String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator " +
                 "WHERE s.major = :staffmajor AND s.campus = :campuses";
 
         if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder nameCondition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) {
+                    nameCondition.append(" AND ");
+                }
+                nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+            }
+            queryString += " AND (" + nameCondition.toString() + ")";
         } else if ("id".equals(searchType)) {
-            queryString += " AND s.id LIKE :keyword";
+            queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
         } else {
             return List.of();
         }
 
-        return entityManager.createQuery(queryString, Students.class)
+        TypedQuery<Students> query = entityManager.createQuery(queryString, Students.class)
                 .setParameter("staffmajor", staff.getMajorManagement())
                 .setParameter("campuses", staff.getCampus())
-                .setParameter("keyword", "%" + keyword.trim() + "%")
                 .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
+                .setMaxResults(pageSize);
+
+        if ("name".equals(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equals(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        return query.getResultList();
     }
 
     @Override
@@ -450,32 +468,83 @@ public class StudentDAOImpl implements StudentsDAO {
                 "WHERE s.campus.id = :campusId";
 
         if ("name".equals(searchType)) {
-            queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder nameCondition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) {
+                    nameCondition.append(" AND ");
+                }
+                nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+            }
+            queryString += " AND (" + nameCondition.toString() + ")";
         } else if ("id".equals(searchType)) {
-            queryString += " AND s.id LIKE :keyword";
+            queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
         } else {
             return List.of();
         }
 
-        return entityManager.createQuery(queryString, Students.class)
+        TypedQuery<Students> query = entityManager.createQuery(queryString, Students.class)
                 .setParameter("campusId", campusId)
-                .setParameter("keyword", "%" + keyword.trim() + "%")
                 .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
+                .setMaxResults(pageSize);
+
+        if ("name".equals(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equals(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        return query.getResultList();
     }
 
     @Override
     public long countSearchResults(String searchType, String keyword) {
-        String queryString = "SELECT COUNT(s) FROM Students s WHERE ";
-        if ("name".equals(searchType)) {
-            queryString += "LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword)";
-        } else {
-            queryString += "s.id LIKE :keyword";
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
         }
-        return entityManager.createQuery(queryString, Long.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .getSingleResult();
+
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+            return 0L;
+        }
+
+        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.major = :staffmajor AND s.campus = :campuses";
+
+        if ("name".equals(searchType)) {
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder nameCondition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) {
+                    nameCondition.append(" AND ");
+                }
+                nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+            }
+            queryString += " AND (" + nameCondition.toString() + ")";
+        } else if ("id".equals(searchType)) {
+            queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
+        } else {
+            return 0L;
+        }
+
+        TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                .setParameter("staffmajor", staff.getMajorManagement())
+                .setParameter("campuses", staff.getCampus());
+
+        if ("name".equals(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equals(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        return query.getSingleResult();
     }
 
     private void editStudentFields(Students existing, Students editd) {
@@ -508,7 +577,6 @@ public class StudentDAOImpl implements StudentsDAO {
                 .getResultList();
         return years.stream().filter(year -> year != null).collect(Collectors.toList());
     }
-
     @Override
     public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
         try {
@@ -520,20 +588,40 @@ public class StudentDAOImpl implements StudentsDAO {
             }
 
             String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
-            if ("name".equalsIgnoreCase(searchType)) {
-                queryString += " AND (LOWER(s.firstName) LIKE LOWER(:keyword) OR LOWER(s.lastName) LIKE LOWER(:keyword))";
-            } else if ("id".equalsIgnoreCase(searchType)) {
-                queryString += " AND s.id = :keyword";
+            if ("name".equals(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) {
+                        nameCondition.append(" AND ");
+                    }
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition.toString() + ")";
+            } else if ("id".equals(searchType)) {
+                queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
             } else {
                 return 0L;
             }
 
             TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
-                    .setParameter("campusId", campusId)
-                    .setParameter("keyword", "id".equalsIgnoreCase(searchType) ? keyword : "%" + keyword.trim() + "%");
+                    .setParameter("campusId", campusId);
+
+            if ("name".equals(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equals(searchType)) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+
             return query.getSingleResult();
         } catch (Exception e) {
             throw new RuntimeException("Error counting search results by campus: " + e.getMessage(), e);
         }
     }
+
+
 }
