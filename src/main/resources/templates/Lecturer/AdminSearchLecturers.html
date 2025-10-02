@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Search Lecturers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/LecturersList.css}" />
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-chalkboard-teacher"></i> Admin - Search Lecturers</h1>
+    </header>
+
+    <!-- Alert Messages -->
+    <div th:if="${message}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left: Home -->
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <!-- Center: Search -->
+        <form method="post" th:action="@{/admin-home/lecturers-list/search}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="campusId" th:value="${campusId}" />
+            <select name="searchType" class="input">
+                <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                <option value="id" th:selected="${searchType == 'id'}">ID</option>
+            </select>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input" />
+            <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
+            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/lecturers-list(campusId=${campusId})}" class="btn danger">
+                <i class="fas fa-list"></i> Full Lecturers List
+            </a>
+        </form>
+
+        <!-- Right: Show + Total -->
+        <div class="toolbar-right">
+            <form method="post" th:action="@{/admin-home/lecturers-list/search}" class="page-size-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="searchType" th:value="${searchType}" />
+                <input type="hidden" name="keyword" th:value="${keyword}" />
+                <input type="hidden" name="campusId" th:value="${campusId}" />
+                <label for="pageSizeInput">Show:</label>
+                <input type="number" id="pageSizeInput" name="pageSize" min="1" max="100"
+                       th:value="${pageSize}" class="input small" />
+                <button type="submit" class="btn small">Apply</button>
+            </form>
+            <div class="total">
+                <i class="fas fa-users"></i>
+                <p><strong>Total Lecturers:</strong> <span th:text="${totalLecturers}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lecturers Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> ID</th>
+                <th><i class="fas fa-image"></i> Avatar</th>
+                <th><i class="fas fa-user"></i> Full Name</th>
+                <th><i class="fas fa-envelope"></i> Email</th>
+                <th><i class="fas fa-phone"></i> Phone</th>
+                <th><i class="fas fa-birthday-cake"></i> Birth Date</th>
+                <th><i class="fas fa-venus-mars"></i> Gender</th>
+                <th><i class="fas fa-user-shield"></i> Creator</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="lecturer : ${teachers}">
+                <td th:text="${lecturer.id}"></td>
+                <td>
+                    <img th:if="${lecturer.avatar != null}" th:src="@{'/admin-home/lecturers-list/avatar/' + ${lecturer.id}}"
+                         class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
+                    <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}"
+                         class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
+                </td>
+                <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
+                <td th:text="${lecturer.email}"></td>
+                <td th:text="${lecturer.phoneNumber}"></td>
+                <td th:text="${lecturer.birthDate}"></td>
+                <td th:text="${lecturer.gender}"></td>
+                <td th:text="${lecturer.creator?.id}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <a th:href="@{/admin-home/lecturers-list/search(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+        <a th:href="@{/admin-home/lecturers-list/search(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+        <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
+            <a th:href="@{/admin-home/lecturers-list/search(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
+        </span>
+        <a th:href="@{/admin-home/lecturers-list/search(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
+        <a th:href="@{/admin-home/lecturers-list/search(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+    </div>
+</div>
+</body>
+</html>

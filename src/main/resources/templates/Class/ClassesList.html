@@ -45,6 +45,9 @@
 
         <!-- Right -->
         <div class="toolbar-right">
+            <button type="button" class="btn info" onclick="openSubjectsNeedingClassesOverlay()">
+                <i class="fas fa-book-open"></i> Subjects Needing Classes
+            </button>
             <form method="get" th:action="@{/staff-home/classes-list}" class="page-size-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <label for="pageSizeInput">Show:</label>
@@ -147,6 +150,56 @@
            th:classappend="${currentPageClasses == totalPagesClasses} ? 'disabled'" class="page-btn">Last</a>
     </div>
 
+    <!-- Overlay: Subjects Needing Classes -->
+    <div id="subjectsNeedingClassesOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2><i class="fas fa-book-open"></i> Subjects Needing Classes</h2>
+            <div class="table-container">
+                <table class="win11-table table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Subject ID</th>
+                        <th>Subject Name</th>
+                        <th>Semester</th>
+                        <th>Learning Program Type</th>
+                        <th>Current Classes</th>
+                        <th>Required Slots</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="subject : ${subjectsNeedingClasses}">
+                        <td th:text="${subject.subjectId}"></td>
+                        <td th:text="${subject.subjectName}"></td>
+                        <td th:text="${subject.semester}"></td>
+                        <td th:text="${subject.learningProgramType}"></td>
+                        <td th:text="${subject.currentClassCount != null ? subject.currentClassCount : 0}"></td>
+                        <td th:text="${subject.requiredSlots != null ? subject.requiredSlots : 'N/A'}"></td>
+                        <td>
+                            <form method="post" th:action="@{/staff-home/classes-list/create-class-for-subject}" class="inline-form">
+                                <input type="hidden" name="subjectId" th:value="${subject.subjectId}" />
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn small primary">
+                                    <i class="fas fa-plus"></i> Create Class
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${subjectsNeedingClasses == null or subjectsNeedingClasses.isEmpty()}">
+                        <td colspan="7" class="text-center">No subjects need classes at the moment.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn danger" onclick="closeSubjectsNeedingClassesOverlay()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay: Add Class -->
     <div id="addClassOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-plus-circle"></i> Add New Class</h2>
@@ -213,6 +266,12 @@
 </div>
 
 <script>
+    function openSubjectsNeedingClassesOverlay() {
+        document.getElementById('subjectsNeedingClassesOverlay').classList.add('active');
+    }
+    function closeSubjectsNeedingClassesOverlay() {
+        document.getElementById('subjectsNeedingClassesOverlay').classList.remove('active');
+    }
     function openAddClassOverlay() {
         document.getElementById('addClassOverlay').classList.add('active');
     }
@@ -222,7 +281,7 @@
 </script>
 <script th:if="${openAddOverlay}">
     document.addEventListener("DOMContentLoaded", function () {
-        openOverlay();
+        openAddClassOverlay();
     });
 </script>
 </body>

@@ -123,6 +123,8 @@ public class EditLecturerController {
             modelMap.addAttribute("source", source);
             session.setAttribute("avatarLecture", "/staff-home/lecturers-list/avatar/" + lecture.getId());
             return "EditLecturerForm";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

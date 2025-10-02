@@ -5,6 +5,7 @@ import com.example.demo.email_service.dto.LecturerEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.lecturer.model.MinorLecturers;
 import com.example.demo.major.model.Majors;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
@@ -30,6 +31,11 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+    @Override
+    public MinorLecturers getMinorLecturerById(String id) {
+        return entityManager.find(MinorLecturers.class, id);
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
 
     private final PersonsService personsService;
@@ -41,7 +47,6 @@ public class LecturesDAOImpl implements LecturesDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // Base directory and URL for avatar storage
     private static final String AVATAR_STORAGE_PATH = "avatars/";
     private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
 
@@ -57,7 +62,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         this.emailServiceForStudentService = emailServiceForStudentService;
         this.staffsService = staffsService;
 
-        // Ensure avatar storage directory exists
         try {
             Files.createDirectories(Paths.get(AVATAR_STORAGE_PATH));
         } catch (IOException e) {
@@ -80,7 +84,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (campus == null || campus.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus name must not be null or empty");
         }
-
         String jpql = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusName";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusName", campus)
@@ -89,6 +92,9 @@ public class LecturesDAOImpl implements LecturesDAO {
 
     @Override
     public long lecturersCountByCampus(String campus) {
+        if (campus == null || campus.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus name must not be null or empty");
+        }
         String jpql = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusName";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusName", campus)
@@ -139,37 +145,30 @@ public class LecturesDAOImpl implements LecturesDAO {
     public Map<String, String> lectureValidation(MajorLecturers lecturer, MultipartFile avatarFile) {
         Map<String, String> errors = new HashMap<>();
 
-        // Validate first name
         if (lecturer.getFirstName() == null || !isValidName(lecturer.getFirstName())) {
             errors.put("firstName", "First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        // Validate last name
         if (lecturer.getLastName() == null || !isValidName(lecturer.getLastName())) {
             errors.put("lastName", "Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
 
-        // Validate email format
         if (lecturer.getEmail() != null && !isValidEmail(lecturer.getEmail())) {
             errors.put("email", "Invalid email format.");
         }
 
-        // Validate phone number format
         if (lecturer.getPhoneNumber() != null && !isValidPhoneNumber(lecturer.getPhoneNumber())) {
             errors.put("phoneNumber", "Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
         }
 
-        // Validate birth date
         if (lecturer.getBirthDate() != null && lecturer.getBirthDate().isAfter(LocalDate.now())) {
             errors.put("birthDate", "Date of birth must be in the past.");
         }
 
-        // Gender required
         if (lecturer.getGender() == null) {
             errors.put("gender", "Gender is required to assign a default avatar.");
         }
 
-        // Validate avatar
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
@@ -180,7 +179,6 @@ public class LecturesDAOImpl implements LecturesDAO {
             }
         }
 
-        // Duplicate email check
         if (lecturer.getEmail() != null) {
             if (lecturer.getId() != null) {
                 if (personsService.existsByEmailExcludingId(lecturer.getEmail(), lecturer.getId())) {
@@ -193,7 +191,6 @@ public class LecturesDAOImpl implements LecturesDAO {
             }
         }
 
-        // Duplicate phone number check
         if (lecturer.getPhoneNumber() != null &&
                 personsService.existsByPhoneNumberExcludingId(lecturer.getPhoneNumber(), lecturer.getId() != null ? lecturer.getId() : "")) {
             errors.put("phoneNumber", "The phone number is already associated with another account.");
@@ -202,55 +199,29 @@ public class LecturesDAOImpl implements LecturesDAO {
         return errors;
     }
 
-
-    /**
-     * Validate email theo chuẩn RFC 5322 (gọn gàng, thực tế).
-     * - Cho phép tên miền có dấu gạch ngang.
-     * - Cho phép TLD >= 2 ký tự.
-     * - Không chấp nhận ký tự đặc biệt lạ.
-     */
     private boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
         }
-        String emailRegex =
-                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
 
-    /**
-     * Validate số điện thoại quốc tế.
-     * - Cho phép bắt đầu bằng +.
-     * - Độ dài 8–15 số (theo chuẩn E.164).
-     * - Không chứa khoảng trắng, dấu - hoặc ký hiệu khác.
-     */
     private boolean isValidPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            return true; // cho phép bỏ trống
+            return true;
         }
         String phoneRegex = "^\\+?[1-9][0-9]{7,14}$";
         return phoneNumber.matches(phoneRegex);
     }
 
-    /**
-     * Validate tên quốc tế thông minh.
-     * - Hỗ trợ Unicode: tiếng Việt, Nhật, Ả Rập, Nga, Hy Lạp, …
-     * - Cho phép khoảng trắng phân tách nhiều từ.
-     * - Cho phép dấu gạch nối (-), nháy (’ '), chấm (.)
-     * - Không cho phép số, emoji, ký tự lạ.
-     * - Độ dài 2–100 ký tự.
-     */
     private boolean isValidName(String name) {
         if (name == null) return false;
         name = name.trim();
         if (name.isEmpty()) return false;
-
-        String nameRegex =
-                "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
+        String nameRegex = "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
         return name.matches(nameRegex);
     }
-
-
 
     @Override
     public List<MajorLecturers> getLecturers() {
@@ -266,7 +237,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         lecturer.setCreatedDate(LocalDate.now());
         MajorLecturers savedLecturer = entityManager.merge(lecturer);
 
-        // Handle avatar
         String avatarPath = null;
         try {
             avatarPath = saveAvatarAndGetPath(savedLecturer.getId(), savedLecturer.getAvatar());
@@ -274,7 +244,6 @@ public class LecturesDAOImpl implements LecturesDAO {
             logger.error("Failed to save avatar for lecturer {}: {}", savedLecturer.getId(), e.getMessage());
         }
 
-        // Create LecturerEmailContext
         LecturerEmailContext context = new LecturerEmailContext(
                 savedLecturer.getId(),
                 savedLecturer.getFullName(),
@@ -334,7 +303,6 @@ public class LecturesDAOImpl implements LecturesDAO {
 
         updateLecturerFields(existingLecturer, lecturer);
 
-        // Handle avatar
         String avatarPath = null;
         try {
             avatarPath = saveAvatarAndGetPath(existingLecturer.getId(), existingLecturer.getAvatar());
@@ -344,7 +312,6 @@ public class LecturesDAOImpl implements LecturesDAO {
 
         entityManager.merge(existingLecturer);
 
-        // Create LecturerEmailContext
         LecturerEmailContext context = new LecturerEmailContext(
                 existingLecturer.getId(),
                 existingLecturer.getFullName(),
@@ -433,5 +400,42 @@ public class LecturesDAOImpl implements LecturesDAO {
         if (updated.getCampus() != null) existing.setCampus(updated.getCampus());
         if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
         if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
+    }
+
+    @Override
+    public long countLecturersByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<MajorLecturers> getPaginatedLecturersByCampus(String campusId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator WHERE l.campus.id = :campusId";
+        return entityManager.createQuery(jpql, MajorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorLecturers> getPaginatedMinorLecturersByCampus(String campusId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.id = :campusId";
+        return entityManager.createQuery(jpql, MinorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
     }
 }
