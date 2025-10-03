@@ -1,6 +1,7 @@
 package com.example.demo.admin.model;
 
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,4 +30,10 @@ public class Admins extends Persons {
         return "ADMIN";
     }
 
+    public String getDefaultAvatarPath() {
+        if (getAvatar() != null) {
+            return null;
+        }
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Admin_Male.png" : "/DefaultAvatar/Admin_Female.png";
+    }
 }

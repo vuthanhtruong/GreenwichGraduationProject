@@ -2,8 +2,11 @@ package com.example.demo.admin.service;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface AdminsService {
     Admins getAdminByName(String name);
@@ -11,4 +14,6 @@ public interface AdminsService {
     Admins getAdmin();
     List<Admins> getAdmins();
     Campuses getAdminCampus();
+    void editAdmin(Admins admin, MultipartFile avatarFile) throws IOException;
+    Map<String, String> validateAdmin(Admins admin, MultipartFile avatarFile);
 }

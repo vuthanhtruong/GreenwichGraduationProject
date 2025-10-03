@@ -4,11 +4,24 @@ import com.example.demo.admin.dao.AdminsDAO;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminsServiceImpl implements AdminsService {
+    @Override
+    public Map<String, String> validateAdmin(Admins admin, MultipartFile avatarFile) {
+        return adminsDAO.validateAdmin(admin, avatarFile);
+    }
+
+    @Override
+    public void editAdmin(Admins admin, MultipartFile avatarFile) throws IOException {
+        adminsDAO.editAdmin(admin, avatarFile);
+    }
+
     @Override
     public Campuses getAdminCampus() {
         return adminsDAO.getAdminCampus();
