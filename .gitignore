@@ -1,54 +1,118 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# -------------------------
+# Java / Spring / Maven
+# -------------------------
+# Compiled class files
+*.class
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven
+target/
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Keep the maven wrapper jar in repo
+!.mvn/wrapper/maven-wrapper.jar
+
+# -------------------------
+# IDEs
+# -------------------------
+# IntelliJ IDEA
+/.idea/
+/*.iws
+/*.iml
+/*.ipr
+
+# Eclipse / STS
 .project
-.settings
+.classpath
+.settings/
+.apt_generated
+.factorypath
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
 
-### VS Code ###
+# VS Code
 .vscode/
 
-### Environment Variables ###
+# -------------------------
+# Build systems & tools
+# -------------------------
+# Gradle (if any)
+.gradle/
+build/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.properties
+
+# -------------------------
+# Environment / Secrets
+# -------------------------
+# local environment files (do NOT commit secrets)
 .env
 .env.local
 .env.*.local
 .env.production
 .env.development
 .env.test
+.env.*.local
 
-### Logs ###
+# Secret / keystore
+*.jks
+*.keystore
+secrets.properties
+credentials.json
+
+# -------------------------
+# Docker
+# -------------------------
+# ignore compose override (local) and environment file
+docker-compose.override.yml
+docker-compose.*.yml
+.dockerignore
+
+# -------------------------
+# Logs / temp
+# -------------------------
 logs/
 *.log
+*.out
+*.err
+*.tmp
+tmp/
+temp/
 
-### OS ###
+# -------------------------
+# OS files / backups / editors
+# -------------------------
 .DS_Store
 Thumbs.db
-
-### Backup files ###
-*.bak
+ehthumbs.db
+Icon?
+Desktop.ini
 *.swp
 *~
+*.bak
+
+# -------------------------
+# Other / tooling
+# -------------------------
+# IntelliJ caches
+*.iml
+*.class
+
+# Generated folders sometimes present in Java projects
+generated/
+!.mvn/wrapper/maven-wrapper.jar
