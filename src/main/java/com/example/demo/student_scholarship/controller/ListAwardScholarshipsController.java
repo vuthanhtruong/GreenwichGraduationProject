@@ -75,7 +75,7 @@ public class ListAwardScholarshipsController {
             List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
                     .boxed()
                     .filter(year -> !existingAdmissionYears.contains(year))
-                    .collect(Collectors.toList());
+                    .toList();
 
             // Gộp và sắp xếp danh sách năm
             admissionYears.addAll(futureYears);
@@ -91,7 +91,9 @@ public class ListAwardScholarshipsController {
             for (Scholarships scholarship : availableScholarships) {
                 String scholarshipId = scholarship.getScholarshipId();
                 ScholarshipByYear scholarshipByYear = scholarshipByYearService.getScholarshipByYear(scholarshipId, selectedYear);
-                Double amount = (scholarshipByYear != null) ? scholarshipByYear.getAmount() : 0.0;
+                Double amount;
+                if (scholarshipByYear != null) amount = scholarshipByYear.getAmount();
+                else amount = 0.0;
                 Long awardedCount = studentScholarshipService.getCountStudentScholarshipByYear(selectedYear, scholarship);
                 Long remaining = Math.max(0, amount.longValue() - awardedCount);
                 remainingCounts.put(scholarshipId, remaining);
