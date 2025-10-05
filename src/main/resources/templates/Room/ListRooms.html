@@ -170,6 +170,11 @@
                 <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('address')}" th:text="${error}"></div>
             </div>
             <div class="form-row">
+                <label for="floor">Floor (optional):</label>
+                <input id="floor" class="input" name="floor" type="number" th:value="${offlineRoom.floor}">
+                <div class="error-text" th:each="error : ${errors}" th:if="${error.key == 'floor'}" th:text="${error.value}"></div>
+            </div>
+            <div class="form-row">
                 <label for="avatarOffline">Avatar (optional):</label>
                 <input id="avatarOffline" class="input" type="file" name="avatarFile" accept="image/*">
                 <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('avatar')}" th:text="${error}"></div>

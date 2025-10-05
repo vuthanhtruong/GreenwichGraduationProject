@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,8 +32,8 @@ public class PaymentHistories extends FinancialHistories {
     public PaymentHistories() {}
 
     public PaymentHistories(String historyId, Students student, Subjects subject, AccountBalances accountBalance,
-                            LocalDateTime paymentTime, LocalDateTime createdAt, Status status) {
-        super(historyId, student, accountBalance, createdAt, status);
+                            LocalDateTime paymentTime, BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
+        super(historyId, student, accountBalance, currentAmount,createdAt, status);
         this.subject = subject;
         this.paymentTime = paymentTime;
     }

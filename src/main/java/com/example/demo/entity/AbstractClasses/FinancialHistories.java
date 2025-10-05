@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,6 +33,9 @@ public abstract class FinancialHistories {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private AccountBalances accountBalance;
 
+    @Column(name = "CurrentAmount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal currentAmount;
+
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
@@ -45,10 +49,11 @@ public abstract class FinancialHistories {
 
     public FinancialHistories() {}
 
-    public FinancialHistories(String historyId, Students student, AccountBalances accountBalance, LocalDateTime createdAt, Status status) {
+    public FinancialHistories(String historyId, Students student, AccountBalances accountBalance, BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
         this.historyId = historyId;
         this.student = student;
         this.accountBalance = accountBalance;
+        this.currentAmount = currentAmount != null ? currentAmount : BigDecimal.ZERO;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.status = status;
         this.version = 0L;

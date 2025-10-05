@@ -85,6 +85,7 @@ public class RoomsDAOImpl implements RoomsDAO {
             existingRoom.setAvatar(room.getAvatar());
         }
         ((OfflineRooms) existingRoom).setAddress(room.getAddress());
+        ((OfflineRooms) existingRoom).setFloor(room.getFloor());
         return entityManager.merge(existingRoom);
     }
 
@@ -228,8 +229,9 @@ public class RoomsDAOImpl implements RoomsDAO {
         if (avatarFile != null && !avatarFile.isEmpty()) {
             room.setAvatar(avatarFile.getBytes());
         }
+        room.setFloor(room.getFloor());
         entityManager.persist(room);
-        logger.info("Added offline room with ID: {} for campus: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null");
+        logger.info("Added offline room with ID: {} for campus: {}, floor: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null", room.getFloor());
     }
 
     @Override
@@ -320,6 +322,10 @@ public class RoomsDAOImpl implements RoomsDAO {
 
         if (room.getCampus() == null) {
             errors.put("campus", "Campus cannot be null.");
+        }
+
+        if (room.getFloor() != null && room.getFloor() < 0) {
+            errors.put("floor", "Floor cannot be negative.");
         }
 
         return errors;
