@@ -116,7 +116,7 @@ public class EditStaffController {
                 }
                 return "redirect:/admin-home/staffs-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 5);
             }
-            Majors majors = majorsService.getByMajorId(majorId);
+            Majors majors = majorsService.getMajorById(majorId);
             Campuses campuses = campusesService.getCampusById(campusId);
             staff.setCampus(campuses);
             staff.setMajorManagement(majors);

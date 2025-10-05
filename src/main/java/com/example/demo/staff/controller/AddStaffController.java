@@ -85,7 +85,7 @@ public class AddStaffController {
         }
 
         try {
-            Majors major = majorsService.getByMajorId(majorId);
+            Majors major = majorsService.getMajorById(majorId);
             Campuses campus = campusesService.getCampusById(campusId);
             staff.setMajorManagement(major);
             staff.setCampus(campus);

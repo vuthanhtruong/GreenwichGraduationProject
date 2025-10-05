@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Online Room</title>
+    <link rel="stylesheet" th:href="@{/ListRooms.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .win11-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .win11-title-bar {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .win11-panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group.grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-row label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .error-text {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn.primary {
+            background: #007bff;
+            color: #fff;
+        }
+        .btn.danger {
+            background: #dc3545;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-building"></i> Edit Online Room</h1>
+    </header>
+
+    <div class="win11-content">
+        <section class="win11-panel">
+            <div th:if="${errors}" class="win11-alert error">
+                <i class="fas fa-exclamation-circle"></i>
+                <ul>
+                    <li th:each="error : ${errors}" th:text="${error.value}"></li>
+                </ul>
+            </div>
+            <form method="post" th:action="@{/admin-home/rooms-list/edit-online-room}" th:object="${onlineRoom}" enctype="multipart/form-data" class="form-group grid-2">
+                <input type="hidden" th:field="*{roomId}">
+                <div class="form-row">
+                    <label for="roomName">Room Name:</label>
+                    <input id="roomName" class="input" th:field="*{roomName}" type="text" required>
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.key == 'roomName'}" th:text="${error.value}"></div>
+                </div>
+                <div class="form-row">
+                    <label for="link">Link (optional):</label>
+                    <input id="link" class="input" name="link" type="text" th:value="${onlineRoom.link}">
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.key == 'link'}" th:text="${error.value}"></div>
+                </div>
+                <div class="form-row">
+                    <label for="avatar">Avatar (optional):</label>
+                    <input id="avatar" class="input" type="file" name="avatarFile" accept="image/*">
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.key == 'avatarFile'}" th:text="${error.value}"></div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">
+                        <i class="fas fa-save"></i> Save Room
+                    </button>
+                    <a class="btn danger" th:href="@{/admin-home/rooms-list}">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            </form>
+        </section>
+    </div>
+</div>
+</body>
+</html>

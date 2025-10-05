@@ -29,4 +29,32 @@ public class Majors {
 
     @Column(name = "CreatedDate", nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();
+
+    @Lob
+    @Column(name = "Avatar", columnDefinition = "LONGBLOB", nullable = true)
+    private byte[] avatar;
+
+    // Constructors
+    public Majors() {
+    }
+
+    public Majors(String majorId, String majorName, Admins creator, LocalDate createdDate, byte[] avatar) {
+        this.majorId = majorId;
+        this.majorName = majorName;
+        this.creator = creator;
+        this.createdDate = createdDate;
+        this.avatar = avatar;
+    }
+
+    // toString method
+    @Override
+    public String toString() {
+        return "Major{" +
+                "majorId='" + majorId + '\'' +
+                ", majorName='" + majorName + '\'' +
+                ", creator=" + (creator != null ? creator.getId() : null) +
+                ", createdDate=" + createdDate +
+                ", avatar=" + (avatar != null ? "present" : "null") +
+                '}';
+    }
 }

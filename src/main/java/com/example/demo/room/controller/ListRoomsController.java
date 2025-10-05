@@ -1,96 +1,64 @@
 package com.example.demo.room.controller;
 
+import com.example.demo.admin.service.AdminsService;
 import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
-import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.room.service.RoomsService;
-import com.example.demo.staff.service.StaffsService;
-import com.example.demo.student.service.StudentsService;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home")
+@RequestMapping("/admin-home/rooms-list")
 public class ListRoomsController {
-
-    private final StaffsService staffsService;
-    private final StudentsService studentsService;
-    private final LecturesService lecturesService;
+    private static final Logger logger = LoggerFactory.getLogger(ListRoomsController.class);
     private final RoomsService roomsService;
+    private final AdminsService adminsService;
 
-    @Autowired
-    public ListRoomsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, RoomsService roomsService) {
-        this.staffsService = staffsService;
-        this.studentsService = studentsService;
-        this.lecturesService = lecturesService;
+    public ListRoomsController(RoomsService roomsService, AdminsService adminsService) {
         this.roomsService = roomsService;
+        this.adminsService = adminsService;
     }
 
-    @GetMapping("/rooms-list")
-    public String roomsList(
-            ModelMap model,
-            HttpSession session,
-            @RequestParam(defaultValue = "1") int pageOffline,
-            @RequestParam(defaultValue = "1") int pageOnline,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortOrder
-    ) {
-        // Handle pageSize
-        if (pageSize == null) {
-            pageSize = (Integer) session.getAttribute("roomPageSize");
-            if (pageSize == null) {
-                pageSize = 5; // Default to 5 if not set
-            }
+    @GetMapping("")
+    public String listRooms(Model model) {
+        try {
+            List<OnlineRooms> onlineRooms = roomsService.getOnlineRooms();
+            List<OfflineRooms> offlineRooms = roomsService.getOfflineRooms();
+            model.addAttribute("onlineRoom", new OnlineRooms());
+            model.addAttribute("offlineRoom", new OfflineRooms());
+            model.addAttribute("onlineRooms", onlineRooms);
+            model.addAttribute("offlineRooms", offlineRooms);
+            return "ListRooms";
+        } catch (Exception e) {
+            logger.error("Error listing rooms: {}", e.getMessage());
+            model.addAttribute("error", "Error listing rooms: " + e.getMessage());
+            model.addAttribute("onlineRoom", new OnlineRooms());
+            model.addAttribute("offlineRoom", new OfflineRooms());
+            model.addAttribute("onlineRooms", List.of());
+            model.addAttribute("offlineRooms", List.of());
+            return "ListRooms";
         }
-        session.setAttribute("roomPageSize", pageSize);
+    }
 
-        // Validate sortOrder
-        String validatedSortOrder = sortOrder != null && (sortOrder.equalsIgnoreCase("asc") || sortOrder.equalsIgnoreCase("desc")) ? sortOrder : null;
-
-        // Handle pagination for offline rooms
-        long totalOfflineRooms = roomsService.totalOfflineRooms();
-        int totalOfflinePages = Math.max(1, (int) Math.ceil((double) totalOfflineRooms / pageSize));
-        pageOffline = Math.max(1, Math.min(pageOffline, totalOfflinePages));
-        int firstOfflineResult = (pageOffline - 1) * pageSize;
-
-        List<OfflineRooms> offlineRooms = roomsService.getPaginatedOfflineRooms(firstOfflineResult, pageSize, validatedSortOrder);
-
-        // Encode addresses for offline rooms
-        List<String> encodedAddresses = offlineRooms.stream()
-                .map(room -> room.getAddress() != null ? URLEncoder.encode(room.getAddress(), StandardCharsets.UTF_8) : "")
-                .collect(Collectors.toList());
-
-        // Handle pagination for online rooms
-        long totalOnlineRooms = roomsService.totalOnlineRooms();
-        int totalOnlinePages = Math.max(1, (int) Math.ceil((double) totalOnlineRooms / pageSize));
-        pageOnline = Math.max(1, Math.min(pageOnline, totalOnlinePages));
-        int firstOnlineResult = (pageOnline - 1) * pageSize;
-
-        List<OnlineRooms> onlineRooms = roomsService.getPaginatedOnlineRooms(firstOnlineResult, pageSize, validatedSortOrder);
-
-        // Add data to the model
-        model.addAttribute("rooms", offlineRooms);
-        model.addAttribute("encodedAddresses", encodedAddresses);
-        model.addAttribute("roomsonline", onlineRooms);
-        model.addAttribute("currentPageOffline", pageOffline);
-        model.addAttribute("totalPagesOffline", totalOfflinePages);
-        model.addAttribute("currentPageOnline", pageOnline);
-        model.addAttribute("totalPagesOnline", totalOnlinePages);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("sortOrder", validatedSortOrder);
-        model.addAttribute("offlineRoom", new OfflineRooms());
-        model.addAttribute("onlineRoom", new OnlineRooms());
-
-        return "RoomsList";
+    @GetMapping("/avatar/{roomId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getRoomAvatar(@PathVariable String roomId) {
+        com.example.demo.room.model.Rooms room = roomsService.getRoomById(roomId);
+        if (room != null && room.getAvatar() != null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(room.getAvatar());
+        }
+        return ResponseEntity.notFound().build();
     }
 }

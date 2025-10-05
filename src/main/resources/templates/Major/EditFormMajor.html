@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Major</title>
+    <link rel="stylesheet" th:href="@{/ListMajors.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="win11-container">
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-graduation-cap"></i> Edit Major</h1>
+    </header>
+
+    <div class="win11-content">
+        <section class="win11-panel">
+            <form method="post" th:action="@{/admin-home/majors-list/edit-major}" th:object="${major}" enctype="multipart/form-data" class="form-group grid-2">
+                <input type="hidden" th:field="*{majorId}">
+                <div class="form-row">
+                    <label for="majorName">Major Name:</label>
+                    <input id="majorName" class="input" th:field="*{majorName}" type="text" required>
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('majorName') or error.contains('Major Name')}" th:text="${error}"></div>
+                </div>
+                <div class="form-row">
+                    <label for="avatar">Avatar:</label>
+                    <input id="avatar" class="input" type="file" name="avatarFile" accept="image/*">
+                    <div class="error-text" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn primary" type="submit">
+                        <i class="fas fa-save"></i> Save Major
+                    </button>
+                    <a class="btn danger" th:href="@{/admin-home/majors-list}">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            </form>
+        </section>
+    </div>
+</div>
+</body>
+</html>

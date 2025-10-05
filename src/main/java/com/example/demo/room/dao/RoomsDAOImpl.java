@@ -1,36 +1,40 @@
 package com.example.demo.room.dao;
 
+import com.example.demo.admin.model.Admins;
+import com.example.demo.admin.service.AdminsService;
 import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.room.model.Rooms;
-import com.example.demo.staff.model.Staffs;
-import com.example.demo.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Repository
 @Transactional
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("hasRole('ADMIN')")
 public class RoomsDAOImpl implements RoomsDAO {
-    private final StaffsService staffsService;
+    private static final Logger logger = LoggerFactory.getLogger(RoomsDAOImpl.class);
+    private final AdminsService adminsService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public RoomsDAOImpl(StaffsService staffsService) {
-        this.staffsService = staffsService;
+    public RoomsDAOImpl(AdminsService adminsService) {
+        this.adminsService = adminsService;
     }
 
     @Override
@@ -67,24 +71,38 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public Rooms updateOfflineRoom(String id, OfflineRooms room) {
+    public Rooms updateOfflineRoom(String id, OfflineRooms room, MultipartFile avatarFile) throws IOException {
         Rooms existingRoom = entityManager.find(Rooms.class, id);
+        if (existingRoom == null) {
+            throw new IllegalArgumentException("Room with ID " + id + " not found");
+        }
         existingRoom.setRoomName(room.getRoomName());
         if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
-        if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
+        if (room.getCampus() != null) existingRoom.setCampus(room.getCampus());
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            existingRoom.setAvatar(avatarFile.getBytes());
+        } else if (room.getAvatar() != null) {
+            existingRoom.setAvatar(room.getAvatar());
+        }
         ((OfflineRooms) existingRoom).setAddress(room.getAddress());
-
         return entityManager.merge(existingRoom);
     }
 
     @Override
-    public Rooms updateOnlineRoom(String id, OnlineRooms room) {
+    public Rooms updateOnlineRoom(String id, OnlineRooms room, MultipartFile avatarFile) throws IOException {
         Rooms existingRoom = entityManager.find(Rooms.class, id);
+        if (existingRoom == null) {
+            throw new IllegalArgumentException("Room with ID " + id + " not found");
+        }
         existingRoom.setRoomName(room.getRoomName());
         if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
-        if (room.getCreatedAt() != null) existingRoom.setCreatedAt(room.getCreatedAt());
+        if (room.getCampus() != null) existingRoom.setCampus(room.getCampus());
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            existingRoom.setAvatar(avatarFile.getBytes());
+        } else if (room.getAvatar() != null) {
+            existingRoom.setAvatar(room.getAvatar());
+        }
         ((OnlineRooms) existingRoom).setLink(room.getLink());
-
         return entityManager.merge(existingRoom);
     }
 
@@ -154,6 +172,7 @@ public class RoomsDAOImpl implements RoomsDAO {
         OnlineRooms room = entityManager.find(OnlineRooms.class, id);
         if (room != null) {
             entityManager.remove(room);
+            logger.info("Deleted online room with ID: {}", id);
         }
     }
 
@@ -165,6 +184,7 @@ public class RoomsDAOImpl implements RoomsDAO {
         OfflineRooms room = entityManager.find(OfflineRooms.class, id);
         if (room != null) {
             entityManager.remove(room);
+            logger.info("Deleted offline room with ID: {}", id);
         }
     }
 
@@ -177,29 +197,39 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public void addOnlineRoom(OnlineRooms room) {
-        Staffs staff = staffsService.getStaff();
-        if (staff == null) {
-            throw new IllegalArgumentException("Authenticated staff not found");
+    public void addOnlineRoom(OnlineRooms room, MultipartFile avatarFile) throws IOException {
+        Admins admin = adminsService.getAdmin();
+        if (admin == null) {
+            throw new IllegalArgumentException("Authenticated admin not found");
         }
-        room.setCreator(staff);
+        room.setCreator(admin);
+        room.setCampus(admin.getCampus());
         room.setCreatedAt(LocalDateTime.now());
         if (room.getLink() == null || room.getLink().isEmpty()) {
             room.setLink(generateUniqueJitsiMeetLink(room.getRoomId()));
         }
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            room.setAvatar(avatarFile.getBytes());
+        }
         entityManager.persist(room);
+        logger.info("Added online room with ID: {} for campus: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null");
     }
 
     @Override
-    public void addOfflineRoom(OfflineRooms room) {
-        Staffs staff = staffsService.getStaff();
-        if (staff == null) {
-            throw new IllegalArgumentException("Authenticated staff not found");
+    public void addOfflineRoom(OfflineRooms room, MultipartFile avatarFile) throws IOException {
+        Admins admin = adminsService.getAdmin();
+        if (admin == null) {
+            throw new IllegalArgumentException("Authenticated admin not found");
         }
         room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);
-        room.setCreator(staff);
+        room.setCreator(admin);
+        room.setCampus(admin.getCampus());
         room.setCreatedAt(LocalDateTime.now());
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            room.setAvatar(avatarFile.getBytes());
+        }
         entityManager.persist(room);
+        logger.info("Added offline room with ID: {} for campus: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null");
     }
 
     @Override
@@ -237,12 +267,12 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public long totalOfflineRooms() {
-        return (Long) entityManager.createQuery("SELECT COUNT(r) FROM OfflineRooms r").getSingleResult();
+        return entityManager.createQuery("SELECT COUNT(r) FROM OfflineRooms r", Long.class).getSingleResult();
     }
 
     @Override
     public long totalOnlineRooms() {
-        return (Long) entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r").getSingleResult();
+        return entityManager.createQuery("SELECT COUNT(r) FROM OnlineRooms r", Long.class).getSingleResult();
     }
 
     @Override
@@ -261,7 +291,7 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public Map<String, String> validateOfflineRoom(OfflineRooms room, String address) {
+    public Map<String, String> validateOfflineRoom(OfflineRooms room, String address, MultipartFile avatarFile) {
         Map<String, String> errors = new HashMap<>();
 
         if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
@@ -278,11 +308,25 @@ public class RoomsDAOImpl implements RoomsDAO {
             errors.put("address", "Invalid address format.");
         }
 
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.put("avatarFile", "Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
+                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
+            }
+        }
+
+        if (room.getCampus() == null) {
+            errors.put("campus", "Campus cannot be null.");
+        }
+
         return errors;
     }
 
     @Override
-    public Map<String, String> validateOnlineRoom(OnlineRooms room, String link) {
+    public Map<String, String> validateOnlineRoom(OnlineRooms room, String link, MultipartFile avatarFile) {
         Map<String, String> errors = new HashMap<>();
 
         if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
@@ -297,6 +341,20 @@ public class RoomsDAOImpl implements RoomsDAO {
 
         if (link != null && !link.isEmpty() && !isValidLink(link)) {
             errors.put("link", "Invalid link format.");
+        }
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                errors.put("avatarFile", "Avatar must be an image file.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
+                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
+            }
+        }
+
+        if (room.getCampus() == null) {
+            errors.put("campus", "Campus cannot be null.");
         }
 
         return errors;

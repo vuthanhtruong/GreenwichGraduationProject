@@ -234,5 +234,15 @@ public class ThymeleafConfig {
         resolver.setCheckExistence(true);
         return resolver;
     }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver23() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/Major/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(24);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
 
 }

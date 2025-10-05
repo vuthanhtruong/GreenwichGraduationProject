@@ -376,7 +376,7 @@ public class StaffsDAOImpl implements StaffsDAO {
         if (staff.getGender() == null) {
             errors.put("gender", "Gender is required to assign a default avatar.");
         }
-        if (majorId == null || majorId.isEmpty() || majorsService.getByMajorId(majorId) == null) {
+        if (majorId == null || majorId.isEmpty() || majorsService.getMajorById(majorId) == null) {
             errors.put("majorId", "A valid major must be selected.");
         }
         if (campusId == null || campusId.isEmpty() || campusesService.getCampusById(campusId) == null) {

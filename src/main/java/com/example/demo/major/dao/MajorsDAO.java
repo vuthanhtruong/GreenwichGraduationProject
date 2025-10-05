@@ -1,4 +1,4 @@
-package com.example.demo.major.service;
+package com.example.demo.major.dao;
 
 import com.example.demo.major.model.Majors;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-public interface MajorsService {
+public interface MajorsDAO {
     List<Majors> getMajors();
     List<Majors> existsMajorByName(String majorName);
     Map<String, String> validateMajor(Majors major, MultipartFile avatarFile);

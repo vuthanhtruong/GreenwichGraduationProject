@@ -1,0 +1,232 @@
+/* Base */
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1.5;
+}
+
+.win11-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Title Bar */
+.win11-title-bar {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.win11-title-bar h1 {
+    font-size: 22px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    color: #7c3aed; /* Tím học thuật */
+}
+
+/* Panels */
+.win11-panel {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.panel-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #4c1d95;
+}
+
+/* Form Elements */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.input:focus {
+    border-color: #7c3aed;
+    background: #f5f3ff;
+    outline: none;
+}
+
+/* Grid Layouts */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Alerts */
+.win11-alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.win11-alert.success {
+    background: #f0fdf4;
+    color: #065f46;
+    border-left: 4px solid #16a34a;
+}
+
+.win11-alert.error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-left: 4px solid #dc2626;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: all 0.25s ease;
+}
+
+.btn:hover {
+    background: #f5f3ff;
+    border-color: #7c3aed;
+    color: #7c3aed;
+}
+
+.btn.primary {
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+}
+
+.btn.danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+}
+
+.btn.danger:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+}
+
+/* Majors Grid */
+.major-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Card */
+.major-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+    transition: 0.25s ease;
+    border-top: 4px solid #7c3aed;
+}
+
+.major-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(124, 58, 237, 0.15);
+}
+
+/* Avatar */
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #f9fafc;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+}
+
+.major-avatar {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Title */
+.major-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4c1d95;
+}
+
+/* Error Text */
+.error-text {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: -6px;
+}
+
+/* Overlay Animation */
+.overlay.active .overlay-content {
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+    .major-grid {
+        grid-template-columns: 1fr;
+    }
+    .win11-container {
+        padding: 10px;
+    }
+}

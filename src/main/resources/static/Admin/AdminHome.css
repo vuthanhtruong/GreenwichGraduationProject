@@ -164,3 +164,28 @@ body {
     background: linear-gradient(135deg, #8b5cf6, #4c1d95); /* elegant purple gradient */
     color: #fff;
 }
+
+/* Majors List */
+.dashboard-card.major {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6); /* tím ánh xanh sang trọng */
+    color: #fff;
+}
+
+.dashboard-card.major:hover {
+    background: linear-gradient(135deg, #6d28d9, #4c1d95); /* nhấn mạnh khi hover */
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(124, 58, 237, 0.3);
+}
+/* Rooms List */
+.dashboard-card.room {
+    background: linear-gradient(135deg, #0284c7, #0c4a6e); /* xanh dương đậm sang trọng */
+    color: #fff;
+}
+
+.dashboard-card.room:hover {
+    background: linear-gradient(135deg, #0369a1, #164e63);
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(3, 105, 161, 0.3);
+}
+
+
