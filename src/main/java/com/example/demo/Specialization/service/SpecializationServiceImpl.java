@@ -11,15 +11,16 @@ import java.util.Map;
 
 @Service
 public class SpecializationServiceImpl implements SpecializationService {
-    @Override
-    public Map<String, String> specializationValidation(Specialization specialization) {
-        return specializationValidation(specialization);
-    }
 
-    private final SpecializationDAO  specializationDAO;
+    private final SpecializationDAO specializationDAO;
 
     public SpecializationServiceImpl(SpecializationDAO specializationDAO) {
         this.specializationDAO = specializationDAO;
+    }
+
+    @Override
+    public Map<String, String> specializationValidation(Specialization specialization) {
+        return specializationDAO.specializationValidation(specialization);
     }
 
     @Override
@@ -71,7 +72,6 @@ public class SpecializationServiceImpl implements SpecializationService {
     public String generateUniqueId(String majorId, LocalDate createdDate) {
         return specializationDAO.generateUniqueId(majorId, createdDate);
     }
-
 
     @Override
     public List<Specialization> getPaginated(int firstResult, int pageSize, Majors major) {
