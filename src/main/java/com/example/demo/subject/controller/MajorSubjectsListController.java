@@ -43,7 +43,7 @@ public class MajorSubjectsListController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("subjectPageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             session.setAttribute("subjectPageSize", pageSize);

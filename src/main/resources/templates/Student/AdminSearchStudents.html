@@ -32,7 +32,7 @@
             <a th:href="@{/admin-home}" class="btn">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a th:href="@{/admin-home/students-list}" class="btn">
+            <a th:href="@{/admin-home/students-list(campusId=${campusId})}" class="btn">
                 <i class="fas fa-list"></i> Full Students List
             </a>
         </div>
@@ -47,7 +47,9 @@
             </select>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." class="input" />
             <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
-            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/students-list}" class="btn danger">
+            <a th:if="${keyword != null and keyword != ''}"
+               th:href="@{/admin-home/students-list(searchType='name', campusId=${campusId})}"
+               class="btn danger">
                 <i class="fas fa-times"></i> Clear
             </a>
         </form>
@@ -108,21 +110,50 @@
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- Smart Pagination -->
     <div class="pagination">
         <a th:href="@{/admin-home/students-list/search-students(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+
         <a th:href="@{/admin-home/students-list/search-students(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
-        <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/admin-home/students-list/search-students(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+
+        <span th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 3}"
+               th:href="@{/admin-home/students-list/search-students(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               class="page-btn number">1</a>
+            <span th:if="${currentPage > 4}" class="page-btn">...</span>
+
+            <a th:each="i : ${#numbers.sequence((currentPage - 2 > 1 ? currentPage - 2 : 1), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages))}"
+               th:href="@{/admin-home/students-list/search-students(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
                th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
+
+            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
+            <a th:if="${currentPage < totalPages - 2}"
+               th:href="@{/admin-home/students-list/search-students(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               th:text="${totalPages}" class="page-btn number"></a>
         </span>
+
         <a th:href="@{/admin-home/students-list/search-students(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
+
         <a th:href="@{/admin-home/students-list/search-students(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+
+        <!-- Go To Page -->
+        <form method="get" th:action="@{/admin-home/students-list/search-students}" class="page-select-form">
+            <label for="pageSelect">Go to:</label>
+            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="pageSize" th:value="${pageSize}" />
+            <input type="hidden" name="searchType" th:value="${searchType}" />
+            <input type="hidden" name="keyword" th:value="${keyword}" />
+            <input type="hidden" name="campusId" th:value="${campusId}" />
+        </form>
     </div>
+
 </div>
 </body>
 </html>

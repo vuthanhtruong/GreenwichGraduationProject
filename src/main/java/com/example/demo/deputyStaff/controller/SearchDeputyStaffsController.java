@@ -38,7 +38,7 @@ public class SearchDeputyStaffsController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("deputyStaffPageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             if (pageSize < 1 || pageSize > 100) {

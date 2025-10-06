@@ -10,7 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin-home")
@@ -28,10 +29,11 @@ public class CurriculumController {
     public String listCurriculums(Model model) {
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("curriculum", new Curriculum());
+        model.addAttribute("editCurriculum", new Curriculum());
         return "ListCurriculums";
     }
 
-    @PostMapping("/curriculums-list/add")
+    @PostMapping("/curriculums-list/add-curriculum")
     public String addCurriculum(
             @ModelAttribute("curriculum") Curriculum curriculum,
             Model model,
@@ -40,10 +42,12 @@ public class CurriculumController {
             curriculum.setCurriculumId(curriculumService.generateUniqueCurriculumId());
         }
 
-        Map<String, String> errors = curriculumService.validateCurriculum(curriculum);
+        List<String> errors = new ArrayList<>(curriculumService.validateCurriculum(curriculum).size());
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("curriculum", curriculum);
+            model.addAttribute("editCurriculum", new Curriculum());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         }
@@ -54,45 +58,53 @@ public class CurriculumController {
             return "redirect:/admin-home/curriculums-list";
         } catch (Exception e) {
             logger.error("Error adding curriculum: {}", e.getMessage());
-            errors.put("general", "An error occurred while adding the curriculum: " + e.getMessage());
+            errors.add("An error occurred while adding the curriculum: " + e.getMessage());
             model.addAttribute("errors", errors);
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("curriculum", curriculum);
+            model.addAttribute("editCurriculum", new Curriculum());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         }
     }
 
-    @PostMapping("/curriculums-list/edit-form")
+    @PostMapping("/curriculums-list/edit-form-curriculum")
     public String showEditCurriculumForm(@RequestParam String id, Model model) {
         try {
             Curriculum curriculum = curriculumService.getCurriculumById(id);
             if (curriculum == null) {
                 model.addAttribute("error", "Curriculum with ID " + id + " not found");
                 model.addAttribute("curriculum", new Curriculum());
+                model.addAttribute("editCurriculum", new Curriculum());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
                 return "ListCurriculums";
             }
-            model.addAttribute("curriculum", curriculum);
+            model.addAttribute("openEditOverlay", true);
+            model.addAttribute("curriculum", new Curriculum());
+            model.addAttribute("editCurriculum", curriculum);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         } catch (Exception e) {
             logger.error("Error retrieving curriculum with ID {}: {}", id, e.getMessage());
             model.addAttribute("error", "Error retrieving curriculum: " + e.getMessage());
             model.addAttribute("curriculum", new Curriculum());
+            model.addAttribute("editCurriculum", new Curriculum());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         }
     }
 
-    @PostMapping("/curriculums-list/edit")
+    @PostMapping("/curriculums-list/edit-curriculum")
     public String editCurriculum(
-            @ModelAttribute("curriculum") Curriculum curriculum,
+            @ModelAttribute("editCurriculum") Curriculum curriculum,
             Model model,
             RedirectAttributes redirectAttributes) {
-        Map<String, String> errors = curriculumService.validateCurriculum(curriculum);
+        List<String> errors = new ArrayList<>(curriculumService.validateCurriculum(curriculum).size());
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("curriculum", curriculum);
+            model.addAttribute("openEditOverlay", true);
+            model.addAttribute("curriculum", new Curriculum());
+            model.addAttribute("editCurriculum", curriculum);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         }
@@ -103,15 +115,17 @@ public class CurriculumController {
             return "redirect:/admin-home/curriculums-list";
         } catch (Exception e) {
             logger.error("Error updating curriculum: {}", e.getMessage());
-            errors.put("general", "An error occurred while updating the curriculum: " + e.getMessage());
+            errors.add("An error occurred while updating the curriculum: " + e.getMessage());
             model.addAttribute("errors", errors);
-            model.addAttribute("curriculum", curriculum);
+            model.addAttribute("openEditOverlay", true);
+            model.addAttribute("curriculum", new Curriculum());
+            model.addAttribute("editCurriculum", curriculum);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "ListCurriculums";
         }
     }
 
-    @PostMapping("/curriculums-list/delete")
+    @PostMapping("/curriculums-list/delete-curriculum")
     public String deleteCurriculum(@RequestParam String id, RedirectAttributes redirectAttributes) {
         try {
             curriculumService.deleteCurriculum(id);

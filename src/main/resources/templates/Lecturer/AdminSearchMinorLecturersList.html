@@ -15,11 +15,6 @@
         <h1><i class="fas fa-briefcase"></i> Admin - Search Minor Lecturers</h1>
     </header>
 
-    <!-- Alert Messages -->
-    <div th:if="${message}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
     <div th:if="${error}" class="win11-alert error">
         <i class="fas fa-exclamation-circle"></i>
         <span th:text="${error}"></span>
@@ -47,7 +42,9 @@
             </select>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Enter keyword..." class="input" />
             <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
-            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/minor-lecturers-list/search-lecturers(campusId=${campusId})}" class="btn danger">
+            <a th:if="${keyword != null and keyword != ''}"
+               th:href="@{/admin-home/minor-lecturers-list/search-lecturers(campusId=${campusId})}"
+               class="btn danger">
                 <i class="fas fa-times"></i> Clear
             </a>
         </form>
@@ -89,7 +86,8 @@
             <tr th:each="lecturer : ${teachers}">
                 <td th:text="${lecturer.id}"></td>
                 <td>
-                    <img th:if="${lecturer.avatar != null}" th:src="@{'/admin-home/minor-lecturers-list/avatar/' + ${lecturer.id}}"
+                    <img th:if="${lecturer.avatar != null}"
+                         th:src="@{'/admin-home/minor-lecturers-list/avatar/' + ${lecturer.id}}"
                          class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
                     <img th:if="${lecturer.avatar == null}" th:src="${lecturer.defaultAvatarPath}"
                          class="avatar" th:alt="${lecturer.firstName + ' ' + lecturer.lastName}" />
@@ -104,20 +102,53 @@
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- ✅ Smart Pagination -->
     <div class="pagination">
         <a th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
         <a th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
-        <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
-               th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
+
+        <span th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 3}"
+               th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               class="page-btn number">1</a>
+            <span th:if="${currentPage > 4}" class="page-btn">...</span>
+
+            <a th:each="i : ${#numbers.sequence(
+                (currentPage - 2 > 1 ? currentPage - 2 : 1),
+                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+            )}"
+               th:if="${i >= 1 and i <= totalPages}"
+               th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
+               th:text="${i}"></a>
+
+            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
+            <a th:if="${currentPage < totalPages - 2}"
+               th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
+               class="page-btn number" th:text="${totalPages}"></a>
         </span>
+
         <a th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
         <a th:href="@{/admin-home/minor-lecturers-list/search-lecturers(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, campusId=${campusId})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+
+        <!-- Go to Page -->
+        <form method="get" th:action="@{/admin-home/minor-lecturers-list/search-lecturers}" class="page-select-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="searchType" th:value="${searchType}" />
+            <input type="hidden" name="keyword" th:value="${keyword}" />
+            <input type="hidden" name="campusId" th:value="${campusId}" />
+            <label for="pageSelect">Go to page:</label>
+            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="pageSize" th:value="${pageSize}" />
+        </form>
     </div>
 </div>
 </body>

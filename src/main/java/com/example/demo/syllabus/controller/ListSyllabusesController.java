@@ -52,7 +52,7 @@ public class ListSyllabusesController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("syllabusPageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             session.setAttribute("syllabusPageSize", pageSize);

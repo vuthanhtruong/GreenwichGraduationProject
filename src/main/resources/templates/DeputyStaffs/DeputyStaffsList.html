@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Deputy Staffs List</title>
     <link rel="stylesheet" th:href="@{/StudentsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -14,11 +15,6 @@
         <h1><i class="fas fa-user-tie"></i> Your Deputy Staffs List</h1>
     </header>
 
-    <!-- Alert Messages -->
-    <div th:if="${message}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
     <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert alert-danger">
         <i class="fas fa-exclamation-circle"></i>
         <span th:text="${errors.get('general')}"></span>
@@ -125,11 +121,34 @@
     <div class="pagination">
         <a th:href="@{/admin-home/deputy-staffs-list(page=1, pageSize=${pageSize})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
         <a th:href="@{/admin-home/deputy-staffs-list(page=${currentPage - 1}, pageSize=${pageSize})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
-        <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/admin-home/deputy-staffs-list(page=${i}, pageSize=${pageSize})}" th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
+
+        <!-- Smart middle pagination -->
+        <span th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 3}" th:href="@{/admin-home/deputy-staffs-list(page=1, pageSize=${pageSize})}" class="page-btn number">1</a>
+            <span th:if="${currentPage > 4}" class="page-btn">...</span>
+
+            <a th:each="i : ${#numbers.sequence((currentPage - 2 > 1 ? currentPage - 2 : 1), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages))}"
+               th:href="@{/admin-home/deputy-staffs-list(page=${i}, pageSize=${pageSize})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
+               th:text="${i}"></a>
+
+            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
+            <a th:if="${currentPage < totalPages - 2}" th:href="@{/admin-home/deputy-staffs-list(page=${totalPages}, pageSize=${pageSize})}" class="page-btn number" th:text="${totalPages}"></a>
         </span>
+
         <a th:href="@{/admin-home/deputy-staffs-list(page=${currentPage + 1}, pageSize=${pageSize})}" th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
         <a th:href="@{/admin-home/deputy-staffs-list(page=${totalPages}, pageSize=${pageSize})}" th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+
+        <!-- Optional Go-To-Page -->
+        <form method="get" th:action="@{/admin-home/deputy-staffs-list}" class="page-select-form">
+            <label for="pageSelect">Go to:</label>
+            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+        </form>
     </div>
 
     <!-- Overlay Add Deputy Staff -->
@@ -178,7 +197,8 @@
                         </div>
                     </div>
                 </section>
-                <!-- Campus and Avatar -->
+
+                <!-- Campus Selection -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-university"></i> Campus</h2>
                     <div class="form-group grid-2">
@@ -227,6 +247,7 @@
                         </div>
                     </div>
                 </section>
+
                 <!-- Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Deputy Staff</button>
@@ -235,9 +256,9 @@
             </form>
         </div>
     </div>
-
 </div>
 
+<!-- Scripts -->
 <script>
     function openOverlay() {
         document.getElementById('addOverlay').classList.add('active');
@@ -251,5 +272,6 @@
         openOverlay();
     });
 </script>
+
 </body>
 </html>

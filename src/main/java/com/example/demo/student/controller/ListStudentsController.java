@@ -42,7 +42,7 @@ public class ListStudentsController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("pageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             session.setAttribute("pageSize", pageSize);
@@ -58,6 +58,7 @@ public class ListStudentsController {
                 model.addAttribute("student", new Students());
                 model.addAttribute("editStudent", new Students());
                 model.addAttribute("relationshipTypes", RelationshipToStudent.values());
+                model.addAttribute("curriculums", curriculumService.getCurriculums());
                 return "StudentsList";
             }
 
@@ -77,7 +78,7 @@ public class ListStudentsController {
             model.addAttribute("student", new Students());
             model.addAttribute("editStudent", new Students());
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
-            model.addAttribute("curriculum", curriculumService.getCurriculums());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());

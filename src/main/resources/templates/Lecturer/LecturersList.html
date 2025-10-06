@@ -15,12 +15,6 @@
         <h1><i class="fas fa-chalkboard-teacher"></i> Your Lecturers List</h1>
     </header>
 
-    <!-- Alert Messages -->
-    <div th:if="${message}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
-    <!-- Unified Toolbar -->
     <div class="search-toolbar">
         <!-- Left: Home -->
         <div class="toolbar-left">
@@ -121,14 +115,44 @@
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
         <a th:href="@{/staff-home/lecturers-list(page=${currentPage - 1}, pageSize=${pageSize})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
-        <span class="page-numbers" th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/staff-home/lecturers-list(page=${i}, pageSize=${pageSize})}"
-               th:classappend="${i == currentPage} ? 'active'" th:text="${i}" class="page-btn number"></a>
+
+        <span th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 3}"
+               th:href="@{/staff-home/lecturers-list(page=1, pageSize=${pageSize})}"
+               class="page-btn number">1</a>
+            <span th:if="${currentPage > 4}" class="page-btn">...</span>
+
+            <a th:each="i : ${#numbers.sequence(
+                (currentPage - 2 > 1 ? currentPage - 2 : 1),
+                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+            )}"
+               th:if="${i >= 1 and i <= totalPages}"
+               th:href="@{/staff-home/lecturers-list(page=${i}, pageSize=${pageSize})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
+               th:text="${i}"></a>
+
+            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
+            <a th:if="${currentPage < totalPages - 2}"
+               th:href="@{/staff-home/lecturers-list(page=${totalPages}, pageSize=${pageSize})}"
+               class="page-btn number" th:text="${totalPages}"></a>
         </span>
+
         <a th:href="@{/staff-home/lecturers-list(page=${currentPage + 1}, pageSize=${pageSize})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
         <a th:href="@{/staff-home/lecturers-list(page=${totalPages}, pageSize=${pageSize})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+
+        <!-- Go to Page -->
+        <form method="get" th:action="@{/staff-home/lecturers-list}" class="page-select-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="pageSelect">Go to page:</label>
+            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="pageSize" th:value="${pageSize}" />
+        </form>
     </div>
 
     <!-- Overlay Add Lecturer -->
@@ -141,7 +165,6 @@
                 <!-- Avatar -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
-                    <!-- Avatar -->
                     <div class="form-row">
                         <label for="avatarFile"><i class="fas fa-upload"></i> Select Avatar:</label>
                         <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
@@ -155,7 +178,6 @@
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-user"></i> Lecturer Information</h2>
                     <div class="form-group grid-2">
-                        <!-- First Name -->
                         <!-- First Name -->
                         <div class="form-row">
                             <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
@@ -206,6 +228,7 @@
                         </div>
                     </div>
                 </section>
+
                 <!-- Address -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information</h2>

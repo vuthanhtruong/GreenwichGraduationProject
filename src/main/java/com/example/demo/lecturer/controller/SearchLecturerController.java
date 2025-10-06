@@ -39,7 +39,7 @@ public class SearchLecturerController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("pageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             session.setAttribute("pageSize", pageSize);
