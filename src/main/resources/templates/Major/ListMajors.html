@@ -111,6 +111,11 @@
                                 <i class="fas fa-trash-alt"></i> Delete
                             </button>
                         </form>
+                        <form th:action="@{/admin-home/majors-list/specializations-list/view-specializations}" method="post">
+                            <input type="hidden" name="id" th:value="${major.majorId}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn"><i class="fas fa-eye"></i> View Specializations</button>
+                        </form>
                     </div>
                 </div>
             </div>
