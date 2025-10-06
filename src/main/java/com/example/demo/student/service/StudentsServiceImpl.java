@@ -1,5 +1,6 @@
 package com.example.demo.student.service;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.student.dao.StudentsDAO;
 import com.example.demo.major.model.Majors;
 import com.example.demo.student.model.Students;
@@ -12,6 +13,11 @@ import java.util.List;
 
 @Service
 public class StudentsServiceImpl implements StudentsService {
+    @Override
+    public Students addStudents(Students students, Curriculum curriculum, String randomPassword) {
+        return addStudents(students, curriculum, randomPassword);
+    }
+
     @Override
     public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
         return studentsDAO.countSearchResultsByCampus(campusId, searchType, keyword);
@@ -88,11 +94,6 @@ public class StudentsServiceImpl implements StudentsService {
     }
 
     @Override
-    public Students addStudents(Students students, String randomPassword) {
-        return studentsDAO.addStudents(students, randomPassword);
-    }
-
-    @Override
     public long numberOfStudents() {
         return studentsDAO.numberOfStudents();
     }
@@ -103,8 +104,8 @@ public class StudentsServiceImpl implements StudentsService {
     }
 
     @Override
-    public void editStudent(String id, Students student) throws MessagingException {
-        studentsDAO.editStudent(id, student);
+    public void editStudent(String id, Curriculum curriculum, Students student) throws MessagingException {
+        studentsDAO.editStudent(id, curriculum, student);
     }
 
     @Override

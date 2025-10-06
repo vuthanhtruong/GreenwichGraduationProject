@@ -1,4 +1,6 @@
 package com.example.demo.subject.dao;
+
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
@@ -23,6 +25,21 @@ import java.util.Map;
 @Transactional
 public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
+    private static final Logger logger = LoggerFactory.getLogger(MajorSubjectsDAOImpl.class);
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final StaffsService staffsService;
+    private final SyllabusesService syllabusesService;
+    private final ClassesService classesService;
+
+    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
+        this.staffsService = staffsService;
+        this.syllabusesService = syllabusesService;
+        this.classesService = classesService;
+    }
+
     @Override
     public List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
         if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0 || major == null) {
@@ -31,7 +48,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             return List.of();
         }
 
-        String queryString = "SELECT s FROM MajorSubjects s JOIN FETCH s.major JOIN FETCH s.creator " +
+        String queryString = "SELECT s FROM MajorSubjects s JOIN FETCH s.major JOIN FETCH s.creator JOIN FETCH s.curriculum " +
                 "WHERE s.major = :major";
 
         if ("name".equals(searchType)) {
@@ -128,21 +145,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(MajorSubjectsDAOImpl.class);
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final StaffsService staffsService;
-    private final SyllabusesService syllabusesService;
-    private final ClassesService classesService;
-
-    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
-        this.staffsService = staffsService;
-        this.syllabusesService = syllabusesService;
-        this.classesService = classesService;
-    }
-
     @Override
     public boolean existsBySubjectExcludingName(String subjectName, String subjectId) {
         if (subjectName == null || subjectName.trim().isEmpty()) {
@@ -168,6 +170,16 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         try {
             subject.setCreator(staffsService.getStaff());
             subject.setMajor(staffsService.getStaffMajor());
+            if (subject.getCurriculum() == null) {
+                Curriculum defaultCurriculum = entityManager.createQuery("SELECT c FROM Curriculum c WHERE c.name = 'Default'", Curriculum.class)
+                        .setMaxResults(1)
+                        .getResultList().stream().findFirst().orElse(null);
+                if (defaultCurriculum != null) {
+                    subject.setCurriculum(defaultCurriculum);
+                } else {
+                    throw new IllegalStateException("No default curriculum found.");
+                }
+            }
             entityManager.persist(subject);
             logger.info("Added new subject with ID: {} by staff ID: {}", subject.getSubjectId(), subject.getCreator().getId());
         } catch (Exception e) {
@@ -186,6 +198,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             MajorSubjects subject = entityManager.find(MajorSubjects.class, subjectId);
             if (subject == null) {
                 logger.warn("Subject with ID {} not found", subjectId);
+            } else {
+                entityManager.detach(subject); // Avoid lazy initialization issues if needed
             }
             return subject;
         } catch (Exception e) {
@@ -202,7 +216,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         try {
             List<MajorSubjects> subjects = entityManager.createQuery(
-                            "SELECT s FROM MajorSubjects s WHERE s.subjectName = :name", MajorSubjects.class)
+                            "SELECT s FROM MajorSubjects s JOIN FETCH s.curriculum WHERE s.subjectName = :name", MajorSubjects.class)
                     .setParameter("name", subjectName.trim())
                     .getResultList();
             MajorSubjects subject = subjects.isEmpty() ? null : subjects.get(0);
@@ -234,7 +248,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         try {
             List<MajorSubjects> subjects = entityManager.createQuery(
-                            "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
+                            "SELECT s FROM MajorSubjects s JOIN FETCH s.curriculum WHERE s.major = :major ORDER BY s.semester ASC",
                             MajorSubjects.class)
                     .setParameter("major", major)
                     .getResultList();
@@ -254,7 +268,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         try {
             List<MajorSubjects> subjects = entityManager.createQuery(
-                            "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
+                            "SELECT s FROM MajorSubjects s JOIN FETCH s.curriculum WHERE s.major = :major ORDER BY s.semester ASC",
                             MajorSubjects.class)
                     .setParameter("major", major)
                     .getResultList();
@@ -269,7 +283,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     @Override
     public List<MajorSubjects> getSubjects() {
         try {
-            List<MajorSubjects> subjects = entityManager.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class)
+            List<MajorSubjects> subjects = entityManager.createQuery("SELECT s FROM MajorSubjects s JOIN FETCH s.curriculum", MajorSubjects.class)
                     .getResultList();
             logger.info("Retrieved {} subjects", subjects.size());
             return subjects;
@@ -293,8 +307,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             if (subject.getSemester() != null) {
                 existingSubject.setSemester(subject.getSemester());
             }
-            if (subject.getLearningProgramType() != null) {
-                existingSubject.setLearningProgramType(subject.getLearningProgramType());
+            if (subject.getCurriculum() != null) {
+                existingSubject.setCurriculum(subject.getCurriculum());
             }
             MajorSubjects updatedSubject = entityManager.merge(existingSubject);
             logger.info("Updated subject with ID: {}", id);
@@ -360,8 +374,8 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             errors.put("semester", "Semester must be a positive number.");
         }
 
-        if (subject.getLearningProgramType() == null) {
-            errors.put("learningProgramType", "Learning program type must be selected.");
+        if (subject.getCurriculum() == null) {
+            errors.put("curriculumId", "Curriculum must be selected.");
         }
 
         if (!errors.isEmpty()) {
@@ -379,7 +393,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         try {
             List<MajorSubjects> subjects = entityManager.createQuery(
-                            "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
+                            "SELECT s FROM MajorSubjects s JOIN FETCH s.curriculum WHERE s.major = :major ORDER BY s.semester ASC",
                             MajorSubjects.class)
                     .setParameter("major", major)
                     .setFirstResult(firstResult)
@@ -412,7 +426,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             throw new RuntimeException("Error counting subjects: " + e.getMessage(), e);
         }
     }
-
 
     private boolean isValidName(String name) {
         if (name == null || name.trim().isEmpty()) {

@@ -1,5 +1,6 @@
 package com.example.demo.student.controller;
 
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.student.model.Students;
 import com.example.demo.entity.Enums.Gender;
@@ -37,11 +38,12 @@ public class EditStudentController {
     private final PersonsService personsService;
     private final ParentAccountsService parentAccountsService;
     private final AuthenticatorsService authenticatorsService;
+    private final CurriculumService curriculumService;
 
     public EditStudentController(StaffsService staffsService, LecturesService lecturesService,
                                  StudentsService studentsService, ResourceLoader resourceLoader,
                                  PersonsService personsService, ParentAccountsService parentAccountsService,
-                                 AuthenticatorsService authenticatorsService) {
+                                 AuthenticatorsService authenticatorsService, CurriculumService curriculumService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
@@ -49,6 +51,7 @@ public class EditStudentController {
         this.personsService = personsService;
         this.parentAccountsService = parentAccountsService;
         this.authenticatorsService = authenticatorsService;
+        this.curriculumService = curriculumService;
     }
 
     @PostMapping("/edit-student-form")
@@ -84,6 +87,7 @@ public class EditStudentController {
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
         model.addAttribute("source", source);
+        model.addAttribute("curriculums", curriculumService.getCurriculums());
         return "EditStudentForm";
     }
 
@@ -91,6 +95,7 @@ public class EditStudentController {
     public String editStudent(
             @Valid @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "curriculumId", required = false) String curriculumId,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -167,8 +172,13 @@ public class EditStudentController {
                 student.setAvatar(existingStudent.getAvatar());
             }
 
+            // Set curriculum if provided
+            if (curriculumId != null && !curriculumId.isEmpty()) {
+                student.setCurriculum(curriculumService.getCurriculumById(curriculumId));
+            }
+
             // Edit student
-            studentsService.editStudent(student.getId(), student);
+            studentsService.editStudent(student.getId(), student.getCurriculum(), student);
 
             // Handle parent accounts
             List<Student_ParentAccounts> currentParentLinks = parentAccountsService.getParentLinksByStudentId(student.getId());

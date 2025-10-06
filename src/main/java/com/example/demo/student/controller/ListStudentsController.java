@@ -1,5 +1,7 @@
 package com.example.demo.student.controller;
 
+import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.student.model.Students;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
@@ -21,11 +23,13 @@ public class ListStudentsController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final LecturesService lecturesService;
+    private final CurriculumService curriculumService;
 
-    public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService) {
+    public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, CurriculumService curriculumService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.lecturesService = lecturesService;
+        this.curriculumService = curriculumService;
     }
 
     @GetMapping("/students-list")
@@ -73,6 +77,7 @@ public class ListStudentsController {
             model.addAttribute("student", new Students());
             model.addAttribute("editStudent", new Students());
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
+            model.addAttribute("curriculum", curriculumService.getCurriculums());
             return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());

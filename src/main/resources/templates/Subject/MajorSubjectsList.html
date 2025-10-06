@@ -157,18 +157,18 @@
                             <input id="semester" class="input" type="number" th:field="*{semester}" min="1" required>
                             <div th:if="${editErrors != null and editErrors.containsKey('semester')}" class="text-danger" th:text="${editErrors.get('semester')}"></div>
                         </div>
-                        <!-- Program Type -->
+                        <!-- Curriculum -->
                         <div class="form-row">
-                            <label for="learningProgramType"><i class="fas fa-graduation-cap"></i> Program Type:</label>
-                            <select id="learningProgramType" class="input" th:field="*{learningProgramType}" required>
-                                <option value="">Select Program</option>
-                                <option th:each="type : ${learningProgramTypes}"
-                                        th:value="${type}"
-                                        th:text="${type}"
-                                        th:selected="${newSubject.learningProgramType == type}">
+                            <label for="curriculumId"><i class="fas fa-book-open"></i> Curriculum:</label>
+                            <select id="curriculumId" class="input" th:field="*{curriculum.id}" required>
+                                <option value="">Select Curriculum</option>
+                                <option th:each="curriculum : ${curriculums}"
+                                        th:value="${curriculum.getCurriculumId()}"
+                                        th:text="${curriculum.name}"
+                                        th:selected="${newSubject.curriculum != null and newSubject.curriculum.id == curriculum.id}">
                                 </option>
                             </select>
-                            <div th:if="${editErrors != null and editErrors.containsKey('learningProgramType')}" class="text-danger" th:text="${editErrors.get('learningProgramType')}"></div>
+                            <div th:if="${editErrors != null and editErrors.containsKey('curriculumId')}" class="text-danger" th:text="${editErrors.get('curriculumId')}"></div>
                         </div>
                     </div>
                 </section>
@@ -196,7 +196,7 @@
 </script>
 <script th:if="${openAddOverlay}">
     document.addEventListener("DOMContentLoaded", function () {
-        openOverlay();
+        openAddOverlay();
     });
 </script>
 </body>

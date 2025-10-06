@@ -1,5 +1,6 @@
 package com.example.demo.student.dao;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.dto.StudentEmailContext;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,41 +39,11 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
-    @Override
-    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
-        return entityManager.createQuery(jpql, Students.class)
-                .setParameter("campusId", campusId)
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
-    }
-
-    @Override
-    public Students findById(String studentId) {
-        return entityManager.find(Students.class, studentId);
-    }
-
-    @Override
-    public long totalStudentsByCampus(String campusId) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-
-        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("campusId", campusId)
-                .getSingleResult();
-    }
-
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final StaffsService staffsService;
     private final PersonsService personsService;
-    @PersistenceContext
-    private EntityManager entityManager;
     private final EmailServiceForStudentService emailServiceForStudentService;
     private final EmailServiceForLecturerService emailServiceForLectureService;
     private final AccountBalancesService accountBalancesService;
@@ -194,27 +166,14 @@ public class StudentDAOImpl implements StudentsDAO {
         return errors;
     }
 
-    /**
-     * Validate email theo chuẩn RFC 5322 (gọn gàng, thực tế).
-     * - Cho phép tên miền có dấu gạch ngang.
-     * - Cho phép TLD >= 2 ký tự.
-     * - Không chấp nhận ký tự đặc biệt lạ.
-     */
     private boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
         }
-        String emailRegex =
-                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
 
-    /**
-     * Validate số điện thoại quốc tế.
-     * - Cho phép bắt đầu bằng +.
-     * - Độ dài 8–15 số (theo chuẩn E.164).
-     * - Không chứa khoảng trắng, dấu - hoặc ký hiệu khác.
-     */
     private boolean isValidPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             return true; // cho phép bỏ trống
@@ -223,21 +182,11 @@ public class StudentDAOImpl implements StudentsDAO {
         return phoneNumber.matches(phoneRegex);
     }
 
-    /**
-     * Validate tên quốc tế thông minh.
-     * - Hỗ trợ Unicode: tiếng Việt, Nhật, Ả Rập, Nga, Hy Lạp, …
-     * - Cho phép khoảng trắng phân tách nhiều từ.
-     * - Cho phép dấu gạch nối (-), nháy (’ '), chấm (.)
-     * - Không cho phép số, emoji, ký tự lạ.
-     * - Độ dài 2–100 ký tự.
-     */
     private boolean isValidName(String name) {
         if (name == null) return false;
         name = name.trim();
         if (name.isEmpty()) return false;
-
-        String nameRegex =
-                "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
+        String nameRegex = "^(?=.{2,100}$)(\\p{L}+[\\p{L}'’\\-\\.]*)((\\s+\\p{L}+[\\p{L}'’\\-\\.]*)*)$";
         return name.matches(nameRegex);
     }
 
@@ -249,7 +198,6 @@ public class StudentDAOImpl implements StudentsDAO {
         }
 
         Object principal = auth.getPrincipal();
-
         Persons person = switch (principal) {
             case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
             case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
@@ -260,7 +208,6 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalStateException("Authenticated user is not a student");
         }
 
-        // luôn trả về managed entity thay vì detached
         return entityManager.find(Students.class, student.getId());
     }
 
@@ -276,15 +223,19 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public Students addStudents(Students students, String randomPassword) {
+    public Students addStudents(Students student, Curriculum curriculum, String randomPassword) {
         Staffs staff = staffsService.getStaff();
-        students.setCampus(staff.getCampus());
-        students.setMajor(staff.getMajorManagement());
-        students.setCreator(staff);
+        if (staff == null) {
+            throw new IllegalStateException("No authenticated staff found");
+        }
+        student.setCampus(staff.getCampus());
+        student.setMajor(staff.getMajorManagement());
+        student.setCreator(staff);
+        student.setCurriculum(curriculum);
         LocalDate admissionDate = LocalDate.of(Year.now().getValue(), 1, 1);
-        students.setAdmissionYear(admissionDate);
-        students.setCreatedDate(LocalDate.now());
-        Students savedStudent = entityManager.merge(students);
+        student.setAdmissionYear(admissionDate);
+        student.setCreatedDate(LocalDate.now());
+        Students savedStudent = entityManager.merge(student);
 
         // Handle avatar
         String avatarPath = null;
@@ -308,15 +259,15 @@ public class StudentDAOImpl implements StudentsDAO {
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
                 savedStudent.getAdmissionYear(),
                 savedStudent.getCreatedDate(),
-                savedStudent.getLearningProgramType() != null ? savedStudent.getLearningProgramType().toString() : null,
+                savedStudent.getCurriculum() != null ? savedStudent.getCurriculum().getName() : null,
                 avatarPath
         );
 
         try {
             String subject = "Your Student Account Information";
-            emailServiceForStudentService.sendEmailToNotifyLoginInformation(students.getEmail(), subject, context, randomPassword);
+            emailServiceForStudentService.sendEmailToNotifyLoginInformation(savedStudent.getEmail(), subject, context, randomPassword);
         } catch (Exception e) {
-            System.err.println("Failed to schedule email to " + students.getEmail() + ": " + e.getMessage());
+            System.err.println("Failed to schedule email to " + savedStudent.getEmail() + ": " + e.getMessage());
         }
         return savedStudent;
     }
@@ -324,6 +275,9 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public long numberOfStudents() {
         Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null) {
+            return 0L;
+        }
         return (Long) entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s WHERE s.major = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement())
@@ -340,20 +294,24 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public void editStudent(String id, Students student) throws MessagingException {
+    public void editStudent(String id, Curriculum curriculum, Students student) throws MessagingException {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
         Students existingStudent = entityManager.createQuery(
                         "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
-                        Students.class
-                )
+                        Students.class)
                 .setParameter("id", id)
                 .getSingleResult();
         if (existingStudent == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
         editStudentFields(existingStudent, student);
+
+        // Update curriculum if provided
+        if (curriculum != null) {
+            existingStudent.setCurriculum(curriculum);
+        }
 
         // Handle avatar
         String avatarPath = null;
@@ -379,7 +337,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
                 existingStudent.getAdmissionYear(),
                 existingStudent.getCreatedDate(),
-                existingStudent.getLearningProgramType() != null ? existingStudent.getLearningProgramType().toString() : null,
+                existingStudent.getCurriculum() != null ? existingStudent.getCurriculum().getName() : null,
                 avatarPath
         );
 
@@ -395,11 +353,13 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
         Staffs staff = staffsService.getStaff();
-        Majors majors = staff.getMajorManagement();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+            return List.of();
+        }
         return entityManager.createQuery(
-                        "SELECT s FROM Students s  WHERE s.major = :staffmajor AND s.campus = :campuses",
+                        "SELECT s FROM Students s WHERE s.major = :staffmajor AND s.campus = :campuses",
                         Students.class)
-                .setParameter("staffmajor", majors)
+                .setParameter("staffmajor", staff.getMajorManagement())
                 .setParameter("campuses", staff.getCampus())
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -547,36 +507,41 @@ public class StudentDAOImpl implements StudentsDAO {
         return query.getSingleResult();
     }
 
-    private void editStudentFields(Students existing, Students editd) {
-        if (editd.getFirstName() != null) existing.setFirstName(editd.getFirstName());
-        if (editd.getLastName() != null) existing.setLastName(editd.getLastName());
-        if (editd.getEmail() != null) existing.setEmail(editd.getEmail());
-        if (editd.getPhoneNumber() != null) existing.setPhoneNumber(editd.getPhoneNumber());
-        if (editd.getBirthDate() != null) existing.setBirthDate(editd.getBirthDate());
-        if (editd.getGender() != null) existing.setGender(editd.getGender());
-        if (editd.getCountry() != null) existing.setCountry(editd.getCountry());
-        if (editd.getProvince() != null) existing.setProvince(editd.getProvince());
-        if (editd.getCity() != null) existing.setCity(editd.getCity());
-        if (editd.getDistrict() != null) existing.setDistrict(editd.getDistrict());
-        if (editd.getWard() != null) existing.setWard(editd.getWard());
-        if (editd.getStreet() != null) existing.setStreet(editd.getStreet());
-        if (editd.getPostalCode() != null) existing.setPostalCode(editd.getPostalCode());
-        if (editd.getAvatar() != null) existing.setAvatar(editd.getAvatar());
-        if (editd.getCampus() != null) existing.setCampus(editd.getCampus());
-        if (editd.getCreator() != null) existing.setCreator(editd.getCreator());
+    private void editStudentFields(Students existing, Students edited) {
+        if (edited.getFirstName() != null) existing.setFirstName(edited.getFirstName());
+        if (edited.getLastName() != null) existing.setLastName(edited.getLastName());
+        if (edited.getEmail() != null) existing.setEmail(edited.getEmail());
+        if (edited.getPhoneNumber() != null) existing.setPhoneNumber(edited.getPhoneNumber());
+        if (edited.getBirthDate() != null) existing.setBirthDate(edited.getBirthDate());
+        if (edited.getGender() != null) existing.setGender(edited.getGender());
+        if (edited.getCountry() != null) existing.setCountry(edited.getCountry());
+        if (edited.getProvince() != null) existing.setProvince(edited.getProvince());
+        if (edited.getCity() != null) existing.setCity(edited.getCity());
+        if (edited.getDistrict() != null) existing.setDistrict(edited.getDistrict());
+        if (edited.getWard() != null) existing.setWard(edited.getWard());
+        if (edited.getStreet() != null) existing.setStreet(edited.getStreet());
+        if (edited.getPostalCode() != null) existing.setPostalCode(edited.getPostalCode());
+        if (edited.getAvatar() != null) existing.setAvatar(edited.getAvatar());
+        if (edited.getCampus() != null) existing.setCampus(edited.getCampus());
+        if (edited.getCreator() != null) existing.setCreator(edited.getCreator());
+        if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
     }
+
     @Override
     public List<Integer> getUniqueAdmissionYears() {
         Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
+            return List.of();
+        }
         String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
                 "WHERE s.major = :staffmajor AND s.campus = :campuses " +
                 "ORDER BY YEAR(s.admissionYear) ASC";
-        List<Integer> years = entityManager.createQuery(jpql, Integer.class)
+        return entityManager.createQuery(jpql, Integer.class)
                 .setParameter("staffmajor", staff.getMajorManagement())
                 .setParameter("campuses", staff.getCampus())
-                .getResultList();
-        return years.stream().filter(year -> year != null).collect(Collectors.toList());
+                .getResultList().stream().filter(year -> year != null).collect(Collectors.toList());
     }
+
     @Override
     public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
         try {
@@ -623,5 +588,33 @@ public class StudentDAOImpl implements StudentsDAO {
         }
     }
 
+    @Override
+    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Students.class)
+                .setParameter("campusId", campusId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
 
+    @Override
+    public Students findById(String studentId) {
+        return entityManager.find(Students.class, studentId);
+    }
+
+    @Override
+    public long totalStudentsByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+
+        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
 }

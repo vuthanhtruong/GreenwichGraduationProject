@@ -86,6 +86,17 @@
                         </select>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('gender')}" th:text="${error}"></div>
                     </div>
+                    <div class="form-row">
+                        <label for="curriculumId"><i class="fas fa-book"></i> Curriculum:</label>
+                        <select id="curriculumId" name="curriculumId" class="input">
+                            <option value="">Select Curriculum</option>
+                            <option th:each="curriculum : ${curriculums}"
+                                    th:value="${curriculum.curriculumId}"
+                                    th:text="${curriculum.name}"
+                                    th:selected="${student.curriculum != null and student.curriculum.curriculumId == curriculum.curriculumId}"></option>
+                        </select>
+                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('curriculum')}" th:text="${error}"></div>
+                    </div>
                 </div>
             </section>
 

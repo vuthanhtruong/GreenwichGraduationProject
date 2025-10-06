@@ -240,6 +240,16 @@ public class ThymeleafConfig {
         resolver.setPrefix("classpath:/templates/Major/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML");
+        resolver.setOrder(23);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver24() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/Curriculums/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
         resolver.setOrder(24);
         resolver.setCheckExistence(true);
         return resolver;

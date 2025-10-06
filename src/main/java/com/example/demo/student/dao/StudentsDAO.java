@@ -1,4 +1,5 @@
 package com.example.demo.student.dao;
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.major.model.Majors;
 import com.example.demo.student.model.Students;
 import jakarta.mail.MessagingException;
@@ -16,10 +17,10 @@ public interface StudentsDAO {
     Students getStudent();
     com.example.demo.major.model.Majors getStudentMajor();
     List<Students> getStudents();
-    Students addStudents(Students students, String randomPassword);
+    Students addStudents(Students students, Curriculum curriculum,String randomPassword);
     long numberOfStudents();
     void deleteStudent(String id);
-    void editStudent(String id, Students student) throws jakarta.mail.MessagingException;
+    void editStudent(String id, Curriculum curriculum,Students student) throws jakarta.mail.MessagingException;
     Students getStudentById(String id);
     List<Students> getPaginatedStudents(int firstResult, int pageSize);
     List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize);

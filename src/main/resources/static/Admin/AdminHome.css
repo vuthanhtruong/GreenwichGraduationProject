@@ -188,4 +188,15 @@ body {
     box-shadow: 0 8px 18px rgba(3, 105, 161, 0.3);
 }
 
+/* Curriculums */
+.dashboard-card.curriculum {
+    background: linear-gradient(135deg, #14b8a6, #0f766e); /* teal xanh ngọc đậm */
+    color: #fff;
+}
+
+.dashboard-card.curriculum:hover {
+    background: linear-gradient(135deg, #0d9488, #115e59); /* hover nhấn mạnh */
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(20, 184, 166, 0.3);
+}
 

@@ -214,18 +214,21 @@
                                  th:text="${error}"></div>
                         </div>
 
-                        <!-- Avatar -->
+                        <!-- Curriculum -->
                         <div class="form-row">
-                            <label for="avatar"><i class="fas fa-image"></i> Avatar:</label>
-                            <input id="avatar" name="avatarFile" type="file" class="input">
+                            <label for="curriculum"><i class="fas fa-book"></i> Curriculum:</label>
+                            <select id="curriculum" name="curriculum" required class="input">
+                                <option value="">Select Curriculum</option>
+                                <option th:each="curriculum : ${curriculum}"
+                                        th:value="${curriculum.curriculumId}" th:text="${curriculum.name}"></option>
+                            </select>
                             <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('avatar')}"
+                                 th:if="${#strings.toLowerCase(error).contains('curriculum')}"
                                  th:text="${error}"></div>
                         </div>
 
                     </div>
                 </section>
-
 
                 <!-- Address -->
                 <section class="win11-panel">

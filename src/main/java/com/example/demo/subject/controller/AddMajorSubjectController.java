@@ -1,5 +1,7 @@
 package com.example.demo.subject.controller;
 
+import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
@@ -14,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -27,17 +30,20 @@ public class AddMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
+    private final CurriculumService curriculumService;
 
     @Autowired
-    public AddMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public AddMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
+        this.curriculumService = curriculumService;
     }
 
     @PostMapping("/add-subject")
     public String addSubject(
             @Valid @ModelAttribute("newSubject") MajorSubjects newSubject,
             BindingResult result,
+            @RequestParam(value = "curriculumId", required = false) String curriculumId,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
@@ -50,10 +56,22 @@ public class AddMajorSubjectController {
             });
         }
 
+        if (curriculumId != null && !curriculumId.isEmpty()) {
+            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
+            if (curriculum != null) {
+                newSubject.setCurriculum(curriculum);
+            } else {
+                errors.put("curriculumId", "Invalid curriculum selected.");
+            }
+        } else {
+            errors.put("curriculumId", "Curriculum is required.");
+        }
+
         if (!errors.isEmpty()) {
             redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("newSubject", newSubject);
-            redirectAttributes.addFlashAttribute("openAddOverlay", true); // Mở lại overlay
+            redirectAttributes.addFlashAttribute("openAddOverlay", true);
+            redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
             return "redirect:/staff-home/major-subjects-list";
         }
 
@@ -63,6 +81,7 @@ public class AddMajorSubjectController {
                 redirectAttributes.addFlashAttribute("editErrors", errors);
                 redirectAttributes.addFlashAttribute("newSubject", newSubject);
                 redirectAttributes.addFlashAttribute("openAddOverlay", true);
+                redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
                 return "redirect:/staff-home/major-subjects-list";
             }
 
@@ -80,6 +99,7 @@ public class AddMajorSubjectController {
             redirectAttributes.addFlashAttribute("editErrors", errors);
             redirectAttributes.addFlashAttribute("newSubject", newSubject);
             redirectAttributes.addFlashAttribute("openAddOverlay", true);
+            redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
             return "redirect:/staff-home/major-subjects-list";
         }
     }

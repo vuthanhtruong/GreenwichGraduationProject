@@ -51,16 +51,16 @@
                         <div th:if="${editErrors != null and editErrors.containsKey('semester')}" class="text-danger" th:text="${editErrors.get('semester')}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="learningProgramType">Program Type <span class="text-danger">*</span></label>
-                        <select id="learningProgramType" class="input" th:field="*{learningProgramType}" required>
-                            <option value="">Select Program</option>
-                            <option th:each="type : ${learningProgramTypes}"
-                                    th:value="${type}"
-                                    th:text="${type}"
-                                    th:selected="${subject.learningProgramType == type}">
+                        <label for="curriculumId">Curriculum <span class="text-danger">*</span></label>
+                        <select id="curriculumId" class="input" th:field="*{curriculum.id}" required>
+                            <option value="">Select Curriculum</option>
+                            <option th:each="curriculum : ${curriculums}"
+                                    th:value="${curriculum.getCurriculumId()}"
+                                    th:text="${curriculum.name}"
+                                    th:selected="${subject.curriculum != null and subject.curriculum.id == curriculum.id}">
                             </option>
                         </select>
-                        <div th:if="${editErrors != null and editErrors.containsKey('learningProgramType')}" class="text-danger" th:text="${editErrors.get('learningProgramType')}"></div>
+                        <div th:if="${editErrors != null and editErrors.containsKey('curriculumId')}" class="text-danger" th:text="${editErrors.get('curriculumId')}"></div>
                     </div>
                     <div class="form-row" th:if="${subject.creator}">
                         <label>Creator</label>

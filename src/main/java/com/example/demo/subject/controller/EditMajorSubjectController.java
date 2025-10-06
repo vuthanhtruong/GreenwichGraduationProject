@@ -1,5 +1,7 @@
 package com.example.demo.subject.controller;
 
+import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.MajorSubjectsService;
@@ -22,11 +24,13 @@ public class EditMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
+    private final CurriculumService curriculumService;
 
     @Autowired
-    public EditMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public EditMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
+        this.curriculumService = curriculumService;
     }
 
     @PostMapping("/major-subjects-list/edit-major-subject-form")
@@ -38,6 +42,7 @@ public class EditMajorSubjectController {
             return "redirect:/staff-home/major-subjects-list";
         }
         model.addAttribute("subject", subject);
+        model.addAttribute("curriculums", curriculumService.getCurriculums());
         return "EditMajorSubjectForm";
     }
 
@@ -45,6 +50,7 @@ public class EditMajorSubjectController {
     public String editSubject(
             @Valid @ModelAttribute("subject") MajorSubjects formSubject,
             BindingResult bindingResult,
+            @RequestParam(value = "curriculumId", required = false) String curriculumId,
             Model model,
             RedirectAttributes redirectAttributes) {
         MajorSubjects existingSubject = subjectsService.getSubjectById(formSubject.getSubjectId());
@@ -55,6 +61,17 @@ public class EditMajorSubjectController {
         }
 
         Map<String, String> errors = new HashMap<>(subjectsService.validateSubject(formSubject));
+        if (curriculumId != null && !curriculumId.isEmpty()) {
+            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
+            if (curriculum != null) {
+                formSubject.setCurriculum(curriculum);
+            } else {
+                errors.put("curriculumId", "Invalid curriculum selected.");
+            }
+        } else {
+            errors.put("curriculumId", "Curriculum is required.");
+        }
+
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
                 String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
@@ -65,12 +82,14 @@ public class EditMajorSubjectController {
         if (!errors.isEmpty()) {
             model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "EditMajorSubjectForm";
         }
 
         try {
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
             existingSubject.setSemester(formSubject.getSemester());
+            existingSubject.setCurriculum(formSubject.getCurriculum());
             subjectsService.editSubject(formSubject.getSubjectId(), existingSubject);
 
             redirectAttributes.addFlashAttribute("message", "Subject edited successfully!");
@@ -79,6 +98,7 @@ public class EditMajorSubjectController {
             errors.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("editErrors", errors);
             model.addAttribute("subject", formSubject);
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "EditMajorSubjectForm";
         }
 

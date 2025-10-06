@@ -1,4 +1,6 @@
 package com.example.demo;
+
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;
@@ -19,6 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -30,7 +33,7 @@ public class DemoApplication {
         EntityManagerFactory emf = context.getBean(EntityManagerFactory.class);
         EntityManager em = emf.createEntityManager();
 
-        // Seed Admin first to ensure it exists for other entities
+        // Seed Admin first
         try {
             em.getTransaction().begin();
             ensureDefaultAdmin(em);
@@ -64,6 +67,16 @@ public class DemoApplication {
         try {
             em.getTransaction().begin();
             addDefaultMajors(em);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            rollback(em);
+            e.printStackTrace();
+        }
+
+        // Seed Curriculums
+        try {
+            em.getTransaction().begin();
+            addDefaultCurriculums(em);
             em.getTransaction().commit();
         } catch (Exception e) {
             rollback(em);
@@ -110,10 +123,10 @@ public class DemoApplication {
             e.printStackTrace();
         }
 
-        // Seed Subjects and TuitionByYear
+        // Seed Subjects from bulk list
         try {
             em.getTransaction().begin();
-            bulkSeedSubjectsAndTuition(em);
+            bulkSeedSubjects(em);
             em.getTransaction().commit();
         } catch (Exception e) {
             rollback(em);
@@ -151,7 +164,7 @@ public class DemoApplication {
             Authenticators auth = new Authenticators();
             auth.setPersonId(admin.getId());
             auth.setPerson(admin);
-            auth.setPassword("Admin123"); // Plain text password
+            auth.setPassword("Admin123");
             em.persist(auth);
             System.out.println("Added Admin: " + admin.getId());
         } else {
@@ -256,6 +269,30 @@ public class DemoApplication {
         }
     }
 
+    // ===================== CURRICULUMS =====================
+    private static void addDefaultCurriculums(EntityManager em) {
+        Admins creator = findAdmin(em, "Admin");
+        if (creator == null) {
+            System.err.println("Admin not found, cannot create curriculums.");
+            return;
+        }
+
+        List<Curriculum> curriculumsToAdd = new ArrayList<>();
+        curriculumsToAdd.add(new Curriculum("CURR01", "BTEC", "BTEC curriculum program", creator, LocalDateTime.now()));
+        curriculumsToAdd.add(new Curriculum("CURR02", "3+0", "3+0 curriculum program", creator, LocalDateTime.now()));
+
+        for (Curriculum curriculum : curriculumsToAdd) {
+            try {
+                em.createQuery("SELECT c FROM Curriculum c WHERE c.curriculumId = :id", Curriculum.class)
+                        .setParameter("id", curriculum.getCurriculumId()).getSingleResult();
+                System.out.println("Curriculum already exists: " + curriculum.getName());
+            } catch (NoResultException e) {
+                em.persist(curriculum);
+                System.out.println("Added Curriculum: " + curriculum.getName());
+            }
+        }
+    }
+
     // ===================== STAFFS + ADMIN =====================
     private static void addDefaultStaffs(EntityManager em) {
         List<Persons> toAdd = new ArrayList<>();
@@ -315,7 +352,7 @@ public class DemoApplication {
                 Authenticators auth = new Authenticators();
                 auth.setPersonId(p.getId());
                 auth.setPerson(p);
-                auth.setPassword("Anhnam123"); // Plain text password
+                auth.setPassword("Anhnam123");
                 em.persist(auth);
                 System.out.println("Added " + p.getRoleType() + ": " + p.getId());
             } else {
@@ -347,7 +384,7 @@ public class DemoApplication {
 
             Authenticators auth = new Authenticators();
             auth.setPersonId(deputy.getId()); auth.setPerson(deputy);
-            auth.setPassword("Anhnam123"); // Plain text password
+            auth.setPassword("Anhnam123");
             em.persist(auth);
 
             System.out.println("Added DeputyStaff: deputy001");
@@ -361,6 +398,8 @@ public class DemoApplication {
             System.err.println("Staff not found, cannot create major subjects.");
             return;
         }
+
+        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
 
         List<String> majorIds = Arrays.asList("GBH", "GCH", "GDH", "GKH");
         for (String majorId : majorIds) {
@@ -383,8 +422,8 @@ public class DemoApplication {
                 subj.setSemester(((i - 1) % 6) + 1);
                 subj.setCreator(creator);
                 subj.setRequirementType(SubjectTypes.MAJOR_PREPARATION);
-                subj.setLearningProgramType(LearningProgramTypes.BTEC);
                 subj.setMajor(major);
+                subj.setCurriculum(btecCurriculum);
                 em.persist(subj);
                 System.out.println("Added MajorSubject: " + subjectId);
             }
@@ -437,22 +476,22 @@ public class DemoApplication {
     }
 
     // ===================== BULK SEED from provided list =====================
-    private static void bulkSeedSubjectsAndTuition(EntityManager em) {
-        int currentYear = LocalDate.now().getYear();
-
-        // Cache majors for heuristic mapping
+    private static void bulkSeedSubjects(EntityManager em) {
+        // Cache majors and curriculums
         Map<String, Majors> majors = new HashMap<>();
         majors.put("GBH", findMajor(em, "GBH"));
         majors.put("GCH", findMajor(em, "GCH"));
         majors.put("GDH", findMajor(em, "GDH"));
         majors.put("GKH", findMajor(em, "GKH"));
 
-        Staffs defaultCreator = findStaff(em, "vuthanhtruong");
-        Admins creatorAdmin = findAdmin(em, "Admin");
-        Campuses defaultCampus = findCampus(em, "CAMP01");
+        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
+        Curriculum threePlusZeroCurriculum = findCurriculum(em, "CURR02");
 
-        if (defaultCreator == null || creatorAdmin == null || defaultCampus == null) {
-            System.err.println("Required entities (staff, admin, or campus) not found, cannot seed subjects and tuition.");
+        Staffs defaultCreator = findStaff(em, "vuthanhtruong");
+        DeputyStaffs deputyCreator = findDeputyStaff(em, "deputy001");
+
+        if (defaultCreator == null || deputyCreator == null) {
+            System.err.println("Required creators not found, cannot seed subjects.");
             return;
         }
 
@@ -800,45 +839,37 @@ public class DemoApplication {
         List<SubjectSeed> uniqueSeeds = new ArrayList<>(byId.values());
 
         for (SubjectSeed seed : uniqueSeeds) {
-            // Create/ensure Subject
-            boolean exists = existsSubject(em, seed.id);
-            MajorSubjects subj;
-            if (exists) {
-                subj = em.find(MajorSubjects.class, seed.id);
-                if (subj == null) {
-                    Subjects base = em.find(Subjects.class, seed.id);
-                    if (base instanceof MajorSubjects) {
-                        subj = (MajorSubjects) base;
-                    }
-                }
-                if (subj != null) {
-                    if (seed.name != null && (subj.getSubjectName() == null || !subj.getSubjectName().equals(seed.name))) {
-                        subj.setSubjectName(seed.name);
-                        em.merge(subj);
-                    }
-                } else {
-                    System.out.println("Subject exists (not MajorSubjects), skip create: " + seed.id);
-                    continue;
-                }
-            } else {
-                subj = new MajorSubjects();
-                subj.setSubjectId(seed.id);
-                subj.setSubjectName(seed.name);
-                subj.setSemester(seed.credits != null && seed.credits > 0 ? Math.max(1, ((seed.credits / 5) % 6)) : 1);
-                subj.setCreator(defaultCreator);
-                subj.setRequirementType(SubjectTypes.MAJOR_PREPARATION);
-                subj.setLearningProgramType(LearningProgramTypes.BTEC);
-                subj.setMajor(guessMajor(em, majors, seed));
-                em.persist(subj);
-                System.out.println("Added Subject: " + seed.id + " - " + seed.name);
+            if (existsSubject(em, seed.id)) {
+                System.out.println("Subject already exists: " + seed.id);
+                continue;
             }
 
+            MajorSubjects subj = new MajorSubjects();
+            subj.setSubjectId(seed.id);
+            subj.setSubjectName(seed.name);
+            subj.setSemester(seed.credits != null && seed.credits > 0 ? Math.max(1, ((seed.credits / 5) % 6)) : 1);
+            subj.setCreator(defaultCreator);
+            subj.setRequirementType(SubjectTypes.MAJOR_PREPARATION);
+            subj.setMajor(guessMajor(majors, seed));
+            subj.setCurriculum(btecCurriculum);
+            em.persist(subj);
+            System.out.println("Added Subject: " + seed.id + " - " + seed.name);
         }
     }
 
+    // ===================== HELPER METHODS =====================
     private static Majors findMajor(EntityManager em, String id) {
         try {
             return em.createQuery("SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
+                    .setParameter("id", id).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private static Curriculum findCurriculum(EntityManager em, String id) {
+        try {
+            return em.createQuery("SELECT c FROM Curriculum c WHERE c.curriculumId = :id", Curriculum.class)
                     .setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
             return null;
@@ -881,7 +912,7 @@ public class DemoApplication {
         }
     }
 
-    private static Majors guessMajor(EntityManager em, Map<String, Majors> majors, SubjectSeed s) {
+    private static Majors guessMajor(Map<String, Majors> majors, SubjectSeed s) {
         String n = (s.name == null ? "" : s.name.toLowerCase(Locale.ROOT));
         if (n.contains("design") || n.contains("typograph") || n.contains("animation")
                 || n.contains("visual") || n.contains("art")) {
@@ -901,14 +932,14 @@ public class DemoApplication {
                 || n.contains("machine learning") || n.contains("ai")) {
             return majors.get("GCH");
         }
-        return null; // not mandatory
+        return null;
     }
 
-    // Simple holder
+    // Simple holder for subject seed data
     private static class SubjectSeed {
         final String id;
         final String name;
-        final Integer credits; // not persisted (Subjects has no field), but used to scatter semester
+        final Integer credits;
         final Double tuition;
 
         SubjectSeed(String id, String name, Integer credits, Double tuition) {

@@ -1,5 +1,6 @@
 package com.example.demo.subject.controller;
 
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
@@ -23,11 +24,13 @@ public class MajorSubjectsListController {
 
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
+    private final CurriculumService curriculumService;
 
     @Autowired
-    public MajorSubjectsListController(MajorSubjectsService subjectsService, StaffsService staffsService) {
+    public MajorSubjectsListController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
+        this.curriculumService = curriculumService;
     }
 
     @GetMapping("")
@@ -61,6 +64,7 @@ public class MajorSubjectsListController {
                 model.addAttribute("message", "No subjects found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
+                model.addAttribute("curriculums", curriculumService.getCurriculums());
                 return "MajorSubjectsList";
             }
 
@@ -74,6 +78,7 @@ public class MajorSubjectsListController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", totalSubjects);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "MajorSubjectsList";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving subjects: " + e.getMessage()));
@@ -83,6 +88,7 @@ public class MajorSubjectsListController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", 0);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "MajorSubjectsList";
         }
     }

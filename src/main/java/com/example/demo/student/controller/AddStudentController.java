@@ -1,5 +1,7 @@
 package com.example.demo.student.controller;
 
+import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
@@ -34,11 +36,12 @@ public class AddStudentController {
     private final AuthenticatorsService authenticatorsService;
     private final ParentAccountsService parentAccountsService;
     private final EmailServiceForStudentService emailServiceForStudentService;
+    private final CurriculumService  curriculumService;
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
                                 AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService,
-                                EmailServiceForStudentService emailServiceForStudentService) {
+                                EmailServiceForStudentService emailServiceForStudentService, CurriculumService curriculumService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.personsService = personsService;
@@ -46,12 +49,14 @@ public class AddStudentController {
         this.authenticatorsService = authenticatorsService;
         this.parentAccountsService = parentAccountsService;
         this.emailServiceForStudentService = emailServiceForStudentService;
+        this.curriculumService = curriculumService;
     }
 
     @PostMapping("/add-student")
     public String addStudent(
             @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
+            @RequestParam(value = "curriculum", required = true) String curriculumId,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -77,7 +82,7 @@ public class AddStudentController {
         }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("parentEmail1", parentEmail1);
@@ -113,9 +118,10 @@ public class AddStudentController {
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
+            Curriculum curriculum=curriculumService.getCurriculumById(curriculumId);
 
             String studentPassword = studentsService.generateRandomPassword(12);
-            studentsService.addStudents(student, studentPassword);
+            studentsService.addStudents(student, curriculum,studentPassword);
 
             Authenticators studentAuth = new Authenticators();
             studentAuth.setPersonId(studentId);
