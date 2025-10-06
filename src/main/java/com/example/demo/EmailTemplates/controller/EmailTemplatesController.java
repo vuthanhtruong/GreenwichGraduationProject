@@ -39,7 +39,7 @@ public class EmailTemplatesController {
         if (pageSize == null) {
             pageSize = (Integer) session.getAttribute("templatePageSize");
             if (pageSize == null) {
-                pageSize = 5;
+                pageSize = 20;
             }
         }
         session.setAttribute("templatePageSize", pageSize);

@@ -35,7 +35,7 @@ public class AdminLecturersController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("lecturerPageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             session.setAttribute("lecturerPageSize", pageSize);

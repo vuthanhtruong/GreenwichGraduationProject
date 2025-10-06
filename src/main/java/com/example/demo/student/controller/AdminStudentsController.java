@@ -48,7 +48,7 @@ public class AdminStudentsController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("studentPageSize");
                 if (pageSize == null) {
-                    pageSize = 5;
+                    pageSize = 20;
                 }
             }
             pageSize = Math.max(1, pageSize);
