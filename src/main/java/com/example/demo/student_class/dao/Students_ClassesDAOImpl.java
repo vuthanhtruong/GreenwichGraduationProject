@@ -69,7 +69,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
             if (studentId == null || studentId.trim().isEmpty()) continue;
 
             Students student = studentsService.getStudentById(studentId);
-            if (student == null || !major.equals(student.getMajor())) continue;
+            if (student == null || !major.equals(student.getSpecialization().getMajor())) continue;
 
             Students_MajorClasses sc = new Students_MajorClasses();
             sc.setId(new StudentsClassesId(studentId, classes.getClassId()));
@@ -90,7 +90,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
 
         return entityManager.createQuery(
                         "SELECT sc FROM Students_MajorClasses sc " +
-                                "WHERE sc.classEntity.classId = :classId AND sc.student.major = :major",
+                                "WHERE sc.classEntity.classId = :classId AND sc.student.specialization.major = :major",
                         Students_MajorClasses.class)
                 .setParameter("classId", classes.getClassId())
                 .setParameter("major", major)
@@ -104,7 +104,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
 
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.major = :major " +
+                                "WHERE s.specialization.major = :major " +
                                 "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc " +
                                 "                 WHERE sc.student.id = s.id AND sc.classEntity.classId = :classId)",
                         Students.class)
@@ -122,7 +122,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
 
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.major = :major " +
+                                "WHERE s.specialization.major = :major " +
                                 "AND EXISTS (SELECT 1 FROM MajorAcademicTranscripts at " +
                                 "            WHERE at.student.id = s.id " +
                                 "              AND at.subject.subjectId = :subjectId " +
@@ -152,7 +152,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
 
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.major = :major " +
+                                "WHERE s.specialization.major = :major " +
                                 "AND EXISTS (SELECT 1 FROM MajorAcademicTranscripts at " +
                                 "            WHERE at.student.id = s.id " +
                                 "              AND at.subject.subjectId = :subjectId " +
@@ -229,7 +229,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
                                 "JOIN AccountBalances ab ON ab.student.id = s.id " +
-                                "WHERE s.major = :major " +
+                                "WHERE s.specialization.major = :major " +
                                 "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc2 " +
                                 "                WHERE sc2.student.id = s.id AND sc2.classEntity.classId = :classId) " +
                                 "AND (SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub " +
@@ -266,7 +266,7 @@ public class Students_ClassesDAOImpl implements Students_ClassesDAO {
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
                                 "LEFT JOIN AccountBalances ab ON ab.student.id = s.id " +
-                                "WHERE s.major = :major " +
+                                "WHERE s.specialization.major = :major " +
                                 "AND NOT EXISTS (SELECT 1 FROM Students_MajorClasses sc2 " +
                                 "                WHERE sc2.student.id = s.id AND sc2.classEntity.classId = :classId) " +
                                 "AND (SELECT COUNT(DISTINCT sub.subjectId) FROM MajorSubjects sub " +

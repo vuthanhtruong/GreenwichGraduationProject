@@ -11,6 +11,8 @@ import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
+import com.example.demo.Specialization.service.SpecializationService; // Added
+import com.example.demo.Specialization.model.Specialization; // Added for clarity
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.core.io.ResourceLoader;
@@ -31,27 +33,24 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home/students-list")
 public class EditStudentController {
-    private final StaffsService staffsService;
     private final StudentsService studentsService;
-    private final LecturesService lecturesService;
-    private final ResourceLoader resourceLoader;
     private final PersonsService personsService;
     private final ParentAccountsService parentAccountsService;
-    private final AuthenticatorsService authenticatorsService;
     private final CurriculumService curriculumService;
+    private final StaffsService staffsService; // Added
+    private final SpecializationService specializationService; // Added
 
-    public EditStudentController(StaffsService staffsService, LecturesService lecturesService,
-                                 StudentsService studentsService, ResourceLoader resourceLoader,
+    public EditStudentController(StudentsService studentsService,
                                  PersonsService personsService, ParentAccountsService parentAccountsService,
-                                 AuthenticatorsService authenticatorsService, CurriculumService curriculumService) {
-        this.staffsService = staffsService;
+                                 CurriculumService curriculumService,
+                                 StaffsService staffsService, // Added
+                                 SpecializationService specializationService) { // Added
         this.studentsService = studentsService;
-        this.lecturesService = lecturesService;
-        this.resourceLoader = resourceLoader;
         this.personsService = personsService;
         this.parentAccountsService = parentAccountsService;
-        this.authenticatorsService = authenticatorsService;
         this.curriculumService = curriculumService;
+        this.staffsService = staffsService; // Added
+        this.specializationService = specializationService; // Added
     }
 
     @PostMapping("/edit-student-form")
@@ -88,6 +87,7 @@ public class EditStudentController {
         model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
         model.addAttribute("source", source);
         model.addAttribute("curriculums", curriculumService.getCurriculums());
+        model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
         return "EditStudentForm";
     }
 
@@ -96,6 +96,7 @@ public class EditStudentController {
             @Valid @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "specialization", required = true) String specializationId, // Added to select specialization
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -142,6 +143,8 @@ public class EditStudentController {
             modelMap.addAttribute("page", page);
             modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
             modelMap.addAttribute("source", source);
+            modelMap.addAttribute("curriculums", curriculumService.getCurriculums());
+            modelMap.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
@@ -177,8 +180,13 @@ public class EditStudentController {
                 student.setCurriculum(curriculumService.getCurriculumById(curriculumId));
             }
 
+            // Set specialization
+            Specialization specialization = new Specialization();
+            specialization.setSpecializationId(specializationId); // Assuming setter exists
+            student.setSpecialization(specialization);
+
             // Edit student
-            studentsService.editStudent(student.getId(), student.getCurriculum(), student);
+            studentsService.editStudent(student.getId(), student.getCurriculum(), specialization, student);
 
             // Handle parent accounts
             List<Student_ParentAccounts> currentParentLinks = parentAccountsService.getParentLinksByStudentId(student.getId());
@@ -231,6 +239,8 @@ public class EditStudentController {
             modelMap.addAttribute("page", page);
             modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
             modelMap.addAttribute("source", source);
+            modelMap.addAttribute("curriculums", curriculumService.getCurriculums());
+            modelMap.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         } catch (DataAccessException e) {

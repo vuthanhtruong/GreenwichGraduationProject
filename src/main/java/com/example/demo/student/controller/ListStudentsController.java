@@ -2,6 +2,7 @@ package com.example.demo.student.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.student.model.Students;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
@@ -22,14 +23,14 @@ import java.util.List;
 public class ListStudentsController {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
-    private final LecturesService lecturesService;
     private final CurriculumService curriculumService;
+    private final SpecializationService specializationService;
 
-    public ListStudentsController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, CurriculumService curriculumService) {
+    public ListStudentsController(StaffsService staffsService, StudentsService studentsService, CurriculumService curriculumService, SpecializationService specializationService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
-        this.lecturesService = lecturesService;
         this.curriculumService = curriculumService;
+        this.specializationService = specializationService;
     }
 
     @GetMapping("/students-list")
@@ -59,6 +60,7 @@ public class ListStudentsController {
                 model.addAttribute("editStudent", new Students());
                 model.addAttribute("relationshipTypes", RelationshipToStudent.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
+                model.addAttribute("specializations",specializationService.specializationsByMajor(staffsService.getStaffMajor()));
                 return "StudentsList";
             }
 
@@ -79,6 +81,7 @@ public class ListStudentsController {
             model.addAttribute("editStudent", new Students());
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations",specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";
         } catch (SecurityException e) {
             model.addAttribute("error", e.getMessage());

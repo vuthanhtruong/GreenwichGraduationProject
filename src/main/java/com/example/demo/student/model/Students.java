@@ -4,7 +4,7 @@ import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.person.model.Persons;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.major.model.Majors;
+import com.example.demo.Specialization.model.Specialization; // Updated from Majors
 import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,9 +39,9 @@ public class Students extends Persons implements StudentsInterface {
     private Campuses campus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MajorID", nullable = true)
+    @JoinColumn(name = "SpecializationID", nullable = true) // Updated from MajorID
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Majors major;
+    private Specialization specialization; // Updated from major
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CurriculumID", nullable = true)
@@ -61,7 +61,7 @@ public class Students extends Persons implements StudentsInterface {
         StringBuilder sb = new StringBuilder();
         sb.append("Admission Year: ").append(admissionYear != null ? admissionYear.toString() : "N/A").append("\n");
         sb.append("Campus: ").append(campus != null ? campus.getCampusName() : "N/A").append("\n");
-        sb.append("Major: ").append(major != null ? major.getMajorName() : "N/A").append("\n");
+        sb.append("Specialization: ").append(specialization != null ? specialization.getSpecializationName() : "N/A").append("\n"); // Updated from major
         sb.append("Curriculum: ").append(curriculum != null ? curriculum.getName() : "N/A").append("\n");
         sb.append("Created By: ").append(creator != null ? creator.getFullName() : "N/A").append("\n");
         sb.append("Created Date: ").append(createdDate != null ? createdDate.toString() : "N/A");

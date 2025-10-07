@@ -258,6 +258,24 @@
                                  th:text="${error}"></div>
                         </div>
 
+                        <!-- Specialization -->
+                        <div class="form-row">
+                            <label for="specialization">
+                                <i class="fas fa-graduation-cap"></i> Narrow Specialization:
+                            </label>
+                            <select id="specialization" name="specialization" required class="input">
+                                <option value="">Select Narrow Specialization</option>
+                                <option th:each="spec : ${specializations}"
+                                        th:value="${spec.specializationId}"
+                                        th:text="${spec.specializationName}">
+                                </option>
+                            </select>
+                            <div class="text-danger" th:each="error : ${errors}"
+                                 th:if="${#strings.toLowerCase(error).contains('specialization')}"
+                                 th:text="${error}">
+                            </div>
+                        </div>
+
                     </div>
                 </section>
 
@@ -367,5 +385,3 @@
         openOverlay();
     });
 </script>
-</body>
-</html>

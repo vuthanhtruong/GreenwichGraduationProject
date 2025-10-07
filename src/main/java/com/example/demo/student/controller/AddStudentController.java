@@ -2,6 +2,7 @@ package com.example.demo.student.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
@@ -13,6 +14,7 @@ import com.example.demo.person.service.PersonsService;
 import com.example.demo.student.model.Students;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.student.service.StudentsService;
+import com.example.demo.Specialization.model.Specialization; // Added for clarity
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,12 +38,14 @@ public class AddStudentController {
     private final AuthenticatorsService authenticatorsService;
     private final ParentAccountsService parentAccountsService;
     private final EmailServiceForStudentService emailServiceForStudentService;
-    private final CurriculumService  curriculumService;
+    private final CurriculumService curriculumService;
+    private final SpecializationService specializationService; // Added
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
                                 AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService,
-                                EmailServiceForStudentService emailServiceForStudentService, CurriculumService curriculumService) {
+                                EmailServiceForStudentService emailServiceForStudentService, CurriculumService curriculumService,
+                                SpecializationService specializationService) { // Added specializationService
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.personsService = personsService;
@@ -50,6 +54,7 @@ public class AddStudentController {
         this.parentAccountsService = parentAccountsService;
         this.emailServiceForStudentService = emailServiceForStudentService;
         this.curriculumService = curriculumService;
+        this.specializationService = specializationService; // Added
     }
 
     @PostMapping("/add-student")
@@ -57,6 +62,7 @@ public class AddStudentController {
             @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "curriculum", required = true) String curriculumId,
+            @RequestParam(value = "specialization", required = true) String specializationId, // Added to select specialization
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -96,6 +102,8 @@ public class AddStudentController {
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
@@ -109,19 +117,24 @@ public class AddStudentController {
 
         try {
             String studentId = studentsService.generateUniqueStudentId(
-                    staffsService.getStaff().getMajorManagement().getMajorId(),
+                    specializationId, // Use specializationId instead of majorId for prefix
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
+
+            // Set the selected specialization
+            Specialization specialization = new Specialization();
+            specialization.setSpecializationId(specializationId); // Assuming setter exists
+            student.setSpecialization(specialization);
 
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 student.setAvatar(avatarFile.getBytes());
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
-            Curriculum curriculum=curriculumService.getCurriculumById(curriculumId);
+            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
 
             String studentPassword = studentsService.generateRandomPassword(12);
-            studentsService.addStudents(student, curriculum,studentPassword);
+            studentsService.addStudents(student, curriculum, specialization, studentPassword); // Updated to include specialization
 
             Authenticators studentAuth = new Authenticators();
             studentAuth.setPersonId(studentId);
@@ -163,6 +176,8 @@ public class AddStudentController {
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             return "StudentsList";
         } catch (Exception e) {
             errors.add("An error occurred while adding the student: " + e.getMessage());
@@ -179,6 +194,8 @@ public class AddStudentController {
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             return "StudentsList";
         }
     }

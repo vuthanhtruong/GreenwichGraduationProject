@@ -22,26 +22,14 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class AddLecturesToClass {
 
-    private final Students_ClassesService studentsClassesService;
     private final Lecturers_ClassesService lecturersClassesService;
     private final ClassesService classesService;
-    private final StudentsService studentsService;
-    private final LecturesService lecturersService;
-    private final PersonsService personsService;
 
     @Autowired
-    public AddLecturesToClass(Students_ClassesService studentsClassesService,
-                              Lecturers_ClassesService lecturersClassesService,
-                              ClassesService classesService,
-                              StudentsService studentsService,
-                              LecturesService lecturersService,
-                              PersonsService personsService) {
-        this.studentsClassesService = studentsClassesService;
+    public AddLecturesToClass(Lecturers_ClassesService lecturersClassesService,
+                              ClassesService classesService) {
         this.lecturersClassesService = lecturersClassesService;
         this.classesService = classesService;
-        this.studentsService = studentsService;
-        this.lecturersService = lecturersService;
-        this.personsService = personsService;
     }
 
     @PostMapping("/add-lecturers-to-class")

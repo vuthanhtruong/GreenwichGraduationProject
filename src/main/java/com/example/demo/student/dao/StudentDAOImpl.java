@@ -1,6 +1,8 @@
 package com.example.demo.student.dao;
 
 import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.dto.StudentEmailContext;
@@ -48,6 +50,7 @@ public class StudentDAOImpl implements StudentsDAO {
     private final EmailServiceForLecturerService emailServiceForLectureService;
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
+    private final SpecializationService  specializationService;
 
     // Base directory and URL for avatar storage
     private static final String AVATAR_STORAGE_PATH = "avatars/";
@@ -56,10 +59,11 @@ public class StudentDAOImpl implements StudentsDAO {
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
                           EmailServiceForLecturerService emailServiceForLectureService,
                           AccountBalancesService accountBalancesService,
-                          StaffsService staffsService, AuthenticatorsService authenticatorsService) {
+                          StaffsService staffsService, AuthenticatorsService authenticatorsService, SpecializationService specializationService) {
         this.personsService = personsService;
         this.accountBalancesService = accountBalancesService;
         this.authenticatorsService = authenticatorsService;
+        this.specializationService = specializationService;
         if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
@@ -213,23 +217,23 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public Majors getStudentMajor() {
-        return getStudent().getMajor();
+        return getStudent().getSpecialization().getMajor();
     }
 
     @Override
     public List<Students> getStudents() {
-        return entityManager.createQuery("SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator", Students.class)
+        return entityManager.createQuery("SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator", Students.class)
                 .getResultList();
     }
 
     @Override
-    public Students addStudents(Students student, Curriculum curriculum, String randomPassword) {
+    public Students addStudents(Students student, Curriculum curriculum, Specialization specialization, String randomPassword) {
         Staffs staff = staffsService.getStaff();
         if (staff == null) {
             throw new IllegalStateException("No authenticated staff found");
         }
         student.setCampus(staff.getCampus());
-        student.setMajor(staff.getMajorManagement());
+        student.setSpecialization(specialization);
         student.setCreator(staff);
         student.setCurriculum(curriculum);
         LocalDate admissionDate = LocalDate.of(Year.now().getValue(), 1, 1);
@@ -255,7 +259,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 savedStudent.getGender() != null ? savedStudent.getGender().toString() : null,
                 savedStudent.getFullAddress(),
                 savedStudent.getCampus() != null ? savedStudent.getCampus().getCampusName() : null,
-                savedStudent.getMajor() != null ? savedStudent.getMajor().getMajorName() : null,
+                savedStudent.getSpecialization().getMajor() != null ? savedStudent.getSpecialization().getMajor().getMajorName() : null,
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
                 savedStudent.getAdmissionYear(),
                 savedStudent.getCreatedDate(),
@@ -279,7 +283,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return 0L;
         }
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(s) FROM Students s WHERE s.major = :staffmajor")
+                        "SELECT COUNT(s) FROM Students s WHERE s.specialization.major = :staffmajor")
                 .setParameter("staffmajor", staff.getMajorManagement())
                 .getSingleResult();
     }
@@ -294,12 +298,12 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public void editStudent(String id, Curriculum curriculum, Students student) throws MessagingException {
+    public void editStudent(String id, Curriculum curriculum,Specialization specialization, Students student) throws MessagingException {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
         Students existingStudent = entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.id = :id",
+                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator WHERE s.id = :id",
                         Students.class)
                 .setParameter("id", id)
                 .getSingleResult();
@@ -333,7 +337,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 existingStudent.getGender() != null ? existingStudent.getGender().toString() : null,
                 existingStudent.getFullAddress(),
                 existingStudent.getCampus() != null ? existingStudent.getCampus().getCampusName() : null,
-                existingStudent.getMajor() != null ? existingStudent.getMajor().getMajorName() : null,
+                existingStudent.getSpecialization().getMajor() != null ? existingStudent.getSpecialization().getMajor().getMajorName() : null,
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
                 existingStudent.getAdmissionYear(),
                 existingStudent.getCreatedDate(),
@@ -357,7 +361,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return List.of();
         }
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.major = :staffmajor AND s.campus = :campuses",
+                        "SELECT s FROM Students s WHERE s.specialization.major = :staffmajor AND s.campus = :campuses",
                         Students.class)
                 .setParameter("staffmajor", staff.getMajorManagement())
                 .setParameter("campuses", staff.getCampus())
@@ -377,8 +381,8 @@ public class StudentDAOImpl implements StudentsDAO {
             return List.of();
         }
 
-        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator " +
-                "WHERE s.major = :staffmajor AND s.campus = :campuses";
+        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator " +
+                "WHERE s.specialization.major = :staffmajor AND s.campus = :campuses";
 
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -424,7 +428,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return List.of();
         }
 
-        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator " +
+        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator " +
                 "WHERE s.campus.id = :campusId";
 
         if ("name".equals(searchType)) {
@@ -472,7 +476,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return 0L;
         }
 
-        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.major = :staffmajor AND s.campus = :campuses";
+        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.specialization.major = :staffmajor AND s.campus = :campuses";
 
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -534,7 +538,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return List.of();
         }
         String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
-                "WHERE s.major = :staffmajor AND s.campus = :campuses " +
+                "WHERE s.specialization.major = :staffmajor AND s.campus = :campuses " +
                 "ORDER BY YEAR(s.admissionYear) ASC";
         return entityManager.createQuery(jpql, Integer.class)
                 .setParameter("staffmajor", staff.getMajorManagement())
@@ -593,7 +597,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
+        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
         return entityManager.createQuery(jpql, Students.class)
                 .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
