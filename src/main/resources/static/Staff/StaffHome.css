@@ -216,3 +216,125 @@ body {
     color: #fff;
 }
 
+/* ======================================= */
+/* 🔹 Teacher Specialization (Bố trí chuyên môn) */
+/* ======================================= */
+
+.dashboard-card.professional {
+    background: linear-gradient(135deg, #4b6cb7, #182848); /* xanh navy sang tím đậm */
+    color: #fff;
+}
+
+.dashboard-card.professional i {
+    color: #e0e7ff; /* xanh nhạt của Windows 11 */
+}
+
+.dashboard-card.professional:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 18px rgba(24, 40, 72, 0.4);
+}
+
+.dashboard-card.professional:hover i {
+    transform: rotate(10deg) scale(1.25);
+    transition: all 0.35s ease;
+}
+
+/* ======================================= */
+/* 🔸 Hiệu ứng nâng cao cho toàn bộ thẻ dashboard */
+/* ======================================= */
+
+.dashboard-card span {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.4px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Hiệu ứng “pulse” khi hover vào icon */
+.dashboard-card:hover i {
+    animation: pulse-icon 0.6s ease;
+}
+
+@keyframes pulse-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1.1); }
+}
+
+/* ======================================= */
+/* 🔸 Cải thiện khả năng tương thích di động */
+/* ======================================= */
+
+@media (max-width: 480px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dashboard-card {
+        padding: 22px 16px;
+    }
+
+    .dashboard-card i {
+        font-size: 30px;
+    }
+
+    .dashboard-card span {
+        font-size: 15px;
+    }
+}
+/* ======================================= */
+/* 🧩 Specialized Subjects (Môn học chuyên ngành) */
+/* ======================================= */
+
+.dashboard-card.focus {
+    background: linear-gradient(135deg, #9333ea, #4c1d95); /* tím đậm - phong cách học thuật */
+    color: #fff;
+}
+
+.dashboard-card.focus i {
+    color: #ede9fe; /* tím nhạt pastel cho icon */
+}
+
+.dashboard-card.focus:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 18px rgba(76, 29, 149, 0.45);
+}
+
+.dashboard-card.focus:hover i {
+    transform: rotate(8deg) scale(1.25);
+    transition: all 0.35s ease;
+}
+
+/* Hiệu ứng viền phát sáng */
+.dashboard-card.focus::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 2px solid rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 10px rgba(147, 51, 234, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.dashboard-card.focus:hover::after {
+    opacity: 1;
+}
+
+/* ======================================= */
+/* 🔸 Đảm bảo tính nhất quán khi hiển thị nhỏ */
+/* ======================================= */
+@media (max-width: 480px) {
+    .dashboard-card.focus {
+        padding: 22px 16px;
+    }
+
+    .dashboard-card.focus i {
+        font-size: 30px;
+    }
+
+    .dashboard-card.focus span {
+        font-size: 15px;
+    }
+}

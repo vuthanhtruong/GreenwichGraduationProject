@@ -2,11 +2,12 @@ package com.example.demo.Specialization.service;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-
+@Service
 public interface SpecializationService {
     List<Specialization> searchSpecializations(String searchType, String keyword, int firstResult, int pageSize, Majors major);
 
@@ -33,4 +34,6 @@ public interface SpecializationService {
     List<Specialization> getPaginated(int firstResult, int pageSize, Majors major);
 
     long numberOfSpecializations(Majors major);
+
+    List<Specialization> specializationByMajor(Majors major);
 }

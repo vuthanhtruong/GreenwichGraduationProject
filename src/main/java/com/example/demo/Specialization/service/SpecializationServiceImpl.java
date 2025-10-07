@@ -11,6 +11,10 @@ import java.util.Map;
 
 @Service
 public class SpecializationServiceImpl implements SpecializationService {
+    @Override
+    public List<Specialization> specializationByMajor(Majors major) {
+        return specializationDAO.specializationByMajor(major);
+    }
 
     private final SpecializationDAO specializationDAO;
 

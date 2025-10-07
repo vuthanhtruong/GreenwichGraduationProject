@@ -1,5 +1,6 @@
 package com.example.demo.subject.model;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
@@ -18,6 +19,11 @@ public class SpecializedSubject extends Subjects {
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CurriculumID", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Curriculum curriculum;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SpecializationID", nullable = false)

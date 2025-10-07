@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,5 +132,20 @@ public class ListSpecializationsController {
         model.addAttribute("pageSize", 5);
         model.addAttribute("totalSpecializations", specializationService.numberOfSpecializations(major));
         return "SpecializationsList";
+    }
+    @PostMapping("/delete-specialization")
+    public String deleteSpecialization(
+            @RequestParam("specializationId") String specializationId,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        try {
+            specializationService.deleteSpecialization(specializationId);
+            redirectAttributes.addFlashAttribute("message", "Specialization deleted successfully!");
+            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errors", List.of("Error deleting specialization: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
+        }
+        return "redirect:/admin-home/majors-list/specializations-list";
     }
 }

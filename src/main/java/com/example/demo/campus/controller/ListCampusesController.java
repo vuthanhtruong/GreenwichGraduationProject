@@ -21,11 +21,9 @@ public class ListCampusesController {
     private static final Logger logger = LoggerFactory.getLogger(ListCampusesController.class);
 
     private final CampusesService campusesService;
-    private final AdminsService adminsService;
 
-    public ListCampusesController(CampusesService campusesService, AdminsService adminsService) {
+    public ListCampusesController(CampusesService campusesService) {
         this.campusesService = campusesService;
-        this.adminsService = adminsService;
     }
 
     @GetMapping("")

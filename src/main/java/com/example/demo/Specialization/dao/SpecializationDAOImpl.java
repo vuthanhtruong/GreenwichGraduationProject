@@ -73,6 +73,21 @@ public class SpecializationDAOImpl implements SpecializationDAO {
             throw new RuntimeException("Error searching specializations: " + e.getMessage(), e);
         }
     }
+    @Override
+    public List<Specialization> specializationByMajor(Majors major) {
+        if (major == null) {
+            return List.of();
+        }
+        try {
+            return entityManager.createQuery(
+                            "SELECT s FROM Specialization s WHERE s.major = :major ORDER BY s.specializationName ASC",
+                            Specialization.class)
+                    .setParameter("major", major)
+                    .getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving specializations by major: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     public long countSearchResults(String searchType, String keyword, Majors major) {

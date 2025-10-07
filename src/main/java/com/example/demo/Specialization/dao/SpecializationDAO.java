@@ -33,4 +33,6 @@ public interface SpecializationDAO {
 
     long numberOfSpecializations(Majors major);
     Map<String, String> specializationValidation(Specialization specialization);
+
+    List<Specialization> specializationByMajor(Majors major);
 }

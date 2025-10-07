@@ -24,11 +24,9 @@ import java.util.stream.Collectors;
 public class EditCampusesController {
     private static final Logger logger = LoggerFactory.getLogger(ListCampusesController.class);
     private final CampusesService campusesService;
-    private final AdminsService adminsService;
 
-    public EditCampusesController(CampusesService campusesService, AdminsService adminsService) {
+    public EditCampusesController(CampusesService campusesService) {
         this.campusesService = campusesService;
-        this.adminsService = adminsService;
     }
 
     @PostMapping("/edit-campus-form")

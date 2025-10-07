@@ -15,11 +15,9 @@ import java.util.logging.Logger;
 @RequestMapping("/admin-home/campuses-list")
 public class DeleleCampusesController {
     private final CampusesService campusesService;
-    private final AdminsService adminsService;
 
-    public DeleleCampusesController(CampusesService campusesService, AdminsService adminsService) {
+    public DeleleCampusesController(CampusesService campusesService) {
         this.campusesService = campusesService;
-        this.adminsService = adminsService;
     }
 
     @PostMapping("/delete-campus")
