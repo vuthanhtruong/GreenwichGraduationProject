@@ -5,8 +5,6 @@ import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.student.model.Students;
 import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.Enums.RelationshipToStudent;
-import com.example.demo.authenticator.service.AuthenticatorsService;
-import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;
 import com.example.demo.staff.service.StaffsService;
@@ -15,12 +13,9 @@ import com.example.demo.Specialization.service.SpecializationService; // Added
 import com.example.demo.Specialization.model.Specialization; // Added for clarity
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -109,7 +104,7 @@ public class EditStudentController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestParam(required = false, defaultValue = "list") String source,
             RedirectAttributes redirectAttributes,
-            ModelMap modelMap,
+             Model model,
             HttpSession httpSession) {
 
         List<String> errors = new ArrayList<>();
@@ -128,23 +123,23 @@ public class EditStudentController {
         }
 
         if (!errors.isEmpty()) {
-            modelMap.addAttribute("errors", errors);
-            modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
-            modelMap.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
-            modelMap.addAttribute("parentEmail1", parentEmail1);
-            modelMap.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
-            modelMap.addAttribute("parentRelationship1", parentRelationship1);
-            modelMap.addAttribute("parentEmail2", parentEmail2);
-            modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
-            modelMap.addAttribute("parentRelationship2", parentRelationship2);
-            modelMap.addAttribute("searchType", searchType);
-            modelMap.addAttribute("keyword", keyword);
-            modelMap.addAttribute("page", page);
-            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
-            modelMap.addAttribute("source", source);
-            modelMap.addAttribute("curriculums", curriculumService.getCurriculums());
-            modelMap.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
+             model.addAttribute("errors", errors);
+             model.addAttribute("genders", Arrays.asList(Gender.values()));
+             model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+             model.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
+             model.addAttribute("parentEmail1", parentEmail1);
+             model.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
+             model.addAttribute("parentRelationship1", parentRelationship1);
+             model.addAttribute("parentEmail2", parentEmail2);
+             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
+             model.addAttribute("parentRelationship2", parentRelationship2);
+             model.addAttribute("searchType", searchType);
+             model.addAttribute("keyword", keyword);
+             model.addAttribute("page", page);
+             model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+             model.addAttribute("source", source);
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         }
@@ -224,23 +219,23 @@ public class EditStudentController {
             return "redirect:/staff-home/students-list";
         } catch (IOException e) {
             errors.add("Failed to process avatar: " + e.getMessage());
-            modelMap.addAttribute("errors", errors);
-            modelMap.addAttribute("genders", Arrays.asList(Gender.values()));
-            modelMap.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
-            modelMap.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
-            modelMap.addAttribute("parentEmail1", parentEmail1);
-            modelMap.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
-            modelMap.addAttribute("parentRelationship1", parentRelationship1);
-            modelMap.addAttribute("parentEmail2", parentEmail2);
-            modelMap.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
-            modelMap.addAttribute("parentRelationship2", parentRelationship2);
-            modelMap.addAttribute("searchType", searchType);
-            modelMap.addAttribute("keyword", keyword);
-            modelMap.addAttribute("page", page);
-            modelMap.addAttribute("pageSize", pageSize != null ? pageSize : 5);
-            modelMap.addAttribute("source", source);
-            modelMap.addAttribute("curriculums", curriculumService.getCurriculums());
-            modelMap.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
+             model.addAttribute("errors", errors);
+             model.addAttribute("genders", Arrays.asList(Gender.values()));
+             model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));
+             model.addAttribute("parentLinks", parentAccountsService.getParentLinksByStudentId(student.getId()));
+             model.addAttribute("parentEmail1", parentEmail1);
+             model.addAttribute("supportPhoneNumber1", supportPhoneNumber1);
+             model.addAttribute("parentRelationship1", parentRelationship1);
+             model.addAttribute("parentEmail2", parentEmail2);
+             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
+             model.addAttribute("parentRelationship2", parentRelationship2);
+             model.addAttribute("searchType", searchType);
+             model.addAttribute("keyword", keyword);
+             model.addAttribute("page", page);
+             model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+             model.addAttribute("source", source);
+             model.addAttribute("curriculums", curriculumService.getCurriculums());
+             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
             httpSession.setAttribute("avatarStudent", "/staff-home/students-list/avatar/" + student.getId());
             return "EditStudentForm";
         } catch (DataAccessException e) {

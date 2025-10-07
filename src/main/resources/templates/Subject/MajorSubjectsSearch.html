@@ -75,7 +75,6 @@
                 <th><i class="fas fa-id-card"></i> ID</th>
                 <th><i class="fas fa-book"></i> Name</th>
                 <th><i class="fas fa-calendar"></i> Semester</th>
-                <th><i class="fas fa-graduation-cap"></i> Program Type</th>
                 <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-cogs"></i> Actions</th>
                 <th><i class="fas fa-file-alt"></i> Syllabus</th>
@@ -86,7 +85,6 @@
                 <td th:text="${subject.subjectId}"></td>
                 <td th:text="${subject.subjectName}"></td>
                 <td th:text="${subject.semester != null ? subject.semester : 'N/A'}"></td>
-                <td th:text="${subject.learningProgramType != null ? subject.learningProgramType : 'N/A'}"></td>
                 <td th:text="${subject.creator != null ? subject.creator.firstName + ' ' + subject.creator.lastName : 'N/A'}"></td>
                 <td>
                     <div class="actions">

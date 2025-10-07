@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Subject</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/EditStudentForm.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
@@ -20,62 +20,69 @@
         <i class="fas fa-info-circle"></i>
         <span th:text="${message}"></span>
     </div>
-    <div th:if="${editErrors != null and editErrors.containsKey('general')}" class="win11-alert alert-danger">
+    <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert alert-danger">
         <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${editErrors.get('general')}"></span>
+        <span th:text="${errors.get('general')}"></span>
     </div>
 
     <!-- Content -->
     <div class="win11-content">
         <form method="post" th:action="@{/staff-home/major-subjects-list/edit-major-subject}" th:object="${subject}">
-            <input type="hidden" name="_method" value="PUT">
+            <input type="hidden" name="_method" value="put"/>
             <input type="hidden" th:field="*{subjectId}"/>
+            <input type="hidden" name="searchType" th:value="${searchType}"/>
+            <input type="hidden" name="keyword" th:value="${keyword}"/>
+            <input type="hidden" name="page" th:value="${page}"/>
+            <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+            <input type="hidden" name="source" th:value="${source}"/>
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-            <!-- Subject Info -->
             <section class="win11-panel">
-                <h2 class="panel-header">Subject Information</h2>
-                <div class="form-group">
+                <h2 class="panel-header"><i class="fas fa-book"></i> Subject Information</h2>
+                <div class="form-group grid-2">
                     <div class="form-row">
-                        <label for="subjectId">Subject ID</label>
-                        <input id="subjectId" class="input" th:field="*{subjectId}" readonly type="text">
+                        <label for="subjectId"><i class="fas fa-id-card"></i> Subject ID:</label>
+                        <input id="subjectId" th:field="*{subjectId}" readonly type="text" class="input"/>
                     </div>
                     <div class="form-row">
-                        <label for="subjectName">Subject Name <span class="text-danger">*</span></label>
-                        <input id="subjectName" class="input uppercase-input" th:field="*{subjectName}" required type="text">
-                        <div th:if="${editErrors != null and editErrors.containsKey('subjectName')}" class="text-danger" th:text="${editErrors.get('subjectName')}"></div>
+                        <label for="subjectName"><i class="fas fa-book"></i> Subject Name:</label>
+                        <input id="subjectName" th:field="*{subjectName}" required type="text" class="input uppercase-input"/>
+                        <div th:if="${errors != null and errors.containsKey('subjectName')}" class="text-danger" th:text="${errors.get('subjectName')}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="semester">Semester <span class="text-danger">*</span></label>
-                        <input id="semester" class="input" type="number" th:field="*{semester}" min="1" required>
-                        <div th:if="${editErrors != null and editErrors.containsKey('semester')}" class="text-danger" th:text="${editErrors.get('semester')}"></div>
+                        <label for="semester"><i class="fas fa-calendar"></i> Semester:</label>
+                        <input id="semester" th:field="*{semester}" type="number" min="1" required class="input"/>
+                        <div th:if="${errors != null and errors.containsKey('semester')}" class="text-danger" th:text="${errors.get('semester')}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="curriculumId">Curriculum <span class="text-danger">*</span></label>
-                        <select id="curriculumId" class="input" th:field="*{curriculum.id}" required>
+                        <label for="curriculumId"><i class="fas fa-book-open"></i> Curriculum:</label>
+                        <select id="curriculumId" name="curriculumId" required class="input">
                             <option value="">Select Curriculum</option>
                             <option th:each="curriculum : ${curriculums}"
-                                    th:value="${curriculum.getCurriculumId()}"
+                                    th:value="${curriculum.curriculumId}"
                                     th:text="${curriculum.name}"
-                                    th:selected="${subject.curriculum != null and subject.curriculum.id == curriculum.id}">
-                            </option>
+                                    th:selected="${subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId}"></option>
                         </select>
-                        <div th:if="${editErrors != null and editErrors.containsKey('curriculumId')}" class="text-danger" th:text="${editErrors.get('curriculumId')}"></div>
+                        <div th:if="${errors != null and errors.containsKey('curriculumId')}" class="text-danger" th:text="${errors.get('curriculumId')}"></div>
                     </div>
-                    <div class="form-row" th:if="${subject.creator}">
-                        <label>Creator</label>
+                    <div class="form-row" th:if="${subject.creator != null}">
+                        <label><i class="fas fa-user-shield"></i> Creator:</label>
                         <input type="text" class="input" th:value="${subject.creator.firstName + ' ' + subject.creator.lastName}" readonly/>
                     </div>
                 </div>
             </section>
 
-            <!-- Actions -->
             <div class="form-actions">
-                <button class="btn primary" type="submit">
-                    <i class="fas fa-save"></i> Save Subject
-                </button>
-                <a class="btn" th:href="@{/staff-home/major-subjects-list}">
-                    <i class="fas fa-arrow-left"></i> Subjects List
+                <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a th:if="${source == 'search'}"
+                   th:href="@{/staff-home/major-subjects-list/search-subjects(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+                   class="btn">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <a th:if="${source != 'search'}"
+                   th:href="@{/staff-home/major-subjects-list(page=${page}, pageSize=${pageSize})}"
+                   class="btn">
+                    <i class="fas fa-arrow-left"></i> Back
                 </a>
             </div>
         </form>

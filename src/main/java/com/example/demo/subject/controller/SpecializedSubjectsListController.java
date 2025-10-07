@@ -42,24 +42,22 @@ public class SpecializedSubjectsListController {
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) Integer pageSize) {
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String specializationId) {
         try {
             if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("specializedSubjectPageSize");
+                pageSize = (Integer) session.getAttribute("subjectPageSize");
                 if (pageSize == null) {
                     pageSize = 20;
                 }
             }
-            session.setAttribute("specializedSubjectPageSize", pageSize);
-
-            // Get specializations for dropdown
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+            session.setAttribute("subjectPageSize", pageSize);
 
             Long totalSubjects = subjectsService.numberOfSubjects(staffsService.getStaffMajor());
             int totalPages = Math.max(1, (int) Math.ceil((double) totalSubjects / pageSize));
             page = Math.max(1, Math.min(page, totalPages));
-            session.setAttribute("specializedSubjectPage", page);
-            session.setAttribute("specializedSubjectTotalPages", totalPages);
+            session.setAttribute("subjectPage", page);
+            session.setAttribute("subjectTotalPages", totalPages);
 
             if (totalSubjects == 0) {
                 model.addAttribute("subjects", new ArrayList<>());
@@ -68,15 +66,19 @@ public class SpecializedSubjectsListController {
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalSubjects", 0);
-                model.addAttribute("message", "No specialized subjects found for this specialization.");
+                model.addAttribute("message", "No specialized subjects found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
+                model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+                model.addAttribute("selectedSpecializationId", specializationId);
                 return "SpecializedSubjectsList";
             }
 
             int firstResult = (page - 1) * pageSize;
-            List<SpecializedSubject> subjects = subjectsService.getPaginatedSubjects(firstResult, pageSize);
+            List<SpecializedSubject> subjects = specializationId != null && !specializationId.isEmpty()
+                    ? subjectsService.getPaginatedSubjectsBySpecialization(firstResult, pageSize, specializationId)
+                    : subjectsService.getPaginatedSubjects(firstResult, pageSize);
 
             model.addAttribute("subjects", subjects);
             model.addAttribute("newSubject", new SpecializedSubject());
@@ -86,17 +88,21 @@ public class SpecializedSubjectsListController {
             model.addAttribute("totalSubjects", totalSubjects);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("selectedSpecializationId", specializationId);
             return "SpecializedSubjectsList";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving specialized subjects: " + e.getMessage()));
             model.addAttribute("newSubject", new SpecializedSubject());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
-            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("pageSize", pageSize != null ? pageSize : 20);
             model.addAttribute("totalSubjects", 0);
+            model.addAttribute("subjects", new ArrayList<>());
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+            model.addAttribute("selectedSpecializationId", specializationId);
             return "SpecializedSubjectsList";
         }
     }

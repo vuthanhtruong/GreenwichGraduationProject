@@ -2,16 +2,14 @@ package com.example.demo.subject.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
+import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +29,6 @@ public class AddMajorSubjectController {
     private final StaffsService staffsService;
     private final CurriculumService curriculumService;
 
-    @Autowired
     public AddMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
@@ -41,52 +38,63 @@ public class AddMajorSubjectController {
     @PostMapping("/add-subject")
     public String addSubject(
             @Valid @ModelAttribute("newSubject") MajorSubjects newSubject,
-            BindingResult result,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
-        // Validate input using DAO
         Map<String, String> errors = subjectsService.validateSubject(newSubject, curriculumId);
-        if (result.hasErrors()) {
-            result.getAllErrors().forEach(error -> {
-                String field = result.getFieldError() != null ? result.getFieldError().getField() : "general";
-                errors.put(field, error.getDefaultMessage());
-            });
-        }
 
         if (!errors.isEmpty()) {
-            model.addAttribute("editErrors", errors);
-            model.addAttribute("newSubject", newSubject);
             model.addAttribute("openAddOverlay", true);
+            model.addAttribute("errors", errors);
+            model.addAttribute("newSubject", newSubject);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("subjects", subjectsService.getPaginatedSubjects(
+                    0,
+                    (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 20,
+                    staffsService.getStaffMajor()
+            ));
+            model.addAttribute("currentPage", session.getAttribute("subjectPage") != null ? session.getAttribute("subjectPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("subjectTotalPages") != null ? session.getAttribute("subjectTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("subjectPageSize") != null ? session.getAttribute("subjectPageSize") : 20);
+            model.addAttribute("totalSubjects", subjectsService.numberOfSubjects(staffsService.getStaffMajor()));
             return "MajorSubjectsList";
         }
 
         try {
-            // Set creator, major, and generate subject ID
+            String subjectId = subjectsService.generateUniqueSubjectId(
+                    staffsService.getStaffMajor().getMajorId(),
+                    LocalDate.now()
+            );
+            newSubject.setSubjectId(subjectId);
             newSubject.setCreator(staffsService.getStaff());
             newSubject.setMajor(staffsService.getStaffMajor());
-            String subjectId = subjectsService.generateUniqueSubjectId(staffsService.getStaffMajor().getMajorId(), LocalDate.now());
-            newSubject.setSubjectId(subjectId);
 
-            // Set curriculum
             Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
             newSubject.setCurriculum(curriculum);
 
-            // Add the subject
             subjectsService.addSubject(newSubject);
+
             redirectAttributes.addFlashAttribute("message", "Subject added successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/major-subjects-list";
         } catch (Exception e) {
-            errors.put("general", "An error occurred while adding the subject: " + e.getMessage());
-            model.addAttribute("editErrors", errors);
+            Map<String, String> errorsCatch = new HashMap<>();
+            errorsCatch.put("general", "Error adding subject: " + e.getMessage());
+            model.addAttribute("errors", errorsCatch);
             model.addAttribute("newSubject", newSubject);
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-
+            model.addAttribute("subjects", subjectsService.getPaginatedSubjects(
+                    0,
+                    (Integer) session.getAttribute("subjectPageSize") != null ? (Integer) session.getAttribute("subjectPageSize") : 20,
+                    staffsService.getStaffMajor()
+            ));
+            model.addAttribute("currentPage", session.getAttribute("subjectPage") != null ? session.getAttribute("subjectPage") : 1);
+            model.addAttribute("totalPages", session.getAttribute("subjectTotalPages") != null ? session.getAttribute("subjectTotalPages") : 1);
+            model.addAttribute("pageSize", session.getAttribute("subjectPageSize") != null ? session.getAttribute("subjectPageSize") : 20);
+            model.addAttribute("totalSubjects", subjectsService.numberOfSubjects(staffsService.getStaffMajor()));
             return "MajorSubjectsList";
         }
     }

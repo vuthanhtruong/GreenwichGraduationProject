@@ -25,4 +25,6 @@ public interface SpecializedSubjectsDAO {
     Map<String, String> validateSubject(SpecializedSubject subject, String specializationId, String curriculumId);
     List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize);
     long numberOfSubjects(Majors  majors);
+    long numberOfSubjectsBySpecialization(String specializationId);
+    List<SpecializedSubject> getPaginatedSubjectsBySpecialization(int firstResult, int pageSize, String specializationId);
 }

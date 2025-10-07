@@ -17,6 +17,16 @@ import java.util.Map;
 @Transactional
 public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsService {
     @Override
+    public long numberOfSubjectsBySpecialization(String specializationId) {
+        return specializedSubjectsDAO.numberOfSubjectsBySpecialization(specializationId);
+    }
+
+    @Override
+    public List<SpecializedSubject> getPaginatedSubjectsBySpecialization(int firstResult, int pageSize, String specializationId) {
+        return specializedSubjectsDAO.getPaginatedSubjectsBySpecialization(firstResult, pageSize, specializationId);
+    }
+
+    @Override
     public List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize) {
         return specializedSubjectsDAO.getPaginatedSubjects(firstResult, pageSize);
     }
