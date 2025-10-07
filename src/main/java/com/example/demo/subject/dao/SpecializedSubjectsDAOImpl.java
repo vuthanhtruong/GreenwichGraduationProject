@@ -2,11 +2,10 @@ package com.example.demo.subject.dao;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.SpecializedSubject;
 import com.example.demo.subject.model.Subjects;
-import com.example.demo.classes.service.ClassesService;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.syllabus.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -31,13 +30,9 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
     private EntityManager entityManager;
 
     private final StaffsService staffsService;
-    private final SyllabusesService syllabusesService;
-    private final ClassesService classesService;
 
-    public SpecializedSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
+    public SpecializedSubjectsDAOImpl(StaffsService staffsService) {
         this.staffsService = staffsService;
-        this.syllabusesService = syllabusesService;
-        this.classesService = classesService;
     }
 
     @Override
@@ -249,7 +244,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
         }
         try {
             return entityManager.createQuery(
-                            "SELECT s FROM SpecializedSubject s WHERE s.specialization = :specialization ORDER BY s.createdAt ASC",
+                            "SELECT s FROM SpecializedSubject s WHERE s.specialization = :specialization",
                             SpecializedSubject.class)
                     .setParameter("specialization", specialization)
                     .getResultList();
@@ -267,7 +262,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
         }
         try {
             return entityManager.createQuery(
-                            "SELECT s FROM SpecializedSubject s WHERE s.specialization = :specialization AND s.status = 'ACCEPTED' ORDER BY s.createdAt ASC",
+                            "SELECT s FROM SpecializedSubject s where s.specialization = :specialization",
                             SpecializedSubject.class)
                     .setParameter("specialization", specialization)
                     .getResultList();
@@ -281,7 +276,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
     public List<SpecializedSubject> getSubjects() {
         try {
             return entityManager.createQuery(
-                            "SELECT s FROM SpecializedSubject s ORDER BY s.createdAt ASC",
+                            "SELECT s FROM SpecializedSubject s ",
                             SpecializedSubject.class)
                     .getResultList();
         } catch (Exception e) {
@@ -346,68 +341,86 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
     }
 
     @Override
-    public Map<String, String> validateSubject(SpecializedSubject subject) {
+    public Map<String, String> validateSubject(SpecializedSubject subject, String specializationId, String curriculumId) {
         Map<String, String> errors = new HashMap<>();
 
+        // Validate subject
+        if (subject == null) {
+            errors.put("general", "Subject cannot be null.");
+            return errors;
+        }
+
+        // Validate subject name
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
             errors.put("subjectName", "Subject name cannot be blank.");
         } else if (!isValidName(subject.getSubjectName())) {
             errors.put("subjectName", "Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        }
-
-        if (subject.getSubjectName() != null &&
-                existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+        } else if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.put("subjectName", "Subject name is already in use.");
         }
 
-        if (subject.getSpecialization() == null) {
+        // Validate specialization
+        if (specializationId == null || specializationId.trim().isEmpty()) {
             errors.put("specializationId", "Specialization is required.");
+        } else {
+            try {
+                Specialization specialization = entityManager.find(Specialization.class, specializationId);
+                if (specialization == null) {
+                    errors.put("specializationId", "Invalid specialization selected.");
+                } else if (!specialization.getMajor().equals(staffsService.getStaffMajor())) {
+                    errors.put("specializationId", "Specialization does not belong to the staff's major.");
+                }
+            } catch (Exception e) {
+                errors.put("specializationId", "Error validating specialization: " + e.getMessage());
+            }
         }
 
-        if (subject.getCurriculum() == null) {
+        // Validate curriculum
+        if (curriculumId == null || curriculumId.trim().isEmpty()) {
             errors.put("curriculumId", "Curriculum is required.");
+        } else {
+            try {
+                Curriculum curriculum = entityManager.find(Curriculum.class, curriculumId);
+                if (curriculum == null) {
+                    errors.put("curriculumId", "Invalid curriculum selected.");
+                }
+            } catch (Exception e) {
+                errors.put("curriculumId", "Error validating curriculum: " + e.getMessage());
+            }
+        }
+
+        // Validate staff
+        if (staffsService.getStaff() == null) {
+            errors.put("general", "Authenticated staff not found.");
         }
 
         return errors;
     }
 
     @Override
-    public List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize, Specialization specialization) {
-        if (specialization == null || pageSize <= 0 || firstResult < 0) {
-            logger.warn("Invalid parameters for getPaginatedSubjects: firstResult={}, pageSize={}, specializationId={}",
-                    firstResult, pageSize, specialization != null ? specialization.getSpecializationId() : null);
-            return List.of();
-        }
+    public List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize) {
         try {
             return entityManager.createQuery(
-                            "SELECT s FROM SpecializedSubject s WHERE s.specialization = :specialization ORDER BY s.createdAt ASC",
+                            "SELECT s FROM SpecializedSubject s WHERE s.specialization.major = :major",
                             SpecializedSubject.class)
-                    .setParameter("specialization", specialization)
+                    .setParameter("major", staffsService.getStaffMajor())
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize)
                     .getResultList();
         } catch (Exception e) {
-            logger.error("Error retrieving paginated specialized subjects for specialization ID {}: {}",
-                    specialization.getSpecializationId(), e.getMessage(), e);
             throw new RuntimeException("Error retrieving paginated specialized subjects: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public long numberOfSubjects(Specialization specialization) {
-        if (specialization == null) {
-            logger.warn("Specialization is null");
-            return 0;
-        }
+    public long numberOfSubjects(Majors majors) {
         try {
             return entityManager.createQuery(
-                            "SELECT COUNT(s) FROM SpecializedSubject s WHERE s.specialization = :specialization",
+                            "SELECT COUNT(s) FROM SpecializedSubject s WHERE s.specialization.major = :major",
                             Long.class)
-                    .setParameter("specialization", specialization)
+                    .setParameter("major", staffsService.getStaffMajor())
                     .getSingleResult();
         } catch (Exception e) {
-            logger.error("Error counting specialized subjects for specialization ID {}: {}",
-                    specialization.getSpecializationId(), e.getMessage(), e);
             throw new RuntimeException("Error counting specialized subjects: " + e.getMessage(), e);
         }
     }

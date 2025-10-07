@@ -24,7 +24,6 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
-
     private static final Logger logger = LoggerFactory.getLogger(MajorSubjectsDAOImpl.class);
 
     @PersistenceContext
@@ -51,7 +50,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         String queryString = "SELECT s FROM MajorSubjects s JOIN FETCH s.major JOIN FETCH s.creator JOIN FETCH s.curriculum " +
                 "WHERE s.major = :major";
 
-        if ("name".equals(searchType)) {
+        if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
@@ -62,7 +61,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                 nameCondition.append("LOWER(s.subjectName) LIKE :word").append(i);
             }
             queryString += " AND (" + nameCondition.toString() + ")";
-        } else if ("id".equals(searchType)) {
+        } else if ("id".equalsIgnoreCase(searchType)) {
             queryString += " AND LOWER(s.subjectId) LIKE LOWER(:keyword)";
         } else {
             logger.warn("Invalid searchType: {}", searchType);
@@ -75,12 +74,12 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize);
 
-            if ("name".equals(searchType)) {
+            if ("name".equalsIgnoreCase(searchType)) {
                 String[] words = keyword.split("\\s+");
                 for (int i = 0; i < words.length; i++) {
                     query.setParameter("word" + i, "%" + words[i] + "%");
                 }
-            } else if ("id".equals(searchType)) {
+            } else if ("id".equalsIgnoreCase(searchType)) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
@@ -104,7 +103,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
         String queryString = "SELECT COUNT(s) FROM MajorSubjects s WHERE s.major = :major";
 
-        if ("name".equals(searchType)) {
+        if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
@@ -115,7 +114,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                 nameCondition.append("LOWER(s.subjectName) LIKE :word").append(i);
             }
             queryString += " AND (" + nameCondition.toString() + ")";
-        } else if ("id".equals(searchType)) {
+        } else if ("id".equalsIgnoreCase(searchType)) {
             queryString += " AND LOWER(s.subjectId) LIKE LOWER(:keyword)";
         } else {
             logger.warn("Invalid searchType: {}", searchType);
@@ -126,12 +125,12 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
                     .setParameter("major", major);
 
-            if ("name".equals(searchType)) {
+            if ("name".equalsIgnoreCase(searchType)) {
                 String[] words = keyword.split("\\s+");
                 for (int i = 0; i < words.length; i++) {
                     query.setParameter("word" + i, "%" + words[i] + "%");
                 }
-            } else if ("id".equals(searchType)) {
+            } else if ("id".equalsIgnoreCase(searchType)) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
@@ -199,7 +198,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             if (subject == null) {
                 logger.warn("Subject with ID {} not found", subjectId);
             } else {
-                entityManager.detach(subject); // Avoid lazy initialization issues if needed
+                entityManager.detach(subject);
             }
             return subject;
         } catch (Exception e) {
@@ -357,16 +356,19 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
-    public Map<String, String> validateSubject(MajorSubjects subject) {
+    public Map<String, String> validateSubject(MajorSubjects subject, String curriculumId) {
         Map<String, String> errors = new HashMap<>();
+
+        if (subject == null) {
+            errors.put("general", "Subject cannot be null.");
+            return errors;
+        }
 
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
             errors.put("subjectName", "Subject name cannot be blank.");
         } else if (!isValidName(subject.getSubjectName())) {
             errors.put("subjectName", "Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        }
-
-        if (subject.getSubjectName() != null && existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+        } else if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.put("subjectName", "Subject name is already in use.");
         }
 
@@ -374,8 +376,23 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             errors.put("semester", "Semester must be a positive number.");
         }
 
-        if (subject.getCurriculum() == null) {
-            errors.put("curriculumId", "Curriculum must be selected.");
+        if (curriculumId == null || curriculumId.trim().isEmpty()) {
+            errors.put("curriculumId", "Curriculum is required.");
+        } else {
+            try {
+                Curriculum curriculum = entityManager.find(Curriculum.class, curriculumId);
+                if (curriculum == null) {
+                    errors.put("curriculumId", "Invalid curriculum selected.");
+                }
+            } catch (Exception e) {
+                errors.put("curriculumId", "Error validating curriculum: " + e.getMessage());
+            }
+        }
+
+        if (staffsService.getStaff() == null) {
+            errors.put("general", "Authenticated staff not found.");
+        } else if (staffsService.getStaffMajor() == null) {
+            errors.put("general", "Staff's major not found.");
         }
 
         if (!errors.isEmpty()) {

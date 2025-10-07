@@ -8,6 +8,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+
+<!-- 🔒 Fallback để tránh lỗi null -->
+<th:block th:with="currentPage=${currentPage ?: 1}, totalPages=${totalPages ?: 1}, pageSize=${pageSize ?: 20}, totalSubjects=${totalSubjects ?: 0}"></th:block>
+
 <div class="win11-container">
 
     <!-- Title Bar -->
@@ -117,12 +121,13 @@
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- ✅ FIXED Pagination -->
     <div class="pagination">
         <a th:href="@{/staff-home/major-subjects-list(page=1, pageSize=${pageSize})}"
-           th:classappend="${currentPage eq 1} ? 'disabled'" class="page-btn">First</a>
-        <a th:href="@{/staff-home/major-subjects-list(page=${currentPage - 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage eq 1} ? 'disabled'" class="page-btn">Prev</a>
+           th:classappend="${currentPage != null and currentPage eq 1} ? 'disabled'" class="page-btn">First</a>
+
+        <a th:href="@{/staff-home/major-subjects-list(page=${currentPage != null and currentPage > 1 ? currentPage - 1 : 1}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == null or currentPage eq 1} ? 'disabled'" class="page-btn">Prev</a>
 
         <span th:if="${totalPages gt 1}">
             <a th:if="${currentPage gt 3}"
@@ -130,7 +135,6 @@
                class="page-btn number">1</a>
             <span th:if="${currentPage gt 4}" class="page-btn">...</span>
 
-            <!-- ✅ FIXED VERSION -->
             <a th:each="i : ${#numbers.sequence(
                 (currentPage - 2 > 1 ? currentPage - 2 : 1),
                 (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
@@ -147,10 +151,11 @@
                class="page-btn number" th:text="${totalPages}"></a>
         </span>
 
-        <a th:href="@{/staff-home/major-subjects-list(page=${currentPage + 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage eq totalPages} ? 'disabled'" class="page-btn">Next</a>
+        <a th:href="@{/staff-home/major-subjects-list(page=${currentPage != null and currentPage < totalPages ? currentPage + 1 : totalPages}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == null or currentPage eq totalPages} ? 'disabled'" class="page-btn">Next</a>
+
         <a th:href="@{/staff-home/major-subjects-list(page=${totalPages}, pageSize=${pageSize})}"
-           th:classappend="${currentPage eq totalPages} ? 'disabled'" class="page-btn">Last</a>
+           th:classappend="${currentPage == null or currentPage eq totalPages} ? 'disabled'" class="page-btn">Last</a>
 
         <form method="get" th:action="@{/staff-home/major-subjects-list}" class="page-select-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -163,7 +168,7 @@
         </form>
     </div>
 
-    <!-- Overlay Add Subject -->
+    <!-- Add Overlay -->
     <div id="addOverlay" class="overlay" th:classappend="${openAddOverlay} ? 'active'">
         <div class="overlay-content">
             <h2><i class="fas fa-plus"></i> Add New Subject</h2>

@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;
@@ -12,6 +13,7 @@ import com.example.demo.staff.model.Staffs;
 import com.example.demo.person.model.Persons;
 import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.MinorSubjects;
+import com.example.demo.subject.model.SpecializedSubject;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -73,6 +75,16 @@ public class DemoApplication {
             e.printStackTrace();
         }
 
+        // Seed Specializations
+        try {
+            em.getTransaction().begin();
+            addDefaultSpecializations(em);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            rollback(em);
+            e.printStackTrace();
+        }
+
         // Seed Curriculums
         try {
             em.getTransaction().begin();
@@ -117,6 +129,16 @@ public class DemoApplication {
         try {
             em.getTransaction().begin();
             addDefaultMinorSubjects(em);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            rollback(em);
+            e.printStackTrace();
+        }
+
+        // Seed SpecializedSubjects
+        try {
+            em.getTransaction().begin();
+            addDefaultSpecializedSubjects(em);
             em.getTransaction().commit();
         } catch (Exception e) {
             rollback(em);
@@ -265,6 +287,71 @@ public class DemoApplication {
             } catch (NoResultException e) {
                 em.persist(major);
                 System.out.println("Added Major: " + major.getMajorName());
+            }
+        }
+    }
+
+    // ===================== SPECIALIZATIONS =====================
+    private static void addDefaultSpecializations(EntityManager em) {
+        Admins creator = findAdmin(em, "Admin");
+        if (creator == null) {
+            System.err.println("Admin not found, cannot create specializations.");
+            return;
+        }
+
+        Majors gch = findMajor(em, "GCH");
+        Majors gbh = findMajor(em, "GBH");
+        Majors gdh = findMajor(em, "GDH");
+        Majors gkh = findMajor(em, "GKH");
+
+        if (gch == null || gbh == null || gdh == null || gkh == null) {
+            System.err.println("One or more majors not found, cannot create specializations.");
+            return;
+        }
+
+        List<Specialization> specializationsToAdd = new ArrayList<>();
+
+        // IT Specializations
+        specializationsToAdd.add(new Specialization("SPEC_IT_SE", "Software Engineering", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_AI", "Artificial Intelligence", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_CS", "Cyber Security", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_DS", "Data Science", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_CC", "Cloud Computing", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_IOT", "Internet of Things", gch, creator));
+        specializationsToAdd.add(new Specialization("SPEC_IT_BC", "Blockchain Technology", gch, creator));
+
+        // Business Specializations
+        specializationsToAdd.add(new Specialization("SPEC_BUS_FIN", "Finance & Banking", gbh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_BUS_HR", "Human Resource Management", gbh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_BUS_ENT", "Entrepreneurship", gbh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_BUS_IB", "International Business", gbh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_BUS_OM", "Operations Management", gbh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_BUS_SCM", "Supply Chain Management", gbh, creator));
+
+        // Design Specializations
+        specializationsToAdd.add(new Specialization("SPEC_DES_UI", "UI/UX Design", gdh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_DES_3D", "3D Design & Animation", gdh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_DES_GAME", "Game Design", gdh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_DES_VFX", "Visual Effects", gdh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_DES_MOT", "Motion Graphics", gdh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_DES_BRAND", "Brand Identity Design", gdh, creator));
+
+        // Marketing Specializations
+        specializationsToAdd.add(new Specialization("SPEC_MKT_DIG", "Digital Marketing", gkh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_MKT_SM", "Social Media Marketing", gkh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_MKT_SEO", "SEO & Content Marketing", gkh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_MKT_ECP", "E-commerce & Performance Marketing", gkh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_MKT_BRAND", "Brand Management", gkh, creator));
+        specializationsToAdd.add(new Specialization("SPEC_MKT_MR", "Market Research & Analytics", gkh, creator));
+
+        for (Specialization spec : specializationsToAdd) {
+            try {
+                em.createQuery("SELECT s FROM Specialization s WHERE s.specializationId = :id", Specialization.class)
+                        .setParameter("id", spec.getSpecializationId()).getSingleResult();
+                System.out.println("Specialization already exists: " + spec.getSpecializationName());
+            } catch (NoResultException e) {
+                em.persist(spec);
+                System.out.println("Added Specialization: " + spec.getSpecializationName());
             }
         }
     }
@@ -475,6 +562,162 @@ public class DemoApplication {
         }
     }
 
+    // ===================== SPECIALIZED SUBJECTS =====================
+    private static void addDefaultSpecializedSubjects(EntityManager em) {
+        Staffs creator = findStaff(em, "vuthanhtruong");
+        if (creator == null) {
+            System.err.println("Staff not found, cannot create specialized subjects.");
+            return;
+        }
+
+        // IT Specialization Subjects
+        addSpecializedSubjectsForSpec(em, "SPEC_IT_SE", "Software Engineering", creator, new String[]{
+                "Advanced Software Architecture", "Design Patterns", "Microservices Architecture",
+                "Software Testing & QA", "DevOps Practices", "Agile Development",
+                "Software Project Management", "Code Quality & Review"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_IT_AI", "Artificial Intelligence", creator, new String[]{
+                "Machine Learning Fundamentals", "Deep Learning", "Natural Language Processing",
+                "Computer Vision", "Neural Networks", "AI Ethics",
+                "Reinforcement Learning", "AI Applications"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_IT_CS", "Cyber Security", creator, new String[]{
+                "Network Security", "Ethical Hacking", "Cryptography",
+                "Security Operations", "Incident Response", "Penetration Testing",
+                "Security Compliance", "Digital Forensics"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_IT_DS", "Data Science", creator, new String[]{
+                "Big Data Analytics", "Data Mining", "Statistical Analysis",
+                "Data Visualization", "Predictive Modeling", "Business Intelligence",
+                "Data Engineering", "Advanced SQL"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_IT_CC", "Cloud Computing", creator, new String[]{
+                "AWS Fundamentals", "Azure Cloud Services", "Cloud Architecture",
+                "Cloud Security", "Container Orchestration", "Serverless Computing",
+                "Cloud DevOps", "Multi-Cloud Strategy"
+        });
+
+        // Business Specialization Subjects
+        addSpecializedSubjectsForSpec(em, "SPEC_BUS_FIN", "Finance & Banking", creator, new String[]{
+                "Corporate Finance", "Investment Analysis", "Financial Markets",
+                "Banking Operations", "Risk Management", "Financial Modeling",
+                "Portfolio Management", "Financial Regulations"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_BUS_HR", "Human Resource Management", creator, new String[]{
+                "Talent Acquisition", "Performance Management", "Organizational Behavior",
+                "HR Analytics", "Compensation & Benefits", "Training & Development",
+                "Labor Relations", "Strategic HRM"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_BUS_ENT", "Entrepreneurship", creator, new String[]{
+                "Startup Fundamentals", "Business Model Canvas", "Venture Capital",
+                "Innovation Management", "Lean Startup", "Entrepreneurial Finance",
+                "Growth Hacking", "Social Entrepreneurship"
+        });
+
+        // Design Specialization Subjects
+        addSpecializedSubjectsForSpec(em, "SPEC_DES_UI", "UI/UX Design", creator, new String[]{
+                "User Research Methods", "Interaction Design", "Prototyping & Wireframing",
+                "Usability Testing", "Information Architecture", "Design Systems",
+                "Mobile UX Design", "Accessibility Design"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_DES_3D", "3D Design & Animation", creator, new String[]{
+                "3D Modeling Fundamentals", "Character Animation", "Lighting & Rendering",
+                "Texturing & Materials", "Rigging & Skinning", "Motion Capture",
+                "VFX Compositing", "3D Printing Design"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_DES_GAME", "Game Design", creator, new String[]{
+                "Game Mechanics Design", "Level Design", "Game Art & Assets",
+                "Game Programming", "Player Psychology", "Game Monetization",
+                "Multiplayer Design", "Game Testing & Balancing"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_DES_VFX", "Visual Effects", creator, new String[]{
+                "Particle Systems", "Fluid Simulation", "Destruction Effects",
+                "Green Screen Compositing", "Color Grading", "Motion Tracking",
+                "VFX Pipeline", "Real-time VFX"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_DES_MOT", "Motion Graphics", creator, new String[]{
+                "After Effects Advanced", "Typography Animation", "Kinetic Typography",
+                "2D Motion Design", "Broadcast Design", "Motion Graphics Principles",
+                "Visual Storytelling", "Motion Graphics Workflow"
+        });
+
+        // Marketing Specialization Subjects
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_DIG", "Digital Marketing", creator, new String[]{
+                "Digital Marketing Strategy", "Google Ads Mastery", "Facebook Advertising",
+                "Email Marketing", "Marketing Automation", "Conversion Optimization",
+                "Analytics & Reporting", "Digital Campaign Management"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_SM", "Social Media Marketing", creator, new String[]{
+                "Social Media Strategy", "Content Creation for Social", "Influencer Marketing",
+                "Community Management", "Social Media Analytics", "Platform-Specific Marketing",
+                "Social Commerce", "Crisis Management"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_SEO", "SEO & Content Marketing", creator, new String[]{
+                "SEO Fundamentals", "Content Strategy", "Keyword Research",
+                "On-Page Optimization", "Link Building", "Technical SEO",
+                "Content Writing", "SEO Analytics"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_ECP", "E-commerce & Performance Marketing", creator, new String[]{
+                "E-commerce Platforms", "Performance Marketing", "Shopping Ads",
+                "Marketplace Marketing", "Retargeting Strategies", "Attribution Modeling",
+                "E-commerce Analytics", "Conversion Rate Optimization"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_BRAND", "Brand Management", creator, new String[]{
+                "Brand Strategy", "Brand Identity", "Brand Positioning",
+                "Brand Communication", "Brand Equity", "Brand Experience",
+                "Rebranding Strategies", "Brand Portfolio Management"
+        });
+
+        addSpecializedSubjectsForSpec(em, "SPEC_MKT_MR", "Market Research & Analytics", creator, new String[]{
+                "Research Methodology", "Consumer Behavior Analysis", "Survey Design",
+                "Data Analysis Tools", "Market Segmentation", "Predictive Analytics",
+                "Insights & Reporting", "Marketing Metrics"
+        });
+    }
+
+    private static void addSpecializedSubjectsForSpec(EntityManager em, String specId, String specName,
+                                                      Staffs creator, String[] subjectNames) {
+        Specialization spec = findSpecialization(em, specId);
+        if (spec == null) {
+            System.err.println("Specialization not found: " + specId);
+            return;
+        }
+
+        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
+
+        for (int i = 0; i < subjectNames.length; i++) {
+            String subjectId = specId + "_SUB" + String.format("%02d", i + 1);
+            if (existsSubject(em, subjectId)) {
+                System.out.println("SpecializedSubject already exists: " + subjectId);
+                continue;
+            }
+
+            SpecializedSubject subj = new SpecializedSubject();
+            subj.setSubjectId(subjectId);
+            subj.setSubjectName(subjectNames[i]);
+            subj.setSemester(((i / 2) % 6) + 1); // 2 subjects per semester
+            subj.setCreator(creator);
+            subj.setSpecialization(spec);
+            subj.setCurriculum(btecCurriculum);
+            em.persist(subj);
+            System.out.println("Added SpecializedSubject: " + subjectId + " - " + subjectNames[i]);
+        }
+    }
+
     // ===================== BULK SEED from provided list =====================
     private static void bulkSeedSubjects(EntityManager em) {
         // Cache majors and curriculums
@@ -516,226 +759,6 @@ public class DemoApplication {
         seeds.add(new SubjectSeed("1625", "Managing a Successful Computing Project", 15, 6540000.0));
         seeds.add(new SubjectSeed("1631", "Software Development Life Cycles", 15, 6540000.0));
         seeds.add(new SubjectSeed("1633", "Website Design & Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1639", "Computing Research Project (2 parts)", 30, 13080000.0));
-        seeds.add(new SubjectSeed("1641", "Business Intelligence", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1644", "Cloud Computing", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1649", "Data Structures & Algorithms", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1649A", "Data Structure & Algorithms", 0, 4905000.0));
-        seeds.add(new SubjectSeed("1651", "Advanced Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1670", "Application Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1690", "Internet of Things", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1987", "Quality Systems in IT", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1991", "Data Analysis & Design", 15, 6540000.0));
-        seeds.add(new SubjectSeed("2003", "Computer Systems Architecture", 10, 6540000.0));
-        seeds.add(new SubjectSeed("3512", "Professional Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3513", "Contextual Studies", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3514", "Individual Project", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3515", "Techniques and Processes", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3524", "Typography", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3525", "Graphic Design Practices", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3532", "Printmaking", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3541", "Visual Narratives", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3542", "Professional Practice", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3544", "Applied Practice - Collaborative Project", 30, 13080000.0));
-        seeds.add(new SubjectSeed("3550", "Advanced Graphic Design Studies", 30, 13080000.0));
-        seeds.add(new SubjectSeed("3559", "Branding and Identity", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3562", "Art Direction", 15, 6540000.0));
-        seeds.add(new SubjectSeed("3596", "Digital Animation", 15, 6540000.0));
-        seeds.add(new SubjectSeed("446", "Computer Systems", 15, 6540000.0));
-        seeds.add(new SubjectSeed("447", "Database Design Concepts", 15, 6540000.0));
-        seeds.add(new SubjectSeed("485", "Business and the Business Environment", 15, 6540000.0));
-        seeds.add(new SubjectSeed("486", "Marketing Essentials", 15, 6540000.0));
-        seeds.add(new SubjectSeed("487", "Human Resource Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("488", "Management and Operations", 15, 6540000.0));
-        seeds.add(new SubjectSeed("489", "Management Accounting", 15, 6540000.0));
-        seeds.add(new SubjectSeed("4902", "Applied Programming and Design Principles", 15, 13080000.0));
-        seeds.add(new SubjectSeed("491", "Managing a Successful Business Project (Pearson-set)", 15, 6540000.0));
-        seeds.add(new SubjectSeed("492", "Business Law", 15, 6540000.0));
-        seeds.add(new SubjectSeed("495", "Entrepreneurship and Small Business", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5032", "Business and the Business Environment", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5033", "Marketing Processes and Planning", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5035", "Human Resource Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5036", "Leadership and Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5038", "Accounting Principles", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5039", "Managing a Successful Business Project (Pearson-set)", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5047", "Entrepreneurial Ventures", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5060", "Research Project (Pearson-set)", 30, 13080000.0));
-        seeds.add(new SubjectSeed("5064", "Organizational Behavior", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5075", "Understanding and Leading Change", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5076", "Global Business Environment", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5078", "Principles of Operations Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5120", "Marketing Insights and Analytics", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5121", "Digital Marketing", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5123", "Integrated Marketing Communications", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5131", "Sales Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("522", "Research Project (Pearson-set)", 30, 13080000.0));
-        seeds.add(new SubjectSeed("525", "Organizational Behaviour", 15, 6540000.0));
-        seeds.add(new SubjectSeed("528", "Operations and Project Management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("529", "Understanding and Leading Change", 15, 6540000.0));
-        seeds.add(new SubjectSeed("530", "Global Business Environment", 15, 6540000.0));
-        seeds.add(new SubjectSeed("534", "Product and Service Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("535", "Integrated Marketing Communications", 15, 6540000.0));
-        seeds.add(new SubjectSeed("538", "Digital Marketing", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5403", "Ideas Generation and Development in Art and Design", 15, 6540000.0));
-        seeds.add(new SubjectSeed("5414", "Design Principles", 15, 6540000.0));
-        seeds.add(new SubjectSeed("546", "Business Environment", 15, 6540000.0));
-        seeds.add(new SubjectSeed("570", "Statistics for management", 15, 6540000.0));
-        seeds.add(new SubjectSeed("574", "Business Strategy", 15, 6540000.0));
-        seeds.add(new SubjectSeed("6374", "Visual Communication in Art and Design", 15, 6540000.0));
-        seeds.add(new SubjectSeed("6378", "Contextual and Cultural Referencing in Art and Design", 15, 6540000.0));
-        seeds.add(new SubjectSeed("736", "Business Law", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7388", "Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7393", "Networking", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7398", "Professional Practice", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7400", "Database Design & Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7406", "Security", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7407", "Planning a Computing Project (Pearson-set)", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7408", "Software Development Lifecycles", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7419", "Website Design & Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7425", "Computing Research Project (Pearson-set)", 30, 13080000.0));
-        seeds.add(new SubjectSeed("7428", "Business Process Support", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7430", "Data Structures & Algorithms", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7436", "Application Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7442", "Cloud Computing", 15, 6540000.0));
-        seeds.add(new SubjectSeed("7481", "Internet of Things", 15, 6540000.0));
-        seeds.add(new SubjectSeed("995", "Project Design Implementation and Evaluation", 20, 6540000.0));
-        seeds.add(new SubjectSeed("ACP", "Aptis Checkpoint", 0, null));
-        seeds.add(new SubjectSeed("AE111", "Academic Reading Skills", 0, 5232000.0));
-        seeds.add(new SubjectSeed("AE112", "Academic Writing Skills", 0, 7848000.0));
-        seeds.add(new SubjectSeed("AEG113", "Academic English 1", 0, 6540000.0));
-        seeds.add(new SubjectSeed("AEG114", "Academic English 2", 0, 4905000.0));
-        seeds.add(new SubjectSeed("AEG115", "Academic English for non-business", 0, 3270000.0));
-        seeds.add(new SubjectSeed("AEG116", "Academic English 1", 0, 5000000.0));
-        seeds.add(new SubjectSeed("AEG117", "Academic English 2", 0, 6540000.0));
-        seeds.add(new SubjectSeed("AIGW201", "Introduction to Artificial Intelligence", 0, null));
-        seeds.add(new SubjectSeed("AMD201", "Advanced Microservices Development and Deployment", 0, 4905000.0));
-        seeds.add(new SubjectSeed("BUSI0011", "Dissertation", 30, 0.0));
-        seeds.add(new SubjectSeed("BUSI0011.1", "Dissertation 1", 30, 0.0));
-        seeds.add(new SubjectSeed("BUSI0011.2", "Dissertation 2", 30, 0.0));
-        seeds.add(new SubjectSeed("BUSI0011.3", "Dissertation 3", 30, 0.0));
-        seeds.add(new SubjectSeed("BUSI1204", "Personal and Professional Development", 15, null));
-        seeds.add(new SubjectSeed("BUSI1214", "Contemporary Issues in Events Management", 30, null));
-        seeds.add(new SubjectSeed("BUSI1314", "Business Ethics", 15, null));
-        seeds.add(new SubjectSeed("BUSI1315", "Management Practice 2", 15, null));
-        seeds.add(new SubjectSeed("BUSI1323", "Leadership in Organisations", 15, 0.0));
-        seeds.add(new SubjectSeed("BUSI1326", "Fundamentals of Entrepreneurship", 15, null));
-        seeds.add(new SubjectSeed("BUSI1327", "Innovation in Competitive Environments", 15, null));
-        seeds.add(new SubjectSeed("BUSI1334", "Career & Professional Practice", 15, 0.0));
-        seeds.add(new SubjectSeed("BUSI1475", "Management in Critical Context", 15, 0.0));
-        seeds.add(new SubjectSeed("BUSI1628", "Managing Organisations and Individuals", 30, null));
-        seeds.add(new SubjectSeed("BUSI1630", "Cross Cultural Management and Diversity Management", 30, null));
-        seeds.add(new SubjectSeed("BUSI1632", "Negotiations", 15, null));
-        seeds.add(new SubjectSeed("BUSI1633", "Strategy for Managers", 15, 0.0));
-        seeds.add(new SubjectSeed("BUSI1637", "Discover Project Management", 15, null));
-        seeds.add(new SubjectSeed("BUSI1695", "International Business Environment", 15, null));
-        seeds.add(new SubjectSeed("BUSI1700", "International Management and Organisational Functions (Collabs)", 30, null));
-        seeds.add(new SubjectSeed("BUSI1701", "Personal and Professional Development", 15, null));
-        seeds.add(new SubjectSeed("BUSI1702", "Organisational Decision Making", 15, null));
-        seeds.add(new SubjectSeed("BUSI1714", "International Entrepreneurship Project", 30, null));
-        seeds.add(new SubjectSeed("BUSI1714.1", "International Entrepreneurship Project Part 1", 30, null));
-        seeds.add(new SubjectSeed("BUSI1714.2", "International Entrepreneurship Project Part 2", 30, null));
-        seeds.add(new SubjectSeed("BUSI1715", "Organisational Analysis & Performance", 15, null));
-        seeds.add(new SubjectSeed("BUSI1763", "Dynamics of Global Business and Practices", 15, null));
-        seeds.add(new SubjectSeed("BUSI1764", "Global Entrepreneurship and Innovation", 15, null));
-        seeds.add(new SubjectSeed("BUSI1765", "Simulated Learning Project", 15, null));
-        seeds.add(new SubjectSeed("BUSI1767_Part1", "Business Consultancy Project (Part 1)", 15, null));
-        seeds.add(new SubjectSeed("BUSI1767_Part2", "Business Consultancy Project (Part 2)", 15, null));
-        seeds.add(new SubjectSeed("BUSI1769", "Global Supply Chains", 15, null));
-        seeds.add(new SubjectSeed("BUSI1772", "Ethics and Global Corporate Citizenship", 15, null));
-        seeds.add(new SubjectSeed("BUSI1774", "Strategic Management and Leadership", 15, null));
-        seeds.add(new SubjectSeed("BUSI1815", "Leading and Managing Change", 15, null));
-        seeds.add(new SubjectSeed("COG111", "Chess 1", 0, 3270000.0));
-        seeds.add(new SubjectSeed("COG121", "Chess 2", 0, 3270000.0));
-        seeds.add(new SubjectSeed("COG131", "Chess 3", 0, 3270000.0));
-        seeds.add(new SubjectSeed("COMP1108", "Project", 30, 0.0));
-        seeds.add(new SubjectSeed("COMP1551", "Application Development", 15, null));
-        seeds.add(new SubjectSeed("COMP1589", "Computer Systems and Internet Technologies", 15, null));
-        seeds.add(new SubjectSeed("COMP1639", "Database Engineering", 30, 0.0));
-        seeds.add(new SubjectSeed("COMP1640", "Enterprise Web Software Development", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1643", "Information and Content Management", 15, null));
-        seeds.add(new SubjectSeed("COMP1648", "Development Frameworks and Methods", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1649", "Human Computer Interaction and Design", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1661", "Application Development for Mobile Devices", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1682", "Project", 30, 0.0));
-        seeds.add(new SubjectSeed("COMP1714", "Software Engineering Management", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1752", "Object Oriented Programming", 15, null));
-        seeds.add(new SubjectSeed("COMP1753", "Programming Foundations", 15, null));
-        seeds.add(new SubjectSeed("COMP1770", "Professional Project Management", 15, null));
-        seeds.add(new SubjectSeed("COMP1773", "User Interface Design", 15, null));
-        seeds.add(new SubjectSeed("COMP1786", "Mobile Application Design And Development", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1787", "Requirements Management", 15, 0.0));
-        seeds.add(new SubjectSeed("COMP1807", "Agile Development with SCRUM", 15, null));
-        seeds.add(new SubjectSeed("COMP1809", "Introduction to Computer Science and its Applications", 15, null));
-        seeds.add(new SubjectSeed("COMP1810", "Data and Web Analytics", 15, null));
-        seeds.add(new SubjectSeed("COMP1821", "Principles of Software Engineering", 15, null));
-        seeds.add(new SubjectSeed("COMP1841", "Web Programming 1", 15, null));
-        seeds.add(new SubjectSeed("COMP1842", "Web Programming 2", 15, null));
-        seeds.add(new SubjectSeed("COMP1843", "Principles of Security", 15, null));
-        seeds.add(new SubjectSeed("COMP1844", "Information Analysis and Visualisation", 15, null));
-        seeds.add(new SubjectSeed("COMP1845", "Systems Development", 15, null));
-        seeds.add(new SubjectSeed("COMP1856", "Software Engineering", 15, null));
-        seeds.add(new SubjectSeed("COMP1857", "Introduction to Data Science", 15, null));
-        seeds.add(new SubjectSeed("COMP1858", "Data Structures and Algorithms", 15, null));
-        seeds.add(new SubjectSeed("COMP1859", "Information Retrieval", 15, null));
-        seeds.add(new SubjectSeed("COMP1861", "Machine Learning", 15, null));
-        seeds.add(new SubjectSeed("COMP1891", "Applications in AI and Data Science", 15, null));
-        seeds.add(new SubjectSeed("COMP1913", "International Data Analytics", 15, null));
-        seeds.add(new SubjectSeed("CV", "Company Visit", 0, null));
-        seeds.add(new SubjectSeed("DESI 1219", "Design Research Project", 60, 0.0));
-        seeds.add(new SubjectSeed("DESI 1219.1", "Design Research Project 1", 60, 0.0));
-        seeds.add(new SubjectSeed("DESI 1219.2", "Design Research Project 2", 60, 0.0));
-        seeds.add(new SubjectSeed("DESI 1219.3", "Design Research Project 3", 60, 0.0));
-        seeds.add(new SubjectSeed("DESI 1221", "Professional Practice & Portfolio", 15, 0.0));
-        seeds.add(new SubjectSeed("DESI 1222", "Interdisciplinary Design", 15, 0.0));
-        seeds.add(new SubjectSeed("DESI 1222.1", "Interdisciplinary Design 1", 0, null));
-        seeds.add(new SubjectSeed("DESI 1226", "Experience Design", 30, 0.0));
-        seeds.add(new SubjectSeed("DESI 1226.2", "Experience Design 2", 30, 0.0));
-        seeds.add(new SubjectSeed("DESI1198.1", "Graphic Design Principles Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1198.2", "Graphic Design Principles Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1200.1", "Typographic Studies Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1200.2", "Typographic Studies Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1213.1", "Experimental Studio Practices Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1213.2", "Experimental Studio Practices Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1214.1", "Design Thinking Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1214.2", "Design Thinking Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1215.1", "Branding and Advertising Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1215.2", "Branding and Advertising Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1217", "Narrative and Sequence", 15, null));
-        seeds.add(new SubjectSeed("DESI1218", "Creative Professional Practice", 15, null));
-        seeds.add(new SubjectSeed("DESI1219 Exhibition", "Design Research Project", 60, null));
-        seeds.add(new SubjectSeed("DESI1219.1", "Design Research Project Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1219.2", "Design Research Project Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1237.1", "Interdisciplinary Design Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1237.2", "Interdisciplinary Design Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1238.1", "Design Investigations Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1238.2", "Design Investigations Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1239.1", "Art and Design in Context Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1239.2", "Art and Design in Context Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1240.1", "Professional Practice and Portfolio Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1240.2", "Professional Practice and Portfolio Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1254.1", "Interdisciplinary Spaces Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1254.2", "Interdisciplinary Spaces Part 2", 30, null));
-        seeds.add(new SubjectSeed("DESI1255.1", "Design Engagement Part 1", 30, null));
-        seeds.add(new SubjectSeed("DESI1255.2", "Design Engagement Part 2", 30, null));
-        seeds.add(new SubjectSeed("DPLG101", "Deep Learning", 0, null));
-        seeds.add(new SubjectSeed("DTGG102", "Visual Design tool", 0, 4905000.0));
-        seeds.add(new SubjectSeed("ENI501", "English level 5", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENR001", "English level 0", 0, 7850000.0));
-        seeds.add(new SubjectSeed("ENR003", "English level 0", 0, 11950000.0));
-        seeds.add(new SubjectSeed("ENR101", "English level 1", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENR102", "English level 1", 0, 11800000.0));
-        seeds.add(new SubjectSeed("ENR103", "English level 1", 0, 11950000.0));
-        seeds.add(new SubjectSeed("ENR201", "English level 2", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENR202", "English level 2", 0, 11800000.0));
-        seeds.add(new SubjectSeed("ENR203", "English level 2", 0, 11950000.0));
-        seeds.add(new SubjectSeed("ENR301", "English level 3", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENR302", "English level 3", 0, 11800000.0));
-        seeds.add(new SubjectSeed("ENR303", "English level 3", 0, 11950000.0));
-        seeds.add(new SubjectSeed("ENR401", "English level 4", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENR402", "English level 4", 0, 11800000.0));
-        seeds.add(new SubjectSeed("ENR403", "English level 4", 0, 11950000.0));
-        seeds.add(new SubjectSeed("ENR502", "English level 5", 0, 11800000.0));
-        seeds.add(new SubjectSeed("ENR503", "English level 5", 0, 11950000.0));
         seeds.add(new SubjectSeed("ENT002", "English 1 - Topnotch Fundamental", 0, 11300000.0));
         seeds.add(new SubjectSeed("ENT101", "English 2 - Topnotch 1", 0, 11300000.0));
         seeds.add(new SubjectSeed("ENT102", "English 2 - Topnotch 1", 0, 11300000.0));
@@ -867,6 +890,15 @@ public class DemoApplication {
         }
     }
 
+    private static Specialization findSpecialization(EntityManager em, String id) {
+        try {
+            return em.createQuery("SELECT s FROM Specialization s WHERE s.specializationId = :id", Specialization.class)
+                    .setParameter("id", id).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     private static Curriculum findCurriculum(EntityManager em, String id) {
         try {
             return em.createQuery("SELECT c FROM Curriculum c WHERE c.curriculumId = :id", Curriculum.class)
@@ -915,21 +947,24 @@ public class DemoApplication {
     private static Majors guessMajor(Map<String, Majors> majors, SubjectSeed s) {
         String n = (s.name == null ? "" : s.name.toLowerCase(Locale.ROOT));
         if (n.contains("design") || n.contains("typograph") || n.contains("animation")
-                || n.contains("visual") || n.contains("art")) {
+                || n.contains("visual") || n.contains("art") || n.contains("drawing")
+                || n.contains("sketch") || n.contains("3d")) {
             return majors.get("GDH");
         }
         if (n.contains("marketing") || n.contains("advertis") || n.contains("sales")
-                || n.contains("brand") || n.contains("communication") || n.contains("martech")) {
+                || n.contains("brand") || n.contains("communication") || n.contains("martech")
+                || n.contains("content") || n.contains("social media")) {
             return majors.get("GKH");
         }
         if (n.contains("business") || n.contains("entrepreneur") || n.contains("management")
-                || n.contains("account") || n.contains("finance") || n.contains("organiz")) {
+                || n.contains("account") || n.contains("finance") || n.contains("organiz")
+                || n.contains("negotiation") || n.contains("international")) {
             return majors.get("GBH");
         }
         if (n.contains("program") || n.contains("java") || n.contains(".net") || n.contains("web")
                 || n.contains("software") || n.contains("comput") || n.contains("network")
                 || n.contains("database") || n.contains("security") || n.contains("cloud")
-                || n.contains("machine learning") || n.contains("ai")) {
+                || n.contains("machine learning") || n.contains("ai") || n.contains("algorithm")) {
             return majors.get("GCH");
         }
         return null;

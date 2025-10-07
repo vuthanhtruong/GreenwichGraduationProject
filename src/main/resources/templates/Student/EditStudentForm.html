@@ -97,6 +97,16 @@
                         </select>
                         <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('curriculum')}" th:text="${error}"></div>
                     </div>
+                    <div class="form-row">
+                        <label for="specializationId"><i class="fas fa-briefcase"></i> Specialization:</label>
+                        <select id="specializationId" name="specializationId" class="input" required>
+                            <option value="">Select Specialization</option>
+                            <option th:each="s : ${specializations}"
+                                    th:value="${s.specializationId}"
+                                    th:text="${s.getSpecializationName()}"
+                                    th:selected="${student.specialization != null and student.specialization.specializationId == s.specializationId}"></option>
+                        </select>
+                    </div>
                 </div>
             </section>
 

@@ -1,6 +1,7 @@
 package com.example.demo.subject.service;
 
 import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.major.model.Majors;
 import com.example.demo.subject.dao.SpecializedSubjectsDAO;
 import com.example.demo.subject.model.SpecializedSubject;
 import org.slf4j.Logger;
@@ -12,14 +13,23 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service implementation for managing specialized subjects.
- * This class acts as a middle layer between controllers and DAO,
- * handling validation, transaction management, and delegation to DAO operations.
- */
 @Service
 @Transactional
 public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsService {
+    @Override
+    public List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize) {
+        return specializedSubjectsDAO.getPaginatedSubjects(firstResult, pageSize);
+    }
+
+    @Override
+    public long numberOfSubjects(Majors majors) {
+        return specializedSubjectsDAO.numberOfSubjects(majors);
+    }
+
+    @Override
+    public Map<String, String> validateSubject(SpecializedSubject subject, String specializationId, String curriculumId) {
+        return specializedSubjectsDAO.validateSubject(subject, specializationId, curriculumId);
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(SpecializedSubjectsServiceImpl.class);
 
@@ -131,23 +141,4 @@ public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsServic
         return specializedSubjectsDAO.generateUniqueSubjectId(specializationId, createdDate);
     }
 
-    @Override
-    public Map<String, String> validateSubject(SpecializedSubject subject) {
-        logger.debug("Validating specialized subject: {}", subject != null ? subject.getSubjectName() : "null");
-        return specializedSubjectsDAO.validateSubject(subject);
-    }
-
-    @Override
-    public List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize, Specialization specialization) {
-        logger.debug("Retrieving paginated subjects: start={}, size={}, specialization={}",
-                firstResult, pageSize, specialization != null ? specialization.getSpecializationId() : null);
-        return specializedSubjectsDAO.getPaginatedSubjects(firstResult, pageSize, specialization);
-    }
-
-    @Override
-    public long numberOfSubjects(Specialization specialization) {
-        logger.debug("Counting number of subjects for specialization ID: {}",
-                specialization != null ? specialization.getSpecializationId() : null);
-        return specializedSubjectsDAO.numberOfSubjects(specialization);
-    }
 }

@@ -13,8 +13,8 @@ import java.util.Map;
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
-    public Map<String, String> validateSubject(MajorSubjects subject) {
-        return subjectsDAO.validateSubject(subject);
+    public Map<String, String> validateSubject(MajorSubjects subject, String curriculumId) {
+        return subjectsDAO.validateSubject(subject, curriculumId);
     }
 
     @Override

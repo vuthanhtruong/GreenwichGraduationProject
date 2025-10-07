@@ -16,7 +16,7 @@ import java.util.List;
 public class StudentsServiceImpl implements StudentsService {
     @Override
     public Students addStudents(Students students, Curriculum curriculum, Specialization specialization, String randomPassword) {
-        return addStudents(students, curriculum,specialization, randomPassword);
+        return studentsDAO.addStudents(students, curriculum,specialization, randomPassword);
     }
 
     @Override

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface MajorSubjectsDAO {
+    List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major);
+    long countSearchResults(String searchType, String keyword, Majors major);
+    boolean existsBySubjectExcludingName(String subjectName, String subjectId);
     void addSubject(MajorSubjects subject);
     MajorSubjects getSubjectById(String subjectId);
     MajorSubjects getSubjectByName(String subjectName);
@@ -17,11 +20,8 @@ public interface MajorSubjectsDAO {
     List<MajorSubjects> getSubjects();
     MajorSubjects editSubject(String id, MajorSubjects subject);
     void deleteSubject(String id);
-    String generateUniqueSubjectId(String majorId, LocalDate createdDate);
-    Map<String, String> validateSubject(MajorSubjects subject);
-    boolean existsBySubjectExcludingName(String SubjectName, String SubjectId);
+    String generateUniqueSubjectId(String majorId, java.time.LocalDate createdDate);
+    Map<String, String> validateSubject(MajorSubjects subject, String curriculumId);
     List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
     long numberOfSubjects(Majors major);
-    List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major);
-    long countSearchResults(String searchType, String keyword, Majors major);
 }

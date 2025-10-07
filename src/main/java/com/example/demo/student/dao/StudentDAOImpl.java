@@ -303,13 +303,15 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
         Students existingStudent = entityManager.createQuery(
-                        "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator WHERE s.id = :id",
+                        "SELECT s FROM Students s WHERE s.id = :id",
                         Students.class)
                 .setParameter("id", id)
                 .getSingleResult();
         if (existingStudent == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
+        student.setCurriculum(curriculum);
+        student.setSpecialization(specialization);
         editStudentFields(existingStudent, student);
 
         // Update curriculum if provided
@@ -528,6 +530,8 @@ public class StudentDAOImpl implements StudentsDAO {
         if (edited.getAvatar() != null) existing.setAvatar(edited.getAvatar());
         if (edited.getCampus() != null) existing.setCampus(edited.getCampus());
         if (edited.getCreator() != null) existing.setCreator(edited.getCreator());
+        if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
+        if (edited.getSpecialization() != null) existing.setSpecialization(edited.getSpecialization());
         if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
     }
 

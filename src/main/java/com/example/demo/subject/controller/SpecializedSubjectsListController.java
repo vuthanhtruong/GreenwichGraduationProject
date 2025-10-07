@@ -42,8 +42,7 @@ public class SpecializedSubjectsListController {
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String specializationId) {
+            @RequestParam(required = false) Integer pageSize) {
         try {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("specializedSubjectPageSize");
@@ -53,29 +52,10 @@ public class SpecializedSubjectsListController {
             }
             session.setAttribute("specializedSubjectPageSize", pageSize);
 
-            // Get specialization based on parameter
-            var specialization = specializationId != null && !specializationId.isEmpty()
-                    ? specializationService.getSpecializationById(specializationId)
-                    : null;
-
             // Get specializations for dropdown
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
 
-            if (specialization == null) {
-                model.addAttribute("subjects", new ArrayList<>());
-                model.addAttribute("newSubject", new SpecializedSubject());
-                model.addAttribute("currentPage", 1);
-                model.addAttribute("totalPages", 1);
-                model.addAttribute("pageSize", pageSize);
-                model.addAttribute("totalSubjects", 0);
-                model.addAttribute("message", "Please select a specialization to view subjects.");
-                model.addAttribute("alertClass", "alert-warning");
-                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
-                model.addAttribute("curriculums", curriculumService.getCurriculums());
-                return "SpecializedSubjectsList";
-            }
-
-            Long totalSubjects = subjectsService.numberOfSubjects(specialization);
+            Long totalSubjects = subjectsService.numberOfSubjects(staffsService.getStaffMajor());
             int totalPages = Math.max(1, (int) Math.ceil((double) totalSubjects / pageSize));
             page = Math.max(1, Math.min(page, totalPages));
             session.setAttribute("specializedSubjectPage", page);
@@ -92,12 +72,11 @@ public class SpecializedSubjectsListController {
                 model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
-                model.addAttribute("selectedSpecializationId", specialization.getSpecializationId());
                 return "SpecializedSubjectsList";
             }
 
             int firstResult = (page - 1) * pageSize;
-            List<SpecializedSubject> subjects = subjectsService.getPaginatedSubjects(firstResult, pageSize, specialization);
+            List<SpecializedSubject> subjects = subjectsService.getPaginatedSubjects(firstResult, pageSize);
 
             model.addAttribute("subjects", subjects);
             model.addAttribute("newSubject", new SpecializedSubject());
@@ -107,7 +86,6 @@ public class SpecializedSubjectsListController {
             model.addAttribute("totalSubjects", totalSubjects);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("selectedSpecializationId", specialization.getSpecializationId());
             return "SpecializedSubjectsList";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving specialized subjects: " + e.getMessage()));

@@ -33,7 +33,7 @@ public class Specialization {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
 
-    @Column(name = "CreatedAt", nullable = false, updatable = false)
+    @Column(name = "CreatedAt", nullable = true, updatable = false)
     private LocalDateTime createdAt;
 
     public Specialization() {

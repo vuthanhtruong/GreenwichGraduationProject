@@ -248,8 +248,8 @@
                         <!-- Curriculum -->
                         <div class="form-row">
                             <label for="curriculum"><i class="fas fa-book"></i> Curriculum:</label>
-                            <select id="curriculum" name="curriculum" required class="input">
-                                <option value="">Select Curriculum</option>
+                            <select id="curriculum" name="curriculumId" required class="input">
+                            <option value="">Select Curriculum</option>
                                 <option th:each="curriculum : ${curriculums}"
                                         th:value="${curriculum.getCurriculumId()}" th:text="${curriculum.getName()}"></option>
                             </select>
@@ -263,8 +263,8 @@
                             <label for="specialization">
                                 <i class="fas fa-graduation-cap"></i> Narrow Specialization:
                             </label>
-                            <select id="specialization" name="specialization" required class="input">
-                                <option value="">Select Narrow Specialization</option>
+                            <select id="specialization" name="specializationId" required class="input">
+                            <option value="">Select Narrow Specialization</option>
                                 <option th:each="spec : ${specializations}"
                                         th:value="${spec.specializationId}"
                                         th:text="${spec.specializationName}">

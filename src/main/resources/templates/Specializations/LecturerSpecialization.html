@@ -51,7 +51,7 @@
                     <td th:text="${specialization.specializationId}"></td>
                     <td th:text="${specialization.specializationName}"></td>
                     <td th:text="${specialization.creator.firstName + ' ' + specialization.creator.lastName}"></td>
-                    <td th:text="${#dates.format(specialization.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${specialization.createdAt != null ? #temporals.format(specialization.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
                     <td>
                         <div class="actions">
                             <form th:action="@{/staff-home/lecturer-specialization/assign-lecturer}" method="post" class="inline-form">

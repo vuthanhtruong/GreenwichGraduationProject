@@ -96,7 +96,7 @@ public class EditStudentController {
             @Valid @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
-            @RequestParam(value = "specialization", required = true) String specializationId, // Added to select specialization
+            @RequestParam(value = "specializationId", required = true) String specializationId, // Added to select specialization
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -181,7 +181,7 @@ public class EditStudentController {
             }
 
             // Set specialization
-            Specialization specialization = new Specialization();
+            Specialization specialization = specializationService.getSpecializationById(specializationId);
             specialization.setSpecializationId(specializationId); // Assuming setter exists
             student.setSpecialization(specialization);
 

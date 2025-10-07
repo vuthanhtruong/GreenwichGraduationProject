@@ -37,14 +37,13 @@ public class AddStudentController {
     private final AccountBalancesService accountBalancesService;
     private final AuthenticatorsService authenticatorsService;
     private final ParentAccountsService parentAccountsService;
-    private final EmailServiceForStudentService emailServiceForStudentService;
     private final CurriculumService curriculumService;
     private final SpecializationService specializationService; // Added
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
                                 AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService,
-                                EmailServiceForStudentService emailServiceForStudentService, CurriculumService curriculumService,
+                                CurriculumService curriculumService,
                                 SpecializationService specializationService) { // Added specializationService
         this.staffsService = staffsService;
         this.studentsService = studentsService;
@@ -52,7 +51,6 @@ public class AddStudentController {
         this.accountBalancesService = accountBalancesService;
         this.authenticatorsService = authenticatorsService;
         this.parentAccountsService = parentAccountsService;
-        this.emailServiceForStudentService = emailServiceForStudentService;
         this.curriculumService = curriculumService;
         this.specializationService = specializationService; // Added
     }
@@ -61,8 +59,8 @@ public class AddStudentController {
     public String addStudent(
             @ModelAttribute("student") Students student,
             @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
-            @RequestParam(value = "curriculum", required = true) String curriculumId,
-            @RequestParam(value = "specialization", required = true) String specializationId, // Added to select specialization
+            @RequestParam(value = "curriculumId", required = true) String curriculumId,
+            @RequestParam(value = "specializationId", required = true) String specializationId,
             @RequestParam(value = "parentEmail1", required = false) String parentEmail1,
             @RequestParam(value = "supportPhoneNumber1", required = false) String supportPhoneNumber1,
             @RequestParam(value = "parentRelationship1", required = false) String parentRelationship1,
@@ -121,16 +119,14 @@ public class AddStudentController {
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
 
-            // Set the selected specialization
-            Specialization specialization = new Specialization();
-            specialization.setSpecializationId(specializationId); // Assuming setter exists
-            student.setSpecialization(specialization);
 
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 student.setAvatar(avatarFile.getBytes());
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
+            // Set the selected specialization
+            Specialization specialization = specializationService.getSpecializationById(specializationId);
             Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
 
             String studentPassword = studentsService.generateRandomPassword(12);

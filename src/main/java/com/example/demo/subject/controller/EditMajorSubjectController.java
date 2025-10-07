@@ -53,25 +53,9 @@ public class EditMajorSubjectController {
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
             Model model,
             RedirectAttributes redirectAttributes) {
-        MajorSubjects existingSubject = subjectsService.getSubjectById(formSubject.getSubjectId());
-        if (existingSubject == null) {
-            redirectAttributes.addFlashAttribute("message", "Subject not found.");
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            return "redirect:/staff-home/major-subjects-list";
-        }
 
-        Map<String, String> errors = new HashMap<>(subjectsService.validateSubject(formSubject));
-        if (curriculumId != null && !curriculumId.isEmpty()) {
-            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
-            if (curriculum != null) {
-                formSubject.setCurriculum(curriculum);
-            } else {
-                errors.put("curriculumId", "Invalid curriculum selected.");
-            }
-        } else {
-            errors.put("curriculumId", "Curriculum is required.");
-        }
-
+        // Validate input using DAO
+        Map<String, String> errors = subjectsService.validateSubject(formSubject, curriculumId);
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(error -> {
                 String field = bindingResult.getFieldError() != null ? bindingResult.getFieldError().getField() : "general";
@@ -87,13 +71,19 @@ public class EditMajorSubjectController {
         }
 
         try {
+            // Retrieve existing subject
+            MajorSubjects existingSubject = subjectsService.getSubjectById(formSubject.getSubjectId());
+            // Set updated fields
             existingSubject.setSubjectName(formSubject.getSubjectName() != null ? formSubject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
             existingSubject.setSemester(formSubject.getSemester());
-            existingSubject.setCurriculum(formSubject.getCurriculum());
+            existingSubject.setCurriculum(curriculumService.getCurriculumById(curriculumId));
+
+            // Update the subject
             subjectsService.editSubject(formSubject.getSubjectId(), existingSubject);
 
             redirectAttributes.addFlashAttribute("message", "Subject edited successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
+            return "redirect:/staff-home/major-subjects-list";
         } catch (Exception e) {
             errors.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("editErrors", errors);
@@ -101,7 +91,5 @@ public class EditMajorSubjectController {
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "EditMajorSubjectForm";
         }
-
-        return "redirect:/staff-home/major-subjects-list";
     }
 }

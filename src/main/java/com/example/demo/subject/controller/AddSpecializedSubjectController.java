@@ -4,7 +4,6 @@ import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.Specialization.service.SpecializationService;
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.subject.model.SpecializedSubject;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.SpecializedSubjectsService;
@@ -54,7 +53,8 @@ public class AddSpecializedSubjectController {
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
-        Map<String, String> errors = new HashMap<>(subjectsService.validateSubject(newSubject));
+        // Validate input using DAO
+        Map<String, String> errors = subjectsService.validateSubject(newSubject, specializationId, curriculumId);
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> {
                 String field = result.getFieldError() != null ? result.getFieldError().getField() : "general";
@@ -62,65 +62,40 @@ public class AddSpecializedSubjectController {
             });
         }
 
-        // Validate curriculum
-        if (curriculumId != null && !curriculumId.isEmpty()) {
-            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
-            if (curriculum != null) {
-                newSubject.setCurriculum(curriculum);
-            } else {
-                errors.put("curriculumId", "Invalid curriculum selected.");
-            }
-        } else {
-            errors.put("curriculumId", "Curriculum is required.");
-        }
-
-        // Validate specialization
-        Specialization specialization = null;
-        if (specializationId != null && !specializationId.isEmpty()) {
-            specialization = specializationService.getSpecializationById(specializationId);
-            if (specialization == null) {
-                errors.put("specializationId", "Invalid specialization selected.");
-            }
-        } else {
-            errors.put("specializationId", "Specialization is required.");
-        }
-
         if (!errors.isEmpty()) {
-            redirectAttributes.addFlashAttribute("editErrors", errors);
-            redirectAttributes.addFlashAttribute("newSubject", newSubject);
-            redirectAttributes.addFlashAttribute("openAddOverlay", true);
-            redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
-            redirectAttributes.addFlashAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-            return "redirect:/staff-home/specialized-subjects-list";
+            model.addAttribute("editErrors", errors);
+            model.addAttribute("newSubject", newSubject);
+            model.addAttribute("openAddOverlay", true);
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+            return "SpecializedSubjectsList";
         }
 
         try {
-            if (staffsService.getStaff() == null) {
-                errors.put("general", "Authenticated staff not found.");
-                redirectAttributes.addFlashAttribute("editErrors", errors);
-                redirectAttributes.addFlashAttribute("newSubject", newSubject);
-                redirectAttributes.addFlashAttribute("openAddOverlay", true);
-                redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
-                redirectAttributes.addFlashAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-                return "redirect:/staff-home/specialized-subjects-list";
-            }
-
+            // Set creator and generate subject ID
             newSubject.setCreator(staffsService.getStaff());
             String subjectId = subjectsService.generateUniqueSubjectId(specializationId, LocalDate.now());
             newSubject.setSubjectId(subjectId);
 
+            // Retrieve specialization and curriculum for setting
+            Specialization specialization = specializationService.getSpecializationById(specializationId);
+            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
+            newSubject.setSpecialization(specialization);
+            newSubject.setCurriculum(curriculum);
+
+            // Add the subject
             subjectsService.addSubject(newSubject, specialization);
             redirectAttributes.addFlashAttribute("message", "Specialized subject added successfully!");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
             return "redirect:/staff-home/specialized-subjects-list";
         } catch (Exception e) {
             errors.put("general", "An error occurred while adding the specialized subject: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("editErrors", errors);
-            redirectAttributes.addFlashAttribute("newSubject", newSubject);
-            redirectAttributes.addFlashAttribute("openAddOverlay", true);
-            redirectAttributes.addFlashAttribute("curriculums", curriculumService.getCurriculums());
-            redirectAttributes.addFlashAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-            return "redirect:/staff-home/specialized-subjects-list";
+            model.addAttribute("editErrors", errors);
+            model.addAttribute("newSubject", newSubject);
+            model.addAttribute("openAddOverlay", true);
+            model.addAttribute("curriculums", curriculumService.getCurriculums());
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
+            return "SpecializedSubjectsList";
         }
     }
 }
