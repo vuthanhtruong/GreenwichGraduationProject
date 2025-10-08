@@ -29,7 +29,7 @@
         </div>
 
         <!-- Center: Search -->
-        <form method="post" th:action="@{/admin-home/students-list/search-students}" class="toolbar-center">
+        <form method="get" th:action="@{/admin-home/students-list/search-students}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="campusId" th:value="${campusId}" />
             <select name="searchType" class="input">
@@ -92,7 +92,7 @@
                 <td th:text="${student.phoneNumber}"></td>
                 <td th:text="${student.birthDate}"></td>
                 <td th:text="${student.gender}"></td>
-                <td th:text="${student.major?.majorName}"></td>
+                <td th:text="${student.specialization.major.majorId}"></td>
                 <td th:text="${student.campus?.campusName}"></td>
             </tr>
             </tbody>

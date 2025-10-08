@@ -6,7 +6,7 @@ import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.classes.service.ClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.SubjectsService;
-import com.example.demo.syllabus.service.SyllabusesService;
+import com.example.demo.majorSyllabus.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

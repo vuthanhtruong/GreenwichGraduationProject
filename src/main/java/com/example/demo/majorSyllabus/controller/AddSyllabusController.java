@@ -1,8 +1,8 @@
-package com.example.demo.syllabus.controller;
+package com.example.demo.majorSyllabus.controller;
 
 import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.syllabus.model.Syllabuses;
-import com.example.demo.syllabus.service.SyllabusesService;
+import com.example.demo.majorSyllabus.model.MajorSyllabuses;
+import com.example.demo.majorSyllabus.service.SyllabusesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
@@ -40,7 +40,7 @@ public class AddSyllabusController {
 
     @PostMapping("/add-syllabus")
     public String addSyllabus(
-            @Valid @ModelAttribute("newSyllabus") Syllabuses syllabus,
+            @Valid @ModelAttribute("newSyllabus") MajorSyllabuses syllabus,
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "uploadFile", required = false) MultipartFile file,
             Model model,
@@ -120,7 +120,7 @@ public class AddSyllabusController {
 
     @PostMapping("/view-file")
     public ResponseEntity<byte[]> viewFile(@RequestParam("syllabusId") String syllabusId, HttpSession session) {
-        Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
+        MajorSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
         String subjectId = (String) session.getAttribute("currentSubjectId");
         if (syllabus == null || subjectId == null || syllabus.getFileData() == null) {
             return ResponseEntity.notFound().build();

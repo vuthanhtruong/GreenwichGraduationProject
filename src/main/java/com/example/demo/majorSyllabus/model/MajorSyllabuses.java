@@ -1,4 +1,4 @@
-package com.example.demo.syllabus.model;
+package com.example.demo.majorSyllabus.model;
 
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.staff.model.Staffs;
@@ -9,10 +9,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "Syllabuses")
+@Table(name = "MajorSyllabuses")
 @Getter
 @Setter
-public class Syllabuses {
+public class MajorSyllabuses {
 
     @Id
     @Column(name = "SyllabusID")

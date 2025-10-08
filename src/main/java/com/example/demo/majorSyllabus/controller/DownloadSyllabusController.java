@@ -1,9 +1,9 @@
-package com.example.demo.syllabus.controller;
+package com.example.demo.majorSyllabus.controller;
 
-import com.example.demo.syllabus.model.Syllabuses;
+import com.example.demo.majorSyllabus.model.MajorSyllabuses;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
-import com.example.demo.syllabus.service.SyllabusesService;
+import com.example.demo.majorSyllabus.service.SyllabusesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -18,19 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/staff-home/major-subjects-list/")
 public class DownloadSyllabusController {
     private final SyllabusesService syllabusesService;
-    private final StaffsService staffsService;
-    private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public DownloadSyllabusController(SyllabusesService syllabusesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public DownloadSyllabusController(SyllabusesService syllabusesService, MajorSubjectsService subjectsService) {
         this.syllabusesService = syllabusesService;
-        this.staffsService = staffsService;
-        this.subjectsService = subjectsService;
     }
 
     @PostMapping("/syllabuses-list/download-file")
     public ResponseEntity<byte[]> downloadFile(@RequestParam("syllabusId") String syllabusId) {
-        Syllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
+        MajorSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
         if (syllabus == null || syllabus.getFileData() == null || syllabus.getFileData().length == 0) {
             return ResponseEntity.notFound().build();
         }

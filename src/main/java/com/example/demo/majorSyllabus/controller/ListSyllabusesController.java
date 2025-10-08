@@ -1,8 +1,8 @@
-package com.example.demo.syllabus.controller;
+package com.example.demo.majorSyllabus.controller;
 
 import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.syllabus.model.Syllabuses;
-import com.example.demo.syllabus.service.SyllabusesService;
+import com.example.demo.majorSyllabus.model.MajorSyllabuses;
+import com.example.demo.majorSyllabus.service.SyllabusesService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -40,7 +40,7 @@ public class ListSyllabusesController {
             String subjectId = (String) session.getAttribute("currentSubjectId");
             if (subjectId == null) {
                 model.addAttribute("errors", List.of("No subject selected. Please select a subject."));
-                model.addAttribute("newSyllabus", new Syllabuses());
+                model.addAttribute("newSyllabus", new MajorSyllabuses());
                 model.addAttribute("subject", new MajorSubjects());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
@@ -66,7 +66,7 @@ public class ListSyllabusesController {
             MajorSubjects subject = subjectsService.getSubjectById(subjectId);
             if (totalSyllabuses == 0) {
                 model.addAttribute("syllabuses", new ArrayList<>());
-                model.addAttribute("newSyllabus", new Syllabuses());
+                model.addAttribute("newSyllabus", new MajorSyllabuses());
                 model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
@@ -78,10 +78,10 @@ public class ListSyllabusesController {
             }
 
             int firstResult = (page - 1) * pageSize;
-            List<Syllabuses> syllabuses = syllabusesService.getPaginatedSyllabuses(subjectId, firstResult, pageSize);
+            List<MajorSyllabuses> syllabuses = syllabusesService.getPaginatedSyllabuses(subjectId, firstResult, pageSize);
 
             model.addAttribute("syllabuses", syllabuses);
-            model.addAttribute("newSyllabus", new Syllabuses());
+            model.addAttribute("newSyllabus", new MajorSyllabuses());
             model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
@@ -90,7 +90,7 @@ public class ListSyllabusesController {
             return "SyllabusesList";
         } catch (SecurityException e) {
             model.addAttribute("errors", List.of("Security error: " + e.getMessage()));
-            model.addAttribute("newSyllabus", new Syllabuses());
+            model.addAttribute("newSyllabus", new MajorSyllabuses());
             model.addAttribute("subject", new MajorSubjects());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
@@ -109,10 +109,10 @@ public class ListSyllabusesController {
         }
 
         session.setAttribute("currentSubjectId", subjectId);
-        List<Syllabuses> syllabuses = syllabusesService.getPaginatedSyllabuses(subjectId, 0, 5);
+        List<MajorSyllabuses> syllabuses = syllabusesService.getPaginatedSyllabuses(subjectId, 0, 5);
         model.addAttribute("syllabuses", syllabuses.isEmpty() ? new ArrayList<>() : syllabuses);
         model.addAttribute("subject", subject);
-        model.addAttribute("newSyllabus", new Syllabuses());
+        model.addAttribute("newSyllabus", new MajorSyllabuses());
         model.addAttribute("currentPage", 1);
         model.addAttribute("totalPages", Math.max(1, (int) Math.ceil((double) syllabusesService.numberOfSyllabuses(subjectId) / 5)));
         model.addAttribute("pageSize", 5);
@@ -123,7 +123,7 @@ public class ListSyllabusesController {
     @GetMapping("/file/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getSyllabusFile(@PathVariable String id) {
-        Syllabuses syllabus = syllabusesService.getSyllabusById(id);
+        MajorSyllabuses syllabus = syllabusesService.getSyllabusById(id);
         if (syllabus != null && syllabus.getFileData() != null) {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(syllabus.getFileType()))

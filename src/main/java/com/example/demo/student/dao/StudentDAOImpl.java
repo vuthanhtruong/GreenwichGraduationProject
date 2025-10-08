@@ -592,7 +592,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        String jpql = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator WHERE s.campus.id = :campusId";
+        String jpql = "SELECT s FROM Students s WHERE s.campus.id = :campusId";
         return entityManager.createQuery(jpql, Students.class)
                 .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)

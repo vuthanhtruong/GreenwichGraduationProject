@@ -1,8 +1,8 @@
-package com.example.demo.syllabus.service;
+package com.example.demo.majorSyllabus.service;
 
-import com.example.demo.syllabus.dao.SyllabusesDAO;
+import com.example.demo.majorSyllabus.dao.SyllabusesDAO;
 import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.syllabus.model.Syllabuses;
+import com.example.demo.majorSyllabus.model.MajorSyllabuses;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,17 +23,17 @@ public class SyllabusesServiceImpl implements SyllabusesService {
     }
 
     @Override
-    public void addSyllabus(Syllabuses syllabus) {
+    public void addSyllabus(MajorSyllabuses syllabus) {
         syllabusesDAO.addSyllabus(syllabus);
     }
 
     @Override
-    public Syllabuses getSyllabusById(String syllabusId) {
+    public MajorSyllabuses getSyllabusById(String syllabusId) {
         return syllabusesDAO.getSyllabusById(syllabusId);
     }
 
     @Override
-    public List<Syllabuses> getSyllabusesBySubject(MajorSubjects subject) {
+    public List<MajorSyllabuses> getSyllabusesBySubject(MajorSubjects subject) {
         return syllabusesDAO.getSyllabusesBySubject(subject);
     }
 
@@ -43,7 +43,7 @@ public class SyllabusesServiceImpl implements SyllabusesService {
     }
 
     @Override
-    public List<Syllabuses> getPaginatedSyllabuses(String subjectId, int firstResult, int pageSize) {
+    public List<MajorSyllabuses> getPaginatedSyllabuses(String subjectId, int firstResult, int pageSize) {
         return syllabusesDAO.getPaginatedSyllabuses(subjectId, firstResult, pageSize);
     }
 
@@ -53,7 +53,7 @@ public class SyllabusesServiceImpl implements SyllabusesService {
     }
 
     @Override
-    public List<String> syllabusValidation(Syllabuses syllabus, MultipartFile file) {
+    public List<String> syllabusValidation(MajorSyllabuses syllabus, MultipartFile file) {
         List<String> errors = new ArrayList<>();
 
         // Annotation-based validation
