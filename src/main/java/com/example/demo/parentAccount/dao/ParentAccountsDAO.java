@@ -5,6 +5,7 @@ import com.example.demo.entity.Student_ParentAccounts;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ParentAccountsDAO {
     void addParentAccounts(ParentAccounts parent);
@@ -17,8 +18,8 @@ public interface ParentAccountsDAO {
     Student_ParentAccounts linkStudentToParent(Student_ParentAccounts studentParent);
     void editParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber);
     long countLinkedStudents(String parentId, String excludeStudentId);
-    List<String> validateParent(ParentAccounts parent);
-    List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel);
+    Map<String, String> validateParent(ParentAccounts parent);
+    Map<String, String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel);
     String generateUniqueParentId();
     String generateRandomPassword(int length);
     void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship);

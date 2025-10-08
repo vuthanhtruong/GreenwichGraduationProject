@@ -6,13 +6,14 @@ import com.example.demo.student.model.Students;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudentsDAO {
     Students findById(String studentId);
     long totalStudentsByCampus(String campusId);
     String generateRandomPassword(int length);
     String generateUniqueStudentId(String majorId, java.time.LocalDate createdDate);
-    List<String> StudentValidation(Students student, MultipartFile avatarFile);
+    Map<String, String> StudentValidation(Students student, MultipartFile avatarFile);
     Students getStudent();
     com.example.demo.major.model.Majors getStudentMajor();
     List<Students> getStudents();

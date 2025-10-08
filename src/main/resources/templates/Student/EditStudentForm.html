@@ -14,6 +14,12 @@
         <h1><i class="fas fa-user-graduate"></i> <i class="fas fa-edit"></i> Update Student</h1>
     </header>
 
+    <!-- General Errors -->
+    <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errors.get('general')}"></span>
+    </div>
+
     <!-- Content -->
     <div class="win11-content">
         <form method="post" th:action="@{/staff-home/students-list/edit-student-form}" th:object="${student}" enctype="multipart/form-data">
@@ -43,7 +49,7 @@
                 </div>
                 <label for="avatarFile"><i class="fas fa-upload"></i> Upload New Avatar (Optional):</label>
                 <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
-                <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
+                <div class="text-danger" th:if="${errors != null and errors.containsKey('avatarFile')}" th:text="${errors.get('avatarFile')}"></div>
             </section>
 
             <!-- Student Info -->
@@ -53,27 +59,27 @@
                     <div class="form-row">
                         <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
                         <input id="firstName" th:field="*{firstName}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('First name')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('firstName')}" th:text="${errors.get('firstName')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
                         <input id="lastName" th:field="*{lastName}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Last name')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('lastName')}" th:text="${errors.get('lastName')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                         <input id="email" th:field="*{email}" required type="email" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('email')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('email')}" th:text="${errors.get('email')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
                         <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('phone')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('phoneNumber')}" th:text="${errors.get('phoneNumber')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
                         <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('birth')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
@@ -84,7 +90,7 @@
                                     th:text="${gender}"
                                     th:selected="${student.gender == gender}"></option>
                         </select>
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('gender')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('gender')}" th:text="${errors.get('gender')}"></div>
                     </div>
                     <div class="form-row">
                         <label for="curriculumId"><i class="fas fa-book"></i> Curriculum:</label>
@@ -95,7 +101,7 @@
                                     th:text="${curriculum.name}"
                                     th:selected="${student.curriculum != null and student.curriculum.curriculumId == curriculum.curriculumId}"></option>
                         </select>
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('curriculum')}" th:text="${error}"></div>
+                        <!-- Note: No error handling for curriculumId as it's not in StudentValidation -->
                     </div>
                     <div class="form-row">
                         <label for="specializationId"><i class="fas fa-briefcase"></i> Specialization:</label>
@@ -106,6 +112,7 @@
                                     th:text="${s.getSpecializationName()}"
                                     th:selected="${student.specialization != null and student.specialization.specializationId == s.specializationId}"></option>
                         </select>
+                        <!-- Note: No error handling for specializationId as it's not in StudentValidation -->
                     </div>
                 </div>
             </section>
@@ -158,12 +165,14 @@
                             <input id="parentEmail1" name="parentEmail1" type="email"
                                    th:value="${parentEmail1 != null ? parentEmail1 : (!#lists.isEmpty(parentLinks) ? parentLinks[0].parent.email : '')}"
                                    class="input">
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_email')}" th:text="${errors.get('parent1_email')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="supportPhoneNumber1"><i class="fas fa-phone"></i> Support Phone:</label>
                             <input id="supportPhoneNumber1" name="supportPhoneNumber1" type="text"
                                    th:value="${supportPhoneNumber1 != null ? supportPhoneNumber1 : (!#lists.isEmpty(parentLinks) ? parentLinks[0].supportPhoneNumber : '')}"
                                    class="input">
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_supportPhoneNumber')}" th:text="${errors.get('parent1_supportPhoneNumber')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="parentRelationship1"><i class="fas fa-handshake"></i> Relationship:</label>
@@ -173,6 +182,7 @@
                                         th:value="${relationship}" th:text="${relationship}"
                                         th:selected="${parentRelationship1 != null ? parentRelationship1 == relationship.toString() : (!#lists.isEmpty(parentLinks) ? parentLinks[0].relationshipToStudent == relationship : false)}"></option>
                             </select>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_relationship')}" th:text="${errors.get('parent1_relationship')}"></div>
                         </div>
                     </div>
                     <!-- Parent 2 -->
@@ -183,12 +193,14 @@
                             <input id="parentEmail2" name="parentEmail2" type="email"
                                    th:value="${parentEmail2 != null ? parentEmail2 : (#lists.size(parentLinks) > 1 ? parentLinks[1].parent.email : '')}"
                                    class="input">
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_email')}" th:text="${errors.get('parent2_email')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="supportPhoneNumber2"><i class="fas fa-phone"></i> Support Phone:</label>
                             <input id="supportPhoneNumber2" name="supportPhoneNumber2" type="text"
                                    th:value="${supportPhoneNumber2 != null ? supportPhoneNumber2 : (#lists.size(parentLinks) > 1 ? parentLinks[1].supportPhoneNumber : '')}"
                                    class="input">
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_supportPhoneNumber')}" th:text="${errors.get('parent2_supportPhoneNumber')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="parentRelationship2"><i class="fas fa-handshake"></i> Relationship:</label>
@@ -198,6 +210,7 @@
                                         th:value="${relationship}" th:text="${relationship}"
                                         th:selected="${parentRelationship2 != null ? parentRelationship2 == relationship.toString() : (#lists.size(parentLinks) > 1 ? parentLinks[1].relationshipToStudent == relationship : false)}"></option>
                             </select>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_relationship')}" th:text="${errors.get('parent2_relationship')}"></div>
                         </div>
                     </div>
                 </div>

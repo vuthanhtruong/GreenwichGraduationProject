@@ -6,6 +6,7 @@ import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.SpecializedSubject;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.staff.service.StaffsService;
+import com.example.demo.subject.service.SubjectsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -30,9 +31,11 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
     private EntityManager entityManager;
 
     private final StaffsService staffsService;
+    private final SubjectsService subjectsService;
 
-    public SpecializedSubjectsDAOImpl(StaffsService staffsService) {
+    public SpecializedSubjectsDAOImpl(StaffsService staffsService, SubjectsService subjectsService) {
         this.staffsService = staffsService;
+        this.subjectsService = subjectsService;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
         String queryString = "SELECT s FROM SpecializedSubject s JOIN FETCH s.specialization JOIN FETCH s.creator JOIN FETCH s.curriculum " +
                 "WHERE s.specialization = :specialization";
 
-        if ("name".equals(searchType)) {
+        if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
@@ -57,7 +60,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
                 nameCondition.append("LOWER(s.subjectName) LIKE :word").append(i);
             }
             queryString += " AND (" + nameCondition.toString() + ")";
-        } else if ("id".equals(searchType)) {
+        } else if ("id".equalsIgnoreCase(searchType)) {
             queryString += " AND LOWER(s.subjectId) LIKE LOWER(:keyword)";
         } else {
             logger.warn("Invalid searchType: {}", searchType);
@@ -70,12 +73,12 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize);
 
-            if ("name".equals(searchType)) {
+            if ("name".equalsIgnoreCase(searchType)) {
                 String[] words = keyword.split("\\s+");
                 for (int i = 0; i < words.length; i++) {
                     query.setParameter("word" + i, "%" + words[i] + "%");
                 }
-            } else if ("id".equals(searchType)) {
+            } else if ("id".equalsIgnoreCase(searchType)) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
@@ -99,7 +102,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
 
         String queryString = "SELECT COUNT(s) FROM SpecializedSubject s WHERE s.specialization = :specialization";
 
-        if ("name".equals(searchType)) {
+        if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
@@ -110,7 +113,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
                 nameCondition.append("LOWER(s.subjectName) LIKE :word").append(i);
             }
             queryString += " AND (" + nameCondition.toString() + ")";
-        } else if ("id".equals(searchType)) {
+        } else if ("id".equalsIgnoreCase(searchType)) {
             queryString += " AND LOWER(s.subjectId) LIKE LOWER(:keyword)";
         } else {
             logger.warn("Invalid searchType: {}", searchType);
@@ -121,12 +124,12 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
             TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
                     .setParameter("specialization", specialization);
 
-            if ("name".equals(searchType)) {
+            if ("name".equalsIgnoreCase(searchType)) {
                 String[] words = keyword.split("\\s+");
                 for (int i = 0; i < words.length; i++) {
                     query.setParameter("word" + i, "%" + words[i] + "%");
                 }
-            } else if ("id".equals(searchType)) {
+            } else if ("id".equalsIgnoreCase(searchType)) {
                 query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
@@ -158,6 +161,19 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
             logger.error("Error checking subject existence by name: {}", e.getMessage(), e);
             throw new RuntimeException("Error checking subject existence by name: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean isDuplicateSubjectName(String subjectName, String subjectId) {
+        if (subjectName == null || subjectName.trim().isEmpty()) {
+            logger.warn("Invalid subjectName for duplicate check: {}", subjectName);
+            return false;
+        }
+        SpecializedSubject existingSubject = subjectId != null ? getSubjectById(subjectId) : null;
+        if (existingSubject == null || !existingSubject.getSubjectName().equalsIgnoreCase(subjectName.trim())) {
+            return subjectsService.existsBySubjectNameExcludingId(subjectName.trim(), subjectId != null ? subjectId : "");
+        }
+        return false;
     }
 
     @Override
@@ -354,7 +370,7 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
             errors.put("subjectName", "Subject name cannot be blank.");
         } else if (!isValidName(subject.getSubjectName())) {
             errors.put("subjectName", "Subject name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        } else if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+        } else if (isDuplicateSubjectName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.put("subjectName", "Subject name is already in use.");
         }
         // Validate specialization

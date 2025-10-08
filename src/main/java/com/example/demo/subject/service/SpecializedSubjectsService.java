@@ -22,9 +22,10 @@ public interface SpecializedSubjectsService {
     SpecializedSubject editSubject(String id, SpecializedSubject subject);
     void deleteSubject(String id);
     String generateUniqueSubjectId(String specializationId, LocalDate createdDate);
+    boolean isDuplicateSubjectName(String subjectName, String subjectId);
     Map<String, String> validateSubject(SpecializedSubject subject, String specializationId, String curriculumId);
     List<SpecializedSubject> getPaginatedSubjects(int firstResult, int pageSize);
-    long numberOfSubjects(Majors  majors);
-    long numberOfSubjectsBySpecialization(String specializationId);
+    long numberOfSubjects(Majors majors);
     List<SpecializedSubject> getPaginatedSubjectsBySpecialization(int firstResult, int pageSize, String specializationId);
+    long numberOfSubjectsBySpecialization(String specializationId);
 }

@@ -15,4 +15,5 @@ public interface SubjectsService {
     boolean existsSubjectById(String subjectId);
     List<Subjects> YetAcceptedSubjects();
     void approveSubjects(List<String> subjectIds, String acceptorId);
+    boolean existsBySubjectNameExcludingId(String subjectName, String subjectId);
 }

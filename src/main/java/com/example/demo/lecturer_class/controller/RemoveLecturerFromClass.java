@@ -20,12 +20,10 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class RemoveLecturerFromClass {
     private  final ClassesService classesService;
-    private  final LecturesService  lecturesService;
     private final Lecturers_ClassesService lecturersClassesService;
 
-    public RemoveLecturerFromClass(ClassesService classesService, LecturesService lecturesService, Lecturers_ClassesService lecturersClassesService) {
+    public RemoveLecturerFromClass(ClassesService classesService, Lecturers_ClassesService lecturersClassesService) {
         this.classesService = classesService;
-        this.lecturesService = lecturesService;
 
         this.lecturersClassesService = lecturersClassesService;
     }

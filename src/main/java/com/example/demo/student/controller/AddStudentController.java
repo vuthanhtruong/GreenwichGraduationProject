@@ -4,17 +4,17 @@ import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
+import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.accountBalance.model.AccountBalances;
-import com.example.demo.authenticator.model.Authenticators;
-import com.example.demo.staff.service.StaffsService;
 import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;
+import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.model.Students;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.student.service.StudentsService;
-import com.example.demo.Specialization.model.Specialization; // Added for clarity
+import com.example.demo.Specialization.model.Specialization;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,8 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/students-list")
@@ -38,13 +38,13 @@ public class AddStudentController {
     private final AuthenticatorsService authenticatorsService;
     private final ParentAccountsService parentAccountsService;
     private final CurriculumService curriculumService;
-    private final SpecializationService specializationService; // Added
+    private final SpecializationService specializationService;
 
     public AddStudentController(StaffsService staffsService, StudentsService studentsService,
                                 PersonsService personsService, AccountBalancesService accountBalancesService,
                                 AuthenticatorsService authenticatorsService, ParentAccountsService parentAccountsService,
                                 CurriculumService curriculumService,
-                                SpecializationService specializationService) { // Added specializationService
+                                SpecializationService specializationService) {
         this.staffsService = staffsService;
         this.studentsService = studentsService;
         this.personsService = personsService;
@@ -52,7 +52,7 @@ public class AddStudentController {
         this.authenticatorsService = authenticatorsService;
         this.parentAccountsService = parentAccountsService;
         this.curriculumService = curriculumService;
-        this.specializationService = specializationService; // Added
+        this.specializationService = specializationService;
     }
 
     @PostMapping("/add-student")
@@ -71,18 +71,22 @@ public class AddStudentController {
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
-        List<String> errors = new ArrayList<>();
-        errors.addAll(studentsService.StudentValidation(student, avatarFile));
+        Map<String, String> errors = new HashMap<>();
+        errors.putAll(studentsService.StudentValidation(student, avatarFile));
+
+        // Check for duplicate emails between student and parents
         if (student.getEmail() != null && (student.getEmail().equals(parentEmail1) || student.getEmail().equals(parentEmail2))) {
-            errors.add("Student and parent emails cannot be duplicated.");
+            errors.put("email", "Student and parent emails cannot be duplicated.");
         }
+
+        // Validate parent inputs only if any field is provided
         boolean isParent1Provided = isAnyFieldProvided(parentEmail1, supportPhoneNumber1, parentRelationship1);
         if (isParent1Provided) {
-            errors.addAll(parentAccountsService.validateParentLink(parentEmail1, supportPhoneNumber1, parentRelationship1, "Parent 1"));
+            errors.putAll(parentAccountsService.validateParentLink(parentEmail1, supportPhoneNumber1, parentRelationship1, "Parent 1"));
         }
         boolean isParent2Provided = isAnyFieldProvided(parentEmail2, supportPhoneNumber2, parentRelationship2);
         if (isParent2Provided) {
-            errors.addAll(parentAccountsService.validateParentLink(parentEmail2, supportPhoneNumber2, parentRelationship2, "Parent 2"));
+            errors.putAll(parentAccountsService.validateParentLink(parentEmail2, supportPhoneNumber2, parentRelationship2, "Parent 2"));
         }
 
         if (!errors.isEmpty()) {
@@ -101,13 +105,13 @@ public class AddStudentController {
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
                     session.setAttribute("tempAvatarName", avatarFile.getOriginalFilename());
                 } catch (IOException e) {
-                    errors.add("Failed to store avatar temporarily: " + e.getMessage());
+                    errors.put("avatarFile", "Failed to store avatar temporarily: " + e.getMessage());
                 }
             }
             return "StudentsList";
@@ -115,22 +119,21 @@ public class AddStudentController {
 
         try {
             String studentId = studentsService.generateUniqueStudentId(
-                    specializationId, // Use specializationId instead of majorId for prefix
+                    specializationId,
                     student.getCreatedDate() != null ? student.getCreatedDate() : LocalDate.now());
             student.setId(studentId);
-
 
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 student.setAvatar(avatarFile.getBytes());
             } else if (session.getAttribute("tempAvatar") != null) {
                 student.setAvatar((byte[]) session.getAttribute("tempAvatar"));
             }
-            // Set the selected specialization
+
             Specialization specialization = specializationService.getSpecializationById(specializationId);
             Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
 
             String studentPassword = studentsService.generateRandomPassword(12);
-            studentsService.addStudents(student, curriculum, specialization, studentPassword); // Updated to include specialization
+            studentsService.addStudents(student, curriculum, specialization, studentPassword);
 
             Authenticators studentAuth = new Authenticators();
             studentAuth.setPersonId(studentId);
@@ -158,7 +161,7 @@ public class AddStudentController {
             redirectAttributes.addFlashAttribute("message", "Student added successfully!");
             return "redirect:/staff-home/students-list";
         } catch (IOException e) {
-            errors.add("Failed to process avatar: " + e.getMessage());
+            errors.put("general", "Failed to process avatar: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("parentEmail1", parentEmail1);
@@ -173,10 +176,10 @@ public class AddStudentController {
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";
         } catch (Exception e) {
-            errors.add("An error occurred while adding the student: " + e.getMessage());
+            errors.put("general", "An error occurred while adding the student: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("parentEmail1", parentEmail1);
@@ -191,7 +194,7 @@ public class AddStudentController {
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
             model.addAttribute("totalStudents", studentsService.numberOfStudents());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor())); // Added
+            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";
         }
     }

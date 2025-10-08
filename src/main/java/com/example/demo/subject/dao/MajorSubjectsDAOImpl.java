@@ -3,9 +3,9 @@ package com.example.demo.subject.dao;
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.subject.model.Subjects;
 import com.example.demo.classes.service.ClassesService;
 import com.example.demo.staff.service.StaffsService;
+import com.example.demo.subject.service.SubjectsService;
 import com.example.demo.syllabus.service.SyllabusesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -32,11 +32,14 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     private final StaffsService staffsService;
     private final SyllabusesService syllabusesService;
     private final ClassesService classesService;
+    private final SubjectsService subjectsService;
 
-    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService, ClassesService classesService) {
+    public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService,
+                                ClassesService classesService, SubjectsService subjectsService) {
         this.staffsService = staffsService;
         this.syllabusesService = syllabusesService;
         this.classesService = classesService;
+        this.subjectsService = subjectsService;
     }
 
     @Override
@@ -145,9 +148,9 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             return false;
         }
 
-        String queryString = "SELECT s FROM Subjects s WHERE s.subjectName = :name AND s.subjectId != :subjectId";
+        String queryString = "SELECT s FROM MajorSubjects s WHERE s.subjectName = :name AND s.subjectId != :subjectId";
         try {
-            List<Subjects> subjects = entityManager.createQuery(queryString, Subjects.class)
+            List<MajorSubjects> subjects = entityManager.createQuery(queryString, MajorSubjects.class)
                     .setParameter("name", subjectName.trim())
                     .setParameter("subjectId", subjectId != null ? subjectId : "")
                     .getResultList();
@@ -332,6 +335,18 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
     }
 
     @Override
+    public boolean isDuplicateSubjectName(String subjectName, String subjectId) {
+        if (subjectName == null || subjectName.trim().isEmpty()) {
+            return false;
+        }
+        MajorSubjects existingSubject = subjectId != null ? getSubjectById(subjectId) : null;
+        if (existingSubject == null || !existingSubject.getSubjectName().equalsIgnoreCase(subjectName.trim())) {
+            return subjectsService.existsBySubjectNameExcludingId(subjectName.trim(), subjectId != null ? subjectId : "");
+        }
+        return false;
+    }
+
+    @Override
     public Map<String, String> validateSubject(MajorSubjects subject, String curriculumId) {
         Map<String, String> errors = new HashMap<>();
 
@@ -340,18 +355,21 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             return errors;
         }
 
+        // Validate subject name
         if (subject.getSubjectName() == null || subject.getSubjectName().trim().isEmpty()) {
             errors.put("subjectName", "Subject name is required");
         } else if (!isValidName(subject.getSubjectName())) {
             errors.put("subjectName", "Subject name must contain letters, numbers, spaces, or standard punctuation (2-50 characters)");
-        } else if (existsBySubjectExcludingName(subject.getSubjectName(), subject.getSubjectId())) {
+        } else if (isDuplicateSubjectName(subject.getSubjectName(), subject.getSubjectId())) {
             errors.put("subjectName", "Subject name already exists");
         }
 
+        // Validate semester
         if (subject.getSemester() == null || subject.getSemester() < 1) {
             errors.put("semester", "Semester must be a positive number");
         }
 
+        // Validate curriculum
         if (curriculumId == null || curriculumId.trim().isEmpty()) {
             errors.put("curriculumId", "Curriculum is required");
         } else {
@@ -361,6 +379,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
             }
         }
 
+        // Validate staff and major
         if (staffsService.getStaff() == null) {
             errors.put("general", "Authenticated staff not found");
         } else if (staffsService.getStaffMajor() == null) {

@@ -10,8 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin-home")
@@ -42,7 +41,7 @@ public class CurriculumController {
             curriculum.setCurriculumId(curriculumService.generateUniqueCurriculumId());
         }
 
-        List<String> errors = new ArrayList<>(curriculumService.validateCurriculum(curriculum).size());
+        Map<String, String> errors = curriculumService.validateCurriculum(curriculum);
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("openAddOverlay", true);
@@ -58,7 +57,7 @@ public class CurriculumController {
             return "redirect:/admin-home/curriculums-list";
         } catch (Exception e) {
             logger.error("Error adding curriculum: {}", e.getMessage());
-            errors.add("An error occurred while adding the curriculum: " + e.getMessage());
+            errors.put("general", "An error occurred while adding the curriculum: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("curriculum", curriculum);
@@ -99,7 +98,7 @@ public class CurriculumController {
             @ModelAttribute("editCurriculum") Curriculum curriculum,
             Model model,
             RedirectAttributes redirectAttributes) {
-        List<String> errors = new ArrayList<>(curriculumService.validateCurriculum(curriculum).size());
+        Map<String, String> errors = curriculumService.validateCurriculum(curriculum);
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
             model.addAttribute("openEditOverlay", true);
@@ -115,7 +114,7 @@ public class CurriculumController {
             return "redirect:/admin-home/curriculums-list";
         } catch (Exception e) {
             logger.error("Error updating curriculum: {}", e.getMessage());
-            errors.add("An error occurred while updating the curriculum: " + e.getMessage());
+            errors.put("general", "An error occurred while updating the curriculum: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("openEditOverlay", true);
             model.addAttribute("curriculum", new Curriculum());

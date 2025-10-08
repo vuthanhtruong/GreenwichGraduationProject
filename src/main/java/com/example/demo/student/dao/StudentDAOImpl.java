@@ -33,9 +33,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -47,10 +45,6 @@ public class StudentDAOImpl implements StudentsDAO {
     private final StaffsService staffsService;
     private final PersonsService personsService;
     private final EmailServiceForStudentService emailServiceForStudentService;
-    private final EmailServiceForLecturerService emailServiceForLectureService;
-    private final AccountBalancesService accountBalancesService;
-    private final AuthenticatorsService authenticatorsService;
-    private final SpecializationService  specializationService;
 
     // Base directory and URL for avatar storage
     private static final String AVATAR_STORAGE_PATH = "avatars/";
@@ -58,17 +52,12 @@ public class StudentDAOImpl implements StudentsDAO {
 
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
                           EmailServiceForLecturerService emailServiceForLectureService,
-                          AccountBalancesService accountBalancesService,
-                          StaffsService staffsService, AuthenticatorsService authenticatorsService, SpecializationService specializationService) {
+                          StaffsService staffsService) {
         this.personsService = personsService;
-        this.accountBalancesService = accountBalancesService;
-        this.authenticatorsService = authenticatorsService;
-        this.specializationService = specializationService;
         if (emailServiceForStudentService == null || emailServiceForLectureService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
         this.emailServiceForStudentService = emailServiceForStudentService;
-        this.emailServiceForLectureService = emailServiceForLectureService;
         this.staffsService = staffsService;
 
         // Ensure avatar storage directory exists
@@ -132,41 +121,43 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public List<String> StudentValidation(Students student, MultipartFile avatarFile) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> StudentValidation(Students student, MultipartFile avatarFile) {
+        Map<String, String> errors = new HashMap<>();
+
         if (student.getFirstName() == null || !isValidName(student.getFirstName())) {
-            errors.add("First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("firstName", "First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (student.getLastName() == null || !isValidName(student.getLastName())) {
-            errors.add("Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("lastName", "Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (student.getEmail() != null && !isValidEmail(student.getEmail())) {
-            errors.add("Invalid email format.");
+            errors.put("email", "Invalid email format.");
         }
         if (student.getPhoneNumber() != null && !isValidPhoneNumber(student.getPhoneNumber())) {
-            errors.add("Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
+            errors.put("phoneNumber", "Invalid phone number format. Must be 10-15 digits, optionally starting with '+'.");
         }
         if (student.getBirthDate() != null && student.getBirthDate().isAfter(LocalDate.now())) {
-            errors.add("Date of birth must be in the past.");
+            errors.put("birthDate", "Date of birth must be in the past.");
         }
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String contentType = avatarFile.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                errors.add("Avatar must be an image file.");
+                errors.put("avatarFile", "Avatar must be an image file.");
             }
             if (avatarFile.getSize() > 5 * 1024 * 1024) {
-                errors.add("Avatar file size must not exceed 5MB.");
+                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
         }
         if (student.getGender() == null) {
-            errors.add("Gender is required to assign a default avatar.");
+            errors.put("gender", "Gender is required to assign a default avatar.");
         }
         if (student.getEmail() != null && personsService.existsByEmailExcludingId(student.getEmail(), student.getId() != null ? student.getId() : "")) {
-            errors.add("The email address is already associated with another account.");
+            errors.put("email", "The email address is already associated with another account.");
         }
         if (student.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(student.getPhoneNumber(), student.getId() != null ? student.getId() : "")) {
-            errors.add("The phone number is already associated with another account.");
+            errors.put("phoneNumber", "The phone number is already associated with another account.");
         }
+
         return errors;
     }
 

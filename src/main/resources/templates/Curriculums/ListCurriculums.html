@@ -83,7 +83,7 @@
                 <div th:if="${errors}" class="win11-alert error">
                     <i class="fas fa-exclamation-circle"></i>
                     <ul>
-                        <li th:each="error : ${errors}" th:text="${error}"></li>
+                        <li th:each="error : ${errors.values()}" th:text="${error}"></li>
                     </ul>
                 </div>
                 <form th:action="@{/admin-home/curriculums-list/add-curriculum}" th:object="${curriculum}" method="post">
@@ -91,12 +91,12 @@
                         <div class="form-row">
                             <label for="name"><i class="fas fa-book"></i> Curriculum Name:</label>
                             <input id="name" class="input" th:field="*{name}" type="text" required>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('name') or error.contains('Name')}" th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('name')}" th:text="${errors.get('name')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="description"><i class="fas fa-info-circle"></i> Description (optional):</label>
                             <textarea id="description" class="input" th:field="*{description}" rows="4"></textarea>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('description') or error.contains('Description')}" th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('description')}" th:text="${errors.get('description')}"></div>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -119,7 +119,7 @@
                 <div th:if="${errors}" class="win11-alert error">
                     <i class="fas fa-exclamation-circle"></i>
                     <ul>
-                        <li th:each="error : ${errors}" th:text="${error}"></li>
+                        <li th:each="error : ${errors.values()}" th:text="${error}"></li>
                     </ul>
                 </div>
                 <form th:action="@{/admin-home/curriculums-list/edit-curriculum}" th:object="${editCurriculum}" method="post">
@@ -128,12 +128,12 @@
                         <div class="form-row">
                             <label for="editName"><i class="fas fa-book"></i> Curriculum Name:</label>
                             <input id="editName" class="input" th:field="*{name}" type="text" required>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('name') or error.contains('Name')}" th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('name')}" th:text="${errors.get('name')}"></div>
                         </div>
                         <div class="form-row">
                             <label for="editDescription"><i class="fas fa-info-circle"></i> Description (optional):</label>
                             <textarea id="editDescription" class="input" th:field="*{description}" rows="4"></textarea>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('description') or error.contains('Description')}" th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('description')}" th:text="${errors.get('description')}"></div>
                         </div>
                     </div>
                     <div class="form-actions">

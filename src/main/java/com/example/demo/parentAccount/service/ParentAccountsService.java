@@ -5,6 +5,7 @@ import com.example.demo.parentAccount.model.ParentAccounts;
 import com.example.demo.entity.Student_ParentAccounts;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ParentAccountsService {
     void addParentAccounts(ParentAccounts parent);
@@ -16,8 +17,8 @@ public interface ParentAccountsService {
     void removeParentLink(Student_ParentAccounts parentLink);
     Student_ParentAccounts linkStudentToParent(Student_ParentAccounts studentParent);
     long countLinkedStudents(String parentId, String excludeStudentId);
-    List<String> validateParent(ParentAccounts parent);
-    List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel);
+    Map<String, String> validateParent(ParentAccounts parent);
+    Map<String, String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel);
     String generateUniqueParentId();
     String generateRandomPassword(int length);
     void editParentLink(Student_ParentAccounts existingLink, RelationshipToStudent relationship, String supportPhoneNumber);

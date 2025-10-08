@@ -13,6 +13,24 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class SubjectsDAOImpl implements SubjectsDAO {
+
+    @Override
+    public boolean existsBySubjectNameExcludingId(String subjectName, String subjectId) {
+        if (subjectName == null || subjectName.trim().isEmpty()) {
+            return false;
+        }
+
+        String queryString = "SELECT s FROM Subjects s WHERE s.subjectName = :name AND s.subjectId != :subjectId";
+        try {
+            List<Subjects> subjects = entityManager.createQuery(queryString, Subjects.class)
+                    .setParameter("name", subjectName.trim())
+                    .setParameter("subjectId", subjectId != null ? subjectId : "")
+                    .getResultList();
+            return !subjects.isEmpty();
+        } catch (Exception e) {
+            throw new RuntimeException("Error checking subject existence: " + e.getMessage(), e);
+        }
+    }
     @Override
     public List<Subjects> YetAcceptedSubjects() {
         return entityManager.createQuery(

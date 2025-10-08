@@ -24,4 +24,5 @@ public interface MajorSubjectsService {
     Map<String, String> validateSubject(MajorSubjects subject, String curriculumId);
     List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
     long numberOfSubjects(Majors major);
+    boolean isDuplicateSubjectName(String subjectName, String subjectId);
 }

@@ -9,10 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
 public class ParentAccountsServiceImpl implements ParentAccountsService {
+    @Override
+    public Map<String, String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
+        return parentAccountsDAO.validateParentLink(email, supportPhoneNumber, relationship, parentLabel);
+    }
+
+    @Override
+    public Map<String, String> validateParent(ParentAccounts parent) {
+        return parentAccountsDAO.validateParent(parent);
+    }
 
     private final ParentAccountsDAO parentAccountsDAO;
 
@@ -71,15 +81,6 @@ public class ParentAccountsServiceImpl implements ParentAccountsService {
         return parentAccountsDAO.countLinkedStudents(parentId, excludeStudentId);
     }
 
-    @Override
-    public List<String> validateParent(ParentAccounts parent) {
-        return parentAccountsDAO.validateParent(parent);
-    }
-
-    @Override
-    public List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
-        return parentAccountsDAO.validateParentLink(email, supportPhoneNumber, relationship, parentLabel);
-    }
 
     @Override
     public String generateUniqueParentId() {

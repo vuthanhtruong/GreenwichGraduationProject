@@ -11,9 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StudentsServiceImpl implements StudentsService {
+    @Override
+    public Map<String, String> StudentValidation(Students student, MultipartFile avatarFile) {
+        return studentsDAO.StudentValidation(student, avatarFile);
+    }
+
     @Override
     public Students addStudents(Students students, Curriculum curriculum, Specialization specialization, String randomPassword) {
         return studentsDAO.addStudents(students, curriculum,specialization, randomPassword);
@@ -66,11 +72,6 @@ public class StudentsServiceImpl implements StudentsService {
     @Override
     public String generateRandomPassword(int length) {
         return studentsDAO.generateRandomPassword(length);
-    }
-
-    @Override
-    public List<String> StudentValidation(Students student, MultipartFile avatarFile) {
-        return studentsDAO.StudentValidation(student, avatarFile);
     }
 
     @Override

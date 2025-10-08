@@ -17,6 +17,11 @@ import java.util.Map;
 @Transactional
 public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsService {
     @Override
+    public boolean isDuplicateSubjectName(String subjectName, String subjectId) {
+        return specializedSubjectsDAO.isDuplicateSubjectName(subjectName, subjectId);
+    }
+
+    @Override
     public long numberOfSubjectsBySpecialization(String specializationId) {
         return specializedSubjectsDAO.numberOfSubjectsBySpecialization(specializationId);
     }

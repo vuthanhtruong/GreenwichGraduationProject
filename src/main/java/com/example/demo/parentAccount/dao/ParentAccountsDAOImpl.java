@@ -17,9 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -136,73 +134,83 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     }
 
     @Override
-    public List<String> validateParent(ParentAccounts parent) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateParent(ParentAccounts parent) {
+        Map<String, String> errors = new HashMap<>();
         if (parent == null) {
-            errors.add("Parent account cannot be null");
+            errors.put("general", "Parent account cannot be null");
             return errors;
         }
         if (!isNullOrBlank(parent.getFirstName()) && !isValidName(parent.getFirstName())) {
-            errors.add("Parent first name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("firstName", "Parent first name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (!isNullOrBlank(parent.getLastName()) && !isValidName(parent.getLastName())) {
-            errors.add("Parent last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("lastName", "Parent last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
         }
         if (!isNullOrBlank(parent.getEmail())) {
             if (!isValidEmail(parent.getEmail())) {
-                errors.add("Invalid parent email format.");
+                errors.put("email", "Invalid parent email format.");
             } else if (personsService.existsByEmail(parent.getEmail())) {
                 ParentAccounts existingParent = findByEmail(parent.getEmail());
                 if (existingParent == null) {
-                    errors.add("The email address is already associated with another account type.");
+                    errors.put("email", "The email address is already associated with another account type.");
                 }
             }
         }
         if (!isNullOrBlank(parent.getPhoneNumber())) {
             if (!isValidPhoneNumber(parent.getPhoneNumber())) {
-                errors.add("Invalid parent phone number format. Must be 10-15 digits, optionally starting with '+'.");
+                errors.put("phoneNumber", "Invalid parent phone number format. Must be 10-15 digits, optionally starting with '+'.");
             } else if (personsService.existsByPhoneNumber(parent.getPhoneNumber())) {
                 ParentAccounts existingParent = findByPhoneNumber(parent.getPhoneNumber());
                 if (existingParent == null) {
-                    errors.add("The phone number is already associated with another account.");
+                    errors.put("phoneNumber", "The phone number is already associated with another account.");
                 }
             }
         }
         if (parent.getBirthDate() != null && parent.getBirthDate().isAfter(LocalDate.now())) {
-            errors.add("Date of birth must be in the past.");
+            errors.put("birthDate", "Date of birth must be in the past.");
         }
         return errors;
     }
 
     @Override
-    public List<String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
+        Map<String, String> errors = new HashMap<>();
+        String prefix = parentLabel.toLowerCase().replace(" ", "_") + "_";
+
         // Skip validation if all fields are empty
         if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
             return errors;
         }
+
         // Email is required if any field is provided
         if (email == null || email.trim().isEmpty()) {
-            errors.add(parentLabel + ": Email is required when other parent fields are provided.");
+            errors.put(prefix + "email", parentLabel + ": Email is required when other parent fields are provided.");
             return errors;
         }
+
+        // Validate parent email
         ParentAccounts parent = new ParentAccounts();
         parent.setEmail(email);
-        List<String> parentErrors = validateParent(parent);
-        parentErrors.forEach(error -> errors.add(parentLabel + ": " + error));
+        Map<String, String> parentErrors = validateParent(parent);
+        parentErrors.forEach((key, value) -> errors.put(prefix + key, parentLabel + ": " + value));
+
+        // Validate support phone number
         if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
             if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
-                errors.add(parentLabel + ": Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
+                errors.put(prefix + "supportPhoneNumber", parentLabel + ": Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
             }
         }
+
+        // Validate relationship
         if (relationship != null && !relationship.trim().isEmpty()) {
             try {
                 RelationshipToStudent.valueOf(relationship.toUpperCase());
             } catch (IllegalArgumentException e) {
-                errors.add(parentLabel + ": Invalid relationship to student. Allowed values: " +
+                errors.put(prefix + "relationship", parentLabel + ": Invalid relationship to student. Allowed values: " +
                         String.join(", ", getRelationshipValues()));
             }
         }
+
         return errors;
     }
 

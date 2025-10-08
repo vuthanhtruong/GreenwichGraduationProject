@@ -20,6 +20,10 @@
         <i class="fas fa-check-circle"></i>
         <span th:text="${message}"></span>
     </div>
+    <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errors.get('general')}"></span>
+    </div>
 
     <!-- Unified Toolbar -->
     <div class="search-toolbar">
@@ -169,69 +173,60 @@
             <form method="post" th:action="@{/staff-home/students-list/add-student}" th:object="${student}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
+                <!-- General Errors -->
+                <div th:if="${errors != null and errors.containsKey('general')}" class="win11-alert error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${errors.get('general')}"></span>
+                </div>
+
                 <!-- Avatar -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
                     <div class="form-row">
                         <label for="avatarFile"><i class="fas fa-upload"></i> Select Avatar:</label>
                         <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
-                        <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('avatar') or error.contains('Avatar')}" th:text="${error}"></div>
+                        <div class="text-danger" th:if="${errors != null and errors.containsKey('avatarFile')}" th:text="${errors.get('avatarFile')}"></div>
                         <div th:if="${session.tempAvatarName}" class="form-text">
                             <i class="fas fa-clock"></i> Previously selected: <span th:text="${session.tempAvatarName}"></span>
                         </div>
                     </div>
                 </section>
 
+                <!-- Student Information -->
                 <section class="win11-panel">
                     <h2 class="panel-header"><i class="fas fa-user"></i> Student Information</h2>
                     <div class="form-group grid-2">
-
                         <!-- First Name -->
                         <div class="form-row">
                             <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
                             <input id="firstName" th:field="*{firstName}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('first name')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('firstName')}" th:text="${errors.get('firstName')}"></div>
                         </div>
-
                         <!-- Last Name -->
                         <div class="form-row">
                             <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
                             <input id="lastName" th:field="*{lastName}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('last name')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('lastName')}" th:text="${errors.get('lastName')}"></div>
                         </div>
-
                         <!-- Email -->
                         <div class="form-row">
                             <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="email" th:field="*{email}" required type="email" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('email')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('email')}" th:text="${errors.get('email')}"></div>
                             <small class="form-text"><i class="fas fa-info-circle"></i> Account details and password will be emailed.</small>
                         </div>
-
                         <!-- Phone -->
                         <div class="form-row">
                             <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
                             <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('phone')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('phoneNumber')}" th:text="${errors.get('phoneNumber')}"></div>
                         </div>
-
                         <!-- Birth Date -->
                         <div class="form-row">
                             <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
                             <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('birth')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
                         </div>
-
                         <!-- Gender -->
                         <div class="form-row">
                             <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
@@ -240,42 +235,29 @@
                                 <option th:each="gender : ${T(com.example.demo.entity.Enums.Gender).values()}"
                                         th:value="${gender}" th:text="${gender}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('gender')}"
-                                 th:text="${error}"></div>
+                            <div class="text-danger" th:if="${errors != null and errors.containsKey('gender')}" th:text="${errors.get('gender')}"></div>
                         </div>
-
                         <!-- Curriculum -->
                         <div class="form-row">
                             <label for="curriculum"><i class="fas fa-book"></i> Curriculum:</label>
                             <select id="curriculum" name="curriculumId" required class="input">
-                            <option value="">Select Curriculum</option>
+                                <option value="">Select Curriculum</option>
                                 <option th:each="curriculum : ${curriculums}"
                                         th:value="${curriculum.getCurriculumId()}" th:text="${curriculum.getName()}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('curriculum')}"
-                                 th:text="${error}"></div>
+                            <!-- Note: No error handling for curriculumId as it's not in StudentValidation -->
                         </div>
-
                         <!-- Specialization -->
                         <div class="form-row">
-                            <label for="specialization">
-                                <i class="fas fa-graduation-cap"></i> Narrow Specialization:
-                            </label>
+                            <label for="specialization"><i class="fas fa-graduation-cap"></i> Narrow Specialization:</label>
                             <select id="specialization" name="specializationId" required class="input">
-                            <option value="">Select Narrow Specialization</option>
+                                <option value="">Select Narrow Specialization</option>
                                 <option th:each="spec : ${specializations}"
                                         th:value="${spec.specializationId}"
-                                        th:text="${spec.specializationName}">
-                                </option>
+                                        th:text="${spec.specializationName}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('specialization')}"
-                                 th:text="${error}">
-                            </div>
+                            <!-- Note: No error handling for specializationId as it's not in StudentValidation -->
                         </div>
-
                     </div>
                 </section>
 
@@ -325,10 +307,12 @@
                             <div class="form-row">
                                 <label for="parentEmail1"><i class="fas fa-envelope"></i> Email:</label>
                                 <input id="parentEmail1" name="parentEmail1" type="email" th:value="${parentEmail1}" class="input">
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_email')}" th:text="${errors.get('parent1_email')}"></div>
                             </div>
                             <div class="form-row">
                                 <label for="supportPhoneNumber1"><i class="fas fa-phone"></i> Support Phone:</label>
                                 <input id="supportPhoneNumber1" name="supportPhoneNumber1" type="text" th:value="${supportPhoneNumber1}" class="input">
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_supportPhoneNumber')}" th:text="${errors.get('parent1_supportPhoneNumber')}"></div>
                             </div>
                             <div class="form-row">
                                 <label for="parentRelationship1"><i class="fas fa-handshake"></i> Relationship:</label>
@@ -337,6 +321,7 @@
                                     <option th:each="relationship : ${relationshipTypes}"
                                             th:value="${relationship}" th:text="${relationship}" th:selected="${parentRelationship1 == relationship.toString()}"></option>
                                 </select>
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent1_relationship')}" th:text="${errors.get('parent1_relationship')}"></div>
                             </div>
                         </div>
                         <!-- Parent 2 -->
@@ -345,10 +330,12 @@
                             <div class="form-row">
                                 <label for="parentEmail2"><i class="fas fa-envelope"></i> Email:</label>
                                 <input id="parentEmail2" name="parentEmail2" type="email" th:value="${parentEmail2}" class="input">
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_email')}" th:text="${errors.get('parent2_email')}"></div>
                             </div>
                             <div class="form-row">
                                 <label for="supportPhoneNumber2"><i class="fas fa-phone"></i> Support Phone:</label>
                                 <input id="supportPhoneNumber2" name="supportPhoneNumber2" type="text" th:value="${supportPhoneNumber2}" class="input">
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_supportPhoneNumber')}" th:text="${errors.get('parent2_supportPhoneNumber')}"></div>
                             </div>
                             <div class="form-row">
                                 <label for="parentRelationship2"><i class="fas fa-handshake"></i> Relationship:</label>
@@ -357,6 +344,7 @@
                                     <option th:each="relationship : ${relationshipTypes}"
                                             th:value="${relationship}" th:text="${relationship}" th:selected="${parentRelationship2 == relationship.toString()}"></option>
                                 </select>
+                                <div class="text-danger" th:if="${errors != null and errors.containsKey('parent2_relationship')}" th:text="${errors.get('parent2_relationship')}"></div>
                             </div>
                         </div>
                     </div>
@@ -385,3 +373,5 @@
         openOverlay();
     });
 </script>
+</body>
+</html>
