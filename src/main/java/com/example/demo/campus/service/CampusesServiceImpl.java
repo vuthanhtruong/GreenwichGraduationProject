@@ -13,6 +13,11 @@ import java.util.Map;
 @Service
 public class CampusesServiceImpl implements CampusesService{
     @Override
+    public List<Campuses> listOfExceptionFieldsCampus() {
+        return campusesDAO.listOfExceptionFieldsCampus();
+    }
+
+    @Override
     public List<Campuses> existsCampusByName(String campusName) {
         return campusesDAO.existsCampusByName(campusName);
     }

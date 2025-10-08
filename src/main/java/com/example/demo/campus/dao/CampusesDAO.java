@@ -21,5 +21,6 @@ public interface CampusesDAO {
     Map<String, Map<String, Long>> getCampusCounts();
     List<String> validateCampus(Campuses campus, MultipartFile avatarFile);
     List<Campuses> existsCampusByName(String campusName);
+    List<Campuses> listOfExceptionFieldsCampus();
 
 }

@@ -25,12 +25,10 @@ import java.util.stream.IntStream;
 public class ListSubjectsForReStudyController {
 
     private final TuitionByYearService tuitionService;
-    private final SubjectsService subjectService;
     private final CampusesService campusService;
 
-    public ListSubjectsForReStudyController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService) {
+    public ListSubjectsForReStudyController(TuitionByYearService tuitionService, CampusesService campusService) {
         this.tuitionService = tuitionService;
-        this.subjectService = subjectService;
         this.campusService = campusService;
     }
 

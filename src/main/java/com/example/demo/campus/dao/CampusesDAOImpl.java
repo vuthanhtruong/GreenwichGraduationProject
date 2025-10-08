@@ -1,9 +1,9 @@
 package com.example.demo.campus.dao;
 
+import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +18,17 @@ import java.util.Map;
 @Repository
 @Transactional
 public class CampusesDAOImpl implements CampusesDAO {
+    private final AdminsService  adminsService;
+
+    public CampusesDAOImpl(AdminsService adminsService) {
+        this.adminsService = adminsService;
+    }
+
+    @Override
+    public List<Campuses> listOfExceptionFieldsCampus() {
+        return entityManager.createQuery("from Campuses c where c.id!=:campus", Campuses.class).setParameter("campus", adminsService.getAdminCampus().getCampusId()).getResultList();
+    }
+
     @Override
     public List<Campuses> existsCampusByName(String campusName) {
         return entityManager.createQuery("from Campuses c where c.campusName=:campusname", Campuses.class).setParameter("campusname", campusName).getResultList();

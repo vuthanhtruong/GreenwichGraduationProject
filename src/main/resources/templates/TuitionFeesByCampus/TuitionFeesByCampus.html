@@ -15,31 +15,17 @@
         <h1><i class="fas fa-university"></i> Reference Tuition Fees</h1>
     </header>
 
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-    <div th:if="${warningMessage}" class="win11-alert warning">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span th:text="${warningMessage}"></span>
-    </div>
-
     <!-- Toolbar -->
     <div class="search-toolbar">
         <!-- Left: Back to Main Page -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home/subjects-list}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Manage Tuition Fees
+            <a th:href="@{/admin-home/tuition-management}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Manage Tuition Fees <span th:text="${mycampus.campusName}"></span>
             </a>
         </div>
 
         <!-- Center: Select Campus and Year -->
-        <form method="post" th:action="@{/admin-home/subjects-list/reference}" class="toolbar-center">
+        <form method="post" th:action="@{/admin-home/tuition-management/reference}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div class="d-flex align-items-center">
                 <label for="campusId" class="me-2"><i class="fas fa-university"></i> Campus:</label>

@@ -50,7 +50,7 @@ public class UpdateTuitionController {
             int currentYear = LocalDate.now().getYear();
             if (admissionYear < currentYear) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Cannot update tuition fees for past years.");
-                return "redirect:/admin-home/subjects-list";
+                return "redirect:/admin-home/tuition-management";
             }
 
             session.setAttribute("admissionYear", admissionYear);
@@ -60,7 +60,7 @@ public class UpdateTuitionController {
             Campuses adminCampus = adminsService.getAdminCampus();
             if (adminCampus == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Admin's campus not found.");
-                return "redirect:/admin-home/subjects-list";
+                return "redirect:/admin-home/tuition-management";
             }
 
             List<Subjects> allSubjects = subjectService.getSubjects();
@@ -122,6 +122,6 @@ public class UpdateTuitionController {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Error updating tuition fees: " + e.getMessage());
         }
-        return "redirect:/admin-home/subjects-list";
+        return "redirect:/admin-home/tuition-management";
     }
 }

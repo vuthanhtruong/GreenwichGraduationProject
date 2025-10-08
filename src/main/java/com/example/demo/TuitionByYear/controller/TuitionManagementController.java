@@ -1,7 +1,8 @@
-package com.example.demo.subject.controller;
+package com.example.demo.TuitionByYear.controller;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
+import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.subject.service.SubjectsService;
@@ -22,26 +23,26 @@ import java.util.stream.IntStream;
 @Controller
 @RequestMapping("/admin-home")
 @PreAuthorize("hasRole('ADMIN')")
-public class ListSubjectsController {
+public class TuitionManagementController {
 
     private final TuitionByYearService tuitionService;
     private final SubjectsService subjectService;
     private final CampusesService campusService;
 
-    public ListSubjectsController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService) {
+    public TuitionManagementController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService) {
         this.tuitionService = tuitionService;
         this.subjectService = subjectService;
         this.campusService = campusService;
     }
 
     // Hiển thị trang ban đầu
-    @GetMapping("/subjects-list")
+    @GetMapping("/tuition-management")
     public String showSubjectsList(Model model, HttpSession session) {
         Integer admissionYear = (Integer) session.getAttribute("admissionYear");
         return listSubjects(model, admissionYear, session);
     }
 
-    @PostMapping("/subjects-list")
+    @PostMapping("/tuition-management")
     public String listSubjects(Model model,
                                @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
                                HttpSession session) {
@@ -87,8 +88,7 @@ public class ListSubjectsController {
         model.addAttribute("withFee", withFee);
         model.addAttribute("withoutFee", withoutFee);
         model.addAttribute("tuitionMap", tuitionMap);
-        model.addAttribute("Campuses", campusService.getCampuses());
-
-        return "AdminSubjectsList";
+        model.addAttribute("Campuses", campusService.listOfExceptionFieldsCampus());
+        return "TuitionManagement";
     }
 }

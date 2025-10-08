@@ -16,16 +16,6 @@
         <h1><i class="fas fa-book"></i> Approve Subjects</h1>
     </header>
 
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-
     <!-- Unified Toolbar -->
     <div class="search-toolbar">
         <!-- Left -->
@@ -33,7 +23,7 @@
             <a th:href="@{/admin-home}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Home
             </a>
-            <form th:action="@{/admin-home/subjects-list}" method="post" class="d-inline">
+            <form th:action="@{/admin-home/tuition-management}" method="post" class="d-inline">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="admissionYear" th:value="${admissionYear}">
                 <button type="submit" class="btn btn-secondary">
@@ -52,8 +42,9 @@
     </div>
 
     <!-- Subjects Table -->
-    <form th:action="@{/admin-home/subjects-list/approve-subjects/approve}" method="post" class="table-container">
+    <form th:action="@{/admin-home/tuition-management/approve-subjects/approve}" method="post" class="table-container">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="admissionYear" th:value="${admissionYear}">
         <table class="win11-table table table-bordered table-striped">
             <thead>
             <tr>

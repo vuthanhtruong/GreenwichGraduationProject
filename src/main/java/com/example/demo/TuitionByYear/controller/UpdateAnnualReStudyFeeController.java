@@ -29,14 +29,11 @@ import java.util.Map;
 public class UpdateAnnualReStudyFeeController {
 
     private final TuitionByYearService tuitionService;
-    private final SubjectsService subjectService;
     private final AdminsService adminsService;
 
     public UpdateAnnualReStudyFeeController(TuitionByYearService tuitionService,
-                                            SubjectsService subjectService,
                                             AdminsService adminsService) {
         this.tuitionService = tuitionService;
-        this.subjectService = subjectService;
         this.adminsService = adminsService;
     }
 
