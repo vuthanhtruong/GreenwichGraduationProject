@@ -254,10 +254,10 @@
     function closeOverlay() {
         document.getElementById('addOverlay').classList.remove('active');
     }
+</script>
+<script th:if="${openAddOverlay}">
     document.addEventListener("DOMContentLoaded", function () {
-        if (document.querySelector('.alert-danger') || ${openAddOverlay} == true) {
-            openOverlay();
-        }
+        openOverlay();
     });
 </script>
 </body>

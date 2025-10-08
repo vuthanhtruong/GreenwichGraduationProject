@@ -10,6 +10,15 @@ import java.util.List;
 
 @Service
 public class MajorLecturersSpecializationsServiceImpl implements MajorLecturersSpecializationsService {
+    @Override
+    public List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults) {
+        return majorLecturersSpecializationsDAO.getLecturersNotAssignedToSpecialization( specialization, firstResult, maxResults );
+    }
+
+    @Override
+    public List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults) {
+        return majorLecturersSpecializationsDAO.getLecturersAssignedToSpecialization( specialization, firstResult, maxResults );
+    }
 
     private final MajorLecturersSpecializationsDAO majorLecturersSpecializationsDAO;
 
@@ -49,17 +58,6 @@ public class MajorLecturersSpecializationsServiceImpl implements MajorLecturersS
 
     @Override
     public void addLecturerSpecialization(MajorLecturers_Specializations assignment) {
-        if (assignment == null) {
-            throw new IllegalArgumentException("Assignment cannot be null");
-        }
-
-        // Kiểm tra tránh thêm trùng lặp
-        if (isLecturerAlreadyAssignedToSpecialization(
-                assignment.getMajorLecturer().getId(),
-                assignment.getSpecialization().getSpecializationId())) {
-            throw new IllegalStateException("Lecturer is already assigned to this specialization.");
-        }
-
         try {
             majorLecturersSpecializationsDAO.addLecturerSpecialization(assignment);
         } catch (Exception e) {

@@ -8,6 +8,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpecializationsDAO {
+
+    private static final Logger logger = LoggerFactory.getLogger(MajorLecturersSpecializationsDAOImpl.class);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -31,6 +35,8 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
     @Override
     public List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization) {
         if (specialization == null || specialization.getSpecializationId() == null || staffsService.getStaffMajor() == null) {
+            logger.warn("Invalid input for getLecturersNotAssignedToSpecialization: specialization={}, staffMajor={}",
+                    specialization, staffsService.getStaffMajor());
             return List.of();
         }
 
@@ -42,9 +48,12 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
                     MajorLecturers.class);
             query.setParameter("specializationId", specialization.getSpecializationId());
             query.setParameter("major", staffsService.getStaffMajor());
-            return query.getResultList();
+            List<MajorLecturers> result = query.getResultList();
+            logger.info("Fetched {} unassigned lecturers for specialization {}", result.size(), specialization.getSpecializationId());
+            return result;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error fetching unassigned lecturers for specialization {}: {}",
+                    specialization.getSpecializationId(), e.getMessage(), e);
             return List.of();
         }
     }
@@ -52,6 +61,8 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
     @Override
     public List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization) {
         if (specialization == null || specialization.getSpecializationId() == null || staffsService.getStaffMajor() == null) {
+            logger.warn("Invalid input for getLecturersAssignedToSpecialization: specialization={}, staffMajor={}",
+                    specialization, staffsService.getStaffMajor());
             return List.of();
         }
 
@@ -62,9 +73,12 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
                     MajorLecturers_Specializations.class);
             query.setParameter("specializationId", specialization.getSpecializationId());
             query.setParameter("major", staffsService.getStaffMajor());
-            return query.getResultList();
+            List<MajorLecturers_Specializations> result = query.getResultList();
+            logger.info("Fetched {} assigned lecturers for specialization {}", result.size(), specialization.getSpecializationId());
+            return result;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error fetching assigned lecturers for specialization {}: {}",
+                    specialization.getSpecializationId(), e.getMessage(), e);
             return List.of();
         }
     }
@@ -72,6 +86,8 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
     @Override
     public boolean isLecturerAlreadyAssignedToSpecialization(String lecturerId, String specializationId) {
         if (lecturerId == null || specializationId == null) {
+            logger.warn("Invalid input for isLecturerAlreadyAssignedToSpecialization: lecturerId={}, specializationId={}",
+                    lecturerId, specializationId);
             return false;
         }
 
@@ -83,28 +99,26 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
                     .setParameter("lecturerId", lecturerId)
                     .setParameter("specializationId", specializationId)
                     .getSingleResult();
-            return count > 0;
+            boolean isAssigned = count > 0;
+            logger.info("Checked assignment for lecturer {} and specialization {}: {}", lecturerId, specializationId, isAssigned);
+            return isAssigned;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error checking assignment for lecturer {} and specialization {}: {}",
+                    lecturerId, specializationId, e.getMessage(), e);
             return false;
         }
     }
 
     @Override
     public void addLecturerSpecialization(MajorLecturers_Specializations assignment) {
-        if (assignment == null || assignment.getId() == null) {
-            throw new IllegalArgumentException("MajorLecturers_Specializations and its ID cannot be null");
-        }
-        try {
-            entityManager.persist(assignment);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to add lecturer specialization: " + e.getMessage(), e);
-        }
+        entityManager.persist(assignment);
     }
 
     @Override
     public boolean removeLecturerSpecialization(String lecturerId, String specializationId) {
         if (lecturerId == null || specializationId == null) {
+            logger.warn("Invalid input for removeLecturerSpecialization: lecturerId={}, specializationId={}",
+                    lecturerId, specializationId);
             return false;
         }
 
@@ -115,16 +129,25 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
             query.setParameter("lecturerId", lecturerId);
             query.setParameter("specializationId", specializationId);
             int rowsAffected = query.executeUpdate();
-            return rowsAffected > 0;
+            boolean removed = rowsAffected > 0;
+            if (removed) {
+                logger.info("Successfully removed lecturer {} from specialization {}", lecturerId, specializationId);
+            } else {
+                logger.warn("No assignment found for lecturer {} and specialization {}", lecturerId, specializationId);
+            }
+            return removed;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error removing lecturer specialization for lecturer {} and specialization {}: {}",
+                    lecturerId, specializationId, e.getMessage(), e);
             return false;
         }
     }
 
-    // Optional: Add pagination support if needed by LecturesService
+    @Override
     public List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults) {
         if (specialization == null || specialization.getSpecializationId() == null || staffsService.getStaffMajor() == null) {
+            logger.warn("Invalid input for getLecturersNotAssignedToSpecialization with pagination: specialization={}, staffMajor={}",
+                    specialization, staffsService.getStaffMajor());
             return List.of();
         }
 
@@ -138,15 +161,21 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
             query.setParameter("major", staffsService.getStaffMajor());
             query.setFirstResult(firstResult);
             query.setMaxResults(maxResults);
-            return query.getResultList();
+            List<MajorLecturers> result = query.getResultList();
+            logger.info("Fetched {} unassigned lecturers for specialization {} with pagination", result.size(), specialization.getSpecializationId());
+            return result;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error fetching unassigned lecturers for specialization {} with pagination: {}",
+                    specialization.getSpecializationId(), e.getMessage(), e);
             return List.of();
         }
     }
 
+    @Override
     public List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults) {
         if (specialization == null || specialization.getSpecializationId() == null || staffsService.getStaffMajor() == null) {
+            logger.warn("Invalid input for getLecturersAssignedToSpecialization with pagination: specialization={}, staffMajor={}",
+                    specialization, staffsService.getStaffMajor());
             return List.of();
         }
 
@@ -159,9 +188,12 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
             query.setParameter("major", staffsService.getStaffMajor());
             query.setFirstResult(firstResult);
             query.setMaxResults(maxResults);
-            return query.getResultList();
+            List<MajorLecturers_Specializations> result = query.getResultList();
+            logger.info("Fetched {} assigned lecturers for specialization {} with pagination", result.size(), specialization.getSpecializationId());
+            return result;
         } catch (Exception e) {
-            // Log exception if logging is configured
+            logger.error("Error fetching assigned lecturers for specialization {} with pagination: {}",
+                    specialization.getSpecializationId(), e.getMessage(), e);
             return List.of();
         }
     }

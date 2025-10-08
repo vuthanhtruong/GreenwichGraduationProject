@@ -1,5 +1,5 @@
 // LecturerSpecializationController.java
-package com.example.demo.Specialization.controller;
+package com.example.demo.MajorLecturers_Specializations.controller;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.Specialization.service.SpecializationService;

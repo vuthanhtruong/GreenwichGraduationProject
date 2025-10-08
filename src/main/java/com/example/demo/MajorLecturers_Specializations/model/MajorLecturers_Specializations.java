@@ -4,6 +4,7 @@ import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.lecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "MajorLecturers_Specializations")
 @Getter
+@Setter
 public class MajorLecturers_Specializations {
     @EmbeddedId
     private MajorLecturersSpecializationsId id;

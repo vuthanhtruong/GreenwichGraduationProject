@@ -37,7 +37,7 @@
     <!-- Lecturers Not Yet Assigned -->
     <section class="win11-panel">
         <h2 class="panel-header"><i class="fas fa-user-plus"></i> Lecturers Not Yet Assigned</h2>
-        <form method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/add}" th:if="${specialization != null}">
+        <form id="addForm" method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/add}" th:if="${specialization != null}">
             <input type="hidden" name="specializationId" th:value="${specialization.specializationId}" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
@@ -77,7 +77,7 @@
     <!-- Lecturers Already Assigned -->
     <section class="win11-panel">
         <h2 class="panel-header"><i class="fas fa-user-check"></i> Assigned Lecturers</h2>
-        <form method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/remove}" th:if="${specialization != null}">
+        <form id="removeForm" method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/remove}" th:if="${specialization != null}">
             <input type="hidden" name="specializationId" th:value="${specialization.specializationId}" />
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
@@ -117,5 +117,23 @@
     </section>
 
 </div>
+
+<script>
+    document.getElementById('addForm')?.addEventListener('submit', function (e) {
+        const checked = document.querySelectorAll('#addForm input[name="lecturerIds"]:checked');
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one lecturer to assign.');
+        }
+    });
+
+    document.getElementById('removeForm')?.addEventListener('submit', function (e) {
+        const checked = document.querySelectorAll('#removeForm input[name="lecturerIds"]:checked');
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one lecturer to remove.');
+        }
+    });
+</script>
 </body>
 </html>

@@ -12,4 +12,6 @@ public interface MajorLecturersSpecializationsDAO {
     boolean isLecturerAlreadyAssignedToSpecialization(String lecturerId, String specializationId);
     void addLecturerSpecialization(MajorLecturers_Specializations assignment);
     boolean removeLecturerSpecialization(String lecturerId, String specializationId);
+    List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults);
+    List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults);
 }

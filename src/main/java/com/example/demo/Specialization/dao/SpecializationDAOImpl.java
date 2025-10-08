@@ -162,14 +162,8 @@ public class SpecializationDAOImpl implements SpecializationDAO {
 
     @Override
     public Specialization getSpecializationById(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Specialization ID cannot be null");
-        }
         try {
             Specialization specialization = entityManager.find(Specialization.class, id);
-            if (specialization != null) {
-                entityManager.detach(specialization);
-            }
             return specialization;
         } catch (Exception e) {
             throw new RuntimeException("Error retrieving specialization by ID " + id + ": " + e.getMessage(), e);
