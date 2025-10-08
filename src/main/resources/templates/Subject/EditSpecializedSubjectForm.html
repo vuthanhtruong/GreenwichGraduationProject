@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Major Subject</title>
+    <title>Update Specialized Subject</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/MajorSubjectsList.css}">
+    <link rel="stylesheet" th:href="@{/SpecializedSubjectsList.css}">
 </head>
 <body>
 <div class="win11-container">
-
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> <i class="fas fa-edit"></i> Edit Major Subject</h1>
+        <h1><i class="fas fa-book"></i> <i class="fas fa-edit"></i> Edit Specialized Subject</h1>
     </header>
-
     <!-- Content -->
     <div class="win11-content">
-        <form method="post" th:action="@{/staff-home/major-subjects-list/edit-major-subject-form}" th:object="${subject}">
+        <form method="post" th:action="@{/staff-home/specialized-subjects-list/edit-specialized-subject-form}" th:object="${subject}">
             <!-- Hidden Fields -->
             <input type="hidden" name="_method" value="put">
             <input type="hidden" th:field="*{subjectId}">
@@ -35,14 +33,14 @@
                     <!-- Subject Name -->
                     <div class="form-row">
                         <label for="subjectName"><i class="fas fa-book"></i> Subject Name:</label>
-                        <input id="subjectName" th:field="*{subjectName}" required type="text" class="input uppercase-input" placeholder="Enter subject name">
+                        <input id="subjectName" th:field="*{subjectName}" required type="text" class="input uppercase-input">
                         <div th:if="${errors != null and errors.containsKey('subjectName')}" class="text-danger" th:text="${errors.get('subjectName')}"></div>
                     </div>
 
                     <!-- Semester -->
                     <div class="form-row">
                         <label for="semester"><i class="fas fa-calendar"></i> Semester:</label>
-                        <input id="semester" th:field="*{semester}" type="number" min="1" required class="input" placeholder="Enter semester number">
+                        <input id="semester" th:field="*{semester}" type="number" min="1" required class="input">
                         <div th:if="${errors != null and errors.containsKey('semester')}" class="text-danger" th:text="${errors.get('semester')}"></div>
                     </div>
 
@@ -50,13 +48,26 @@
                     <div class="form-row">
                         <label for="curriculumId"><i class="fas fa-book-open"></i> Curriculum:</label>
                         <select id="curriculumId" name="curriculumId" required class="input">
-                            <option value="" disabled>Select Curriculum</option>
+                            <option value="">Select Curriculum</option>
                             <option th:each="curriculum : ${curriculums}"
                                     th:value="${curriculum.curriculumId}"
                                     th:text="${curriculum.name}"
                                     th:selected="${subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId}"></option>
                         </select>
                         <div th:if="${errors != null and errors.containsKey('curriculumId')}" class="text-danger" th:text="${errors.get('curriculumId')}"></div>
+                    </div>
+
+                    <!-- Specialization -->
+                    <div class="form-row">
+                        <label for="specializationId"><i class="fas fa-tags"></i> Specialization:</label>
+                        <select id="specializationId" name="specializationId" required class="input">
+                            <option value="">Select Specialization</option>
+                            <option th:each="specialization : ${specializations}"
+                                    th:value="${specialization.specializationId}"
+                                    th:text="${specialization.specializationName}"
+                                    th:selected="${subject.specialization != null and subject.specialization.specializationId == specialization.specializationId}"></option>
+                        </select>
+                        <div th:if="${errors != null and errors.containsKey('specializationId')}" class="text-danger" th:text="${errors.get('specializationId')}"></div>
                     </div>
                 </div>
             </section>
@@ -65,12 +76,12 @@
             <div class="form-actions">
                 <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Changes</button>
                 <a th:if="${source == 'search'}"
-                   th:href="@{/staff-home/major-subjects-list/search-subjects(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+                   th:href="@{/staff-home/specialized-subjects-list/search-subjects(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, specializationId=${selectedSpecializationId})}"
                    class="btn">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
                 <a th:if="${source != 'search'}"
-                   th:href="@{/staff-home/major-subjects-list(page=${page}, pageSize=${pageSize})}"
+                   th:href="@{/staff-home/specialized-subjects-list(page=${page}, pageSize=${pageSize}, specializationId=${selectedSpecializationId})}"
                    class="btn">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
@@ -78,15 +89,5 @@
         </form>
     </div>
 </div>
-
-<script>
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const curriculumId = document.getElementById('curriculumId').value;
-        if (!curriculumId) {
-            e.preventDefault();
-            alert('Please select a curriculum.');
-        }
-    });
-</script>
 </body>
 </html>

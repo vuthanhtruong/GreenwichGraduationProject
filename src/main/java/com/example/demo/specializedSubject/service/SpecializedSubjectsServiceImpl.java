@@ -1,9 +1,9 @@
-package com.example.demo.subject.service;
+package com.example.demo.specializedSubject.service;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.dao.SpecializedSubjectsDAO;
-import com.example.demo.subject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.dao.SpecializedSubjectsDAO;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

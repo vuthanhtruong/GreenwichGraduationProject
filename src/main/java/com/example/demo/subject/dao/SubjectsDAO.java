@@ -1,7 +1,5 @@
 package com.example.demo.subject.dao;
 
-import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
 
 import java.util.List;

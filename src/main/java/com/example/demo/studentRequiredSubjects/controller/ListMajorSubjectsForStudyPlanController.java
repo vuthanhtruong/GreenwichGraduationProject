@@ -1,8 +1,8 @@
 package com.example.demo.studentRequiredSubjects.controller;
 
 import com.example.demo.entity.Enums.LearningProgramTypes;
-import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.subject.service.MajorSubjectsService;
+import com.example.demo.majorSubject.model.MajorSubjects;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.studentRequiredSubjects.service.StudentRequiredSubjectsService;
 import org.springframework.security.access.prepost.PreAuthorize;

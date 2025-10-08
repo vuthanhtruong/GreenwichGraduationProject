@@ -1,12 +1,13 @@
-package com.example.demo.subject.controller;
+package com.example.demo.majorSubject.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.subject.service.MajorSubjectsService;
-import jakarta.servlet.http.HttpSession;
+import com.example.demo.majorSubject.model.MajorSubjects;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,39 +23,42 @@ import java.util.Map;
 public class EditMajorSubjectController {
 
     private final MajorSubjectsService subjectsService;
-    private final StaffsService staffsService;
     private final CurriculumService curriculumService;
+    private final StaffsService staffsService;
 
-    public EditMajorSubjectController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
+    @Autowired
+    public EditMajorSubjectController(MajorSubjectsService subjectsService,
+                                      CurriculumService curriculumService,
+                                      StaffsService staffsService) {
         this.subjectsService = subjectsService;
-        this.staffsService = staffsService;
         this.curriculumService = curriculumService;
+        this.staffsService = staffsService;
     }
 
     @PostMapping("/edit-major-subject-form")
-    public String showEditMajorSubjectForm(
-            @RequestParam("id") String id,
+    public String showEditSubjectForm(
+            @RequestParam String id,
             @RequestParam(required = false) String searchType,
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize,
-            @RequestParam(defaultValue = "list") String source,
-            Model model,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
-
+            @RequestParam(required = false, defaultValue = "list") String source,
+            Model model) {
         MajorSubjects subject = subjectsService.getSubjectById(id);
         if (subject == null) {
-            redirectAttributes.addFlashAttribute("message", "Subject not found.");
-            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             if (source.equals("search")) {
-                return "redirect:/staff-home/major-subjects-list/search-subjects?searchType=" + (searchType != null ? searchType : "") +
-                        "&keyword=" + (keyword != null ? keyword : "") + "&page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 20);
+                return "redirect:/staff-home/major-subjects-list/search-subjects?error=Subject+not+found" +
+                        "&searchType=" + (searchType != null ? searchType : "") +
+                        "&keyword=" + (keyword != null ? keyword : "") +
+                        "&page=" + page +
+                        "&pageSize=" + (pageSize != null ? pageSize : 20);
             }
-            return "redirect:/staff-home/major-subjects-list?page=" + page + "&pageSize=" + (pageSize != null ? pageSize : 20);
+            return "redirect:/staff-home/major-subjects-list?error=Subject+not+found" +
+                    "&page=" + page +
+                    "&pageSize=" + (pageSize != null ? pageSize : 20);
         }
-
         model.addAttribute("subject", subject);
+        model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
@@ -64,24 +68,31 @@ public class EditMajorSubjectController {
         return "EditMajorSubjectForm";
     }
 
-    @PutMapping("/edit-major-subject")
+    @PutMapping("/edit-major-subject-form")
     public String updateSubject(
             @Valid @ModelAttribute("subject") MajorSubjects subject,
-            @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "curriculumId") String curriculumId,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
-            @RequestParam(value = "source", defaultValue = "list") String source,
-            Model model,
+            @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            Model model) {
+        // Set curriculum from ID
+        if (curriculumId != null && !curriculumId.isEmpty()) {
+            Curriculum curriculum = curriculumService.getCurriculumById(curriculumId);
+            if (curriculum != null) {
+                subject.setCurriculum(curriculum);
+            }
+        }
+        // Set major from staff
+        subject.setMajor(staffsService.getStaffMajor());
 
         Map<String, String> errors = subjectsService.validateSubject(subject, curriculumId);
-
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("subject", subject);
+            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);
@@ -94,8 +105,7 @@ public class EditMajorSubjectController {
         try {
             MajorSubjects existingSubject = subjectsService.getSubjectById(subject.getSubjectId());
             if (existingSubject == null) {
-                redirectAttributes.addFlashAttribute("message", "Subject not found.");
-                redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
+                redirectAttributes.addFlashAttribute("error", "Subject with ID " + subject.getSubjectId() + " not found.");
                 if (source.equals("search")) {
                     redirectAttributes.addFlashAttribute("searchType", searchType);
                     redirectAttributes.addFlashAttribute("keyword", keyword);
@@ -108,14 +118,8 @@ public class EditMajorSubjectController {
                 return "redirect:/staff-home/major-subjects-list";
             }
 
-            existingSubject.setSubjectName(subject.getSubjectName() != null ? subject.getSubjectName().toUpperCase() : existingSubject.getSubjectName());
-            existingSubject.setSemester(subject.getSemester());
-            existingSubject.setCurriculum(curriculumService.getCurriculumById(curriculumId));
-
-            subjectsService.editSubject(subject.getSubjectId(), existingSubject);
-
-            redirectAttributes.addFlashAttribute("message", "Subject updated successfully!");
-            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
+            subjectsService.editSubject(subject.getSubjectId(), subject);
+            redirectAttributes.addFlashAttribute("successMessage", "Subject updated successfully!");
             if (source.equals("search")) {
                 redirectAttributes.addFlashAttribute("searchType", searchType);
                 redirectAttributes.addFlashAttribute("keyword", keyword);
@@ -130,7 +134,7 @@ public class EditMajorSubjectController {
             Map<String, String> errorsCatch = new HashMap<>();
             errorsCatch.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("errors", errorsCatch);
-            model.addAttribute("subject", subject);
+            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);

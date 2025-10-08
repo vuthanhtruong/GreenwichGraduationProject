@@ -1,6 +1,6 @@
 package com.example.demo.syllabus.dao;
 
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.syllabus.model.Syllabuses;
 import com.example.demo.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;

@@ -1,14 +1,14 @@
-package com.example.demo.subject.service;
+package com.example.demo.specializedSubject.dao;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-public interface SpecializedSubjectsService {
+public interface SpecializedSubjectsDAO {
     List<SpecializedSubject> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Specialization specialization);
     long countSearchResults(String searchType, String keyword, Specialization specialization);
     boolean existsBySubjectExcludingName(String subjectName, String subjectId);

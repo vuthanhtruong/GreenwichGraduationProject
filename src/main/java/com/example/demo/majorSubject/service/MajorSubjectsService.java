@@ -1,13 +1,12 @@
-package com.example.demo.subject.dao;
+package com.example.demo.majorSubject.service;
 
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-public interface MajorSubjectsDAO {
+public interface MajorSubjectsService {
     List<MajorSubjects> searchSubjects(String searchType, String keyword, int firstResult, int pageSize, Majors major);
     long countSearchResults(String searchType, String keyword, Majors major);
     boolean existsBySubjectExcludingName(String subjectName, String subjectId);

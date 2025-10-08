@@ -1,10 +1,10 @@
-package com.example.demo.subject.controller;
+package com.example.demo.majorSubject.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.model.MajorSubjects;
-import com.example.demo.subject.service.MajorSubjectsService;
+import com.example.demo.majorSubject.model.MajorSubjects;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,12 +1,12 @@
-package com.example.demo.subject.controller;
+package com.example.demo.specializedSubject.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.Specialization.service.SpecializationService;
-import com.example.demo.subject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.service.SpecializedSubjectsService;
+import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

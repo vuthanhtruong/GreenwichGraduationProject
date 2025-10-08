@@ -1,9 +1,9 @@
-package com.example.demo.subject.controller;
+package com.example.demo.majorSubject.controller;
 
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.service.MajorSubjectsService;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

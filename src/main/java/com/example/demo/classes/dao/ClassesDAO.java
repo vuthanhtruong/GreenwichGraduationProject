@@ -2,7 +2,7 @@ package com.example.demo.classes.dao;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 
 import java.time.LocalDateTime;
 import java.util.List;

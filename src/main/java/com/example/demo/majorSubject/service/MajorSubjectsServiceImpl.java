@@ -1,8 +1,8 @@
-package com.example.demo.subject.service;
+package com.example.demo.majorSubject.service;
 
-import com.example.demo.subject.dao.MajorSubjectsDAO;
+import com.example.demo.majorSubject.dao.MajorSubjectsDAO;
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

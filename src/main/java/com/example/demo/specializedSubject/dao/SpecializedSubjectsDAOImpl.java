@@ -1,9 +1,9 @@
-package com.example.demo.subject.dao;
+package com.example.demo.specializedSubject.dao;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
-import com.example.demo.subject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
 import com.example.demo.subject.model.Subjects;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.SubjectsService;

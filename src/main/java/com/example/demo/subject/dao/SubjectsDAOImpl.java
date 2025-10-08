@@ -1,5 +1,5 @@
 package com.example.demo.subject.dao;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

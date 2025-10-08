@@ -1,11 +1,10 @@
-package com.example.demo.subject.controller;
+package com.example.demo.majorSubject.controller;
 
 import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.entity.Enums.LearningProgramTypes;
-import com.example.demo.subject.model.SpecializedSubject;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.service.SpecializedSubjectsService;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,22 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home/specialized-subjects-list")
+@RequestMapping("/staff-home/major-subjects-list")
 @PreAuthorize("hasRole('STAFF')")
-public class SpecializedSubjectsListController {
+public class MajorSubjectsListController {
 
-    private final SpecializedSubjectsService subjectsService;
+    private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
     private final CurriculumService curriculumService;
-    private final SpecializationService specializationService;
 
     @Autowired
-    public SpecializedSubjectsListController(SpecializedSubjectsService subjectsService, StaffsService staffsService,
-                                             CurriculumService curriculumService, SpecializationService specializationService) {
+    public MajorSubjectsListController(MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
         this.curriculumService = curriculumService;
-        this.specializationService = specializationService;
     }
 
     @GetMapping("")
@@ -42,8 +38,7 @@ public class SpecializedSubjectsListController {
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String specializationId) {
+            @RequestParam(required = false) Integer pageSize) {
         try {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("subjectPageSize");
@@ -61,49 +56,40 @@ public class SpecializedSubjectsListController {
 
             if (totalSubjects == 0) {
                 model.addAttribute("subjects", new ArrayList<>());
-                model.addAttribute("newSubject", new SpecializedSubject());
+                model.addAttribute("newSubject", new MajorSubjects());
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalSubjects", 0);
-                model.addAttribute("message", "No specialized subjects found for this major.");
+                model.addAttribute("message", "No subjects found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
-                model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-                model.addAttribute("selectedSpecializationId", specializationId);
-                return "SpecializedSubjectsList";
+                return "MajorSubjectsList";
             }
 
             int firstResult = (page - 1) * pageSize;
-            List<SpecializedSubject> subjects = specializationId != null && !specializationId.isEmpty()
-                    ? subjectsService.getPaginatedSubjectsBySpecialization(firstResult, pageSize, specializationId)
-                    : subjectsService.getPaginatedSubjects(firstResult, pageSize);
+            List<MajorSubjects> subjects = subjectsService.getPaginatedSubjects(firstResult, pageSize, staffsService.getStaffMajor());
 
             model.addAttribute("subjects", subjects);
-            model.addAttribute("newSubject", new SpecializedSubject());
+            model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", totalSubjects);
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("selectedSpecializationId", specializationId);
-            return "SpecializedSubjectsList";
+            return "MajorSubjectsList";
         } catch (Exception e) {
-            model.addAttribute("errors", List.of("An error occurred while retrieving specialized subjects: " + e.getMessage()));
-            model.addAttribute("newSubject", new SpecializedSubject());
+            model.addAttribute("errors", List.of("An error occurred while retrieving subjects: " + e.getMessage()));
+            model.addAttribute("newSubject", new MajorSubjects());
             model.addAttribute("currentPage", 1);
             model.addAttribute("totalPages", 1);
-            model.addAttribute("pageSize", pageSize != null ? pageSize : 20);
+            model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", 0);
-            model.addAttribute("subjects", new ArrayList<>());
             model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("selectedSpecializationId", specializationId);
-            return "SpecializedSubjectsList";
+            return "MajorSubjectsList";
         }
     }
 }

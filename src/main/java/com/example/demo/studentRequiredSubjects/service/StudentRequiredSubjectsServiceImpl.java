@@ -1,7 +1,7 @@
 package com.example.demo.studentRequiredSubjects.service;
 
 import com.example.demo.studentRequiredSubjects.dao.StudentRequiredMajorSubjectsDAO;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
 import com.example.demo.subject.model.MinorSubjects;

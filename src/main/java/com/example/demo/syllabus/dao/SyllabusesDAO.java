@@ -1,8 +1,7 @@
 package com.example.demo.syllabus.dao;
 
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.syllabus.model.Syllabuses;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

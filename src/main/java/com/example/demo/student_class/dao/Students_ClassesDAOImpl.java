@@ -11,7 +11,7 @@ import com.example.demo.student.service.StudentsService;
 import com.example.demo.student.model.Students;
 import com.example.demo.student_class.model.StudentsClassesId;
 import com.example.demo.student_class.model.Students_MajorClasses;
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

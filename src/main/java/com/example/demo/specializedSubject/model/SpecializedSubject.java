@@ -1,8 +1,9 @@
-package com.example.demo.subject.model;
+package com.example.demo.specializedSubject.model;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.staff.model.Staffs;
+import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

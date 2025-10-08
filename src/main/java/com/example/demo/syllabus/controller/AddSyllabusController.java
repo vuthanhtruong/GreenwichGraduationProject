@@ -1,10 +1,10 @@
 package com.example.demo.syllabus.controller;
 
-import com.example.demo.subject.model.MajorSubjects;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.syllabus.model.Syllabuses;
 import com.example.demo.syllabus.service.SyllabusesService;
 import com.example.demo.staff.service.StaffsService;
-import com.example.demo.subject.service.MajorSubjectsService;
+import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
