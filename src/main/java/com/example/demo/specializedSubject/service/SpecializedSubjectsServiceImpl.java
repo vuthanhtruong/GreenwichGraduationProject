@@ -1,5 +1,6 @@
 package com.example.demo.specializedSubject.service;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
 import com.example.demo.specializedSubject.dao.SpecializedSubjectsDAO;
@@ -16,6 +17,16 @@ import java.util.Map;
 @Service
 @Transactional
 public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsService {
+    @Override
+    public List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum) {
+        return specializedSubjectsDAO.getSpecializedSubjectsByMajorAndCurriculum(majors, curriculum);
+    }
+
+    @Override
+    public List<SpecializedSubject> subjectsByMajor(Majors majors) {
+        return specializedSubjectsDAO.subjectsByMajor(majors);
+    }
+
     @Override
     public boolean isDuplicateSubjectName(String subjectName, String subjectId) {
         return specializedSubjectsDAO.isDuplicateSubjectName(subjectName, subjectId);

@@ -12,4 +12,5 @@ public interface SyllabusesDAO {
     void deleteSyllabusBySubject(MajorSubjects subject);
     List<MajorSyllabuses> getPaginatedSyllabuses(String subjectId, int firstResult, int pageSize);
     Long numberOfSyllabuses(String subjectId);
+    void deleteSyllabus(MajorSyllabuses syllabus);
 }

@@ -1,7 +1,9 @@
 package com.example.demo.specializedSubject.dao;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
+import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.specializedSubject.model.SpecializedSubject;
 
 import java.time.LocalDate;
@@ -28,4 +30,6 @@ public interface SpecializedSubjectsDAO {
     long numberOfSubjects(Majors majors);
     List<SpecializedSubject> getPaginatedSubjectsBySpecialization(int firstResult, int pageSize, String specializationId);
     long numberOfSubjectsBySpecialization(String specializationId);
+    List<SpecializedSubject> subjectsByMajor(Majors majors);
+    List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum);
 }

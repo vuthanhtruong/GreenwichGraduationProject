@@ -1,6 +1,6 @@
 package com.example.demo.studentRequiredSubjects.dao;
 
-import com.example.demo.entity.Enums.LearningProgramTypes;
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;
@@ -16,28 +16,6 @@ import java.util.List;
 @Repository
 @Transactional
 public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajorSubjectsDAO {
-    @Override
-    public List<MajorSubjects> studentMajorRoadmap(Students student) {
-        return entityManager.createQuery(
-                        "SELECT srs.subject FROM StudentRequiredMajorSubjects srs " +
-                                "WHERE srs.student = :student",
-                        MajorSubjects.class
-                )
-                .setParameter("student", student)
-                .getResultList();
-    }
-
-    @Override
-    public List<MinorSubjects> studentMinorRoadmap(Students student) {
-        return entityManager.createQuery(
-                        "SELECT srs.subject FROM StudentRequiredMinorSubjects srs " +
-                                "WHERE srs.student = :student",
-                        MinorSubjects.class
-                )
-                .setParameter("student", student)
-                .getResultList();
-    }
-
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -51,6 +29,26 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
+    public List<MajorSubjects> studentMajorRoadmap(Students student) {
+        return entityManager.createQuery(
+                        "SELECT srs.subject FROM StudentRequiredMajorSubjects srs " +
+                                "WHERE srs.student = :student",
+                        MajorSubjects.class)
+                .setParameter("student", student)
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorSubjects> studentMinorRoadmap(Students student) {
+        return entityManager.createQuery(
+                        "SELECT srs.subject FROM StudentRequiredMinorSubjects srs " +
+                                "WHERE srs.student = :student",
+                        MinorSubjects.class)
+                .setParameter("student", student)
+                .getResultList();
+    }
+
+    @Override
     public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects) {
         if (subjects == null || staffsService.getStaffMajor() == null) {
             return List.of();
@@ -58,7 +56,7 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredMajorSubjects srs " +
-                                "WHERE srs.subject = :subjects AND srs.student.major = :major",
+                                "WHERE srs.subject = :subjects AND srs.student.specialization.major = :major",
                         StudentRequiredMajorSubjects.class)
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
@@ -82,9 +80,8 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
-    public List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType) {
-        if (learningProgramType == null || learningProgramType.trim().isEmpty()) {
-            // Nếu learningProgramType rỗng, trả về tất cả môn học thuộc chuyên ngành của nhân viên
+    public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
+        if (curriculumId == null || curriculumId.trim().isEmpty()) {
             return entityManager.createQuery(
                             "SELECT s FROM MajorSubjects s WHERE s.major = :major ORDER BY s.semester ASC",
                             MajorSubjects.class)
@@ -92,20 +89,10 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
                     .getResultList();
         }
 
-        // Chuyển đổi String thành enum LearningProgramTypes
-        LearningProgramTypes programType;
-        try {
-            programType = LearningProgramTypes.valueOf(learningProgramType);
-        } catch (IllegalArgumentException e) {
-            // Nếu learningProgramType không hợp lệ, trả về danh sách rỗng
-            return List.of();
-        }
-
-        // Trả về danh sách môn học theo learningProgramType và chuyên ngành của nhân viên
         return entityManager.createQuery(
-                        "SELECT s FROM MajorSubjects s WHERE s.learningProgramType = :learningProgramType AND s.major = :major ORDER BY s.semester ASC",
+                        "SELECT s FROM MajorSubjects s WHERE s.curriculum.curriculumId = :curriculumId AND s.major = :major ORDER BY s.semester ASC",
                         MajorSubjects.class)
-                .setParameter("learningProgramType", programType)
+                .setParameter("curriculumId", curriculumId)
                 .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }

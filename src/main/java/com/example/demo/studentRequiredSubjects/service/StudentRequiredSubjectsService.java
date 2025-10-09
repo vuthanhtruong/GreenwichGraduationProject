@@ -10,7 +10,7 @@ import java.util.List;
 public interface StudentRequiredSubjectsService {
     List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
     List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects);
-    List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType);
+    List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
     List<MajorSubjects> studentMajorRoadmap(Students student);
     List<MinorSubjects> studentMinorRoadmap(Students student);
     boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId);

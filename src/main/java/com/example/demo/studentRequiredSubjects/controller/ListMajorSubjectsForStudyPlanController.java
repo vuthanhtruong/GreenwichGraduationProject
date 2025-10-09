@@ -1,8 +1,11 @@
 package com.example.demo.studentRequiredSubjects.controller;
 
-import com.example.demo.entity.Enums.LearningProgramTypes;
+import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.studentRequiredSubjects.service.StudentRequiredSubjectsService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,46 +24,41 @@ import java.util.List;
 public class ListMajorSubjectsForStudyPlanController {
     private final MajorSubjectsService subjectsService;
     private final StaffsService staffsService;
-    private final StudentRequiredSubjectsService studentRequiredSubjectsService;
+    private final CurriculumService curriculumService;
 
-    public ListMajorSubjectsForStudyPlanController(MajorSubjectsService subjectsService, StaffsService staffsService, StudentRequiredSubjectsService studentRequiredSubjectsService) {
+    public ListMajorSubjectsForStudyPlanController(
+            MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
-        this.studentRequiredSubjectsService = studentRequiredSubjectsService;
+        this.curriculumService = curriculumService;
     }
 
     @GetMapping("/study-plan")
     public String getStudyPlan(Model model) {
         List<MajorSubjects> subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
         model.addAttribute("subjects", subjects);
-        model.addAttribute("LearningProgramTypes", LearningProgramTypes.values());
+        model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("totalSubjects", subjects.size());
         return "StudyPlan";
     }
 
     @PostMapping("/study-plan/filter-subjects")
     public String filterSubjects(
-            @RequestParam(required = false) String learningProgramType,
+            @RequestParam(required = false) String curriculumId,
             Model model) {
         List<MajorSubjects> subjects;
-        if (learningProgramType == null || learningProgramType.isEmpty()) {
+        if (curriculumId == null || curriculumId.isEmpty()) {
             subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
         } else {
-            try {
-                LearningProgramTypes.valueOf(learningProgramType);
-                subjects = studentRequiredSubjectsService.getSubjectsByLearningProgramType(learningProgramType);
-            } catch (IllegalArgumentException e) {
-                subjects = List.of();
-                model.addAttribute("errorMessage", "Invalid program type selected.");
+            subjects = subjectsService.getSubjectsByCurriculumId(curriculumId);
+            if (subjects.isEmpty()) {
+                model.addAttribute("errorMessage", "No subjects found for the selected curriculum.");
             }
         }
         model.addAttribute("subjects", subjects);
-        model.addAttribute("LearningProgramTypes", LearningProgramTypes.values());
-        model.addAttribute("learningProgramType", learningProgramType);
+        model.addAttribute("curriculums", curriculumService.getCurriculums());
+        model.addAttribute("curriculumId", curriculumId);
         model.addAttribute("totalSubjects", subjects.size());
-        if (subjects.isEmpty()) {
-            model.addAttribute("errorMessage", model.asMap().getOrDefault("errorMessage", "No subjects found for the selected program type."));
-        }
         return "FilterSubjects";
     }
 }

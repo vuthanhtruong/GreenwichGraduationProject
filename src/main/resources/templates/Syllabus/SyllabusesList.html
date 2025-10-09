@@ -118,10 +118,12 @@
                                     class="fas fa-edit"></i> Edit</button>
                         </form>
                         <form method="post"
-                              th:action="@{/staff-home/major-subjects-list/syllabuses-list/delete-syllabus/{id}(id=${syllabus.syllabusId})}"
+                              th:action="@{/staff-home/major-subjects-list/syllabuses-list/delete-syllabus}"
                               class="inline-form">
                             <input type="hidden" name="_method"
                                    value="delete" />
+                            <input type="hidden" name="syllabusId"
+                                   th:value="${syllabus.syllabusId}" />
                             <input type="hidden"
                                    th:name="${_csrf.parameterName}"
                                    th:value="${_csrf.token}" />

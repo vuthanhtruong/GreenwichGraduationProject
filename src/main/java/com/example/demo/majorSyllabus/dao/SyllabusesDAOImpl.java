@@ -14,6 +14,17 @@ import java.util.List;
 @Transactional
 public class SyllabusesDAOImpl implements SyllabusesDAO {
 
+    // Add to SyllabusesDAOImpl
+    @Override
+    public void deleteSyllabus(MajorSyllabuses syllabus) {
+        if (syllabus != null) {
+            if (!entityManager.contains(syllabus)) {
+                syllabus = entityManager.merge(syllabus);
+            }
+            entityManager.remove(syllabus);
+        }
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

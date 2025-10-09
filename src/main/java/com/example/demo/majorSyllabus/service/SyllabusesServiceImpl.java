@@ -13,6 +13,10 @@ import java.util.Set;
 
 @Service
 public class SyllabusesServiceImpl implements SyllabusesService {
+    @Override
+    public void deleteSyllabus(MajorSyllabuses syllabus) {
+        syllabusesDAO.deleteSyllabus(syllabus);
+    }
 
     private final SyllabusesDAO syllabusesDAO;
     private final Validator validator;

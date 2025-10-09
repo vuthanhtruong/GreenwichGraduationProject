@@ -1,10 +1,9 @@
-package com.example.demo.majorSyllabus.controller;
+package com.example.demo.specializationSyllabus.controller;
 
-import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.majorSyllabus.model.MajorSyllabuses;
-import com.example.demo.majorSyllabus.service.SyllabusesService;
-import com.example.demo.staff.service.StaffsService;
-import com.example.demo.majorSubject.service.MajorSubjectsService;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
+import com.example.demo.specializationSyllabus.model.SpecializationSyllabuses;
+import com.example.demo.specializationSyllabus.service.SpecializationSyllabusesService;
+import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,34 +23,34 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/staff-home/major-subjects-list/syllabuses-list")
-public class AddSyllabusController {
+@RequestMapping("/staff-home/specialized-subjects-list/syllabuses-list")
+public class AddSpecializedSyllabusController {
 
-    private final SyllabusesService syllabusesService;
-    private final MajorSubjectsService subjectsService;
+    private final SpecializationSyllabusesService syllabusesService;
+    private final SpecializedSubjectsService subjectsService;
 
     @Autowired
-    public AddSyllabusController(SyllabusesService syllabusesService, MajorSubjectsService subjectsService) {
+    public AddSpecializedSyllabusController(SpecializationSyllabusesService syllabusesService, SpecializedSubjectsService subjectsService) {
         this.syllabusesService = syllabusesService;
         this.subjectsService = subjectsService;
     }
 
     @PostMapping("/add-syllabus")
     public String addSyllabus(
-            @Valid @ModelAttribute("newSyllabus") MajorSyllabuses syllabus,
+            @Valid @ModelAttribute("newSyllabus") SpecializationSyllabuses syllabus,
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "uploadFile", required = false) MultipartFile file,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) throws IOException {
-        MajorSubjects subject = subjectsService.getSubjectById(subjectId);
-        List<String> errors = syllabusesService.syllabusValidation(syllabus, file);
+        SpecializedSubject subject = subjectsService.getSubjectById(subjectId);
+        List<String> errors = syllabusesService.validateSyllabus(syllabus, file,subjectId);
 
         if (!errors.isEmpty()) {
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
+            model.addAttribute("subject", subject != null ? subject : new SpecializedSubject());
             model.addAttribute("syllabuses", syllabusesService.getPaginatedSyllabuses(subjectId, 0, (Integer) session.getAttribute("syllabusPageSize") != null ? (Integer) session.getAttribute("syllabusPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("syllabusPage") != null ? session.getAttribute("syllabusPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("syllabusTotalPages") != null ? session.getAttribute("syllabusTotalPages") : 1);
@@ -66,13 +65,13 @@ public class AddSyllabusController {
                     errors.add("Failed to store file temporarily: " + e.getMessage());
                 }
             }
-            return "SyllabusesList";
+            return "SpecializedSyllabusesList";
         }
 
         try {
-            String syllabusId = generateUniqueSyllabusId(subject.getMajor().getMajorId(), LocalDate.now());
+            String syllabusId = generateUniqueSyllabusId(subject.getSpecialization().getSpecializationId(), LocalDate.now());
             syllabus.setSyllabusId(syllabusId);
-            syllabus.setSubject(subject);
+            syllabus.setSpecializedSubject(subject);
             if (file != null && !file.isEmpty()) {
                 syllabus.setFileData(file.getBytes());
                 syllabus.setFileType(file.getContentType());
@@ -88,37 +87,37 @@ public class AddSyllabusController {
 
             redirectAttributes.addFlashAttribute("message", "Syllabus added successfully!");
             session.setAttribute("currentSubjectId", subjectId);
-            return "redirect:/staff-home/major-subjects-list/syllabuses-list";
+            return "redirect:/staff-home/specialized-subjects-list/syllabuses-list";
         } catch (IOException e) {
             errors.add("Failed to process file: " + e.getMessage());
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
+            model.addAttribute("subject", subject != null ? subject : new SpecializedSubject());
             model.addAttribute("syllabuses", syllabusesService.getPaginatedSyllabuses(subjectId, 0, (Integer) session.getAttribute("syllabusPageSize") != null ? (Integer) session.getAttribute("syllabusPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("syllabusPage") != null ? session.getAttribute("syllabusPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("syllabusTotalPages") != null ? session.getAttribute("syllabusTotalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("syllabusPageSize") != null ? session.getAttribute("syllabusPageSize") : 5);
             model.addAttribute("totalSyllabuses", syllabusesService.numberOfSyllabuses(subjectId));
-            return "SyllabusesList";
+            return "SpecializedSyllabusesList";
         } catch (Exception e) {
             errors.add("An error occurred while adding the syllabus: " + e.getMessage());
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("newSyllabus", syllabus);
-            model.addAttribute("subject", subject != null ? subject : new MajorSubjects());
+            model.addAttribute("subject", subject != null ? subject : new SpecializedSubject());
             model.addAttribute("syllabuses", syllabusesService.getPaginatedSyllabuses(subjectId, 0, (Integer) session.getAttribute("syllabusPageSize") != null ? (Integer) session.getAttribute("syllabusPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("syllabusPage") != null ? session.getAttribute("syllabusPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("syllabusTotalPages") != null ? session.getAttribute("syllabusTotalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("syllabusPageSize") != null ? session.getAttribute("syllabusPageSize") : 5);
             model.addAttribute("totalSyllabuses", syllabusesService.numberOfSyllabuses(subjectId));
-            return "SyllabusesList";
+            return "SpecializedSyllabusesList";
         }
     }
 
     @PostMapping("/view-file")
     public ResponseEntity<byte[]> viewFile(@RequestParam("syllabusId") String syllabusId, HttpSession session) {
-        MajorSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
+        SpecializationSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
         String subjectId = (String) session.getAttribute("currentSubjectId");
         if (syllabus == null || subjectId == null || syllabus.getFileData() == null) {
             return ResponseEntity.notFound().build();
@@ -134,23 +133,23 @@ public class AddSyllabusController {
                 .body(syllabus.getFileData());
     }
 
-    private String generateUniqueSyllabusId(String majorId, LocalDate createdDate) {
+    private String generateUniqueSyllabusId(String specializationId, LocalDate createdDate) {
         String prefix;
-        switch (majorId) {
-            case "major001":
-                prefix = "SYLGBH";
+        switch (specializationId) {
+            case "spec001":
+                prefix = "SYLSBH";
                 break;
-            case "major002":
-                prefix = "SYLGCH";
+            case "spec002":
+                prefix = "SYLSCH";
                 break;
-            case "major003":
-                prefix = "SYLGDH";
+            case "spec003":
+                prefix = "SYLSDH";
                 break;
-            case "major004":
-                prefix = "SYLGKH";
+            case "spec004":
+                prefix = "SYLSKH";
                 break;
             default:
-                prefix = "SYLGEN";
+                prefix = "SYLSGEN";
                 break;
         }
 
@@ -187,34 +186,32 @@ public class AddSyllabusController {
                 return "";
         }
     }
-    // Add this method to ListSyllabusesController for delete functionality
-    @PostMapping("/delete-syllabus")
+    @DeleteMapping("/delete-syllabus")
     public String deleteSyllabus(
             @RequestParam("syllabusId") String syllabusId,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
         String subjectId = (String) session.getAttribute("currentSubjectId");
         if (subjectId == null) {
-            redirectAttributes.addFlashAttribute("message", "No subject selected. Please select a subject first.");
-            redirectAttributes.addFlashAttribute("alertClass", "danger");
-            return "redirect:/staff-home/major-subjects-list";
+            redirectAttributes.addFlashAttribute("errors", List.of("No subject selected. Please select a subject."));
+            return "redirect:/staff-home/specialized-subjects-list";
         }
 
-        MajorSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
-        if (syllabus == null || !syllabus.getSubject().getSubjectId().equals(subjectId)) {
-            redirectAttributes.addFlashAttribute("message", "Syllabus not found or access denied.");
-            redirectAttributes.addFlashAttribute("alertClass", "danger");
-            return "redirect:/staff-home/major-subjects-list/syllabuses-list";
+        SpecializationSyllabuses syllabus = syllabusesService.getSyllabusById(syllabusId);
+        if (syllabus == null) {
+            redirectAttributes.addFlashAttribute("errors", List.of("Syllabus not found."));
+            return "redirect:/staff-home/specialized-subjects-list/syllabuses-list";
         }
 
         try {
-            syllabusesService.deleteSyllabus(syllabus);
+            syllabusesService.deleteSyllabus(syllabusesService.getSyllabusById(syllabusId));
             redirectAttributes.addFlashAttribute("message", "Syllabus deleted successfully!");
-            redirectAttributes.addFlashAttribute("alertClass", "success");
+            redirectAttributes.addFlashAttribute("alertClass", "alert-success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("message", "Failed to delete syllabus: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("alertClass", "danger");
+            redirectAttributes.addFlashAttribute("errors", List.of("Failed to delete syllabus: " + e.getMessage()));
+            redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
         }
-        return "redirect:/staff-home/major-subjects-list/syllabuses-list";
+
+        return "redirect:/staff-home/specialized-subjects-list/syllabuses-list";
     }
 }

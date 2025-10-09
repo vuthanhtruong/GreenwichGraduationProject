@@ -2,7 +2,6 @@ package com.example.demo.majorSubject.controller;
 
 import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
@@ -58,7 +57,6 @@ public class EditMajorSubjectController {
                     "&pageSize=" + (pageSize != null ? pageSize : 20);
         }
         model.addAttribute("subject", subject);
-        model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
@@ -92,7 +90,6 @@ public class EditMajorSubjectController {
         Map<String, String> errors = subjectsService.validateSubject(subject, curriculumId);
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);
@@ -134,7 +131,6 @@ public class EditMajorSubjectController {
             Map<String, String> errorsCatch = new HashMap<>();
             errorsCatch.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("errors", errorsCatch);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);

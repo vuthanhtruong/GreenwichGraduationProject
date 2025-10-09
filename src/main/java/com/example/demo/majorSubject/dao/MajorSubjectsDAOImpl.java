@@ -24,6 +24,12 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
+    @Override
+    public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
+        return entityManager.createQuery("from MajorSubjects m where m.curriculum.id=:curriculumId", MajorSubjects.class)
+                .setParameter("curriculumId", curriculumId).getResultList();
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(MajorSubjectsDAOImpl.class);
 
     @PersistenceContext
@@ -194,9 +200,6 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
         }
         try {
             MajorSubjects subject = entityManager.find(MajorSubjects.class, subjectId);
-            if (subject != null) {
-                entityManager.detach(subject);
-            }
             return subject;
         } catch (Exception e) {
             logger.error("Error retrieving subject by ID {}: {}", subjectId, e.getMessage());

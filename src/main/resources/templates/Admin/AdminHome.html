@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Admin Home</title>
@@ -9,7 +9,8 @@
 <body>
 
 <main class="win11-container">
-    <!-- Header -->
+
+    <!-- ===== Header ===== -->
     <header class="win11-title-bar">
         <h1><i class="fas fa-user-shield"></i> Admin Home</h1>
         <h2>
@@ -25,10 +26,10 @@
         </nav>
     </header>
 
-    <!-- Dashboard Grid -->
+    <!-- ===== Dashboard Grid ===== -->
     <section class="dashboard-grid">
 
-        <!-- 🟦 HUMAN RESOURCES -->
+        <!-- 🟦 GROUP A: HUMAN RESOURCES MANAGEMENT -->
         <a class="dashboard-card primary" th:href="@{/admin-home/staffs-list}">
             <i class="fas fa-users-cog"></i>
             <span>Staffs List</span>
@@ -36,27 +37,27 @@
 
         <a class="dashboard-card secondary" th:href="@{/admin-home/deputy-staffs-list}">
             <i class="fas fa-user-tie"></i>
-            <span>Deputy Staffs List</span>
+            <span>Deputy Staffs</span>
         </a>
 
         <a class="dashboard-card success" th:href="@{/admin-home/lecturers-list}">
             <i class="fas fa-chalkboard-teacher"></i>
-            <span>Lecturers List</span>
+            <span>Lecturers</span>
         </a>
 
         <a class="dashboard-card danger" th:href="@{/admin-home/minor-lecturers-list}">
             <i class="fas fa-user-graduate"></i>
-            <span>Minor Lecturers List</span>
+            <span>Minor Lecturers</span>
         </a>
 
-        <!-- 🟨 ACADEMIC MANAGEMENT -->
+        <!-- 🟨 GROUP B: ACADEMIC MANAGEMENT -->
         <a class="dashboard-card warning" th:href="@{/admin-home/students-list}">
             <i class="fas fa-user-graduate"></i>
-            <span>Students List</span>
+            <span>Students</span>
         </a>
 
         <a class="dashboard-card info" th:href="@{/admin-home/tuition-management}">
-            <i class="fas fa-book-open"></i>
+            <i class="fas fa-money-check-alt"></i>
             <span>Tuition Management</span>
         </a>
 
@@ -70,7 +71,7 @@
             <span>Curriculums</span>
         </a>
 
-        <!-- 🟩 FINANCIAL & SCHOLARSHIP -->
+        <!-- 🟩 GROUP C: FINANCIAL & SCHOLARSHIP -->
         <a class="dashboard-card scholarship" th:href="@{/admin-home/scholarship-by-year-list}">
             <i class="fas fa-award"></i>
             <span>Scholarship Policies</span>
@@ -81,20 +82,20 @@
             <span>Annual Re-study Fee</span>
         </a>
 
-        <!-- 🟫 INFRASTRUCTURE -->
+        <!-- 🟫 GROUP D: INFRASTRUCTURE MANAGEMENT -->
         <a class="dashboard-card light" th:href="@{/admin-home/campuses-list}">
             <i class="fas fa-school"></i>
-            <span>Campuses List</span>
+            <span>Campuses</span>
         </a>
 
         <a class="dashboard-card info" th:href="@{/admin-home/rooms-list}">
             <i class="fas fa-door-open"></i>
-            <span>Rooms List</span>
+            <span>Rooms</span>
         </a>
 
-        <!-- 🟪 COMMUNICATION & SUPPORT -->
+        <!-- 🟪 GROUP E: COMMUNICATION & SUPPORT -->
         <a class="dashboard-card email" th:href="@{/admin-home/email-templates}">
-            <i class="fas fa-file-alt"></i>
+            <i class="fas fa-envelope-open-text"></i>
             <span>Email Templates</span>
         </a>
 
@@ -103,11 +104,12 @@
             <span>Support Tickets</span>
         </a>
 
-        <!-- ⚙️ SYSTEM & CONTRACTS -->
+        <!-- ⚙️ GROUP F: SYSTEM & CONTRACT MANAGEMENT -->
         <a class="dashboard-card contract" th:href="@{/admin-home/contracts-list}">
             <i class="fas fa-file-contract"></i>
             <span>Academic Contracts</span>
         </a>
+
     </section>
 </main>
 

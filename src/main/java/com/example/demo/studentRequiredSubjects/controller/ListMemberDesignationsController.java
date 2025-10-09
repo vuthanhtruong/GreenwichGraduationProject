@@ -1,6 +1,5 @@
 package com.example.demo.studentRequiredSubjects.controller;
 
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.student.model.Students;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
@@ -31,10 +30,11 @@ public class ListMemberDesignationsController {
     private final StudentsService studentsService;
 
     @Autowired
-    public ListMemberDesignationsController(MajorSubjectsService majorSubjectsService,
-                                            StaffsService staffsService,
-                                            StudentRequiredSubjectsService studentRequiredSubjectsService,
-                                            StudentsService studentsService) {
+    public ListMemberDesignationsController(
+            MajorSubjectsService majorSubjectsService,
+            StaffsService staffsService,
+            StudentRequiredSubjectsService studentRequiredSubjectsService,
+            StudentsService studentsService) {
         this.majorSubjectsService = majorSubjectsService;
         this.staffsService = staffsService;
         this.studentRequiredSubjectsService = studentRequiredSubjectsService;
@@ -44,14 +44,10 @@ public class ListMemberDesignationsController {
     @PostMapping("/study-plan/assign-members")
     public String assignMembersPost(
             @RequestParam("id") String subjectId,
-            @RequestParam(required = false) String learningProgramType,
-            Model model,
+            @RequestParam(required = false) String curriculumId,
             HttpSession session) {
-        // Lưu vào session
         session.setAttribute("currentSubjectId", subjectId);
-        session.setAttribute("currentLearningProgramType", learningProgramType);
-
-        // Redirect to GET to display the page
+        session.setAttribute("currentCurriculumId", curriculumId);
         return "redirect:/staff-home/study-plan/assign-members";
     }
 
@@ -60,7 +56,7 @@ public class ListMemberDesignationsController {
             HttpSession session,
             Model model) {
         String subjectId = (String) session.getAttribute("currentSubjectId");
-        String learningProgramType = (String) session.getAttribute("currentLearningProgramType");
+        String curriculumId = (String) session.getAttribute("currentCurriculumId");
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
@@ -70,23 +66,22 @@ public class ListMemberDesignationsController {
         MajorSubjects subject = majorSubjectsService.getSubjectById(subjectId);
         if (subject == null) {
             model.addAttribute("errorMessage", "Subject not found.");
-            model.addAttribute("LearningProgramTypes", LearningProgramTypes.values());
-            model.addAttribute("learningProgramType", learningProgramType);
+            model.addAttribute("curriculumId", curriculumId);
             return "FilterSubjects";
         }
 
         model.addAttribute("subject", subject);
         model.addAttribute("studentsNotRequired", studentRequiredSubjectsService.getStudentNotRequiredMajorSubjects(subject));
         model.addAttribute("studentRequiredSubjects", studentRequiredSubjectsService.getStudentRequiredMajorSubjects(subject));
-        model.addAttribute("learningProgramType", learningProgramType);
+        model.addAttribute("curriculumId", curriculumId);
         return "AssignMembers";
     }
 
     @PostMapping("/study-plan/assign-members/add")
     public String addSelectedStudents(
             @RequestParam("subjectId") String subjectId,
-            @RequestParam("learningProgramType") String learningProgramType,
-            @RequestParam("studentIds") List<String> studentIds,
+            @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         MajorSubjects subject = majorSubjectsService.getSubjectById(subjectId);
@@ -101,24 +96,23 @@ public class ListMemberDesignationsController {
             return "redirect:/staff-home/study-plan/assign-members";
         }
 
-        // Lưu session
         session.setAttribute("currentSubjectId", subjectId);
-        session.setAttribute("currentLearningProgramType", learningProgramType);
+        session.setAttribute("currentCurriculumId", curriculumId);
+
+        if (studentIds == null || studentIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No students selected to assign.");
+            return "redirect:/staff-home/study-plan/assign-members";
+        }
 
         int addedCount = 0;
         for (String studentId : studentIds) {
             Students student = studentsService.getStudentById(studentId);
-            if (student != null) {
-                // Kiểm tra xem student đã được assign chưa
-                if (studentRequiredSubjectsService.isStudentAlreadyRequiredForSubject(studentId, subjectId)) {
-                    continue; // Bỏ qua nếu đã tồn tại
-                }
-
-                // Tạo mới StudentRequiredMajorSubjects
+            if (student != null && !studentRequiredSubjectsService.isStudentAlreadyRequiredForSubject(studentId, subjectId)) {
                 StudentRequiredMajorSubjects srm = new StudentRequiredMajorSubjects();
                 srm.setId(new StudentRequiredSubjectsId(studentId, subjectId));
                 srm.setStudent(student);
                 srm.setSubject(subject);
+                srm.setMajorSubject(subject);
                 srm.setRequiredReason("Assigned by staff: " + currentStaff.getFullName());
                 srm.setAssignedBy(currentStaff);
                 srm.setCreatedAt(java.time.LocalDateTime.now());
@@ -140,13 +134,17 @@ public class ListMemberDesignationsController {
     @PostMapping("/study-plan/assign-members/remove")
     public String removeSelectedStudents(
             @RequestParam("subjectId") String subjectId,
-            @RequestParam("learningProgramType") String learningProgramType,
-            @RequestParam("studentIds") List<String> studentIds,
+            @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
-        // Lưu session
         session.setAttribute("currentSubjectId", subjectId);
-        session.setAttribute("currentLearningProgramType", learningProgramType);
+        session.setAttribute("currentCurriculumId", curriculumId);
+
+        if (studentIds == null || studentIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No students selected to remove.");
+            return "redirect:/staff-home/study-plan/assign-members";
+        }
 
         int removedCount = 0;
         for (String studentId : studentIds) {
@@ -158,7 +156,7 @@ public class ListMemberDesignationsController {
         if (removedCount > 0) {
             redirectAttributes.addFlashAttribute("successMessage", removedCount + " student(s) removed successfully.");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "No students were removed.");
+            redirectAttributes.addFlashAttribute("errorMessage", "No students were removed. Check if they are assigned.");
         }
 
         return "redirect:/staff-home/study-plan/assign-members";

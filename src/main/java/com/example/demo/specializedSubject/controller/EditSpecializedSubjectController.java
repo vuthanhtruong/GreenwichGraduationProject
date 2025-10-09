@@ -4,7 +4,6 @@ import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.Specialization.service.SpecializationService;
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.specializedSubject.model.SpecializedSubject;
 import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
@@ -65,7 +64,6 @@ public class EditSpecializedSubjectController {
                     "&specializationId=" + (specializationId != null ? specializationId : "");
         }
         model.addAttribute("subject", subject);
-        model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
         model.addAttribute("searchType", searchType);
@@ -142,7 +140,6 @@ public class EditSpecializedSubjectController {
             Map<String, String> errorsCatch = new HashMap<>();
             errorsCatch.put("general", "Error updating subject: " + e.getMessage());
             model.addAttribute("errors", errorsCatch);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(subject.getSpecialization().getMajor()));
             model.addAttribute("searchType", searchType);

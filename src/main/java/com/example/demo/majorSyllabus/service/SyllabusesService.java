@@ -14,4 +14,5 @@ public interface SyllabusesService {
     Long numberOfSyllabuses(String subjectId);
     void deleteSyllabusBySubject(MajorSubjects subject);
     List<String> syllabusValidation(MajorSyllabuses syllabus, MultipartFile file);
+    void deleteSyllabus(MajorSyllabuses syllabus);
 }

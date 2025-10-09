@@ -29,6 +29,8 @@
 
     <!-- Dashboard Grid -->
     <section class="dashboard-grid">
+
+        <!-- ===== GROUP A: STAFF & STUDENTS MANAGEMENT ===== -->
         <a class="dashboard-card primary" th:href="@{/staff-home/lecturers-list}">
             <i class="fas fa-chalkboard-teacher"></i>
             <span>Lecturers List</span>
@@ -39,11 +41,28 @@
             <span>Students List</span>
         </a>
 
+        <a class="dashboard-card professional" th:href="@{/staff-home/lecturer-specialization}">
+            <i class="fas fa-briefcase"></i>
+            <span>Lecturer Specialization</span>
+        </a>
+
+        <!-- ===== GROUP B: ACADEMIC CONTENT & STUDY PLANS ===== -->
         <a class="dashboard-card warning" th:href="@{/staff-home/major-subjects-list}">
             <i class="fas fa-book-open"></i>
             <span>Subjects & Syllabus</span>
         </a>
 
+        <a class="dashboard-card focus" th:href="@{/staff-home/specialized-subjects-list}">
+            <i class="fas fa-layer-group"></i>
+            <span>Specialized Subjects</span>
+        </a>
+
+        <a class="dashboard-card neutral" th:href="@{/staff-home/study-plan}">
+            <i class="fas fa-tasks"></i>
+            <span>Study Plan</span>
+        </a>
+
+        <!-- ===== GROUP C: CLASS SCHEDULE & ACTIVITIES ===== -->
         <a class="dashboard-card info" th:href="@{/staff-home/classes-list}">
             <i class="fas fa-calendar-alt"></i>
             <span>Classes Arrangement</span>
@@ -54,31 +73,20 @@
             <span>News</span>
         </a>
 
+        <a class="dashboard-card award" th:href="@{/staff-home/award-scholarships}">
+            <i class="fas fa-trophy"></i>
+            <span>Award Scholarships</span>
+        </a>
+
+        <!-- ===== GROUP D: COMMUNICATION & COMMUNITY ===== -->
         <a class="dashboard-card neutral" th:href="@{/staff-home/student-feedback}">
             <i class="fas fa-comments"></i>
             <span>Student Feedback</span>
         </a>
 
-        <a class="dashboard-card neutral" th:href="@{/staff-home/study-plan}">
-            <i class="fas fa-tasks"></i>
-            <span>Study Plan</span>
-        </a>
-
         <a class="dashboard-card neutral" th:href="@{/staff-home/blogs}">
             <i class="fas fa-blog"></i>
             <span>Blogs</span>
-        </a>
-        <a class="dashboard-card award" th:href="@{/staff-home/award-scholarships}">
-            <i class="fas fa-trophy"></i>
-            <span>Award Scholarships</span>
-        </a>
-        <a class="dashboard-card professional" th:href="@{/staff-home/lecturer-specialization}">
-            <i class="fas fa-briefcase"></i>
-            <span>Lecturer Specialization</span>
-        </a>
-        <a class="dashboard-card focus" th:href="@{/staff-home/specialized-subjects-list}">
-            <i class="fas fa-layer-group"></i>
-            <span>Specialized Subjects</span>
         </a>
 
     </section>

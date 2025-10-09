@@ -24,4 +24,5 @@ public interface MajorSubjectsDAO {
     List<MajorSubjects> getPaginatedSubjects(int firstResult, int pageSize, Majors major);
     long numberOfSubjects(Majors major);
     boolean isDuplicateSubjectName(String subjectName, String subjectId);
+    List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
 }

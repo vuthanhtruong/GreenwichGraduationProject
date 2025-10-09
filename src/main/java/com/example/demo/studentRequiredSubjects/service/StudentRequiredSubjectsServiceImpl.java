@@ -11,6 +11,11 @@ import java.util.List;
 @Service
 public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
     @Override
+    public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
+        return studentRequiredSubjectsDAO.getSubjectsByCurriculumId(curriculumId);
+    }
+
+    @Override
     public boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId) {
         return studentId.equals(subjectId);
     }
@@ -35,10 +40,6 @@ public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjec
         return studentRequiredSubjectsDAO.studentMinorRoadmap(student);
     }
 
-    @Override
-    public List<MajorSubjects> getSubjectsByLearningProgramType(String learningProgramType) {
-        return studentRequiredSubjectsDAO.getSubjectsByLearningProgramType(learningProgramType);
-    }
 
     private final StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO;
 

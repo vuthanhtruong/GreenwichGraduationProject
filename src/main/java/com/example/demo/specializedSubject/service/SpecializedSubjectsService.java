@@ -1,5 +1,6 @@
 package com.example.demo.specializedSubject.service;
 
+import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
 import com.example.demo.specializedSubject.model.SpecializedSubject;
@@ -28,4 +29,6 @@ public interface SpecializedSubjectsService {
     long numberOfSubjects(Majors majors);
     List<SpecializedSubject> getPaginatedSubjectsBySpecialization(int firstResult, int pageSize, String specializationId);
     long numberOfSubjectsBySpecialization(String specializationId);
+    List<SpecializedSubject> subjectsByMajor(Majors majors);
+    List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum);
 }

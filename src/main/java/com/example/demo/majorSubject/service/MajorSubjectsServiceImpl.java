@@ -13,6 +13,11 @@ import java.util.Map;
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
+    public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
+        return subjectsDAO.getSubjectsByCurriculumId(curriculumId);
+    }
+
+    @Override
     public boolean isDuplicateSubjectName(String subjectName, String subjectId) {
         return subjectsDAO.isDuplicateSubjectName(subjectName, subjectId);
     }

@@ -24,6 +24,18 @@ import java.util.Map;
 @Repository
 @Transactional
 public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
+    @Override
+    public List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum) {
+        return entityManager.createQuery("from SpecializedSubject s where s.specialization.major=:majors and s.curriculum=:curriculum", SpecializedSubject.class)
+                .setParameter("majors",staffsService.getStaffMajor()).
+        setParameter("curriculum",curriculum).getResultList();
+    }
+
+    @Override
+    public List<SpecializedSubject> subjectsByMajor(Majors majors) {
+        return entityManager.createQuery("from SpecializedSubject s where s.specialization.major=:majors",SpecializedSubject.class).
+                setParameter("majors", majors).getResultList();
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(SpecializedSubjectsDAOImpl.class);
 

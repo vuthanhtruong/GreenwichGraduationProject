@@ -2,7 +2,6 @@ package com.example.demo.specializedSubject.controller;
 
 import com.example.demo.Curriculum.service.CurriculumService;
 import com.example.demo.Specialization.service.SpecializationService;
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.specializedSubject.model.SpecializedSubject;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
@@ -68,7 +67,6 @@ public class SpecializedSubjectsListController {
                 model.addAttribute("totalSubjects", 0);
                 model.addAttribute("message", "No specialized subjects found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
-                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
                 model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
                 model.addAttribute("selectedSpecializationId", specializationId);
@@ -86,7 +84,6 @@ public class SpecializedSubjectsListController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", totalSubjects);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("selectedSpecializationId", specializationId);
@@ -99,7 +96,6 @@ public class SpecializedSubjectsListController {
             model.addAttribute("pageSize", pageSize != null ? pageSize : 20);
             model.addAttribute("totalSubjects", 0);
             model.addAttribute("subjects", new ArrayList<>());
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("selectedSpecializationId", specializationId);

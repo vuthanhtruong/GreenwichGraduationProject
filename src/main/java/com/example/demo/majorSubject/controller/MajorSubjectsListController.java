@@ -1,7 +1,6 @@
 package com.example.demo.majorSubject.controller;
 
 import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.entity.Enums.LearningProgramTypes;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
@@ -63,7 +62,6 @@ public class MajorSubjectsListController {
                 model.addAttribute("totalSubjects", 0);
                 model.addAttribute("message", "No subjects found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
-                model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
                 return "MajorSubjectsList";
             }
@@ -77,7 +75,6 @@ public class MajorSubjectsListController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", totalSubjects);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "MajorSubjectsList";
         } catch (Exception e) {
@@ -87,7 +84,6 @@ public class MajorSubjectsListController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalSubjects", 0);
-            model.addAttribute("learningProgramTypes", LearningProgramTypes.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             return "MajorSubjectsList";
         }
