@@ -1,5 +1,6 @@
 package com.example.demo.staff.service;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.staff.dao.StaffsDAO;
@@ -16,6 +17,11 @@ import java.util.Map;
 
 @Service
 public class StaffsServiceImpl implements StaffsService {
+    @Override
+    public Campuses getCampusOfStaff() {
+        return staffsDAO.getCampusOfStaff();
+    }
+
     @Override
     public List<Staffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
         return staffsDAO.searchStaffsByCampus(campusId, searchType, keyword, firstResult, pageSize);

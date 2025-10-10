@@ -1,5 +1,6 @@
 package com.example.demo.staff.controller;
 
+import com.example.demo.admin.service.AdminsService;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.campus.model.Campuses;
@@ -29,17 +30,14 @@ import java.util.List;
 public class ListStaffsController {
 
     private final StaffsService staffsService;
-    private final PersonsService personsService;
-    private final AuthenticatorsService authenticatorsService;
     private final MajorsService majorsService;
     private final CampusesService campusesService;
+    private final AdminsService adminsService;
 
-    public ListStaffsController(StaffsService staffsService, PersonsService personsService,
-                            AuthenticatorsService authenticatorsService, MajorsService majorsService,
-                            CampusesService campusesService) {
+    public ListStaffsController(StaffsService staffsService, MajorsService majorsService,
+                                CampusesService campusesService, AdminsService adminsService) {
         this.staffsService = staffsService;
-        this.personsService = personsService;
-        this.authenticatorsService = authenticatorsService;
+        this.adminsService = adminsService;
         this.majorsService = majorsService;
         this.campusesService = campusesService;
     }
@@ -80,6 +78,7 @@ public class ListStaffsController {
                 model.addAttribute("alertClass", "alert-warning");
                 model.addAttribute("majors", majorsService.getMajors());
                 model.addAttribute("campuses", campusesService.getCampuses());
+                model.addAttribute("admin", adminsService.getAdmin());
                 return "StaffsList";
             }
 
@@ -95,6 +94,7 @@ public class ListStaffsController {
             model.addAttribute("totalStaffs", totalStaffs);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
+            model.addAttribute("admin", adminsService.getAdmin());
             return "StaffsList";
         } catch (SecurityException e) {
             model.addAttribute("errors", List.of("Security error: " + e.getMessage()));
@@ -106,6 +106,7 @@ public class ListStaffsController {
             model.addAttribute("totalStaffs", 0);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
+            model.addAttribute("admin", adminsService.getAdmin());
             return "StaffsList";
         }
     }

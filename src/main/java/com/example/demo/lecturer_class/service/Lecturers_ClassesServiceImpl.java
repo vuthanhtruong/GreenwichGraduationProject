@@ -10,6 +10,11 @@ import java.util.List;
 @Service
 public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     @Override
+    public List<MajorLecturers> listLecturersInClass(MajorClasses classes) {
+        return lecturers_classesDAO.listLecturersInClass(classes);
+    }
+
+    @Override
     public void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds) {
         lecturers_classesDAO.removeLecturerFromClass(classes, lecturerIds);
     }
@@ -24,15 +29,11 @@ public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
         return lecturers_classesDAO.listLecturersNotInClass(classes);
     }
 
-    private Lecturers_ClassesDAO lecturers_classesDAO;
+    private final Lecturers_ClassesDAO lecturers_classesDAO;
 
     public Lecturers_ClassesServiceImpl(Lecturers_ClassesDAO lecturers_classesDAO) {
         this.lecturers_classesDAO = lecturers_classesDAO;
     }
 
-    @Override
-    public List<MajorLecturers_MajorClasses> listLecturersInClass(MajorClasses classes) {
-        return lecturers_classesDAO.listLecturersInClass(classes);
-    }
 
 }

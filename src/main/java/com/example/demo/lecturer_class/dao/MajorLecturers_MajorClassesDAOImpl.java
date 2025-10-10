@@ -2,7 +2,7 @@ package com.example.demo.lecturer_class.dao;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.lecturer_class.model.LecturersClassesId; // Corrected from MajorLecturersClassesId
+import com.example.demo.lecturer_class.model.LecturersClassesId;
 import com.example.demo.lecturer_class.model.MajorLecturers_MajorClasses;
 import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.person.service.PersonsService;
@@ -23,7 +23,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements Lecturers_ClassesDAO 
     private EntityManager entityManager;
 
     private final PersonsService personsService;
-    private final LecturesService lecturersService; // Corrected service name
+    private final LecturesService lecturersService;
     private final StaffsService staffsService;
 
     public MajorLecturers_MajorClassesDAOImpl(PersonsService personsService, LecturesService lecturersService, StaffsService staffsService) {
@@ -35,15 +35,14 @@ public class MajorLecturers_MajorClassesDAOImpl implements Lecturers_ClassesDAO 
     @Override
     public void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds) {
         if (classes == null || lecturerIds == null || lecturerIds.isEmpty()) {
-            return; // No action if inputs are invalid
+            return;
         }
 
         for (String lecturerId : lecturerIds) {
-            // Find the Lecturers_Classes record by composite key
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             MajorLecturers_MajorClasses lecturerClass = entityManager.find(MajorLecturers_MajorClasses.class, id);
             if (lecturerClass != null) {
-                entityManager.remove(lecturerClass); // Delete the record
+                entityManager.remove(lecturerClass);
             }
         }
     }
@@ -56,20 +55,20 @@ public class MajorLecturers_MajorClassesDAOImpl implements Lecturers_ClassesDAO 
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setClassEntity(classes);
-            lecturerClass.setMajorLecturer(lecturer); // Corrected from setLecturer to setMajorLecturer
+            lecturerClass.setMajorLecturer(lecturer);
             lecturerClass.setCreatedAt(LocalDateTime.now());
-            lecturerClass.setAddedBy(staffsService.getStaff()); // Assuming getStaff returns a Staffs entity
+            lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
         }
     }
 
     @Override
-    public List<MajorLecturers_MajorClasses> listLecturersInClass(MajorClasses classes) {
+    public List<MajorLecturers> listLecturersInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class AND lc.majorLecturer.majorManagement = :major",
-                        MajorLecturers_MajorClasses.class)
+                        "SELECT lc.majorLecturer FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class AND lc.majorLecturer.majorManagement = :major",
+                        MajorLecturers.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor()) // Assuming getStaffMajor returns a Major entity
+                .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }
 
@@ -80,7 +79,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements Lecturers_ClassesDAO 
                                 "(SELECT lc.majorLecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class)",
                         MajorLecturers.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor()) // Assuming getStaffMajor returns a Major entity
+                .setParameter("major", staffsService.getStaffMajor())
                 .getResultList();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.staff.dao;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.staff.model.Staffs;
@@ -29,4 +30,5 @@ public interface StaffsDAO {
     long countSearchResults(String searchType, String keyword);
     List<Staffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResultsByCampus(String campusId, String searchType, String keyword);
+    Campuses getCampusOfStaff();
 }

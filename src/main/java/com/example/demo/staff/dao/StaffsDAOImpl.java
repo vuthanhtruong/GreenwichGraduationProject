@@ -1,6 +1,7 @@
 package com.example.demo.staff.dao;
 import com.example.demo.admin.model.Admins;
 import com.example.demo.admin.service.AdminsService;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.major.model.Majors;
@@ -32,6 +33,11 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+    @Override
+    public Campuses getCampusOfStaff() {
+        return getStaff().getCampus();
+    }
+
     @Override
     public long countSearchResults(String searchType, String keyword) {
         try {
