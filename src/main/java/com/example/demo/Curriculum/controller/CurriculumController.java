@@ -17,11 +17,9 @@ import java.util.Map;
 public class CurriculumController {
     private static final Logger logger = LoggerFactory.getLogger(CurriculumController.class);
     private final CurriculumService curriculumService;
-    private final AdminsService adminsService;
 
-    public CurriculumController(CurriculumService curriculumService, AdminsService adminsService) {
+    public CurriculumController(CurriculumService curriculumService) {
         this.curriculumService = curriculumService;
-        this.adminsService = adminsService;
     }
 
     @GetMapping("/curriculums-list")

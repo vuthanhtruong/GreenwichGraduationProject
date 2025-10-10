@@ -354,3 +354,11 @@ body {
     background: linear-gradient(145deg, #1565c0, #1e88e5);
     transform: translateY(-3px);
 }
+.dashboard-card.colleague {
+    background-color: #9b59b6; /* soft purple tone */
+    color: white;
+}
+
+.dashboard-card.colleague:hover {
+    background-color: #7d3c98; /* darker purple on hover */
+}

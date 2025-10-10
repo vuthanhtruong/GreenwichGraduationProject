@@ -21,10 +21,11 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
         }
         Long count = entityManager.createQuery(
                         "SELECT COUNT(srs) FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId",
+                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId AND srs.student.campus=:campus",
                         Long.class)
                 .setParameter("studentId", studentId)
                 .setParameter("subjectId", subjectId)
+                .setParameter("campus",staffsService.getCampusOfStaff())
                 .getSingleResult();
         return count > 0;
     }
@@ -59,10 +60,11 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major",
+                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus",
                         StudentRequiredSpecializedSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("campus",staffsService.getCampusOfStaff())
                 .getResultList();
     }
 
@@ -75,10 +77,11 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
         return entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN StudentRequiredSpecializedSubjects srs " +
                                 "ON s.id = srs.student.id AND srs.specializedSubject = :subject " +
-                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL",
+                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND srs.student.campus=:campus",
                         Students.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("campus",staffsService.getCampusOfStaff())
                 .getResultList();
     }
 
@@ -108,10 +111,11 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
 
         Long count = entityManager.createQuery(
                         "SELECT COUNT(srs) FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId",
+                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId AND srs.student.campus=:campus",
                         Long.class)
                 .setParameter("studentId", studentId)
                 .setParameter("subjectId", subjectId)
+                .setParameter("campus",staffsService.getCampusOfStaff())
                 .getSingleResult();
 
         return count > 0;
@@ -133,9 +137,10 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
 
         Long count = (long) entityManager.createQuery(
                         "DELETE FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId")
+                                "WHERE srs.student.id = :studentId AND srs.specializedSubject.subjectId = :subjectId AND srs.student.campus=:campus")
                 .setParameter("studentId", studentId)
                 .setParameter("subjectId", subjectId)
+                .setParameter("campus",staffsService.getCampusOfStaff())
                 .executeUpdate();
 
         return count > 0;

@@ -27,36 +27,4 @@ public class RemoveLecturerFromClass {
 
         this.lecturersClassesService = lecturersClassesService;
     }
-
-
-    @PostMapping("/member-arrangement/delete-lecturer-from-class")
-    public String deleteLecturerFromClass(@RequestParam("classId") String classId,
-                                          @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
-                                          RedirectAttributes redirectAttributes,
-                                          HttpSession session) {
-        // Validate classId
-        MajorClasses selectedClass = classesService.getClassById(classId);
-        if (selectedClass == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Class not found.");
-            return "redirect:/staff-home/classes-list";
-        }
-
-        // Validate lecturerIds
-        if (lecturerIds == null || lecturerIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "No lecturers selected for removal.");
-            session.setAttribute("currentClassId", classId);
-            return "redirect:/staff-home/classes-list/member-arrangement";
-        }
-
-        // Remove lecturers from the class
-        try {
-            lecturersClassesService.removeLecturerFromClass(selectedClass, lecturerIds);
-            redirectAttributes.addFlashAttribute("successMessage", "Selected lecturers have been removed from the class.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to remove lecturers: " + e.getMessage());
-        }
-        // Keep the current class in session
-        session.setAttribute("currentClassId", classId);
-        return "redirect:/staff-home/classes-list/member-arrangement";
-    }
 }

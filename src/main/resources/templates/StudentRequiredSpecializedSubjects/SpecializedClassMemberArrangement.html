@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Members to Specialized Class</title>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-users"></i> Assign Members to Class: <span th:text="${class.nameClass}"></span></h1>
+    </header>
+
+    <!-- Alerts -->
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a th:href="@{/staff-home/specialized-classes-list}" class="btn">
+                <i class="fas fa-list"></i> Back to Classes
+            </a>
+        </div>
+    </div>
+
+    <!-- Assigned Lecturers -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-check"></i> Assigned Lecturers</h2>
+        <form th:action="@{/staff-home/specialized-classes-list/remove-lecturer-from-class}" method="post">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllAssignedLecturers" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
+                    <th><i class="fas fa-id-card"></i> Lecturer ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lecturer : ${lecturersInClass}">
+                    <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}"></td>
+                    <td th:text="${lecturer.id}"></td>
+                    <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
+                </tr>
+                <tr th:if="${lecturersInClass == null or #lists.isEmpty(lecturersInClass)}">
+                    <td colspan="3" class="text-center">No lecturers assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(lecturersInClass)}">
+                <i class="fas fa-trash"></i> Remove Selected
+            </button>
+        </form>
+    </div>
+
+    <!-- Not Assigned Lecturers -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-times"></i> Lecturers Not Assigned</h2>
+        <form th:action="@{/staff-home/specialized-classes-list/add-lecturer-to-class}" method="post">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllNotAssignedLecturers" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
+                    <th><i class="fas fa-id-card"></i> Lecturer ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lecturer : ${lecturersNotInClass}">
+                    <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}"></td>
+                    <td th:text="${lecturer.id}"></td>
+                    <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
+                </tr>
+                <tr th:if="${lecturersNotInClass == null or #lists.isEmpty(lecturersNotInClass)}">
+                    <td colspan="3" class="text-center">No lecturers available to assign.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(lecturersNotInClass)}">
+                <i class="fas fa-plus"></i> Assign Selected
+            </button>
+        </form>
+    </div>
+
+    <!-- Assigned Students -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-check"></i> Assigned Students</h2>
+        <form th:action="@{/staff-home/specialized-classes-list/remove-student-from-class}" method="post">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllAssignedStudents" onclick="toggleCheckboxes(this, 'studentIds')"></th>
+                    <th><i class="fas fa-id-card"></i> Student ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><i class="fas fa-user-shield"></i> Assigned By</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsInClass}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                    <td th:text="${student.addedBy != null} ? ${student.addedBy.fullName} : 'N/A'"></td>
+                </tr>
+                <tr th:if="${studentsInClass == null or #lists.isEmpty(studentsInClass)}">
+                    <td colspan="4" class="text-center">No students assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(studentsInClass)}">
+                <i class="fas fa-trash"></i> Remove Selected
+            </button>
+        </form>
+    </div>
+
+    <!-- Not Assigned Students -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-times"></i> Students Not Assigned</h2>
+        <form th:action="@{/staff-home/specialized-classes-list/add-student-to-class}" method="post">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllNotAssignedStudents" onclick="toggleCheckboxes(this, 'studentIds')"></th>
+                    <th><i class="fas fa-id-card"></i> Student ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsNotInClass}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                </tr>
+                <tr th:if="${studentsNotInClass == null or #lists.isEmpty(studentsNotInClass)}">
+                    <td colspan="3" class="text-center">No students available to assign.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsNotInClass)}">
+                <i class="fas fa-plus"></i> Assign Selected
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function toggleCheckboxes(master, group) {
+            const checkboxes = document.getElementsByName(group);
+            for (let checkbox of checkboxes) {
+                checkbox.checked = master.checked;
+            }
+        }
+    </script>
+
+</div>
+</body>
+</html>

@@ -199,3 +199,11 @@ body {
     transform: translateY(-6px);
     box-shadow: 0 8px 18px rgba(20, 184, 166, 0.3);
 }
+.dashboard-card.colleague {
+    background-color: #8e44ad; /* Light purple tone */
+    color: white;
+}
+
+.dashboard-card.colleague:hover {
+    background-color: #732d91; /* Darker purple on hover */
+}

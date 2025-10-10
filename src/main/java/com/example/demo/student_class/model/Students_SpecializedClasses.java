@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
         @PrimaryKeyJoinColumn(name = "StudentID", referencedColumnName = "StudentID"),
         @PrimaryKeyJoinColumn(name = "ClassID", referencedColumnName = "ClassID")
 })
-public class SpecializedStudents_Classes extends Students_Classes {
+public class Students_SpecializedClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", insertable = false, updatable = false)
@@ -32,9 +32,9 @@ public class SpecializedStudents_Classes extends Students_Classes {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Staffs addedBy;
 
-    public SpecializedStudents_Classes() {}
+    public Students_SpecializedClasses() {}
 
-    public SpecializedStudents_Classes(Students student, SpecializedClasses specializedClass, Notifications notification,
+    public Students_SpecializedClasses(Students student, SpecializedClasses specializedClass, Notifications notification,
                                        Staffs addedBy, LocalDateTime createdAt) {
         super(student, specializedClass, createdAt);
         this.specializedClass = specializedClass;
