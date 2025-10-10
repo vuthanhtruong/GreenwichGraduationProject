@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialized Study Plan - Subjects List</title>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-diagram-project"></i> Specialized Study Plan - Subjects List</h1>
+    </header>
+
+    <!-- Alerts -->
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <!-- Center (Filter Form) -->
+        <form method="post" th:action="@{/staff-home/specialized-study-plan/filter-subjects}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <select name="curriculumId" class="input">
+                <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
+                <option th:each="curriculum : ${curriculums}"
+                        th:value="${curriculum.curriculumId}"
+                        th:text="${curriculum.name}"
+                        th:selected="${curriculumId == curriculum.curriculumId}"></option>
+            </select>
+            <button type="submit" class="btn small primary">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+            <a th:if="${curriculumId != null}" th:href="@{/staff-home/specialized-study-plan}" class="btn small danger">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+
+        <!-- Right (Total count) -->
+        <div class="toolbar-right">
+            <div class="total-students">
+                <i class="fas fa-list"></i>
+                <p><strong>Total Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> ID</th>
+                <th><i class="fas fa-book"></i> Subject Name</th>
+                <th><i class="fas fa-calendar"></i> Semester</th>
+                <th><i class="fas fa-user-shield"></i> Creator</th>
+                <th><i class="fas fa-user-shield"></i> Specialization</th>
+                <th><i class="fas fa-graduation-cap"></i> Major</th>
+                <th><i class="fas fa-cogs"></i> Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="subject : ${subjects}">
+                <td th:text="${subject.subjectId}"></td>
+                <td th:text="${subject.subjectName}"></td>
+                <td th:text="${subject.semester ?: 'N/A'}"></td>
+                <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>
+                <td th:text="${subject.getSpecialization() != null} ? ${subject.getSpecialization().getSpecializationName()} : 'N/A'"></td>
+                <td th:text="${subject.getSpecialization().getMajor() != null} ? ${subject.getSpecialization().major.majorName} : 'N/A'"></td>
+                <td>
+                    <form th:action="@{/staff-home/specialized-study-plan/assign-members}" method="post" class="inline-form">
+                        <input type="hidden" name="id" th:value="${subject.subjectId}">
+                        <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button class="btn small primary">
+                            <i class="fas fa-users"></i> Assign Members
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${subjects == null or #lists.isEmpty(subjects)}">
+                <td colspan="6" class="text-center">No subjects available.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,8 +1,8 @@
-package com.example.demo.studentRequiredSubjects.controller;
+package com.example.demo.studentRequiredSpecializedSubjects.controller;
 
 import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.majorSubject.service.MajorSubjectsService;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
+import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
 import com.example.demo.staff.service.StaffsService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -17,32 +17,34 @@ import java.util.List;
 @Controller
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
-public class ListMajorSubjectsForStudyPlanController {
-    private final MajorSubjectsService subjectsService;
+public class ListSpecializedSubjectsForStudyPlanController {
+    private final SpecializedSubjectsService subjectsService;
     private final StaffsService staffsService;
     private final CurriculumService curriculumService;
 
-    public ListMajorSubjectsForStudyPlanController(
-            MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
+    public ListSpecializedSubjectsForStudyPlanController(
+            SpecializedSubjectsService subjectsService,
+            StaffsService staffsService,
+            CurriculumService curriculumService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
         this.curriculumService = curriculumService;
     }
 
-    @GetMapping("/study-plan")
+    @GetMapping("/specialized-study-plan")
     public String getStudyPlan(Model model) {
-        List<MajorSubjects> subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
+        List<SpecializedSubject> subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
         model.addAttribute("subjects", subjects);
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("totalSubjects", subjects.size());
-        return "StudyPlan";
+        return "SpecializedStudyPlan";
     }
 
-    @PostMapping("/study-plan/filter-subjects")
+    @PostMapping("/specialized-study-plan/filter-subjects")
     public String filterSubjects(
             @RequestParam(required = false) String curriculumId,
             Model model) {
-        List<MajorSubjects> subjects;
+        List<SpecializedSubject> subjects;
         if (curriculumId == null || curriculumId.isEmpty()) {
             subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
         } else {
@@ -52,9 +54,9 @@ public class ListMajorSubjectsForStudyPlanController {
             }
         }
         model.addAttribute("subjects", subjects);
-        model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("curriculumId", curriculumId);
+        model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("totalSubjects", subjects.size());
-        return "FilterSubjects";
+        return "FilterSpecializedSubjects";
     }
 }

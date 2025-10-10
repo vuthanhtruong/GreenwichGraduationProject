@@ -18,6 +18,11 @@ import java.util.Map;
 @Transactional
 public class SpecializedSubjectsServiceImpl implements SpecializedSubjectsService {
     @Override
+    public List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId) {
+        return specializedSubjectsDAO.getSubjectsByCurriculumId(curriculumId);
+    }
+
+    @Override
     public List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum) {
         return specializedSubjectsDAO.getSpecializedSubjectsByMajorAndCurriculum(majors, curriculum);
     }

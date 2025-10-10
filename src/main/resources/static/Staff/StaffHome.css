@@ -338,3 +338,19 @@ body {
         font-size: 15px;
     }
 }
+.dashboard-card.deep-focus {
+    background: linear-gradient(145deg, #4051b5, #5c6bc0);
+    color: #fff;
+}
+.dashboard-card.deep-focus:hover {
+    background: linear-gradient(145deg, #3949ab, #3f51b5);
+    transform: translateY(-3px);
+}
+.dashboard-card.deep-info {
+    background: linear-gradient(145deg, #1976d2, #2196f3);
+    color: #fff;
+}
+.dashboard-card.deep-info:hover {
+    background: linear-gradient(145deg, #1565c0, #1e88e5);
+    transform: translateY(-3px);
+}

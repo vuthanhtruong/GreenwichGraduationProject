@@ -25,6 +25,24 @@ import java.util.Map;
 @Transactional
 public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
     @Override
+    public List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId) {
+        if (curriculumId == null || curriculumId.trim().isEmpty()) {
+            return entityManager.createQuery(
+                            "SELECT s FROM SpecializedSubject s WHERE s.specialization.major = :major ORDER BY s.semester ASC",
+                            SpecializedSubject.class)
+                    .setParameter("major", staffsService.getStaffMajor())
+                    .getResultList();
+        }
+
+        return entityManager.createQuery(
+                        "SELECT s FROM SpecializedSubject s WHERE s.curriculum.curriculumId = :curriculumId AND s.specialization.major = :major ORDER BY s.semester ASC",
+                        SpecializedSubject.class)
+                .setParameter("curriculumId", curriculumId)
+                .setParameter("major", staffsService.getStaffMajor())
+                .getResultList();
+    }
+
+    @Override
     public List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum) {
         return entityManager.createQuery("from SpecializedSubject s where s.specialization.major=:majors and s.curriculum=:curriculum", SpecializedSubject.class)
                 .setParameter("majors",staffsService.getStaffMajor()).
@@ -220,11 +238,6 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
         }
         try {
             SpecializedSubject subject = entityManager.find(SpecializedSubject.class, subjectId);
-            if (subject == null) {
-                logger.warn("Specialized subject with ID {} not found", subjectId);
-            } else {
-                entityManager.detach(subject);
-            }
             return subject;
         } catch (Exception e) {
             logger.error("Error retrieving specialized subject by ID {}: {}", subjectId, e.getMessage(), e);

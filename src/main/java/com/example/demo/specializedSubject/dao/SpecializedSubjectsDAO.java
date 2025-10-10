@@ -32,4 +32,5 @@ public interface SpecializedSubjectsDAO {
     long numberOfSubjectsBySpecialization(String specializationId);
     List<SpecializedSubject> subjectsByMajor(Majors majors);
     List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum);
+    List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId);
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assign Members to Specialized Subject</title>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-users"></i> Assign Members to Specialized Subject: <span th:text="${subject.subjectName}"></span></h1>
+    </header>
+
+    <!-- Alerts -->
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a th:href="@{/staff-home/specialized-study-plan(curriculumId=${curriculumId})}" class="btn">
+                <i class="fas fa-list"></i> Back to Subjects
+            </a>
+        </div>
+    </div>
+
+    <!-- Assigned Students -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-check"></i> Assigned Students</h2>
+        <form id="removeForm" th:action="@{/staff-home/specialized-study-plan/assign-members/remove}" method="post">
+            <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
+            <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllAssigned" onchange="toggleCheckboxes(this, 'assignedStudents')"></th>
+                    <th><i class="fas fa-id-card"></i> Student ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><i class="fas fa-comment"></i> Reason</th>
+                    <th><i class="fas fa-user-shield"></i> Assigned By</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="srs : ${studentRequiredSubjects}">
+                    <td><input type="checkbox" name="studentIds" th:value="${srs.student.id}" onchange="updateButtonState('removeForm', 'removeButton')"></td>
+                    <td th:text="${srs.student.id}"></td>
+                    <td th:text="${srs.student.firstName + ' ' + srs.student.lastName}"></td>
+                    <td th:text="${srs.requiredReason ?: 'N/A'}"></td>
+                    <td th:text="${srs.assignedBy != null} ? ${srs.assignedBy.fullName} : 'N/A'"></td>
+                </tr>
+                <tr th:if="${studentRequiredSubjects == null or #lists.isEmpty(studentRequiredSubjects)}">
+                    <td colspan="5" class="text-center">No students assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" id="removeButton" class="btn danger" th:disabled="${#lists.isEmpty(studentRequiredSubjects)}">
+                <i class="fas fa-trash"></i> Remove Selected
+            </button>
+        </form>
+    </div>
+
+    <!-- Not Assigned Students -->
+    <div class="table-container">
+        <h2><i class="fas fa-user-times"></i> Students Not Assigned</h2>
+        <form id="addForm" th:action="@{/staff-home/specialized-study-plan/assign-members/add}" method="post">
+            <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
+            <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllNotAssigned" onchange="toggleCheckboxes(this, 'notAssignedStudents')"></th>
+                    <th><i class="fas fa-id-card"></i> Student ID</th>
+                    <th><i class="fas fa-user"></i> Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsNotRequired}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}" onchange="updateButtonState('addForm', 'addButton')"></td>
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                </tr>
+                <tr th:if="${studentsNotRequired == null or #lists.isEmpty(studentsNotRequired)}">
+                    <td colspan="3" class="text-center">No students available to assign.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" id="addButton" class="btn primary" th:disabled="${#lists.isEmpty(studentsNotRequired)}">
+                <i class="fas fa-plus"></i> Assign Selected
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function toggleCheckboxes(master, group) {
+            const checkboxes = document.getElementsByName('studentIds');
+            for (let checkbox of checkboxes) {
+                if (checkbox.closest('form').id === (group === 'assignedStudents' ? 'removeForm' : 'addForm')) {
+                    checkbox.checked = master.checked;
+                }
+            }
+            updateButtonState(group === 'assignedStudents' ? 'removeForm' : 'addForm', group === 'assignedStudents' ? 'removeButton' : 'addButton');
+        }
+
+        function updateButtonState(formId, buttonId) {
+            const form = document.getElementById(formId);
+            const checkboxes = form.querySelectorAll('input[name="studentIds"]:checked');
+            const button = document.getElementById(buttonId);
+            button.disabled = checkboxes.length === 0;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateButtonState('removeForm', 'removeButton');
+            updateButtonState('addForm', 'addButton');
+        });
+    </script>
+
+</div>
+</body>
+</html>
