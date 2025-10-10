@@ -1,6 +1,6 @@
 package com.example.demo.student_class.model;
 
-import com.example.demo.classes.model.SpecializedClasses;
+import com.example.demo.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.student.model.Students;

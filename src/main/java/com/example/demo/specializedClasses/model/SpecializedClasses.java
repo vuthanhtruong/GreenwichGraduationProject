@@ -1,6 +1,7 @@
-package com.example.demo.classes.model;
+package com.example.demo.specializedClasses.model;
 
 import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.classes.model.Classes;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.entity.Enums.Sessions;
 import jakarta.persistence.*;
