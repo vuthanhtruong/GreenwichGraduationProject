@@ -59,14 +59,24 @@ public class SpecializedClassesMemberArrangementController {
         }
 
         session.setAttribute("currentClassId", classId);
-        return "redirect:/staff-home/specialized-classes-list/member-arrangement?classId=" + classId;
+        return "redirect:/staff-home/specialized-classes-list/member-arrangement";
     }
 
     @GetMapping("/member-arrangement")
     public String showMemberArrangement(
-            @RequestParam("classId") String classId,
             Model model,
             HttpSession session) {
+        String classId = (String) session.getAttribute("currentClassId");
+        if (classId == null) {
+            model.addAttribute("errorMessage", "No class selected");
+            model.addAttribute("class", new SpecializedClasses());
+            model.addAttribute("studentsInClass", new ArrayList<Students>());
+            model.addAttribute("studentsNotInClass", new ArrayList<Students>());
+            model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
+            model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+            return "SpecializedClassMemberArrangement";
+        }
+
         SpecializedClasses classEntity = specializedClassesService.getClassById(classId);
         if (classEntity == null) {
             model.addAttribute("errorMessage", "Class not found");
@@ -89,7 +99,6 @@ public class SpecializedClassesMemberArrangementController {
         model.addAttribute("studentsNotInClass", studentsNotInClass);
         model.addAttribute("lecturersInClass", lecturersInClass);
         model.addAttribute("lecturersNotInClass", lecturersNotInClass);
-        session.setAttribute("currentClassId", classId);
         return "SpecializedClassMemberArrangement";
     }
 
@@ -148,7 +157,7 @@ public class SpecializedClassesMemberArrangementController {
 
             redirectAttributes.addFlashAttribute("successMessage", "Selected students removed successfully!");
             session.setAttribute("currentClassId", classId);
-            return "redirect:/staff-home/specialized-classes-list/member-arrangement?classId=" + classId;
+            return "redirect:/staff-home/specialized-classes-list/member-arrangement";
         } catch (Exception e) {
             errors.add("An error occurred while removing students: " + e.getMessage());
             SpecializedClasses classEntity = specializedClassesService.getClassById(classId);
@@ -243,7 +252,7 @@ public class SpecializedClassesMemberArrangementController {
 
             redirectAttributes.addFlashAttribute("successMessage", addedCount + " student(s) assigned successfully!");
             session.setAttribute("currentClassId", classId);
-            return "redirect:/staff-home/specialized-classes-list/member-arrangement?classId=" + classId;
+            return "redirect:/staff-home/specialized-classes-list/member-arrangement";
         } catch (Exception e) {
             errors.add("An error occurred while adding students: " + e.getMessage());
             SpecializedClasses classEntity = specializedClassesService.getClassById(classId);
@@ -296,7 +305,7 @@ public class SpecializedClassesMemberArrangementController {
 
             redirectAttributes.addFlashAttribute("successMessage", lecturerIds.size() + " lecturer(s) removed successfully!");
             session.setAttribute("currentClassId", classId);
-            return "redirect:/staff-home/specialized-classes-list/member-arrangement?classId=" + classId;
+            return "redirect:/staff-home/specialized-classes-list/member-arrangement";
         } catch (Exception e) {
             errors.add("An error occurred while removing lecturers: " + e.getMessage());
             SpecializedClasses classEntity = specializedClassesService.getClassById(classId);
@@ -345,11 +354,12 @@ public class SpecializedClassesMemberArrangementController {
                 return "SpecializedClassMemberArrangement";
             }
 
+            // Add lecturers to class
             lecturersClassesService.addLecturersToClass(classEntity, lecturerIds);
 
             redirectAttributes.addFlashAttribute("successMessage", lecturerIds.size() + " lecturer(s) assigned successfully!");
             session.setAttribute("currentClassId", classId);
-            return "redirect:/staff-home/specialized-classes-list/member-arrangement?classId=" + classId;
+            return "redirect:/staff-home/specialized-classes-list/member-arrangement";
         } catch (Exception e) {
             errors.add("An error occurred while adding lecturers: " + e.getMessage());
             SpecializedClasses classEntity = specializedClassesService.getClassById(classId);

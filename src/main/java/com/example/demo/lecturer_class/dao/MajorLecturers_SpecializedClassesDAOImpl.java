@@ -59,7 +59,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setMajorLecturer(lecturer);
-            lecturerClass.setSpecializedClass(classes);
+            lecturerClass.setClassEntity(classes);
             lecturerClass.setCreatedAt(LocalDateTime.now());
             lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
