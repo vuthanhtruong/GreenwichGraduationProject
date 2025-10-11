@@ -1,4 +1,4 @@
-package com.example.demo.MajorLecturers_Specializations.model;
+package com.example.demo.majorLecturers_Specializations.model;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.lecturer.model.MajorLecturers;

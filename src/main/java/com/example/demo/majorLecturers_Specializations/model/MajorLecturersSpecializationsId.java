@@ -1,4 +1,4 @@
-package com.example.demo.MajorLecturers_Specializations.model;
+package com.example.demo.majorLecturers_Specializations.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

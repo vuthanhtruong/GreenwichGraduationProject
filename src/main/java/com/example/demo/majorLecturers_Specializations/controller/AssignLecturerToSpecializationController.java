@@ -1,9 +1,9 @@
-package com.example.demo.MajorLecturers_Specializations.controller;
+package com.example.demo.majorLecturers_Specializations.controller;
 
-import com.example.demo.MajorLecturers_Specializations.model.MajorLecturersSpecializationsId;
-import com.example.demo.MajorLecturers_Specializations.model.MajorLecturers_Specializations;
+import com.example.demo.majorLecturers_Specializations.model.MajorLecturersSpecializationsId;
+import com.example.demo.majorLecturers_Specializations.model.MajorLecturers_Specializations;
 import com.example.demo.Specialization.model.Specialization;
-import com.example.demo.MajorLecturers_Specializations.service.MajorLecturersSpecializationsService;
+import com.example.demo.majorLecturers_Specializations.service.MajorLecturersSpecializationsService;
 import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.service.LecturesService;

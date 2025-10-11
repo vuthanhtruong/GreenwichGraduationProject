@@ -1,7 +1,7 @@
-package com.example.demo.MajorLecturers_Specializations.service;
+package com.example.demo.majorLecturers_Specializations.service;
 
-import com.example.demo.MajorLecturers_Specializations.model.MajorLecturers_Specializations;
-import com.example.demo.MajorLecturers_Specializations.dao.MajorLecturersSpecializationsDAO;
+import com.example.demo.majorLecturers_Specializations.model.MajorLecturers_Specializations;
+import com.example.demo.majorLecturers_Specializations.dao.MajorLecturersSpecializationsDAO;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.lecturer.model.MajorLecturers;
 import org.springframework.stereotype.Service;

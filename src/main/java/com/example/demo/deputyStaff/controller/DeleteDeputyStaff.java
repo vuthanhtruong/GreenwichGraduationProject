@@ -14,13 +14,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class DeleteDeputyStaff {
 
     private final DeputyStaffsService deputyStaffsService;
-    private final PersonsService personsService;
-    private final CampusesService campusesService;
 
-    public DeleteDeputyStaff(DeputyStaffsService deputyStaffsService, PersonsService personsService, CampusesService campusesService) {
+    public DeleteDeputyStaff(DeputyStaffsService deputyStaffsService) {
         this.deputyStaffsService = deputyStaffsService;
-        this.personsService = personsService;
-        this.campusesService = campusesService;
     }
 
     @PostMapping("/delete-deputy-staff")
