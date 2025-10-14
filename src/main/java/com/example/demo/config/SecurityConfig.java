@@ -48,9 +48,7 @@ public class SecurityConfig {
                                 "/*.css",
                                 "/oauth2/**",
                                 "/home",
-                                "/auth/reset-password",
-                                "/auth/reset-password/verify",
-                                "/auth/reset-password/new"
+                                "/auth/reset-password/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
