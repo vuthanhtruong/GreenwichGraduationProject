@@ -16,13 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/auth")
@@ -50,31 +47,23 @@ public class PasswordResetController {
         this.emailServiceForUserService = emailServiceForUserService;
     }
 
-    // Hiển thị form yêu cầu đặt lại mật khẩu (nhập email)
+    // Hiển thị form yêu cầu đặt lại mật khẩu
     @GetMapping("/reset-password")
-    public String showResetPasswordForm(Model model) {
+    public String showResetPasswordForm(Model model, HttpSession session) {
+        session.removeAttribute("resetEmail");
+        session.removeAttribute("resetAuthenticatorId");
         model.addAttribute("email", "");
         return "ResetPassword";
     }
 
-    // Xử lý yêu cầu đặt lại mật khẩu (gửi mã xác nhận)
+    // Xử lý yêu cầu đặt lại mật khẩu
     @PostMapping("/reset-password")
     public String requestPasswordReset(
             @RequestParam("email") @NotBlank String email,
             Model model,
-            RedirectAttributes redirectAttributes) {
-        Map<String, String> errors = new HashMap<>();
-
-        // Kiểm tra email hợp lệ
-        if (email == null || !isValidEmail(email)) {
-            errors.put("email", "Invalid email format.");
-        } else {
-            // Kiểm tra xem email có tồn tại trong hệ thống không
-            Persons person = personsService.getPersonByEmail(email);
-            if (person == null) {
-                errors.put("email", "No account found with this email address.");
-            }
-        }
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        Map<String, String> errors = passwordResetTokenService.validateResetPasswordRequest(email);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
@@ -82,69 +71,55 @@ public class PasswordResetController {
             return "ResetPassword";
         }
 
-        Persons person = personsService.getPersonByEmail(email);
-
-        // Tạo mã xác nhận (6 chữ số)
-        String verificationCode = generateVerificationCode();
-        Authenticators authenticator = authenticatorsService.getAuthenticatorByPersonId(person.getId());
-
-        // Xóa token cũ nếu có
         try {
-            passwordResetTokenService.findByAuthenticatorId(authenticator.getPersonId())
-                    .ifPresent(passwordResetTokenService::delete);
-        } catch (Exception e) {
-            errors.put("email", "An error occurred while processing your request. Please try again later.");
-            model.addAttribute("errors", errors);
-            model.addAttribute("email", email);
-            return "ResetPassword";
-        }
+            Persons person = personsService.getPersonByEmail(email);
+            Authenticators authenticator = authenticatorsService.getAuthenticatorByPersonId(person.getId());
+            String verificationCode = passwordResetTokenService.generateVerificationCode();
 
-        // Lưu mã xác nhận vào PasswordResetToken (hashed)
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(passwordEncoder.encode(verificationCode));
-        resetToken.setAuthenticator(authenticator);
-        resetToken.setExpiryDate(LocalDateTime.now().plusHours(tokenExpiryHours));
-        passwordResetTokenService.save(resetToken);
+            passwordResetTokenService.deleteByAuthenticatorId(authenticator.getPersonId());
 
-        // Gửi email với mã xác nhận
-        UserEmailContext context = new UserEmailContext(
-                person.getId(),
-                person.getFullName(),
-                person.getEmail(),
-                person.getPhoneNumber(),
-                person.getBirthDate(),
-                person.getGender() != null ? person.getGender().toString() : null,
-                person.getFullAddress(),
-                null, // campusName
-                null, // majorName
-                null, // createdDate
-                null  // creatorName
-        );
+            PasswordResetToken resetToken = new PasswordResetToken();
+            resetToken.setToken(passwordEncoder.encode(verificationCode));
+            resetToken.setAuthenticator(authenticator);
+            resetToken.setExpiryDate(LocalDateTime.now().plusHours(tokenExpiryHours));
+            passwordResetTokenService.save(resetToken);
 
-        try {
-            emailServiceForUserService.sendEmailForVerificationCode(
-                    email,
-                    "Password Reset Verification Code",
-                    context,
-                    verificationCode
+            UserEmailContext context = new UserEmailContext(
+                    person.getId(),
+                    person.getFullName(),
+                    person.getEmail(),
+                    person.getPhoneNumber(),
+                    person.getBirthDate(),
+                    person.getGender() != null ? person.getGender().toString() : null,
+                    person.getFullAddress(),
+                    null, null, null, null
             );
+            emailServiceForUserService.sendEmailForVerificationCode(
+                    email, "Password Reset Verification Code", context, verificationCode);
+
+            session.setAttribute("resetEmail", email);
             redirectAttributes.addFlashAttribute("message", "A verification code has been sent to your email.");
+            return "redirect:/auth/reset-password/verify";
         } catch (MessagingException e) {
-            errors.put("email", "Failed to send verification email. Please try again later.");
-            model.addAttribute("errors", errors);
+            model.addAttribute("errors", Map.of("email", "Failed to send verification email. Please try again later."));
+            model.addAttribute("email", email);
+            return "ResetPassword";
+        } catch (Exception e) {
+            model.addAttribute("errors", Map.of("email", "An error occurred while processing your request. Please try again later."));
             model.addAttribute("email", email);
             return "ResetPassword";
         }
-
-        return "redirect:/auth/reset-password/verify?email=" + email;
     }
 
     // Hiển thị form nhập mã xác nhận
     @GetMapping("/reset-password/verify")
-    public String showVerifyForm(
-            @RequestParam(value = "email", required = false) String email,
-            Model model) {
-        model.addAttribute("email", email != null ? email : "");
+    public String showVerifyForm(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        String email = (String) session.getAttribute("resetEmail");
+        if (email == null) {
+            redirectAttributes.addFlashAttribute("error", "Session expired or invalid. Please start over.");
+            return "redirect:/auth/reset-password";
+        }
+        model.addAttribute("email", email);
         model.addAttribute("verificationCode", "");
         return "ResetPasswordVerify";
     }
@@ -152,57 +127,33 @@ public class PasswordResetController {
     // Xử lý xác nhận mã xác nhận
     @PostMapping("/reset-password/verify")
     public String verifyCode(
-            @RequestParam("email") @NotBlank String email,
             @RequestParam("verificationCode") @NotBlank String verificationCode,
             Model model,
-            RedirectAttributes redirectAttributes) {
-        Map<String, String> errors = new HashMap<>();
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        String email = (String) session.getAttribute("resetEmail");
+        if (email == null) {
+            redirectAttributes.addFlashAttribute("error", "Session expired or invalid. Please start over.");
+            return "redirect:/auth/reset-password";
+        }
+
+        Map<String, String> errors = passwordResetTokenService.validateVerificationCode(email, verificationCode);
+
+        if (!errors.isEmpty()) {
+            model.addAttribute("errors", errors);
+            model.addAttribute("email", email);
+            model.addAttribute("verificationCode", verificationCode);
+            return "ResetPasswordVerify";
+        }
 
         try {
-            // Kiểm tra email
             Persons person = personsService.getPersonByEmail(email);
-            if (person == null) {
-                errors.put("email", "No account found with this email address.");
-            } else {
-                Authenticators authenticator = authenticatorsService.getAuthenticatorByPersonId(person.getId());
-                if (authenticator == null) {
-                    errors.put("email", "No authentication data found for this account.");
-                } else {
-                    Optional<PasswordResetToken> resetTokenOpt = passwordResetTokenService.findByAuthenticatorId(authenticator.getPersonId());
-                    if (resetTokenOpt.isEmpty()) {
-                        errors.put("verificationCode", "Invalid verification code.");
-                    } else {
-                        PasswordResetToken tokenEntity = resetTokenOpt.get();
-                        if (tokenEntity.isExpired()) {
-                            errors.put("verificationCode", "This verification code has expired.");
-                            passwordResetTokenService.delete(tokenEntity);
-                        } else if (!passwordEncoder.matches(verificationCode, tokenEntity.getToken())) {
-                            errors.put("verificationCode", "Invalid verification code.");
-                        }
-                    }
-                }
-            }
-
-            if (!errors.isEmpty()) {
-                model.addAttribute("errors", errors);
-                model.addAttribute("email", email);
-                model.addAttribute("verificationCode", verificationCode);
-                return "ResetPasswordVerify";
-            }
-
-            // Mã xác nhận đúng, tạo reset token mới (UUID) và cập nhật
-            PasswordResetToken tokenEntity = passwordResetTokenService.findByAuthenticatorId(
-                    authenticatorsService.getAuthenticatorByPersonId(person.getId()).getPersonId()).get();
-            String resetTokenStr = UUID.randomUUID().toString();
-            tokenEntity.setToken(resetTokenStr); // Lưu không hashed
-            tokenEntity.setExpiryDate(LocalDateTime.now().plusHours(1)); // Thời hạn ngắn cho bước đặt mật khẩu
-            passwordResetTokenService.save(tokenEntity);
-
+            Authenticators authenticator = authenticatorsService.getAuthenticatorByPersonId(person.getId());
+            session.setAttribute("resetAuthenticatorId", authenticator.getPersonId());
             redirectAttributes.addFlashAttribute("message", "Verification successful.");
-            return "redirect:/auth/reset-password/new?token=" + resetTokenStr;
+            return "redirect:/auth/reset-password/new";
         } catch (Exception e) {
-            errors.put("email", "An error occurred while verifying the code. Please try again.");
-            model.addAttribute("errors", errors);
+            model.addAttribute("errors", Map.of("verificationCode", "An error occurred while verifying the code. Please try again."));
             model.addAttribute("email", email);
             model.addAttribute("verificationCode", verificationCode);
             return "ResetPasswordVerify";
@@ -211,109 +162,73 @@ public class PasswordResetController {
 
     // Hiển thị form nhập mật khẩu mới
     @GetMapping("/reset-password/new")
-    public String showNewPasswordForm(
-            @RequestParam("token") String token,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Optional<PasswordResetToken> resetTokenOpt = passwordResetTokenService.findByToken(token);
-            if (resetTokenOpt.isEmpty() || resetTokenOpt.get().isExpired()) {
-                redirectAttributes.addFlashAttribute("error", "Invalid or expired token.");
-                return "redirect:/auth/reset-password";
-            }
-
-            PasswordResetToken tokenEntity = resetTokenOpt.get();
-            Authenticators authenticator = tokenEntity.getAuthenticator();
-            Persons person = personsService.getPersonById(authenticator.getPersonId());
-
-            model.addAttribute("token", token);
-            model.addAttribute("email", person.getEmail());
-            model.addAttribute("newPassword", "");
-            model.addAttribute("confirmPassword", "");
-            return "ResetPasswordNew";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "An error occurred. Please try again.");
+    public String showNewPasswordForm(Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+        String authenticatorId = (String) session.getAttribute("resetAuthenticatorId");
+        if (authenticatorId == null) {
+            redirectAttributes.addFlashAttribute("error", "Session expired or invalid. Please start over.");
             return "redirect:/auth/reset-password";
         }
+
+        Map<String, String> errors = passwordResetTokenService.validateSession(authenticatorId);
+        if (!errors.isEmpty()) {
+            session.removeAttribute("resetAuthenticatorId");
+            session.removeAttribute("resetEmail");
+            redirectAttributes.addFlashAttribute("error", errors.getOrDefault("general", "Invalid or expired session. Please start over."));
+            return "redirect:/auth/reset-password";
+        }
+
+        Persons person = personsService.getPersonById(authenticatorId);
+        model.addAttribute("email", person.getEmail());
+        model.addAttribute("newPassword", "");
+        model.addAttribute("confirmPassword", "");
+        return "ResetPasswordNew";
     }
 
     // Xử lý cập nhật mật khẩu mới
     @PostMapping("/reset-password/new")
     public String setNewPassword(
-            @RequestParam("token") @NotBlank String token,
             @RequestParam("newPassword") @NotBlank String newPassword,
             @RequestParam("confirmPassword") @NotBlank String confirmPassword,
             Model model,
-            RedirectAttributes redirectAttributes) {
-        Map<String, String> errors = new HashMap<>();
-
-        // Kiểm tra mật khẩu
-        if (!newPassword.equals(confirmPassword)) {
-            errors.put("confirmPassword", "Passwords do not match.");
-        }
-        if (newPassword.length() < 8) {
-            errors.put("newPassword", "Password must be at least 8 characters long.");
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        String authenticatorId = (String) session.getAttribute("resetAuthenticatorId");
+        if (authenticatorId == null) {
+            redirectAttributes.addFlashAttribute("error", "Session expired or invalid. Please start over.");
+            return "redirect:/auth/reset-password";
         }
 
-        // Kiểm tra token
-        Optional<PasswordResetToken> resetTokenOpt = passwordResetTokenService.findByToken(token);
-        if (resetTokenOpt.isEmpty()) {
-            errors.put("general", "Invalid token.");
-        } else {
-            PasswordResetToken tokenEntity = resetTokenOpt.get();
-            if (tokenEntity.isExpired()) {
-                errors.put("general", "This token has expired.");
-                passwordResetTokenService.delete(tokenEntity);
-            }
-        }
+        Map<String, String> errors = passwordResetTokenService.validateNewPassword(authenticatorId, newPassword, confirmPassword);
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            // Lấy lại email từ token để hiển thị
-            if (resetTokenOpt.isPresent()) {
-                Authenticators authenticator = resetTokenOpt.get().getAuthenticator();
-                Persons person = personsService.getPersonById(authenticator.getPersonId());
-                model.addAttribute("email", person.getEmail());
-            }
-            model.addAttribute("token", token);
+            Persons person = personsService.getPersonById(authenticatorId);
+            model.addAttribute("email", person.getEmail());
             model.addAttribute("newPassword", newPassword);
             model.addAttribute("confirmPassword", confirmPassword);
             return "ResetPasswordNew";
         }
 
-        // Cập nhật mật khẩu
-        PasswordResetToken tokenEntity = resetTokenOpt.get();
-        Authenticators authenticator = tokenEntity.getAuthenticator();
-        authenticator.setPassword(passwordEncoder.encode(newPassword)); // Encode mật khẩu
         try {
+            PasswordResetToken tokenEntity = passwordResetTokenService.findByAuthenticatorId(authenticatorId)
+                    .orElseThrow(() -> new RuntimeException("Token not found"));
+            Authenticators authenticator = tokenEntity.getAuthenticator();
+            authenticator.setPassword(newPassword);
             authenticatorsService.createAuthenticator(authenticator);
             passwordResetTokenService.delete(tokenEntity);
+
+            session.removeAttribute("resetAuthenticatorId");
+            session.removeAttribute("resetEmail");
+
             redirectAttributes.addFlashAttribute("message", "Your password has been reset successfully.");
+            return "redirect:/login";
         } catch (Exception e) {
-            errors.put("general", "An error occurred while resetting your password. Please try again later.");
-            model.addAttribute("errors", errors);
-            Authenticators auth = tokenEntity.getAuthenticator();
-            Persons p = personsService.getPersonById(auth.getPersonId());
-            model.addAttribute("email", p.getEmail());
-            model.addAttribute("token", token);
+            model.addAttribute("errors", Map.of("general", "An error occurred while resetting your password. Please try again later."));
+            Persons person = personsService.getPersonById(authenticatorId);
+            model.addAttribute("email", person.getEmail());
             model.addAttribute("newPassword", newPassword);
             model.addAttribute("confirmPassword", confirmPassword);
             return "ResetPasswordNew";
         }
-
-        return "redirect:/login";
-    }
-
-    private boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
-        String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-        return email.matches(emailRegex);
-    }
-
-    private String generateVerificationCode() {
-        Random random = new Random();
-        return String.format("%06d", random.nextInt(1000000));
     }
 }

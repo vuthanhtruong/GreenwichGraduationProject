@@ -24,36 +24,6 @@
             </form>
         </nav>
     </header>
-
-    <!-- Success Message -->
-    <div th:if="${message != null}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
-
-    <!-- General (non-field) Errors -->
-    <div th:if="${errors != null}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${errors}"
-                th:if="${!error.contains('firstName') and !error.contains('lastName') and !error.contains('email')
-                        and !error.contains('phoneNumber') and !error.contains('birthDate') and !error.contains('gender')
-                        and !error.contains('country') and !error.contains('province') and !error.contains('city')
-                        and !error.contains('district') and !error.contains('ward') and !error.contains('street')
-                        and !error.contains('postalCode') and !error.contains('avatarFile')}"
-                th:text="${error}">
-            </li>
-        </ul>
-    </div>
-
-    <!-- Password Errors (if any) -->
-    <div th:if="${passwordErrors != null}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${passwordErrors}" th:text="${error}"></li>
-        </ul>
-    </div>
-
     <!-- Main Form Panel -->
     <section class="win11-panel">
         <form method="post" th:action="@{/staff-home/personal-page/edit}" th:object="${staffForm}" enctype="multipart/form-data">

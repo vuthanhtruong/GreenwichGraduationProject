@@ -3,66 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in</title>
-    <link rel="icon" type="image/png"
-          href="https://media.licdn.com/dms/image/v2/D4E03AQFLQ3wVdHNGbg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1718260322895?e=2147483647&v=beta&t=UFvJoQa3BJIXVjocf1KkTDeRsgg1JMMAN3fhGTLmpZc" />
+    <title>Sign In - EduPortal</title>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/login.css}">
 </head>
 <body>
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <img src="https://www.gre.ac.uk/__data/assets/image/0030/306687/2022-fpt-greenwich-logo.png"
-                 alt="Logo" class="logo">
+
+<div class="win11-login-container">
+    <div class="win11-login-card">
+
+        <!-- Header -->
+        <header class="login-header">
+            <i class="fas fa-graduation-cap logo"></i>
             <h2>Welcome Back</h2>
-            <p class="subtitle">Enter your account to continue</p>
-        </div>
+            <p class="subtitle">Sign in to continue to your dashboard</p>
+        </header>
 
         <!-- Alerts -->
         <div th:if="${message}" class="alert success">
             <i class="fas fa-check-circle"></i>
             <span th:text="${message}"></span>
-            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">&times;</button>
         </div>
         <div th:if="${error}" class="alert error">
             <i class="fas fa-exclamation-circle"></i>
             <span th:text="${error}"></span>
-            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">&times;</button>
         </div>
 
         <!-- Login Form -->
         <form th:action="@{/login}" method="post" class="login-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
             <div class="input-group">
                 <i class="fas fa-user"></i>
-                <input type="text" name="username" placeholder=" " required autocomplete="username">
-                <label>Account</label>
+                <input type="text" name="username" required autocomplete="username" placeholder=" ">
+                <label>Username or Email</label>
             </div>
+
             <div class="input-group">
                 <i class="fas fa-lock"></i>
-                <input type="password" name="password" placeholder=" " required autocomplete="current-password">
+                <input type="password" name="password" required autocomplete="current-password" placeholder=" ">
                 <label>Password</label>
             </div>
+
             <div class="options">
                 <button type="button" class="btn-text" th:onclick="|window.location='@{/auth/reset-password}'|">
                     Forgot password?
                 </button>
             </div>
+
             <button type="submit" class="btn primary">
                 <i class="fas fa-right-to-bracket"></i> Sign In
             </button>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
         </form>
 
         <!-- Divider -->
         <div class="divider"><span>or</span></div>
 
-        <!-- Google Login -->
+        <!-- Google Sign-in -->
         <a th:href="@{/oauth2/authorization/google}" class="btn google">
             <i class="fab fa-google"></i> Sign in with Google
         </a>
     </div>
 </div>
+
 </body>
 </html>

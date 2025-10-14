@@ -1,364 +1,179 @@
-/* Base */
+/* ===== Base ===== */
 body {
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
     margin: 0;
     color: #1a1a1a;
-    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Background giống login */
+/* ===== Background Blur Layer ===== */
 .background {
     position: fixed;
     inset: 0;
-    background: url("https://www.meoun.uk/wp-content/uploads/2021/09/85c52289c8112ddcfa149e7bb86fd5fa01b9a613.jpg")
-    center/cover no-repeat;
-    filter: brightness(0.6) blur(2px);
+    background: radial-gradient(circle at 20% 20%, #dbeafe, transparent 60%),
+    radial-gradient(circle at 80% 80%, #fef3c7, transparent 60%);
     z-index: -1;
 }
 
+/* ===== Container ===== */
 .win11-container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 24px;
-    position: relative;
-    z-index: 1;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
 }
 
-/* Title Bar */
+/* ===== Title Bar ===== */
 .win11-title-bar {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    margin-bottom: 30px;
-    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 24px 36px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeIn 0.4s ease;
 }
 
 .win11-title-bar h1 {
     font-size: 26px;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    font-weight: 700;
+    font-weight: 600;
     color: #2563eb;
+    margin: 0;
 }
-
 .win11-title-bar h2 {
-    font-size: 16px;
-    font-weight: 500;
-    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 400;
     color: #374151;
+    margin: 0 0 10px;
 }
 
-/* Nav */
+/* ===== Navigation ===== */
 .dashboard-nav {
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 14px;
+    align-items: center;
+    gap: 18px;
     flex-wrap: wrap;
 }
-
 .dashboard-nav a,
 .dashboard-nav button {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(10px);
-    padding: 8px 16px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 14px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    font-size: 15px;
+    color: #2563eb;
+    background: #f9fafb;
     border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px 14px;
     cursor: pointer;
-    color: #1a1a1a;
     transition: all 0.25s ease;
+    text-decoration: none;
 }
-
 .dashboard-nav a:hover,
 .dashboard-nav button:hover {
     background: #2563eb;
     color: #fff;
     border-color: #2563eb;
-    transform: translateY(-2px);
+}
+.dashboard-nav form {
+    display: inline;
 }
 
-/* Dashboard Grid */
+/* ===== Dashboard Grid ===== */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    animation: fadeInUp 0.5s ease;
 }
 
+/* ===== Dashboard Cards ===== */
 .dashboard-card {
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(8px);
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #1a1a1a;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(0,0,0,0.08));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 16px;
-}
-
-.dashboard-card i {
-    font-size: 34px;
-    transition: transform 0.3s ease;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-}
-
-.dashboard-card:hover::before {
-    opacity: 1;
-}
-
-.dashboard-card:hover i {
-    transform: scale(1.2);
-}
-
-/* Color Variants */
-.dashboard-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); color: #fff; }
-.dashboard-card.success { background: linear-gradient(135deg, #16a34a, #065f46); color: #fff; }
-.dashboard-card.warning { background: linear-gradient(135deg, #d97706, #92400e); color: #fff; }
-.dashboard-card.info { background: linear-gradient(135deg, #0891b2, #155e75); color: #fff; }
-.dashboard-card.dark { background: linear-gradient(135deg, #1f2937, #111827); color: #fff; }
-.dashboard-card.neutral { background: linear-gradient(135deg, #6b7280, #374151); color: #fff; }
-
-.dashboard-card span {
-    font-weight: 600;
-    font-size: 16px;
-    letter-spacing: 0.3px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .dashboard-nav {
-        flex-direction: column;
-        gap: 8px;
-    }
-}
-/* Title Bar */
-.win11-title-bar {
-    position: relative;
-    padding: 28px 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    margin-bottom: 30px;
-    text-align: center;
-
-    /* nền ảnh riêng */
-    background: url("https://cdn-media.sforum.vn/storage/app/media/ctv_seo10/hoc-phi-greenwich-thumb.jpg")
-    center/cover no-repeat;
-    color: #fff;
-    overflow: hidden;
-}
-
-/* Overlay mờ để chữ rõ */
-.win11-title-bar::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.45);  /* lớp phủ đen mờ */
-    border-radius: 16px;
-}
-
-.win11-title-bar h1,
-.win11-title-bar h2 {
-    position: relative; /* để nằm trên overlay */
-    z-index: 1;
-}
-
-.win11-title-bar h1 {
-    font-size: 28px;
-    margin: 0;
-    display: flex;
     justify-content: center;
-    align-items: center;
+    text-align: center;
     gap: 12px;
-    font-weight: 700;
-    color: #fff;
-}
-
-.win11-title-bar h2 {
-    font-size: 16px;
+    padding: 36px 20px;
+    border-radius: 18px;
     font-weight: 500;
-    margin-top: 8px;
-    color: #f3f4f6;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    color: #1a1a1a;
+    transition: all 0.25s ease;
 }
-.dashboard-card.award {
-    background: linear-gradient(135deg, #f59e0b, #b45309);
-    color: #fff;
+.dashboard-card i {
+    font-size: 32px;
+    transition: transform 0.25s ease;
 }
-
-/* ======================================= */
-/* 🔹 Teacher Specialization (Bố trí chuyên môn) */
-/* ======================================= */
-
-.dashboard-card.professional {
-    background: linear-gradient(135deg, #4b6cb7, #182848); /* xanh navy sang tím đậm */
-    color: #fff;
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(37,99,235,0.2);
 }
-
-.dashboard-card.professional i {
-    color: #e0e7ff; /* xanh nhạt của Windows 11 */
-}
-
-.dashboard-card.professional:hover {
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 8px 18px rgba(24, 40, 72, 0.4);
-}
-
-.dashboard-card.professional:hover i {
-    transform: rotate(10deg) scale(1.25);
-    transition: all 0.35s ease;
-}
-
-/* ======================================= */
-/* 🔸 Hiệu ứng nâng cao cho toàn bộ thẻ dashboard */
-/* ======================================= */
-
-.dashboard-card span {
-    font-weight: 600;
-    font-size: 16px;
-    letter-spacing: 0.4px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Hiệu ứng “pulse” khi hover vào icon */
 .dashboard-card:hover i {
-    animation: pulse-icon 0.6s ease;
+    transform: scale(1.1);
 }
 
-@keyframes pulse-icon {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.25); }
-    100% { transform: scale(1.1); }
+/* ===== Color Variants ===== */
+.dashboard-card.primary { border-top: 4px solid #2563eb; }
+.dashboard-card.success { border-top: 4px solid #16a34a; }
+.dashboard-card.professional { border-top: 4px solid #0ea5e9; }
+.dashboard-card.warning { border-top: 4px solid #facc15; }
+.dashboard-card.focus { border-top: 4px solid #7c3aed; }
+.dashboard-card.deep-focus { border-top: 4px solid #4f46e5; }
+.dashboard-card.info { border-top: 4px solid #0284c7; }
+.dashboard-card.deep-info { border-top: 4px solid #0ea5e9; }
+.dashboard-card.dark { border-top: 4px solid #1e293b; }
+.dashboard-card.award { border-top: 4px solid #f59e0b; }
+.dashboard-card.neutral { border-top: 4px solid #9ca3af; }
+.dashboard-card.colleague { border-top: 4px solid #06b6d4; }
+
+/* ===== Hover color tint ===== */
+.dashboard-card.primary:hover { background: #ebf2ff; }
+.dashboard-card.success:hover { background: #ecfdf5; }
+.dashboard-card.professional:hover { background: #f0f9ff; }
+.dashboard-card.warning:hover { background: #fffbeb; }
+.dashboard-card.focus:hover { background: #f5f3ff; }
+.dashboard-card.info:hover { background: #f0f9ff; }
+.dashboard-card.dark:hover { background: #f3f4f6; }
+.dashboard-card.award:hover { background: #fefce8; }
+.dashboard-card.colleague:hover { background: #ecfeff; }
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* ======================================= */
-/* 🔸 Cải thiện khả năng tương thích di động */
-/* ======================================= */
-
-@media (max-width: 480px) {
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .win11-container {
+        padding: 24px;
+    }
+    .win11-title-bar {
+        padding: 20px;
+    }
     .dashboard-grid {
-        grid-template-columns: 1fr;
         gap: 16px;
     }
-
     .dashboard-card {
-        padding: 22px 16px;
+        padding: 28px 16px;
     }
-
-    .dashboard-card i {
-        font-size: 30px;
+    .dashboard-nav a, .dashboard-nav button {
+        font-size: 14px;
+        padding: 6px 10px;
     }
-
-    .dashboard-card span {
-        font-size: 15px;
-    }
-}
-/* ======================================= */
-/* 🧩 Specialized Subjects (Môn học chuyên ngành) */
-/* ======================================= */
-
-.dashboard-card.focus {
-    background: linear-gradient(135deg, #9333ea, #4c1d95); /* tím đậm - phong cách học thuật */
-    color: #fff;
-}
-
-.dashboard-card.focus i {
-    color: #ede9fe; /* tím nhạt pastel cho icon */
-}
-
-.dashboard-card.focus:hover {
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 8px 18px rgba(76, 29, 149, 0.45);
-}
-
-.dashboard-card.focus:hover i {
-    transform: rotate(8deg) scale(1.25);
-    transition: all 0.35s ease;
-}
-
-/* Hiệu ứng viền phát sáng */
-.dashboard-card.focus::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 16px;
-    border: 2px solid rgba(147, 51, 234, 0.6);
-    box-shadow: 0 0 10px rgba(147, 51, 234, 0.4);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.dashboard-card.focus:hover::after {
-    opacity: 1;
-}
-
-/* ======================================= */
-/* 🔸 Đảm bảo tính nhất quán khi hiển thị nhỏ */
-/* ======================================= */
-@media (max-width: 480px) {
-    .dashboard-card.focus {
-        padding: 22px 16px;
-    }
-
-    .dashboard-card.focus i {
-        font-size: 30px;
-    }
-
-    .dashboard-card.focus span {
-        font-size: 15px;
-    }
-}
-.dashboard-card.deep-focus {
-    background: linear-gradient(145deg, #4051b5, #5c6bc0);
-    color: #fff;
-}
-.dashboard-card.deep-focus:hover {
-    background: linear-gradient(145deg, #3949ab, #3f51b5);
-    transform: translateY(-3px);
-}
-.dashboard-card.deep-info {
-    background: linear-gradient(145deg, #1976d2, #2196f3);
-    color: #fff;
-}
-.dashboard-card.deep-info:hover {
-    background: linear-gradient(145deg, #1565c0, #1e88e5);
-    transform: translateY(-3px);
-}
-.dashboard-card.colleague {
-    background-color: #9b59b6; /* soft purple tone */
-    color: white;
-}
-
-.dashboard-card.colleague:hover {
-    background-color: #7d3c98; /* darker purple on hover */
 }
