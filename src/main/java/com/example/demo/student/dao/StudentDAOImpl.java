@@ -46,10 +46,6 @@ public class StudentDAOImpl implements StudentsDAO {
     private final PersonsService personsService;
     private final EmailServiceForStudentService emailServiceForStudentService;
 
-    // Base directory and URL for avatar storage
-    private static final String AVATAR_STORAGE_PATH = "avatars/";
-    private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
-
     public StudentDAOImpl(PersonsService personsService, EmailServiceForStudentService emailServiceForStudentService,
                           EmailServiceForLecturerService emailServiceForLectureService,
                           StaffsService staffsService) {
@@ -59,23 +55,6 @@ public class StudentDAOImpl implements StudentsDAO {
         }
         this.emailServiceForStudentService = emailServiceForStudentService;
         this.staffsService = staffsService;
-
-        // Ensure avatar storage directory exists
-        try {
-            Files.createDirectories(Paths.get(AVATAR_STORAGE_PATH));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create avatar storage directory: " + AVATAR_STORAGE_PATH, e);
-        }
-    }
-
-    private String saveAvatarAndGetPath(String studentId, byte[] avatarData) throws IOException {
-        if (avatarData == null || avatarData.length == 0) {
-            return null;
-        }
-        String fileName = studentId + "_" + System.currentTimeMillis() + ".jpg";
-        Path filePath = Paths.get(AVATAR_STORAGE_PATH, fileName);
-        Files.write(filePath, avatarData);
-        return AVATAR_BASE_URL + fileName;
     }
 
     @Override
@@ -232,14 +211,6 @@ public class StudentDAOImpl implements StudentsDAO {
         student.setCreatedDate(LocalDate.now());
         Students savedStudent = entityManager.merge(student);
 
-        // Handle avatar
-        String avatarPath = null;
-        try {
-            avatarPath = saveAvatarAndGetPath(savedStudent.getId(), savedStudent.getAvatar());
-        } catch (IOException e) {
-            System.err.println("Failed to save avatar for student " + savedStudent.getId() + ": " + e.getMessage());
-        }
-
         // Create StudentEmailContext
         StudentEmailContext context = new StudentEmailContext(
                 savedStudent.getId(),
@@ -254,8 +225,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
                 savedStudent.getAdmissionYear(),
                 savedStudent.getCreatedDate(),
-                savedStudent.getCurriculum() != null ? savedStudent.getCurriculum().getName() : null,
-                avatarPath
+                savedStudent.getCurriculum() != null ? savedStudent.getCurriculum().getName() : null
         );
 
         try {
@@ -310,14 +280,6 @@ public class StudentDAOImpl implements StudentsDAO {
             existingStudent.setCurriculum(curriculum);
         }
 
-        // Handle avatar
-        String avatarPath = null;
-        try {
-            avatarPath = saveAvatarAndGetPath(existingStudent.getId(), existingStudent.getAvatar());
-        } catch (IOException e) {
-            System.err.println("Failed to save avatar for student " + existingStudent.getId() + ": " + e.getMessage());
-        }
-
         entityManager.merge(existingStudent);
 
         // Create StudentEmailContext
@@ -334,8 +296,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
                 existingStudent.getAdmissionYear(),
                 existingStudent.getCreatedDate(),
-                existingStudent.getCurriculum() != null ? existingStudent.getCurriculum().getName() : null,
-                avatarPath
+                existingStudent.getCurriculum() != null ? existingStudent.getCurriculum().getName() : null
         );
 
         String subject = "Your student account information after being edited";

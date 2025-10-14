@@ -110,13 +110,6 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                 .append(safe.apply(context.fullName()))
                 .append(",</p>");
 
-        if (context.avatarPath() != null) {
-            html.append("<div style='text-align:center;margin:18px 0 10px 0;'>")
-                    .append("<img src='").append(context.avatarPath()).append("' width='120' alt='Student Avatar' ")
-                    .append("style='display:inline-block;border-radius:12px;border:1px solid #eef2f7;max-width:120px;height:auto;'>")
-                    .append("</div>");
-        }
-
         html.append("<p style='margin:0 0 18px 0;font-size:16px;line-height:1.8;color:#4b5563;font-family:sans-serif;'>")
                 .append(mainMessage)
                 .append("</p>");

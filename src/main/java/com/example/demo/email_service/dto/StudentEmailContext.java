@@ -15,6 +15,5 @@ public record StudentEmailContext(
         String creatorName,
         LocalDate admissionYear,
         LocalDate createdDate,
-        String learningProgramType,
-        String avatarPath
+        String learningProgramType
 ) {}

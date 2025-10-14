@@ -13,6 +13,5 @@ public record LecturerEmailContext(
         String campusName,
         String majorName,
         String creatorName,
-        LocalDate createdDate,
-        String avatarPath
+        LocalDate createdDate
 ) {}

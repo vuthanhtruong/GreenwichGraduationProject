@@ -37,42 +37,20 @@ public class LecturesDAOImpl implements LecturesDAO {
     private final PersonsService personsService;
     private final StaffsService staffsService;
     private final EmailServiceForLecturerService emailServiceForLectureService;
-    private final EmailServiceForStudentService emailServiceForStudentService;
-    private final AuthenticatorsService authenticatorsService;
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    private static final String AVATAR_STORAGE_PATH = "avatars/";
-    private static final String AVATAR_BASE_URL = "https://university.example.com/avatars/";
 
     public LecturesDAOImpl(PersonsService personsService, EmailServiceForLecturerService emailServiceForLectureService,
                            EmailServiceForStudentService emailServiceForStudentService,
                            StaffsService staffsService, AuthenticatorsService authenticatorsService) {
         this.personsService = personsService;
-        this.authenticatorsService = authenticatorsService;
         if (emailServiceForLectureService == null || emailServiceForStudentService == null) {
             throw new IllegalArgumentException("Email services cannot be null");
         }
         this.emailServiceForLectureService = emailServiceForLectureService;
-        this.emailServiceForStudentService = emailServiceForStudentService;
         this.staffsService = staffsService;
 
-        try {
-            Files.createDirectories(Paths.get(AVATAR_STORAGE_PATH));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create avatar storage directory: " + AVATAR_STORAGE_PATH, e);
-        }
-    }
-
-    private String saveAvatarAndGetPath(String lecturerId, byte[] avatarData) throws IOException {
-        if (avatarData == null || avatarData.length == 0) {
-            return null;
-        }
-        String fileName = lecturerId + "_" + System.currentTimeMillis() + ".jpg";
-        Path filePath = Paths.get(AVATAR_STORAGE_PATH, fileName);
-        Files.write(filePath, avatarData);
-        return AVATAR_BASE_URL + fileName;
     }
 
     @Override
@@ -234,11 +212,6 @@ public class LecturesDAOImpl implements LecturesDAO {
         MajorLecturers savedLecturer = entityManager.merge(lecturer);
 
         String avatarPath = null;
-        try {
-            avatarPath = saveAvatarAndGetPath(savedLecturer.getId(), savedLecturer.getAvatar());
-        } catch (IOException e) {
-            logger.error("Failed to save avatar for lecturer {}: {}", savedLecturer.getId(), e.getMessage());
-        }
 
         LecturerEmailContext context = new LecturerEmailContext(
                 savedLecturer.getId(),
@@ -251,8 +224,7 @@ public class LecturesDAOImpl implements LecturesDAO {
                 savedLecturer.getCampus() != null ? savedLecturer.getCampus().getCampusName() : null,
                 savedLecturer.getMajorManagement() != null ? savedLecturer.getMajorManagement().getMajorName() : null,
                 savedLecturer.getCreator() != null ? savedLecturer.getCreator().getFullName() : null,
-                savedLecturer.getCreatedDate(),
-                avatarPath
+                savedLecturer.getCreatedDate()
         );
 
         try {
@@ -299,13 +271,6 @@ public class LecturesDAOImpl implements LecturesDAO {
 
         updateLecturerFields(existingLecturer, lecturer);
 
-        String avatarPath = null;
-        try {
-            avatarPath = saveAvatarAndGetPath(existingLecturer.getId(), existingLecturer.getAvatar());
-        } catch (IOException e) {
-            logger.error("Failed to save avatar for lecturer {}: {}", existingLecturer.getId(), e.getMessage());
-        }
-
         entityManager.merge(existingLecturer);
 
         LecturerEmailContext context = new LecturerEmailContext(
@@ -319,8 +284,7 @@ public class LecturesDAOImpl implements LecturesDAO {
                 existingLecturer.getCampus() != null ? existingLecturer.getCampus().getCampusName() : null,
                 existingLecturer.getMajorManagement() != null ? existingLecturer.getMajorManagement().getMajorName() : null,
                 existingLecturer.getCreator() != null ? existingLecturer.getCreator().getFullName() : null,
-                existingLecturer.getCreatedDate(),
-                avatarPath
+                existingLecturer.getCreatedDate()
         );
 
         String subject = "Your lecturer account information after being edited";
