@@ -24,5 +24,8 @@ public enum EmailTemplateTypes {
     // Minor Lecture
     MINOR_LECTURE_ADD,
     MINOR_LECTURE_EDIT,
-    MINOR_LECTURE_DELETE
+    MINOR_LECTURE_DELETE,
+
+    // User
+    USER_FORGOT_PASSWORD
 }

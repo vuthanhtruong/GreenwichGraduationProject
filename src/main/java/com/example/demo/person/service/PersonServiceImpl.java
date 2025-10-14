@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class PersonServiceImpl implements PersonsService {
     @Override
+    public Persons getPersonByEmail(String email) {
+        return personsDAO.getPersonByEmail(email);
+    }
+
+    @Override
     public Persons getPersonById(String id) {
         return personsDAO.getPersonById(id);
     }

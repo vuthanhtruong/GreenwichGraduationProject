@@ -2,6 +2,7 @@ package com.example.demo.person.dao;
 
 import com.example.demo.person.model.Persons;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,18 @@ import org.springframework.stereotype.Repository;
 @Transactional
 
 public class PersonsDAOImpl implements PersonsDAO {
+    @Override
+    public Persons getPersonByEmail(String email) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT p FROM Persons p WHERE p.email = :email", Persons.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     @Override
     public Persons getPersonById(String id) {
         Persons person = entityManager.find(Persons.class, id);

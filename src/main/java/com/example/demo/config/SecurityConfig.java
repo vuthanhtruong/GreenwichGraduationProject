@@ -41,8 +41,16 @@ public class SecurityConfig {
                         .requestMatchers("/lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
                         .requestMatchers(
-                                "/login", "/resources/**", "/css/**", "/js/**", "/*.css",
-                                "/oauth2/**", "/home", "/auth/reset-password"
+                                "/login",
+                                "/resources/**",
+                                "/css/**",
+                                "/js/**",
+                                "/*.css",
+                                "/oauth2/**",
+                                "/home",
+                                "/auth/reset-password",
+                                "/auth/reset-password/verify",
+                                "/auth/reset-password/new"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -60,11 +60,12 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus",
+                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus And srs.student.curriculum=:curriculum",
                         StudentRequiredSpecializedSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
                 .setParameter("campus",staffsService.getCampusOfStaff())
+                .setParameter("curriculum", subject.getCurriculum())
                 .getResultList();
     }
 
