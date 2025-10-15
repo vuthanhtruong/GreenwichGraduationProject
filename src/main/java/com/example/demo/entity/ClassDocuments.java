@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.entity.AbstractClasses.ClassPosts;
+import com.example.demo.classPost.model.ClassPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

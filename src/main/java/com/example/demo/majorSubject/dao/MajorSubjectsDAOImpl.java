@@ -1,9 +1,9 @@
 package com.example.demo.majorSubject.dao;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.major.model.Majors;
 import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.classes.service.ClassesService;
+import com.example.demo.classes.service.MajorClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.subject.service.SubjectsService;
 import com.example.demo.majorSyllabus.service.SyllabusesService;
@@ -37,11 +37,11 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
 
     private final StaffsService staffsService;
     private final SyllabusesService syllabusesService;
-    private final ClassesService classesService;
+    private final MajorClassesService classesService;
     private final SubjectsService subjectsService;
 
     public MajorSubjectsDAOImpl(StaffsService staffsService, SyllabusesService syllabusesService,
-                                ClassesService classesService, SubjectsService subjectsService) {
+                                MajorClassesService classesService, SubjectsService subjectsService) {
         this.staffsService = staffsService;
         this.syllabusesService = syllabusesService;
         this.classesService = classesService;

@@ -1,13 +1,10 @@
 package com.example.demo.student.service;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
-import com.example.demo.major.model.Majors;
 import com.example.demo.student.model.Students;
-import jakarta.mail.MessagingException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 

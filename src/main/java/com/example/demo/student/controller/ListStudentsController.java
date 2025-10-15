@@ -1,10 +1,8 @@
 package com.example.demo.student.controller;
 
-import com.example.demo.Curriculum.model.Curriculum;
-import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.curriculum.service.CurriculumService;
 import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.student.model.Students;
-import com.example.demo.lecturer.service.LecturesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.student.service.StudentsService;
 import com.example.demo.entity.Enums.RelationshipToStudent;

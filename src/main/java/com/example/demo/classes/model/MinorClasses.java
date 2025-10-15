@@ -12,9 +12,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@DiscriminatorValue("MINOR")
+@PrimaryKeyJoinColumn(name = "ClassID")
 @Getter
 @Setter
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class MinorClasses extends Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)

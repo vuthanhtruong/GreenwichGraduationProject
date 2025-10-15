@@ -13,4 +13,5 @@ public interface StudentsSpecializedClassesService {
     List<Students_SpecializedClasses> getStudentsInClass(String classId);
     List<Students> getStudentsByClass(SpecializedClasses specializedClass);
     boolean isStudentAlreadyRequiredForClass(String studentId, String classId);
+    List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId);
 }

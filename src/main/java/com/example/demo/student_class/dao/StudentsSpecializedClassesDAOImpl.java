@@ -97,4 +97,12 @@ public class StudentsSpecializedClassesDAOImpl implements StudentsSpecializedCla
                 .getSingleResult();
         return count > 0;
     }
+    @Override
+    public List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId) {
+        return entityManager.createQuery(
+                        "SELECT ssc FROM Students_SpecializedClasses ssc WHERE ssc.id.studentId = :studentId",
+                        Students_SpecializedClasses.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
 }

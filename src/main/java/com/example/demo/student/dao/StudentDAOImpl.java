@@ -1,10 +1,7 @@
 package com.example.demo.student.dao;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
-import com.example.demo.Specialization.service.SpecializationService;
-import com.example.demo.accountBalance.service.AccountBalancesService;
-import com.example.demo.authenticator.service.AuthenticatorsService;
 import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
@@ -26,10 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Year;
@@ -250,13 +243,36 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
+    @Transactional
     public void deleteStudent(String id) {
         Students student = entityManager.find(Students.class, id);
         if (student == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
+
+        // 🧩 1. Xóa các bản ghi trong StudentRequiredMajorSubjects
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMajorSubjects srms WHERE srms.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        // 🧩 2. Xóa các bản ghi trong StudentRequiredMinorSubjects
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMinorSubjects srms WHERE srms.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        // 🧩 3. Xóa các bản ghi trong Students_MajorClasses
+        entityManager.createQuery(
+                        "DELETE FROM Students_MajorClasses smc WHERE smc.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        // 🧩 4. Cuối cùng xóa student
         entityManager.remove(student);
     }
+
+
 
     @Override
     public void editStudent(String id, Curriculum curriculum,Specialization specialization, Students student) throws MessagingException {

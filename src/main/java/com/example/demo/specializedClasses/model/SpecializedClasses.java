@@ -13,9 +13,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@DiscriminatorValue("SPECIALIZED")
+@PrimaryKeyJoinColumn(name = "ClassID")
 @Getter
 @Setter
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class SpecializedClasses extends Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)

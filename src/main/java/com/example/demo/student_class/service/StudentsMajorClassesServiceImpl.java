@@ -11,6 +11,11 @@ import java.util.List;
 @Service
 public class StudentsMajorClassesServiceImpl implements StudentsMajorClassesService{
     @Override
+    public List<Students_MajorClasses> getStudentsInClassByStudent(String studentId) {
+        return studentsMajorClassesDAO.getStudentsInClassByStudent(studentId);
+    }
+
+    @Override
     public List<Students> getStudentsNotInClassAndSubject(String classId, String subjectId) {
         return studentsMajorClassesDAO.getStudentsNotInClassAndSubject(classId, subjectId);
     }

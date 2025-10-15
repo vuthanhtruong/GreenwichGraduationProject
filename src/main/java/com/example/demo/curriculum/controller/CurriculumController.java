@@ -1,8 +1,7 @@
-package com.example.demo.Curriculum.controller;
+package com.example.demo.curriculum.controller;
 
-import com.example.demo.Curriculum.model.Curriculum;
-import com.example.demo.Curriculum.service.CurriculumService;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.curriculum.service.CurriculumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

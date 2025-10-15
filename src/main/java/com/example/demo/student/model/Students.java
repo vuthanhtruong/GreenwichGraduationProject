@@ -1,6 +1,6 @@
 package com.example.demo.student.model;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.person.model.Persons;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.Gender;

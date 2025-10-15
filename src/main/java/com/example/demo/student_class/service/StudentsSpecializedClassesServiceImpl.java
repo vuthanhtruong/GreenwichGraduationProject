@@ -11,6 +11,10 @@ import java.util.List;
 
 @Service
 public class StudentsSpecializedClassesServiceImpl implements StudentsSpecializedClassesService {
+    @Override
+    public List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId) {
+        return studentsSpecializedClassesDAO.getStudentsInClassByStudent(studentId);
+    }
 
     private final StudentsSpecializedClassesDAO studentsSpecializedClassesDAO;
 

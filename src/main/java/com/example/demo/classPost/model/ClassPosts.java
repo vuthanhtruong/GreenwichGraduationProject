@@ -1,13 +1,9 @@
-package com.example.demo.entity.AbstractClasses;
+package com.example.demo.classPost.model;
 
-import com.example.demo.classes.model.Classes;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 

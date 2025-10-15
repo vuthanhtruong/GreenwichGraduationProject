@@ -1,4 +1,4 @@
-package com.example.demo.Curriculum.model;
+package com.example.demo.curriculum.model;
 
 import com.example.demo.admin.model.Admins;
 import jakarta.persistence.*;

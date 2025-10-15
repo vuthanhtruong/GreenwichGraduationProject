@@ -1,12 +1,11 @@
 package com.example.demo.student.controller;
 
-import com.example.demo.Curriculum.model.Curriculum;
-import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.curriculum.service.CurriculumService;
 import com.example.demo.Specialization.service.SpecializationService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.authenticator.service.AuthenticatorsService;
-import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.parentAccount.service.ParentAccountsService;
 import com.example.demo.person.service.PersonsService;

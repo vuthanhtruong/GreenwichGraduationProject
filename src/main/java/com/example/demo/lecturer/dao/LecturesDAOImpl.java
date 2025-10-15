@@ -249,13 +249,36 @@ public class LecturesDAOImpl implements LecturesDAO {
     }
 
     @Override
+    @Transactional
     public void deleteLecturer(String id) {
         MajorLecturers lecturer = entityManager.find(MajorLecturers.class, id);
         if (lecturer == null) {
             throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
         }
+
+        // 🧩 1. Xóa các bản ghi trong MajorLecturers_MajorClasses
+        entityManager.createQuery(
+                        "DELETE FROM MajorLecturers_MajorClasses mlmc WHERE mlmc.id.lecturerId = :lecturerId")
+                .setParameter("lecturerId", id)
+                .executeUpdate();
+
+        // 🧩 2. Xóa các bản ghi trong MajorLecturers_SpecializedClasses
+        entityManager.createQuery(
+                        "DELETE FROM MajorLecturers_SpecializedClasses mlsc WHERE mlsc.id.lecturerId = :lecturerId")
+                .setParameter("lecturerId", id)
+                .executeUpdate();
+
+        // 🧩 3. Xóa các bản ghi trong MajorLecturers_Specializations
+        entityManager.createQuery(
+                        "DELETE FROM MajorLecturers_Specializations mls WHERE mls.id.lecturerId = :lecturerId")
+                .setParameter("lecturerId", id)
+                .executeUpdate();
+
+        // 🧩 4. Cuối cùng xóa giảng viên
         entityManager.remove(lecturer);
     }
+
+
 
     @Override
     public void updateLecturer(String id, MajorLecturers lecturer, MultipartFile avatarFile) throws MessagingException, IOException {

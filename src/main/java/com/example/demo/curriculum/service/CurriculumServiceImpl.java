@@ -1,7 +1,7 @@
-package com.example.demo.Curriculum.service;
+package com.example.demo.curriculum.service;
 
-import com.example.demo.Curriculum.dao.CurriculumDAO;
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.dao.CurriculumDAO;
+import com.example.demo.curriculum.model.Curriculum;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

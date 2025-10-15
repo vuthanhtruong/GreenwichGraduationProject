@@ -1,12 +1,13 @@
 package com.example.demo.student_class.controller;
 
+import com.example.demo.classes.model.Classes;
 import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.classes.service.ClassesService;
+import com.example.demo.classes.service.MajorClassesService;
 import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.lecturer_class.model.Lecturers_Classes;
 import com.example.demo.lecturer_class.service.Lecturers_ClassesService;
 import com.example.demo.student.model.Students;
 import com.example.demo.student.service.StudentsService;
+import com.example.demo.student_class.model.StudentsClassesId;
 import com.example.demo.student_class.model.Students_MajorClasses;
 import com.example.demo.student_class.service.StudentsMajorClassesService;
 import com.example.demo.staff.model.Staffs;
@@ -29,7 +30,7 @@ import java.util.List;
 public class MemberArrangementController {
 
     private final StudentsMajorClassesService studentsMajorClassesService;
-    private final ClassesService classesService;
+    private final MajorClassesService classesService;
     private final Lecturers_ClassesService lecturersClassesService;
     private final StaffsService staffsService;
     private final StudentsService studentsService;
@@ -37,7 +38,7 @@ public class MemberArrangementController {
     @Autowired
     public MemberArrangementController(
             StudentsMajorClassesService studentsMajorClassesService,
-            ClassesService classesService,
+            MajorClassesService classesService,
             Lecturers_ClassesService lecturersClassesService,
             StaffsService staffsService,
             StudentsService studentsService) {
@@ -173,7 +174,7 @@ public class MemberArrangementController {
         }
     }
 
-    @PostMapping("/add-student-to-class")
+    @PostMapping("/add-students-to-class")
     public String addStudentToClass(
             @RequestParam("classId") String classId,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
@@ -184,6 +185,7 @@ public class MemberArrangementController {
 
         try {
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
+            Classes currentClass = (Classes) classesService.getClassById(classId);
             if (classEntity == null) {
                 errors.add("Class not found");
                 model.addAttribute("errorMessage", "Class not found");
@@ -225,9 +227,14 @@ public class MemberArrangementController {
                 if (!studentsMajorClassesService.existsByStudentAndClass(studentId, classId)) {
                     Students student = studentsService.getStudentById(studentId);
                     if (student != null) {
+                        StudentsClassesId sId = new StudentsClassesId();
+                        sId.setClassId(classId);
+                        sId.setStudentId(studentId);
                         Students_MajorClasses smc = new Students_MajorClasses();
+                        smc.setId(sId);
                         smc.setStudent(student);
                         smc.setMajorClass(classEntity);
+                        smc.setClassEntity(currentClass);
                         smc.setAddedBy(currentStaff);
                         smc.setCreatedAt(LocalDateTime.now());
                         studentsMajorClassesService.addStudentToClass(smc);

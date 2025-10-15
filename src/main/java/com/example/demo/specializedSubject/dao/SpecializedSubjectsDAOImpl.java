@@ -1,6 +1,6 @@
 package com.example.demo.specializedSubject.dao;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.major.model.Majors;
 import com.example.demo.specializedSubject.model.SpecializedSubject;

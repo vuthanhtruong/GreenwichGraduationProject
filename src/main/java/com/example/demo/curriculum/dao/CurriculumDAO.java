@@ -1,6 +1,6 @@
-package com.example.demo.Curriculum.dao;
+package com.example.demo.curriculum.dao;
 
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 
 import java.util.List;
 import java.util.Map;

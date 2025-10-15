@@ -1,6 +1,6 @@
 package com.example.demo.studentRequiredSubjects.controller;
 
-import com.example.demo.Curriculum.service.CurriculumService;
+import com.example.demo.curriculum.service.CurriculumService;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import com.example.demo.staff.service.StaffsService;

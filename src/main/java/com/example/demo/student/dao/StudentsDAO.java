@@ -1,5 +1,5 @@
 package com.example.demo.student.dao;
-import com.example.demo.Curriculum.model.Curriculum;
+import com.example.demo.curriculum.model.Curriculum;
 
 import com.example.demo.Specialization.model.Specialization;
 import com.example.demo.student.model.Students;

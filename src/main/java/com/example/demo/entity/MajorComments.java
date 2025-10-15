@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.classPost.model.MajorClassPosts;
 import com.example.demo.employe.model.MajorEmployes;
 import com.example.demo.entity.AbstractClasses.Comments;
 import com.example.demo.entity.Enums.Notifications;

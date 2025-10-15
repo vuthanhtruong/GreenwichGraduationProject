@@ -2,7 +2,7 @@ package com.example.demo.classes.controller;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.staff.model.Staffs;
-import com.example.demo.classes.service.ClassesService;
+import com.example.demo.classes.service.MajorClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +19,12 @@ import java.util.List;
 @RequestMapping("/staff-home/classes-list")
 public class DeleteClassController {
     private final StaffsService staffsService;
-    private final MajorSubjectsService subjectsService;
-    private final ClassesService classesService;
+    private final MajorClassesService classesService;
 
     @Autowired
-    public DeleteClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public DeleteClassController(MajorClassesService classesService, StaffsService staffsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
-        this.subjectsService = subjectsService;
     }
 
     @DeleteMapping("/delete-class/{id}")

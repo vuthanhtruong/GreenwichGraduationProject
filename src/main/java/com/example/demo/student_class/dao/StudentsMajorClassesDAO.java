@@ -3,7 +3,6 @@ package com.example.demo.student_class.dao;
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.student.model.Students;
 import com.example.demo.student_class.model.Students_MajorClasses;
-
 import java.util.List;
 
 public interface StudentsMajorClassesDAO {
@@ -18,4 +17,5 @@ public interface StudentsMajorClassesDAO {
     boolean existsByStudentAndClass(String studentId, String classId);
 
     List<Students> getStudentsNotInClassAndSubject(String classId, String subjectId);
+    List<Students_MajorClasses> getStudentsInClassByStudent(String studentId);
 }

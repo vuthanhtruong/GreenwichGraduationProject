@@ -14,15 +14,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/staff-home/students-list")
 public class DeleteStudentController {
-    private final StaffsService staffsService;
     private final StudentsService studentsService;
-    private final LecturesService lecturesService;
     private final PersonsService personsService;
 
-    public DeleteStudentController(StaffsService staffsService, LecturesService lecturesService, StudentsService studentsService, PersonsService personsService) {
-        this.staffsService = staffsService;
+    public DeleteStudentController(StudentsService studentsService, PersonsService personsService) {
         this.studentsService = studentsService;
-        this.lecturesService = lecturesService;
         this.personsService = personsService;
     }
 

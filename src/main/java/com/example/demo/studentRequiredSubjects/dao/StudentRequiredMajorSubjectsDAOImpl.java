@@ -1,6 +1,5 @@
 package com.example.demo.studentRequiredSubjects.dao;
 
-import com.example.demo.Curriculum.model.Curriculum;
 import com.example.demo.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.student.model.Students;

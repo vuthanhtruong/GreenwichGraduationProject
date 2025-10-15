@@ -1,7 +1,7 @@
 package com.example.demo.classes.controller;
 
 import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.classes.service.ClassesService;
+import com.example.demo.classes.service.MajorClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
@@ -19,11 +19,11 @@ import java.util.List;
 @RequestMapping("/staff-home/classes-list")
 public class SearchClassesController {
 
-    private final ClassesService classesService;
+    private final MajorClassesService classesService;
     private final StaffsService staffsService;
     private final MajorSubjectsService subjectsService;
 
-    public SearchClassesController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public SearchClassesController(MajorClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;

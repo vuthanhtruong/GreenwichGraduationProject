@@ -12,9 +12,10 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@DiscriminatorValue("MAJOR")
+@PrimaryKeyJoinColumn(name = "ClassID")
 @Getter
 @Setter
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class MajorClasses extends Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)

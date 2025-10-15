@@ -2,7 +2,7 @@ package com.example.demo.classes.controller;
 
 import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.staff.model.Staffs;
-import com.example.demo.classes.service.ClassesService;
+import com.example.demo.classes.service.MajorClassesService;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.majorSubject.service.MajorSubjectsService;
 import jakarta.validation.Valid;
@@ -19,12 +19,12 @@ import java.util.List;
 @RequestMapping("/staff-home/classes-list")
 public class EditClassController {
 
-    private final ClassesService classesService;
+    private final MajorClassesService classesService;
     private final StaffsService staffsService;
     private final MajorSubjectsService subjectsService;
 
     @Autowired
-    public EditClassController(ClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public EditClassController(MajorClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;
