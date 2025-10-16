@@ -73,6 +73,8 @@
                 <tr>
                     <th>Subject ID</th>
                     <th>Subject Name</th>
+                    <th>Subject Major</th>
+                    <th>Subject Type</th>
                     <th>Admission Year</th>
                     <th>Creator</th>
                     <th>Creator Email</th>
@@ -83,6 +85,8 @@
                 <tr th:each="tuition : ${referenceTuitions}">
                     <td th:text="${tuition.subject.subjectId}"></td>
                     <td th:text="${tuition.subject.subjectName}"></td>
+                    <td th:text="${tuition.getSubjectMajor()}"></td>
+                    <td th:text="${tuition.getSubjectType()}"></td>
                     <td th:text="${tuition.id.admissionYear}"></td>
                     <td th:text="${tuition.creator != null ? tuition.creator.fullName : 'N/A'}"></td>
                     <td th:text="${tuition.creator != null ? tuition.creator.email : 'N/A'}"></td>

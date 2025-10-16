@@ -34,29 +34,32 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
 
     @Override
     public List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization) {
-        if (specialization == null || specialization.getSpecializationId() == null || staffsService.getStaffMajor() == null) {
-            logger.warn("Invalid input for getLecturersNotAssignedToSpecialization: specialization={}, staffMajor={}",
-                    specialization, staffsService.getStaffMajor());
+        if (specialization == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
-
         try {
-            Query query = entityManager.createQuery(
-                    "SELECT l FROM MajorLecturers l LEFT JOIN MajorLecturers_Specializations mls " +
-                            "ON l.id = mls.majorLecturer.id AND mls.specialization.specializationId = :specializationId " +
-                            "WHERE l.majorManagement = :major AND mls.majorLecturer.id IS NULL",
-                    MajorLecturers.class);
-            query.setParameter("specializationId", specialization.getSpecializationId());
-            query.setParameter("major", staffsService.getStaffMajor());
-            List<MajorLecturers> result = query.getResultList();
+            List<MajorLecturers> result = entityManager.createQuery(
+                            "SELECT l FROM MajorLecturers l " +
+                                    "WHERE l.majorManagement = :major " +
+                                    "AND NOT EXISTS (" +
+                                    "   SELECT 1 FROM MajorLecturers_Specializations mls " +
+                                    "   WHERE mls.majorLecturer = l " +
+                                    "   AND mls.specialization.specializationId = :specializationId" +
+                                    ")",
+                            MajorLecturers.class)
+                    .setParameter("major", staffsService.getStaffMajor())
+                    .setParameter("specializationId", specialization.getSpecializationId())
+                    .getResultList();
+
             logger.info("Fetched {} unassigned lecturers for specialization {}", result.size(), specialization.getSpecializationId());
             return result;
         } catch (Exception e) {
             logger.error("Error fetching unassigned lecturers for specialization {}: {}",
-                    specialization.getSpecializationId(), e.getMessage(), e);
+                    specialization.getSpecializationId(), e.getMessage());
             return List.of();
         }
     }
+
 
     @Override
     public List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization) {

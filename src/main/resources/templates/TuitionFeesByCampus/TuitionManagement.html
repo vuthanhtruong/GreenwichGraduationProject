@@ -73,6 +73,8 @@
                     <tr>
                         <th>Subject ID</th>
                         <th>Subject Name</th>
+                        <th>Subject Major</th>
+                        <th>Subject Type</th>
                         <th>Admission Year</th>
                         <th>Creator</th>
                         <th>Creator Email</th>
@@ -85,6 +87,8 @@
                     <tr th:each="subj : ${withFee}">
                         <td th:text="${subj.subjectId}"></td>
                         <td th:text="${subj.subjectName}"></td>
+                        <td th:text="${subj.getSubjectMajor(subj)}"></td>
+                        <td th:text="${subj.getSubjectType(subj)}"></td>
                         <td th:text="${tuitionMap[subj.subjectId].id.admissionYear}"></td>
                         <td th:text="${tuitionMap[subj.subjectId].creator != null ? tuitionMap[subj.subjectId].creator.fullName : 'N/A'}"></td>
                         <td th:text="${tuitionMap[subj.subjectId].creator != null ? tuitionMap[subj.subjectId].creator.email : 'N/A'}"></td>
@@ -124,6 +128,8 @@
                     <tr>
                         <th>Subject ID</th>
                         <th>Subject Name</th>
+                        <th>Subject Major</th>
+                        <th>Subject Type</th>
                         <th>Admission Year</th>
                         <th>Creator</th>
                         <th>Creator Email</th>
@@ -136,6 +142,8 @@
                     <tr th:each="subj : ${withoutFee}">
                         <td th:text="${subj.subjectId}"></td>
                         <td th:text="${subj.subjectName}"></td>
+                        <td th:text="${subj.getSubjectMajor(subj)}"></td>
+                        <td th:text="${subj.getSubjectType(subj)}"></td>
                         <td th:text="${tuitionMap[subj.subjectId] != null ? tuitionMap[subj.subjectId].id.admissionYear : 'N/A'}"></td>
                         <td th:text="${tuitionMap[subj.subjectId] != null && tuitionMap[subj.subjectId].creator != null ? tuitionMap[subj.subjectId].creator.fullName : 'N/A'}"></td>
                         <td th:text="${tuitionMap[subj.subjectId] != null && tuitionMap[subj.subjectId].creator != null ? tuitionMap[subj.subjectId].creator.email : 'N/A'}"></td>

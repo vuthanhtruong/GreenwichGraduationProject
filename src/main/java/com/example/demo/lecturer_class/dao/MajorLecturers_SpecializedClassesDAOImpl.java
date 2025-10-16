@@ -69,27 +69,44 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
     @Override
     public List<MajorLecturers> listLecturersInClass(SpecializedClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.majorLecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class AND lc.majorLecturer.majorManagement = :major",
+                        "SELECT lc.majorLecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class AND lc.majorLecturer.majorManagement = :major And lc.majorLecturer.campus=:campus",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("campus", staffsService.getCampusOfStaff())
                 .getResultList();
     }
 
     @Override
     public List<MajorLecturers> listLecturersNotInClass(SpecializedClasses classes) {
-        return entityManager.createQuery(
-                        "SELECT l FROM MajorLecturers l WHERE l.majorManagement = :major " +
-                                "AND l.id NOT IN (" +
-                                "    SELECT lc.majorLecturer.id FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class" +
-                                ") " +
-                                "AND l.id IN (" +
-                                "    SELECT mls.majorLecturer.id FROM MajorLecturers_Specializations mls WHERE mls.specialization.id = :specializationId" +
-                                ")",
-                        MajorLecturers.class)
-                .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("specializationId", classes.getSpecializedSubject().getSpecialization().getSpecializationId())
-                .getResultList();
+        if (classes == null || classes.getSpecializedSubject() == null || staffsService.getStaffMajor() == null) {
+            return List.of();
+        }
+        try {
+            return entityManager.createQuery(
+                            "SELECT l FROM MajorLecturers l " +
+                                    "WHERE l.majorManagement = :major " +
+                                    // loại bỏ giảng viên đã có trong lớp chuyên ngành này
+                                    "AND NOT EXISTS (" +
+                                    "    SELECT 1 FROM MajorLecturers_SpecializedClasses lc " +
+                                    "    WHERE lc.majorLecturer = l " +
+                                    "    AND lc.specializedClass = :class" +
+                                    ") " +
+                                    // chỉ lấy giảng viên đã thuộc chuyên ngành tương ứng
+                                    "AND EXISTS (" +
+                                    "    SELECT 1 FROM MajorLecturers_Specializations mls " +
+                                    "    WHERE mls.majorLecturer = l " +
+                                    "    AND mls.specialization.id = :specializationId AND mls.majorLecturer.campus=:campus" +
+                                    ")",
+                            MajorLecturers.class)
+                    .setParameter("major", staffsService.getStaffMajor())
+                    .setParameter("campus", staffsService.getCampusOfStaff())
+                    .setParameter("class", classes)
+                    .setParameter("specializationId", classes.getSpecializedSubject().getSpecialization().getSpecializationId())
+                    .getResultList();
+        } catch (Exception e) {
+            return List.of();
+        }
     }
+
 }

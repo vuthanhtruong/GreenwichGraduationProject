@@ -76,15 +76,21 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
         }
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s LEFT JOIN StudentRequiredSpecializedSubjects srs " +
-                                "ON s.id = srs.student.id AND srs.specializedSubject = :subject " +
-                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND srs.student.campus=:campus",
+                        "SELECT s FROM Students s " +
+                                "WHERE s.specialization.major = :major " +
+                                "AND s.campus = :campus " +
+                                "AND NOT EXISTS (" +
+                                "   SELECT 1 FROM StudentRequiredSpecializedSubjects srs " +
+                                "   WHERE srs.student = s " +
+                                "   AND srs.specializedSubject = :subject" +
+                                ")",
                         Students.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("campus",staffsService.getCampusOfStaff())
+                .setParameter("campus", staffsService.getCampusOfStaff())
                 .getResultList();
     }
+
 
     @Override
     public List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId) {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Specialized Classes List</title>
-    <link rel="stylesheet" th:href="@{/css/StudentsList.css}">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -149,7 +149,7 @@
                             <label for="specializedSubjectId"><i class="fas fa-book"></i> Specialized Subject:</label>
                             <select id="specializedSubjectId" name="specializedSubjectId" class="input" required>
                                 <option value="">Select specialized subject</option>
-                                <option th:each="subject : ${specializedSubjects}" th:value="${subject.specializedSubjectId}" th:text="${subject.subjectName}" th:selected="${newClass.specializedSubject != null and newClass.specializedSubject.specializedSubjectId == subject.specializedSubjectId}"></option>
+                                <option th:each="subject : ${specializedSubjects}" th:value="${subject.getSubjectId()}" th:text="${subject.subjectName}" th:selected="${newClass.specializedSubject != null and newClass.specializedSubject.getSubjectId() == subject.getSubjectId()}"></option>
                             </select>
                             <div class="text-danger" th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('specialized subject')}" th:text="${error}"></div>
                         </div>

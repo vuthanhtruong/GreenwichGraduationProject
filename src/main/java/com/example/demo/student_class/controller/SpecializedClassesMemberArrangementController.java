@@ -88,7 +88,7 @@ public class SpecializedClassesMemberArrangementController {
             return "SpecializedClassMemberArrangement";
         }
 
-        String subjectId = classEntity.getSpecialization().getSpecializationId();
+        String subjectId = classEntity.getSpecializedSubject().getSubjectId();
         List<Students> studentsInClass = studentsSpecializedClassesService.getStudentsByClass(classEntity);
         List<Students> studentsNotInClass = studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId);
         List<MajorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(classEntity);
@@ -129,7 +129,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", "No students selected for removal");
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -148,7 +148,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", String.join("; ", errors));
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -164,7 +164,7 @@ public class SpecializedClassesMemberArrangementController {
             model.addAttribute("errorMessage", String.join("; ", errors));
             model.addAttribute("class", classEntity != null ? classEntity : new SpecializedClasses());
             model.addAttribute("studentsInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            String subjectId = classEntity != null ? classEntity.getSpecialization().getSpecializationId() : "";
+            String subjectId = classEntity != null ? classEntity.getSpecializedSubject().getSubjectId() : "";
             model.addAttribute("studentsNotInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId) : new ArrayList<Students>());
             model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
@@ -200,7 +200,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", "Staff information not found");
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -212,7 +212,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", "No students selected for assignment");
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -243,7 +243,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", String.join("; ", errors));
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -259,7 +259,7 @@ public class SpecializedClassesMemberArrangementController {
             model.addAttribute("errorMessage", String.join("; ", errors));
             model.addAttribute("class", classEntity != null ? classEntity : new SpecializedClasses());
             model.addAttribute("studentsInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            String subjectId = classEntity != null ? classEntity.getSpecialization().getSpecializationId() : "";
+            String subjectId = classEntity != null ? classEntity.getSpecializedSubject().getSubjectId() : "";
             model.addAttribute("studentsNotInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId) : new ArrayList<Students>());
             model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
@@ -294,7 +294,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", "No lecturers selected for removal");
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -312,7 +312,7 @@ public class SpecializedClassesMemberArrangementController {
             model.addAttribute("errorMessage", String.join("; ", errors));
             model.addAttribute("class", classEntity != null ? classEntity : new SpecializedClasses());
             model.addAttribute("studentsInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            String subjectId = classEntity != null ? classEntity.getSpecialization().getSpecializationId() : "";
+            String subjectId = classEntity != null ? classEntity.getSpecializedSubject().getSubjectId() : "";
             model.addAttribute("studentsNotInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId) : new ArrayList<Students>());
             model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
@@ -347,7 +347,7 @@ public class SpecializedClassesMemberArrangementController {
                 model.addAttribute("errorMessage", "No lecturers selected for assignment");
                 model.addAttribute("class", classEntity);
                 model.addAttribute("studentsInClass", studentsSpecializedClassesService.getStudentsByClass(classEntity));
-                String subjectId = classEntity.getSpecialization().getSpecializationId();
+                String subjectId = classEntity.getSpecializedSubject().getSubjectId();
                 model.addAttribute("studentsNotInClass", studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId));
                 model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
                 model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
@@ -366,7 +366,7 @@ public class SpecializedClassesMemberArrangementController {
             model.addAttribute("errorMessage", String.join("; ", errors));
             model.addAttribute("class", classEntity != null ? classEntity : new SpecializedClasses());
             model.addAttribute("studentsInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            String subjectId = classEntity != null ? classEntity.getSpecialization().getSpecializationId() : "";
+            String subjectId = classEntity != null ? classEntity.getSpecializedSubject().getSubjectId() : "";
             model.addAttribute("studentsNotInClass", classEntity != null ? studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId) : new ArrayList<Students>());
             model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());

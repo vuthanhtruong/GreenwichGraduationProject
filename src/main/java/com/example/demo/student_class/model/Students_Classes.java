@@ -35,7 +35,7 @@ public abstract class Students_Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("classId")
     @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -50,11 +50,11 @@ public abstract class Students_Classes {
 
     public String getSubjectName() {
         Classes classEntity = getClassEntity();
-        if (classEntity instanceof MajorClasses majorClass && majorClass.getSubject() != null) {
+        if (classEntity instanceof MajorClasses majorClass) {
             return majorClass.getSubject().getSubjectName();
-        } else if (classEntity instanceof MinorClasses minorClass && minorClass.getMinorSubject() != null) {
+        } else if (classEntity instanceof MinorClasses minorClass) {
             return minorClass.getMinorSubject().getSubjectName();
-        } else if (classEntity instanceof SpecializedClasses specializedClass && specializedClass.getSpecializedSubject()!= null) {
+        } else if (classEntity instanceof SpecializedClasses specializedClass) {
             return specializedClass.getSpecializedSubject().getSubjectName();
         }
         return "N/A";

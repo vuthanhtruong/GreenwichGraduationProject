@@ -2,7 +2,14 @@ package com.example.demo.TuitionByYear.model;
 
 import com.example.demo.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.classes.model.Classes;
+import com.example.demo.classes.model.MajorClasses;
+import com.example.demo.classes.model.MinorClasses;
 import com.example.demo.entity.Enums.ContractStatus;
+import com.example.demo.majorSubject.model.MajorSubjects;
+import com.example.demo.specializedClasses.model.SpecializedClasses;
+import com.example.demo.specializedSubject.model.SpecializedSubject;
+import com.example.demo.subject.model.MinorSubjects;
 import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -46,6 +53,29 @@ public class TuitionByYear {
     @JoinColumn(name = "CreatorId", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Admins creator;
+
+    public String getSubjectMajor() {
+        Subjects subjects = getSubject();
+        if (subjects instanceof MajorSubjects majorSubject) {
+            return majorSubject.getMajor().getMajorName();
+        } else if (subjects instanceof MinorSubjects minorSubject) {
+            return "General";
+        } else if (subjects instanceof SpecializedSubject specializedSubject) {
+            return specializedSubject.getSubjectName();
+        }
+        return "N/A";
+    }
+    public String getSubjectType() {
+        Subjects subjects = getSubject();
+        if (subjects instanceof MajorSubjects majorSubject) {
+            return "Major Subject";
+        } else if (subjects instanceof MinorSubjects minorSubject) {
+            return "Minor Subject";
+        } else if (subjects instanceof SpecializedSubject specializedSubject) {
+            return "Specialized Subject";
+        }
+        return "N/A";
+    }
 
     // Constructors
     public TuitionByYear() {

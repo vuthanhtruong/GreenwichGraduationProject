@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Process</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/LearningProcess.css}">
+    <link rel="stylesheet" th:href="@{/LearningProcess.css}">
 </head>
 <body>
 <div class="win11-container">
@@ -56,7 +56,7 @@
             </thead>
             <tbody>
             <tr th:each="studentClass : ${classes}">
-                <td th:text="${studentClass.getId()}"></td>
+                <td th:text="${studentClass.getClassEntity().getClassId()}"></td>
                 <td th:text="${studentClass.getClassEntity()?.getNameClass() ?: 'N/A'}"></td>
                 <td th:text="${studentClass.getSubjectName()}"></td>
                 <td th:text="${studentClass.getClassEntity()?.getSession() ?: 'N/A'}"></td>
