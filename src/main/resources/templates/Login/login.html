@@ -49,10 +49,11 @@
             </div>
 
             <div class="options">
-                <button type="button" class="btn-text" th:onclick="|window.location='@{/auth/reset-password}'|">
+                <a th:href="@{/auth/reset-password}" class="btn-text">
                     Forgot password?
-                </button>
+                </a>
             </div>
+
 
             <button type="submit" class="btn primary">
                 <i class="fas fa-right-to-bracket"></i> Sign In
