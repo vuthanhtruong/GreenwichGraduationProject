@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Academic Transcript</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/AcademicTranscript.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ===== Title Bar ===== -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-file-alt"></i> Your Academic Transcript</h1>
+    </header>
+
+    <!-- ===== Toolbar ===== -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+        <div class="toolbar-right">
+            <p class="total">
+                <i class="fas fa-layer-group"></i>
+                <strong>Total Subjects:</strong>
+                <span th:text="${totalSubjects}"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== Student Info ===== -->
+    <section class="win11-panel">
+        <h2 class="panel-header"><i class="fas fa-user"></i> Student Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong><i class="fas fa-user"></i> Name:</strong>
+                <span th:text="${student != null ? student.firstName + ' ' + student.lastName : 'N/A'}"></span>
+            </div>
+            <div class="info-item">
+                <strong><i class="fas fa-id-card"></i> Student ID:</strong>
+                <span th:text="${student != null ? student.id : 'N/A'}"></span>
+            </div>
+            <div class="info-item">
+                <strong><i class="fas fa-book"></i> Curriculum:</strong>
+                <span th:text="${student.curriculum.name}"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Error Message ===== -->
+    <div th:if="${errorMessage}" class="win11-alert error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- ===== Subject Sections ===== -->
+    <section class="subjects-section win11-panel">
+        <h2 class="panel-header"><i class="fas fa-book"></i> Major Subjects</h2>
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><i class="fas fa-id-card"></i> Subject ID</th>
+                    <th><i class="fas fa-book-open"></i> Subject Name</th>
+                    <th><i class="fas fa-tags"></i> Type</th>
+                    <th><i class="fas fa-calendar"></i> Semester</th>
+                    <th><i class="fas fa-info-circle"></i> Requirement</th>
+                    <th><i class="fas fa-star"></i> Grade</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${majorAcademicTranscripts}">
+                    <td th:text="${transcript.subject.subjectId}"></td>
+                    <td th:text="${transcript.subject.subjectName}"></td>
+                    <td>Major</td>
+                    <td th:text="${transcript.subject.semester}"></td>
+                    <td th:text="${transcript.subject.requirementType}"></td>
+                    <td th:text="${transcript.grade}"></td>
+                </tr>
+                <tr th:each="subject : ${majorSubjects}"
+                    th:unless="${#lists.contains(majorAcademicTranscripts, subject, 'subject')}">
+                    <td th:text="${subject.subjectId}"></td>
+                    <td th:text="${subject.subjectName}"></td>
+                    <td>Major</td>
+                    <td th:text="${subject.semester}"></td>
+                    <td th:text="${subject.requirementType}"></td>
+                    <td>Not Started</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(majorAcademicTranscripts) and #lists.isEmpty(majorSubjects)}">
+                    <td colspan="6" class="text-center">No major subjects assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="subjects-section win11-panel">
+        <h2 class="panel-header"><i class="fas fa-book"></i> Minor Subjects</h2>
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th>Subject ID</th>
+                    <th>Subject Name</th>
+                    <th>Type</th>
+                    <th>Semester</th>
+                    <th>Requirement</th>
+                    <th>Grade</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${minorAcademicTranscripts}">
+                    <td th:text="${transcript.subject.subjectId}"></td>
+                    <td th:text="${transcript.subject.subjectName}"></td>
+                    <td>Minor</td>
+                    <td th:text="${transcript.subject.semester}"></td>
+                    <td th:text="${transcript.subject.requirementType}"></td>
+                    <td th:text="${transcript.grade}"></td>
+                </tr>
+                <tr th:each="subject : ${minorSubjects}"
+                    th:unless="${#lists.contains(minorAcademicTranscripts, subject, 'subject')}">
+                    <td th:text="${subject.subjectId}"></td>
+                    <td th:text="${subject.subjectName}"></td>
+                    <td>Minor</td>
+                    <td th:text="${subject.semester}"></td>
+                    <td th:text="${subject.requirementType}"></td>
+                    <td>Not Started</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(minorAcademicTranscripts) and #lists.isEmpty(minorSubjects)}">
+                    <td colspan="6" class="text-center">No minor subjects assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="subjects-section win11-panel">
+        <h2 class="panel-header"><i class="fas fa-book"></i> Specialized Subjects</h2>
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th>Subject ID</th>
+                    <th>Subject Name</th>
+                    <th>Type</th>
+                    <th>Semester</th>
+                    <th>Requirement</th>
+                    <th>Grade</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${specializedAcademicTranscripts}">
+                    <td th:text="${transcript.subject.subjectId}"></td>
+                    <td th:text="${transcript.subject.subjectName}"></td>
+                    <td>Specialized</td>
+                    <td th:text="${transcript.subject.semester}"></td>
+                    <td th:text="${transcript.subject.requirementType}"></td>
+                    <td th:text="${transcript.grade}"></td>
+                </tr>
+                <tr th:each="subject : ${specializedSubjects}"
+                    th:unless="${#lists.contains(specializedAcademicTranscripts, subject, 'subject')}">
+                    <td th:text="${subject.subjectId}"></td>
+                    <td th:text="${subject.subjectName}"></td>
+                    <td>Specialized</td>
+                    <td th:text="${subject.semester}"></td>
+                    <td th:text="${subject.requirementType}"></td>
+                    <td>Not Started</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(specializedAcademicTranscripts) and #lists.isEmpty(specializedSubjects)}">
+                    <td colspan="6" class="text-center">No specialized subjects assigned.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

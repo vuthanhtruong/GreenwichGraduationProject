@@ -30,7 +30,7 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     @Override
     public List<MajorSubjects> studentMajorRoadmap(Students student) {
         return entityManager.createQuery(
-                        "SELECT srs.subject FROM StudentRequiredMajorSubjects srs " +
+                        "SELECT srs.majorSubject FROM StudentRequiredMajorSubjects srs " +
                                 "WHERE srs.student = :student",
                         MajorSubjects.class)
                 .setParameter("student", student)
@@ -40,7 +40,7 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     @Override
     public List<MinorSubjects> studentMinorRoadmap(Students student) {
         return entityManager.createQuery(
-                        "SELECT srs.subject FROM StudentRequiredMinorSubjects srs " +
+                        "SELECT srs.minorSubject FROM StudentRequiredMinorSubjects srs " +
                                 "WHERE srs.student = :student",
                         MinorSubjects.class)
                 .setParameter("student", student)

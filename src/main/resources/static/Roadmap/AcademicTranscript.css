@@ -26,7 +26,7 @@ body {
     font-size: 22px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 /* ===== Toolbar ===== */
@@ -34,9 +34,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
     margin-bottom: 24px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 }
 .toolbar-left, .toolbar-right {
     display: flex;
@@ -61,15 +60,12 @@ body {
     background: #ffffff;
     border: 1px solid #ddd;
     cursor: pointer;
+    transition: all 0.2s;
     text-decoration: none;
     color: #1a1a1a;
-    transition: all 0.2s;
     font-size: 15px;
 }
-.btn.small { padding: 8px 12px; font-size: 14px; }
 .btn:hover { background: #f0f6ff; border-color: #2563eb; color: #2563eb; }
-.btn.primary { background: #2563eb; color: white; border: none; }
-.btn.primary:hover { background: #1d4ed8; }
 
 /* ===== Alerts ===== */
 .win11-alert {
@@ -79,13 +75,43 @@ body {
     border-radius: 10px;
     margin-bottom: 20px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 8px;
 }
-.win11-alert.error ul {
-    margin: 0;
-    padding-left: 20px;
+.win11-alert.error {
     color: #7f1d1d;
+}
+
+/* ===== Panels ===== */
+.win11-panel {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+.panel-header {
+    margin: 0 0 14px 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ===== Student Info ===== */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+.info-item {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 15px;
+}
+.info-item strong {
+    color: #2563eb;
 }
 
 /* ===== Table ===== */
@@ -108,50 +134,14 @@ body {
 .win11-table th {
     background: #f9fafb;
     font-weight: 600;
-    position: sticky;
-    top: 0;
+    font-size: 16px;
 }
 .win11-table tr:hover { background: #f0f6ff; }
 .text-center { text-align: center; }
 
-/* ===== Pagination ===== */
-.pagination {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 24px;
-}
-.page-btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    text-decoration: none;
-    color: #1a1a1a;
-    transition: 0.2s;
-    font-size: 15px;
-    min-width: 40px;
-    text-align: center;
-}
-.page-btn:hover { background: #f0f6ff; border-color: #2563eb; color: #2563eb; }
-.page-btn.active { background: #2563eb; color: #fff; border: none; }
-.page-btn.disabled { opacity: 0.5; pointer-events: none; }
-
-/* ===== Go To Page Form ===== */
-.page-select-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.input.small {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-    .search-toolbar { flex-wrap: wrap; }
+    .win11-title-bar h1 { font-size: 20px; }
+    .info-grid { grid-template-columns: 1fr; }
     .win11-table th, .win11-table td { font-size: 14px; padding: 10px; }
 }
