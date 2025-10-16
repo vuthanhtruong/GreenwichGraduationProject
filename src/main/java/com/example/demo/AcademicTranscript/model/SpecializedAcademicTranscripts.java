@@ -26,11 +26,6 @@ public class SpecializedAcademicTranscripts extends AcademicTranscripts {
     private SpecializedClasses specializedClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Marker", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorLecturers marker;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;

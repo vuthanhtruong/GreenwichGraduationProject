@@ -102,7 +102,7 @@ public class SecurityConfig {
     private String getRedirectUrlByRole(Collection<?> authorities) {
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_STUDENT"))) return "/student-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_STAFF"))) return "/staff-home";
-        if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) return "/lecturer-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) return "/major-lecturer-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return "/admin-home";
         return null;
     }

@@ -11,7 +11,7 @@ body {
 /* ===== Container ===== */
 .win11-container {
     padding: 32px;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: auto;
 }
 
@@ -50,7 +50,7 @@ body {
 .total {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 15px;
     font-weight: 500;
     color: #374151;
@@ -86,15 +86,11 @@ body {
     border: none;
 }
 .btn.primary:hover {
-    background: #1d4ed8;
+    background: #1e40af;
 }
-.btn.danger {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-}
-.btn.danger:hover {
-    background: #fecaca;
+.text-muted {
+    color: #9ca3af;
+    font-style: italic;
 }
 
 /* ===== Alerts ===== */
@@ -143,68 +139,30 @@ body {
 .win11-table tr:hover {
     background: #f0f6ff;
 }
-.inline-form {
-    display: inline;
-}
 .text-center {
     text-align: center;
     color: #6b7280;
 }
 
-/* ===== Pagination ===== */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-}
-.page-btn {
-    padding: 8px 14px;
+/* ===== Status Tag (use server-side CSS classes) ===== */
+.status {
+    padding: 6px 10px;
     border-radius: 8px;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    text-decoration: none;
-    color: #1a1a1a;
-    transition: all 0.2s ease;
-    font-size: 15px;
-    min-width: 40px;
-    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-block;
 }
-.page-btn:hover {
-    background: #f0f6ff;
-    border-color: #2563eb;
-    color: #2563eb;
+.status.active {
+    color: #16a34a;
+    background: #dcfce7;
 }
-.page-btn.active {
-    background: #2563eb;
-    color: #fff;
-    border: none;
+.status.inactive {
+    color: #dc2626;
+    background: #fee2e2;
 }
-.page-btn.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-/* ===== Page Select ===== */
-.page-select-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.page-select-form label {
-    font-size: 15px;
-    color: #374151;
-}
-.input {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 15px;
-}
-.input.small {
-    width: 90px;
+.status.draft {
+    color: #f59e0b;
+    background: #fef3c7;
 }
 
 /* ===== Animation ===== */
@@ -223,23 +181,12 @@ body {
         align-items: flex-start;
         gap: 14px;
     }
-    .toolbar-right {
-        flex-wrap: wrap;
-    }
     .win11-table th, .win11-table td {
         font-size: 14px;
         padding: 10px 12px;
     }
-    .page-btn {
-        padding: 6px 10px;
-        font-size: 13px;
-    }
-}
-@media (max-width: 500px) {
-    .table-container {
-        border-radius: 10px;
-    }
-    .win11-table th, .win11-table td {
-        font-size: 13px;
+    .btn {
+        font-size: 14px;
+        padding: 8px 12px;
     }
 }

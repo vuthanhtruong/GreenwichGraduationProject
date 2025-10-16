@@ -31,7 +31,7 @@
                 <i class="fas fa-wallet"></i>
                 Deposit (<span th:text="${#numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}"></span> USD)
             </a>
-            <a class="btn" th:href="@{/personal-page}">
+            <a class="btn" th:href="@{/student-home/personal-page}">
                 <i class="fas fa-user-circle"></i> Personal Page
             </a>
             <form th:action="@{/logout}" method="post">

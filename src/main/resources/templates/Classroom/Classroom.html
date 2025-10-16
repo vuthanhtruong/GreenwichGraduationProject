@@ -24,6 +24,7 @@
     <div class="search-toolbar">
         <div class="toolbar-left">
             <a href="/student-home" class="btn"><i class="fas fa-home"></i> Home</a>
+            <a th:href="@{/student-home/student-classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
         </div>
         <div class="toolbar-center">
             <h2 style="margin:0;font-size:18px;font-weight:600;">Classroom</h2>
@@ -44,17 +45,17 @@
 
         <!-- Right: stream -->
         <div>
-            <th:block th:each="post : ${majorClassPostsList}">
+            <th:block th:each="post : ${ClassPostsList}">
                 <div class="post">
                     <i class="fas fa-clipboard-list"></i>
                     <div class="post-content">
-                        <strong th:text="${post.creator?.firstName + ' ' + post.creator?.lastName} + ' (' + ${post.majorClass?.nameClass} + ')'"></strong>
+                        <strong th:text="${post.getCreatorName()}"></strong>
                         <span th:text="${post.content}"></span>
                         <small th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}"></small>
                     </div>
                 </div>
             </th:block>
-            <th:block th:if="${majorClassPostsList == null or majorClassPostsList.isEmpty()}">
+            <th:block th:if="${ClassPostsList == null or ClassPostsList.isEmpty()}">
                 <div class="post">
                     <i class="fas fa-info-circle"></i>
                     <div class="post-content">

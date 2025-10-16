@@ -36,7 +36,6 @@
                 <th><i class="fas fa-book"></i> Subject Name</th>
                 <th><i class="fas fa-star"></i> Grade</th>
                 <th><i class="fas fa-calculator"></i> Score</th>
-                <th><i class="fas fa-user"></i> Marker</th>
                 <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-calendar-alt"></i> Created At</th>
                 <th><i class="fas fa-check-circle"></i> Status</th>
@@ -49,7 +48,6 @@
                               ${transcript.specializedClass != null and transcript.specializedClass.subject != null} ? ${transcript.specializedClass.subject.subjectName} : 'N/A'"></td>
                 <td th:text="${transcript.grade ?: 'N/A'}"></td>
                 <td th:text="${transcript.score != null} ? ${#numbers.formatDecimal(transcript.score, 1, 2)} : 'N/A'"></td>
-                <td th:text="${transcript.marker != null} ? ${transcript.marker.firstName + ' ' + transcript.marker.lastName} : 'N/A'"></td>
                 <td th:text="${transcript.creator != null} ? ${transcript.creator.id} : 'N/A'"></td>
                 <td th:text="${transcript.createdAt}"></td>
                 <td th:text="${transcript.grade != null and transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER} ? 'Pass' : 'Fail'"></td>

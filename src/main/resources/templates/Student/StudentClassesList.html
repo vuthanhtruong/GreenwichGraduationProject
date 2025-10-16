@@ -51,6 +51,7 @@
                 <th><i class="fas fa-users"></i> Slot Quantity</th>
                 <th><i class="fas fa-calendar-alt"></i> Created Date</th>
                 <th><i class="fas fa-door-open"></i> Action</th>
+                <th><i class="fas fa-file-alt"></i> Syllabus</th>
             </tr>
             </thead>
             <tbody>
@@ -78,9 +79,18 @@
                         </button>
                     </form>
                 </td>
+                <td>
+                    <form th:action="@{/student-home/student-classes-list/syllabus}" method="get" class="inline-form">
+                        <input type="hidden" name="classId" th:value="${class.id.classId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn secondary small">
+                            <i class="fas fa-file-alt"></i> View Syllabus
+                        </button>
+                    </form>
+                </td>
             </tr>
             <tr th:if="${classes.isEmpty()}">
-                <td colspan="7" class="text-center">No classes enrolled.</td>
+                <td colspan="8" class="text-center">No classes enrolled.</td>
             </tr>
             </tbody>
         </table>

@@ -7,9 +7,13 @@ import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.lecturer.model.MinorLecturers;
 import com.example.demo.major.model.Majors;
+import com.example.demo.person.model.Persons;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.staff.model.Staffs;
 import com.example.demo.staff.service.StaffsService;
 import com.example.demo.person.service.PersonsService;
+import com.example.demo.student.model.Students;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,6 +21,8 @@ import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +38,27 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class LecturesDAOImpl implements LecturesDAO {
+    @Override
+    public MajorLecturers getMajorLecturer() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
+
+        Object principal = auth.getPrincipal();
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        if (!(person instanceof MajorLecturers majorLecturers)) {
+            throw new IllegalStateException("Authenticated user is not a student");
+        }
+
+        return entityManager.find(MajorLecturers.class,majorLecturers.getId());
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(LecturesDAOImpl.class);
 
     private final PersonsService personsService;

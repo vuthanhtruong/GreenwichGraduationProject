@@ -26,11 +26,6 @@ public class MinorAcademicTranscripts extends AcademicTranscripts {
     private MinorClasses minorClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "Marker", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorLecturers marker;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private DeputyStaffs creator;

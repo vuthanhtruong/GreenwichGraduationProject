@@ -15,6 +15,11 @@ import java.util.Map;
 @Service
 public class LecturesServiceImpl implements LecturesService {
     @Override
+    public MajorLecturers getMajorLecturer() {
+        return lecturesDAO.getMajorLecturer();
+    }
+
+    @Override
     public long countMinorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword) {
         return lecturesDAO.countMinorLecturersSearchResultsByCampus(campusId, searchType, keyword);
     }

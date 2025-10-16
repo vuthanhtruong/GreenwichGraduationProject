@@ -74,6 +74,8 @@
                 <th><i class="fas fa-phone"></i> Phone Number</th>
                 <th><i class="fas fa-birthday-cake"></i> Birth Date</th>
                 <th><i class="fas fa-venus-mars"></i> Gender</th>
+                <th><i class="fas fa-venus-mars"></i> Specialization</th>
+                <th><i class="fas fa-venus-mars"></i> Curriculum</th>
                 <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-cogs"></i> Actions</th>
             </tr>
@@ -92,6 +94,8 @@
                 <td th:text="${student.phoneNumber}"></td>
                 <td th:text="${student.birthDate}"></td>
                 <td th:text="${student.gender}"></td>
+                <td th:text="${student.getSpecialization().getSpecializationName()}"></td>
+                <td th:text="${student.getCurriculum().getName()}"></td>
                 <td th:text="${student.creator?.id}"></td>
                 <td>
                     <div class="actions">

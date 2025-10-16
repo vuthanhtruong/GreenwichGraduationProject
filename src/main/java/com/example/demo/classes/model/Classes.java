@@ -1,9 +1,12 @@
 package com.example.demo.classes.model;
 
+import com.example.demo.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Sessions;
+import com.example.demo.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +34,6 @@ public abstract class Classes {
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
-    // Constructors
     public Classes() {
     }
 
@@ -41,5 +43,19 @@ public abstract class Classes {
         this.slotQuantity = slotQuantity;
         this.session = session;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+    }
+
+    public String getCreatorName() {
+        Hibernate.initialize(this); // Initialize the proxy to determine the subclass
+        if (this instanceof MajorClasses majorClasses) {
+            Hibernate.initialize(majorClasses.getCreator());
+            Staffs creator = majorClasses.getCreator();
+            return creator != null ? creator.getFirstName() + " " + creator.getLastName() : "Unknown Creator";
+        } else if (this instanceof MinorClasses minorClasses) {
+            Hibernate.initialize(minorClasses.getCreator());
+            DeputyStaffs creator = minorClasses.getCreator();
+            return creator != null ? creator.getFirstName() + " " + creator.getLastName() : "Unknown Creator";
+        }
+        return "Unknown Creator";
     }
 }

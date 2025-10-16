@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface LecturesDAO {
+    MajorLecturers getMajorLecturer();
     long minorLecturersCountByCampus(String campus);
     long lecturersCountByCampus(String campus);
     String generateRandomPassword(int length);

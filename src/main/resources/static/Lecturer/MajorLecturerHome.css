@@ -1,0 +1,193 @@
+/* ===== Base ===== */
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef3ff, #f9fafc);
+    margin: 0;
+    color: #1a1a1a;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* ===== Container ===== */
+.win11-container {
+    padding: 36px;
+    max-width: 1300px;
+    margin: auto;
+}
+
+/* ===== Title Bar ===== */
+.win11-title-bar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 24px 32px;
+    margin-bottom: 36px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Left section (Title + Subtitle) */
+.title-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.title-text {
+    font-size: 26px;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.subtitle {
+    font-size: 15px;
+    color: #4b5563;
+}
+.messages-info {
+    background: #eff6ff;
+    border-radius: 8px;
+    padding: 4px 10px;
+    margin-left: 12px;
+    font-size: 14px;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Right section (Buttons) */
+.banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.btn:hover {
+    background: #f0f6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+}
+.btn.danger {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+}
+.btn.danger:hover {
+    background: #b91c1c;
+}
+
+/* ===== Card Section ===== */
+.win11-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== Grid Tiles ===== */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+}
+.tile {
+    background: linear-gradient(135deg, #f9fafb, #ffffff);
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: #1f2937;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+    animation: fadeIn 0.4s ease;
+}
+.tile:hover {
+    background: #f0f6ff;
+    border-color: #2563eb;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.2);
+    transform: translateY(-3px);
+}
+.tile .icon {
+    font-size: 28px;
+    color: #2563eb;
+    flex-shrink: 0;
+}
+.tile .meta {
+    display: flex;
+    flex-direction: column;
+}
+.tile .meta strong {
+    font-size: 16px;
+    color: #111827;
+}
+.tile .meta small {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* ===== Alerts ===== */
+.win11-alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-top: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 15px;
+}
+.win11-alert.error {
+    background: #fee2e2;
+    border-left: 5px solid #dc2626;
+    color: #7f1d1d;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .win11-title-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+    .banner-actions {
+        align-self: flex-start;
+    }
+}
+@media (max-width: 600px) {
+    .btn {
+        font-size: 14px;
+        padding: 8px 14px;
+    }
+    .tile {
+        padding: 18px;
+    }
+}
