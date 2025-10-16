@@ -16,15 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
 import java.util.Collection;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
@@ -48,7 +46,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/css/**",
                                 "/js/**",
                                 "/*.css",
-                                "/*.js",
                                 "/oauth2/**",
                                 "/home",
                                 "/auth/reset-password/**"
@@ -85,67 +82,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
-
         return http.build();
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/*.js")
-                .addResourceLocations(
-                        "classpath:/static/**",
-                        "classpath:/static/js/",
-                        "classpath:/static/login/",
-                        "classpath:/static/Admin/",
-                        "classpath:/static/AssignMember/",
-                        "classpath:/static/Campus/",
-                        "classpath:/static/Class/",
-                        "classpath:/static/Curriculums/",
-                        "classpath:/static/Deposit/",
-                        "classpath:/static/EmailTemplateList/",
-                        "classpath:/static/Lecturer/",
-                        "classpath:/static/LecturersList/",
-                        "classpath:/static/Major/",
-                        "classpath:/static/MajorSubjects/",
-                        "classpath:/static/MajorSubjectsList/",
-                        "classpath:/static/Roadmap/",
-                        "classpath:/static/Room/",
-                        "classpath:/static/Staff/",
-                        "classpath:/static/StudentsList/",
-                        "classpath:/static/StudyPlan/",
-                        "classpath:/static/SubjectsList/",
-                        "classpath:/static/Syllabus/"
-                )
-                .setCachePeriod(3600)
-                .resourceChain(true);
-
-        registry.addResourceHandler("/*.css")
-                .addResourceLocations(
-                        "classpath:/static/",
-                        "classpath:/static/css/",
-                        "classpath:/static/login/",
-                        "classpath:/static/Admin/",
-                        "classpath:/static/AssignMember/",
-                        "classpath:/static/Campus/",
-                        "classpath:/static/Class/",
-                        "classpath:/static/Curriculums/",
-                        "classpath:/static/Deposit/",
-                        "classpath:/static/EmailTemplateList/",
-                        "classpath:/static/Lecturer/",
-                        "classpath:/static/LecturersList/",
-                        "classpath:/static/Major/",
-                        "classpath:/static/MajorSubjects/",
-                        "classpath:/static/MajorSubjectsList/",
-                        "classpath:/static/Roadmap/",
-                        "classpath:/static/Room/",
-                        "classpath:/static/Staff/",
-                        "classpath:/static/StudentsList/",
-                        "classpath:/static/StudyPlan/",
-                        "classpath:/static/SubjectsList/",
-                        "classpath:/static/Syllabus/"
-                )
-                .setCachePeriod(3600)
-                .resourceChain(true);
     }
 
     private AuthenticationFailureHandler flashErrorHandler(String defaultMessage) {
