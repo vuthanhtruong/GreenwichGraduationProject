@@ -85,6 +85,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
+
         return http.build();
     }
 
@@ -92,7 +93,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/*.js")
                 .addResourceLocations(
-                        "classpath:/static/",
+                        "classpath:/static/**",
                         "classpath:/static/js/",
                         "classpath:/static/login/",
                         "classpath:/static/Admin/",
