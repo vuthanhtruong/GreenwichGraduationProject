@@ -1,7 +1,10 @@
 package com.example.demo.student_class.model;
 
 import com.example.demo.classes.model.Classes;
+import com.example.demo.classes.model.MajorClasses;
+import com.example.demo.classes.model.MinorClasses;
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.specializedClasses.model.SpecializedClasses;
 import com.example.demo.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,6 +47,18 @@ public abstract class Students_Classes {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    public String getSubjectName() {
+        Classes classEntity = getClassEntity();
+        if (classEntity instanceof MajorClasses majorClass && majorClass.getSubject() != null) {
+            return majorClass.getSubject().getSubjectName();
+        } else if (classEntity instanceof MinorClasses minorClass && minorClass.getMinorSubject() != null) {
+            return minorClass.getMinorSubject().getSubjectName();
+        } else if (classEntity instanceof SpecializedClasses specializedClass && specializedClass.getSpecializedSubject()!= null) {
+            return specializedClass.getSpecializedSubject().getSubjectName();
+        }
+        return "N/A";
+    }
 
     public Students_Classes() {}
 

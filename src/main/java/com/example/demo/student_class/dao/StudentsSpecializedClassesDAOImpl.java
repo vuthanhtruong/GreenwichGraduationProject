@@ -36,7 +36,7 @@ public class StudentsSpecializedClassesDAOImpl implements StudentsSpecializedCla
                                 "AND s.id NOT IN (" +
                                 "    SELECT ssc.id.studentId FROM Students_SpecializedClasses ssc " +
                                 "    WHERE ssc.id.classId = :classId " +
-                                "    OR ssc.specializedClass.specialization.id IN (" +
+                                "    OR ssc.specializedClass.specializedSubject.specialization.id IN (" +
                                 "        SELECT ss.specialization.id FROM SpecializedSubject ss WHERE ss.subjectId = :subjectId" +
                                 "    )" +
                                 ")",

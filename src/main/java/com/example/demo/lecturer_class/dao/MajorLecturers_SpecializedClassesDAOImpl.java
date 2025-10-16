@@ -89,7 +89,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("specializationId", classes.getSpecialization().getSpecializationId())
+                .setParameter("specializationId", classes.getSpecializedSubject().getSpecialization().getSpecializationId())
                 .getResultList();
     }
 }

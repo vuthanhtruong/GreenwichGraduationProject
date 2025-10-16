@@ -1,5 +1,6 @@
 package com.example.demo.AcademicTranscript.model;
 
+import com.example.demo.classes.model.MajorClasses;
 import com.example.demo.entity.Enums.Grades;
 import com.example.demo.lecturer.model.MajorLecturers;
 import com.example.demo.staff.model.Staffs;
@@ -20,9 +21,9 @@ import java.time.LocalDateTime;
 public class MajorAcademicTranscripts extends AcademicTranscripts {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SubjectID", nullable = false)
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorSubjects subject;
+    private MajorClasses majorClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Marker", nullable = true)
@@ -36,9 +37,9 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
 
     public MajorAcademicTranscripts() {}
 
-    public MajorAcademicTranscripts(String transcriptId, Students student, MajorSubjects subject, Grades grade, LocalDateTime createdAt, Staffs creator) {
+    public MajorAcademicTranscripts(String transcriptId, Students student, MajorClasses majorClass, Grades grade, LocalDateTime createdAt, Staffs creator) {
         super(transcriptId, student, grade, createdAt);
-        this.subject = subject;
+        this.majorClass = majorClass;
         if (creator == null) {
             throw new IllegalArgumentException("Creator cannot be null");
         }

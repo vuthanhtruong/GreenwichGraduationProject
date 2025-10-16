@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Search Specialized Classes</title>
-    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link rel="stylesheet" th:href="@{/css/StudentsList.css}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
@@ -28,7 +28,7 @@
             </div>
         </form>
         <div>
-            <a th:if="${keyword != null and !keyword.isEmpty()}" class="btn btn-info mx-2" th:href="@{/staff-home/specialized-classes-list(page=${currentPage}, pageSize=${pageSize})}">
+            <a th:if="${keyword != null and !keyword.isEmpty()}" class="btn btn-info mx-2" th:href="@{/staff-home/specialized-classes-list(pageClasses=${currentPage}, pageSize=${pageSize})}">
                 <i class="fas fa-list"></i> Back to Full List
             </a>
         </div>
@@ -55,7 +55,7 @@
                 <tr>
                     <th>ID Class</th>
                     <th>Class Name</th>
-                    <th>Specialization Name</th>
+                    <th>Specialized Subject</th>
                     <th>Total Slot</th>
                     <th>Classroom</th>
                     <th>Action</th>
@@ -65,7 +65,7 @@
                 <tr th:each="class : ${classes}">
                     <td th:text="${class.classId}"></td>
                     <td th:text="${class.nameClass}"></td>
-                    <td th:text="${class.specialization != null ? class.specialization.specializationName : 'N/A'}"></td>
+                    <td th:text="${class.specializedSubject != null ? class.specializedSubject.subjectName : 'N/A'}"></td>
                     <td th:text="${class.slotQuantity}"></td>
                     <td>
                         <a class="btn btn-info btn-sm" th:href="@{/classroom/{id}(id=${class.classId})}">
@@ -79,7 +79,7 @@
                             <input type="hidden" name="source" value="search"/>
                             <input type="hidden" name="searchType" th:value="${searchType}" />
                             <input type="hidden" name="keyword" th:value="${keyword}" />
-                            <input type="hidden" name="page" th:value="${currentPage}"/>
+                            <input type="hidden" name="pageClasses" th:value="${currentPage}"/>
                             <input type="hidden" name="pageSize" th:value="${pageSize}"/>
                             <button type="submit" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Edit
@@ -91,7 +91,7 @@
                             <input type="hidden" name="source" value="search"/>
                             <input type="hidden" name="searchType" th:value="${searchType}" />
                             <input type="hidden" name="keyword" th:value="${keyword}" />
-                            <input type="hidden" name="page" th:value="${currentPage}"/>
+                            <input type="hidden" name="pageClasses" th:value="${currentPage}"/>
                             <input type="hidden" name="pageSize" th:value="${pageSize}"/>
                             <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash-alt"></i> Delete
@@ -111,27 +111,27 @@
         </div>
 
         <div class="pagination">
-            <a th:href="@{/staff-home/specialized-classes-list/search-classes(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
-            <a th:href="@{/staff-home/specialized-classes-list/search-classes(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+            <a th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+            <a th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
             <span th:if="${totalPages > 1}">
-                <a th:if="${currentPage > 3}" th:href="@{/staff-home/specialized-classes-list/search-classes(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" class="page-btn number">1</a>
+                <a th:if="${currentPage > 3}" th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}" class="page-btn number">1</a>
                 <span th:if="${currentPage > 4}" class="page-btn">...</span>
                 <a th:each="i : ${#numbers.sequence((currentPage - 2 > 1 ? currentPage - 2 : 1), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages))}"
                    th:if="${i >= 1 and i <= totalPages}"
-                   th:href="@{/staff-home/specialized-classes-list/search-classes(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+                   th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
                    th:classappend="${i == currentPage} ? 'active'"
                    class="page-btn number"
                    th:text="${i}"></a>
                 <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
                 <a th:if="${currentPage < totalPages - 2}"
-                   th:href="@{/staff-home/specialized-classes-list/search-classes(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+                   th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
                    class="page-btn number"
                    th:text="${totalPages}"></a>
             </span>
-            <a th:href="@{/staff-home/specialized-classes-list/search-classes(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+            <a th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
                th:classappend="${currentPage == totalPages} ? 'disabled'"
                class="page-btn">Next</a>
-            <a th:href="@{/staff-home/specialized-classes-list/search-classes(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+            <a th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
                th:classappend="${currentPage == totalPages} ? 'disabled'"
                class="page-btn">Last</a>
             <form method="get" th:action="@{/staff-home/specialized-classes-list/search-classes}" class="page-select-form">
@@ -139,7 +139,7 @@
                 <input type="hidden" name="searchType" th:value="${searchType}" />
                 <input type="hidden" name="keyword" th:value="${keyword}" />
                 <label for="pageSelect">Go to page:</label>
-                <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <select id="pageSelect" name="pageClasses" class="input small" onchange="this.form.submit()">
                     <option th:each="i : ${#numbers.sequence(1, totalPages)}"
                             th:value="${i}"
                             th:text="${i}"

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Scores</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/DetailScores.css}">
+</head>
+<body>
+<div class="win11-container">
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-star"></i> Scores for Class: <span th:text="${className}"></span></h1>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home/learning-process}" class="btn">
+                <i class="fas fa-arrow-left"></i> Back to Learning Process
+            </a>
+        </div>
+    </div>
+
+    <!-- Errors -->
+    <div th:if="${errors != null and not #lists.isEmpty(errors)}" class="alert alert-danger">
+        <p th:each="error : ${errors}" th:text="${error}"></p>
+    </div>
+
+    <!-- Transcripts Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-book"></i> Subject Name</th>
+                <th><i class="fas fa-star"></i> Grade</th>
+                <th><i class="fas fa-calculator"></i> Score</th>
+                <th><i class="fas fa-user"></i> Marker</th>
+                <th><i class="fas fa-user-shield"></i> Creator</th>
+                <th><i class="fas fa-calendar-alt"></i> Created At</th>
+                <th><i class="fas fa-check-circle"></i> Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="transcript : ${transcripts}">
+                <td th:text="${transcript.majorClass != null and transcript.majorClass.subject != null} ? ${transcript.majorClass.subject.subjectName} :
+                              ${transcript.minorClass != null and transcript.minorClass.subject != null} ? ${transcript.minorClass.subject.subjectName} :
+                              ${transcript.specializedClass != null and transcript.specializedClass.subject != null} ? ${transcript.specializedClass.subject.subjectName} : 'N/A'"></td>
+                <td th:text="${transcript.grade ?: 'N/A'}"></td>
+                <td th:text="${transcript.score != null} ? ${#numbers.formatDecimal(transcript.score, 1, 2)} : 'N/A'"></td>
+                <td th:text="${transcript.marker != null} ? ${transcript.marker.firstName + ' ' + transcript.marker.lastName} : 'N/A'"></td>
+                <td th:text="${transcript.creator != null} ? ${transcript.creator.id} : 'N/A'"></td>
+                <td th:text="${transcript.createdAt}"></td>
+                <td th:text="${transcript.grade != null and transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER} ? 'Pass' : 'Fail'"></td>
+            </tr>
+            <tr th:if="${transcripts.isEmpty}">
+                <td colspan="9" class="text-center">No transcripts found for this class.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

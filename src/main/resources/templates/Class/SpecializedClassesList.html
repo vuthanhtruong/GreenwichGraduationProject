@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Specialized Classes List</title>
-    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link rel="stylesheet" th:href="@{/css/StudentsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -63,7 +63,7 @@
             <tr>
                 <th><i class="fas fa-id-card"></i> ID</th>
                 <th><i class="fas fa-chalkboard"></i> Class Name</th>
-                <th><i class="fas fa-book"></i> Specialization</th>
+                <th><i class="fas fa-book"></i> Specialized Subject</th>
                 <th><i class="fas fa-chair"></i> Total Slots</th>
                 <th><i class="fas fa-door-open"></i> Classroom</th>
                 <th><i class="fas fa-cogs"></i> Actions</th>
@@ -73,7 +73,7 @@
             <tr th:each="clazz : ${classes}">
                 <td th:text="${clazz.classId}"></td>
                 <td th:text="${clazz.nameClass}"></td>
-                <td th:text="${clazz.specialization != null ? clazz.specialization.specializationName : 'N/A'}"></td>
+                <td th:text="${clazz.specializedSubject != null ? clazz.specializedSubject.subjectName : 'N/A'}"></td>
                 <td th:text="${clazz.slotQuantity != null ? clazz.slotQuantity : 'N/A'}"></td>
                 <td>
                     <a class="btn small" th:href="@{/classroom/{id}(id=${clazz.classId})}">
@@ -146,12 +146,12 @@
                             <div class="text-danger" th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('total slots')}" th:text="${error}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="specializationId"><i class="fas fa-book"></i> Specialization:</label>
-                            <select id="specializationId" name="specializationId" class="input" required>
-                                <option value="">Select specialization</option>
-                                <option th:each="specialization : ${specializations}" th:value="${specialization.specializationId}" th:text="${specialization.specializationName}" th:selected="${newClass.specialization != null and newClass.specialization.specializationId == specialization.specializationId}"></option>
+                            <label for="specializedSubjectId"><i class="fas fa-book"></i> Specialized Subject:</label>
+                            <select id="specializedSubjectId" name="specializedSubjectId" class="input" required>
+                                <option value="">Select specialized subject</option>
+                                <option th:each="subject : ${specializedSubjects}" th:value="${subject.specializedSubjectId}" th:text="${subject.subjectName}" th:selected="${newClass.specializedSubject != null and newClass.specializedSubject.specializedSubjectId == subject.specializedSubjectId}"></option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('specialization')}" th:text="${error}"></div>
+                            <div class="text-danger" th:each="error : ${errors}" th:if="${#strings.toLowerCase(error).contains('specialized subject')}" th:text="${error}"></div>
                         </div>
                     </div>
                 </section>
@@ -183,4 +183,3 @@
 </script>
 </body>
 </html>
-```

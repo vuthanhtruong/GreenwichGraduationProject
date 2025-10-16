@@ -4,13 +4,38 @@ import com.example.demo.AcademicTranscript.dao.AcademicTranscriptsDAO;
 import com.example.demo.AcademicTranscript.model.MajorAcademicTranscripts;
 import com.example.demo.AcademicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.AcademicTranscript.model.SpecializedAcademicTranscripts;
+import com.example.demo.classes.model.Classes;
+import com.example.demo.classes.model.MajorClasses;
+import com.example.demo.classes.model.MinorClasses;
+import com.example.demo.specializedClasses.model.SpecializedClasses;
 import com.example.demo.student.model.Students;
+import com.example.demo.student_class.model.Students_Classes;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsService {
+    @Override
+    public List<MajorAcademicTranscripts> getAcademicTranscriptsByMajorClass(Students student, MajorClasses majorClass) {
+        return academicTranscriptsDAO.getAcademicTranscriptsByMajorClass(student, majorClass);
+    }
+
+    @Override
+    public List<MinorAcademicTranscripts> getAcademicTranscriptsByMinorClass(Students student, MinorClasses classes) {
+        return academicTranscriptsDAO.getAcademicTranscriptsByMinorClass(student, classes);
+    }
+
+    @Override
+    public List<SpecializedAcademicTranscripts> getAcademicTranscriptsBySpecializedClass(Students student, SpecializedClasses classes) {
+        return academicTranscriptsDAO.getAcademicTranscriptsBySpecializedClass(student, classes);
+    }
+
+    @Override
+    public List<Students_Classes> getLearningProcess(Students student) {
+        return academicTranscriptsDAO.getLearningProcess(student);
+    }
+
     @Override
     public List<SpecializedAcademicTranscripts> getSpecializedAcademicTranscripts(Students student) {
         return academicTranscriptsDAO.getSpecializedAcademicTranscripts(student);

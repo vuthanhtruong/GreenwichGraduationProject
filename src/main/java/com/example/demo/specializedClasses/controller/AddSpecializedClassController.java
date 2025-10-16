@@ -2,9 +2,11 @@ package com.example.demo.specializedClasses.controller;
 
 import com.example.demo.specializedClasses.model.SpecializedClasses;
 import com.example.demo.specializedClasses.service.SpecializedClassesService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specializedSubject.service.SpecializedSubjectsService;
 import com.example.demo.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,22 +23,26 @@ import java.util.List;
 @RequestMapping("/staff-home/specialized-classes-list")
 public class AddSpecializedClassController {
 
+    private static final Logger log = LoggerFactory.getLogger(AddSpecializedClassController.class);
+
     private final SpecializedClassesService classesService;
     private final StaffsService staffsService;
-    private final SpecializationService specializationService;
+    private final SpecializedSubjectsService specializedSubjectsService;
 
     @Autowired
-    public AddSpecializedClassController(SpecializedClassesService classesService, StaffsService staffsService, SpecializationService specializationService) {
+    public AddSpecializedClassController(SpecializedClassesService classesService,
+                                         StaffsService staffsService,
+                                         SpecializedSubjectsService specializedSubjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
-        this.specializationService = specializationService;
+        this.specializedSubjectsService = specializedSubjectsService;
     }
 
     @PostMapping("/add-class")
     public String addClass(
             @RequestParam("nameClass") String nameClass,
             @RequestParam("slotQuantity") Integer slotQuantity,
-            @RequestParam("specializationId") String specializationId,
+            @RequestParam("specializedSubjectId") String specializedSubjectId,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
@@ -45,15 +51,24 @@ public class AddSpecializedClassController {
         SpecializedClasses newClass = new SpecializedClasses();
         newClass.setNameClass(nameClass);
         newClass.setSlotQuantity(slotQuantity);
-        newClass.setSpecialization(specializationService.getSpecializationById(specializationId));
+        var specializedSubject = specializedSubjectsService.getSubjectById(specializedSubjectId);
+        newClass.setSpecializedSubject(specializedSubject);
 
+        // Kiểm tra null cho specializedSubject
+        if (specializedSubject == null) {
+            errors.add("Invalid specialized subject selected.");
+            log.warn("Specialized subject with ID: {} not found", specializedSubjectId);
+        }
+
+        // Validate lớp mới
         errors.addAll(classesService.validateClass(newClass, newClass.getClassId()));
 
         if (!errors.isEmpty()) {
+            log.warn("Validation errors when adding class: {}", String.join("; ", errors));
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("specializedSubjects", specializedSubjectsService.subjectsByMajor(staffsService.getStaff().getMajorManagement()));
             model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
@@ -63,19 +78,21 @@ public class AddSpecializedClassController {
         }
 
         try {
-            String specializationIdSafe = specializationId != null ? specializationId : "default";
-            String classId = classesService.generateUniqueClassId(specializationIdSafe, LocalDateTime.now());
+            String specializedSubjectIdSafe = specializedSubjectId != null ? specializedSubjectId : "default";
+            String classId = classesService.generateUniqueClassId(specializedSubjectIdSafe, LocalDateTime.now());
             newClass.setClassId(classId);
             newClass.setCreatedAt(LocalDateTime.now());
 
             classesService.addClass(newClass);
+            log.info("Successfully added class with ID: {}", classId);
             redirectAttributes.addFlashAttribute("successMessage", "Class added successfully!");
             return "redirect:/staff-home/specialized-classes-list";
         } catch (Exception e) {
+            log.error("Error adding class: {}", e.getMessage(), e);
             errors.add("Failed to add class: " + e.getMessage());
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("specializedSubjects", specializedSubjectsService.subjectsByMajor(staffsService.getStaff().getMajorManagement()));
             model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);

@@ -12,10 +12,10 @@
     <h1><i class="fas fa-chalkboard-teacher"></i> Edit Specialized Class</h1>
 </header>
 <nav class="mb-3 d-flex justify-content-end container">
-    <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+    <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
         <i class="fas fa-arrow-left"></i> Back
     </a>
-    <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list(page=${page}, pageSize=${pageSize})}">
+    <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list(pageClasses=${page}, pageSize=${pageSize})}">
         <i class="fas fa-arrow-left"></i> Specialized Classes List
     </a>
 </nav>
@@ -27,35 +27,35 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" name="searchType" th:value="${searchType}"/>
             <input type="hidden" name="keyword" th:value="${keyword}"/>
-            <input type="hidden" name="page" th:value="${page}"/>
+            <input type="hidden" name="pageClasses" th:value="${page}"/>
             <input type="hidden" name="pageSize" th:value="${pageSize}"/>
             <input type="hidden" name="source" th:value="${source}"/>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label for="editNameClass" class="form-label">Class Name:</label>
                     <input id="editNameClass" th:field="*{nameClass}" class="form-control" required type="text">
-                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${error.contains('nameClass') or error.contains('Name Class') or error.contains('Class name is already in use.')}" th:text="${error}"></div>
+                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${#strings.toLowerCase(error).contains('nameclass') or #strings.toLowerCase(error).contains('class name') or #strings.toLowerCase(error).contains('class name is already in use')}" th:text="${error}"></div>
                 </div>
                 <div class="col-md-4">
                     <label for="editSlotQuantity" class="form-label">Total Slots:</label>
                     <input id="editSlotQuantity" th:field="*{slotQuantity}" class="form-control" required type="number" min="1">
-                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${error.contains('slotQuantity') or error.contains('Slot Quantity')}" th:text="${error}"></div>
+                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${#strings.toLowerCase(error).contains('slotquantity') or #strings.toLowerCase(error).contains('total slots')}" th:text="${error}"></div>
                 </div>
                 <div class="col-md-4">
-                    <label for="editSpecializationId" class="form-label">Specialization:</label>
-                    <select id="editSpecializationId" th:field="*{specialization.specializationId}" class="form-control" required>
-                        <option value="">Select specialization</option>
-                        <option th:each="specialization : ${specializations}" th:value="${specialization.specializationId}" th:text="${specialization.specializationName}" th:selected="${specialization.specializationId == class.specialization.specializationId}"></option>
+                    <label for="editSpecializedSubjectId" class="form-label">Specialized Subject:</label>
+                    <select id="editSpecializedSubjectId" th:field="*{specializedSubject.specializedSubjectId}" class="form-control" required>
+                        <option value="">Select specialized subject</option>
+                        <option th:each="subject : ${specializedSubjects}" th:value="${subject.specializedSubjectId}" th:text="${subject.subjectName}" th:selected="${class.specializedSubject != null and subject.specializedSubjectId == class.specializedSubject.specializedSubjectId}"></option>
                     </select>
-                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${error.contains('specialization') or error.contains('Specialization') or error.contains('Invalid specialization selected.')}" th:text="${error}"></div>
+                    <div class="text-danger" th:each="error : ${editErrors}" th:if="${#strings.toLowerCase(error).contains('specialized subject') or #strings.toLowerCase(error).contains('invalid specialized subject')}" th:text="${error}"></div>
                 </div>
             </div>
             <div class="mt-3">
                 <button class="btn btn-success" type="submit">
                     <i class="fas fa-save"></i> Save Class
                 </button>
-                <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">Cancel</a>
-                <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list(page=${page}, pageSize=${pageSize})}">Cancel</a>
+                <a th:if="${source == 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list/search-classes(pageClasses=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">Cancel</a>
+                <a th:if="${source != 'search'}" class="btn btn-secondary" th:href="@{/staff-home/specialized-classes-list(pageClasses=${page}, pageSize=${pageSize})}">Cancel</a>
             </div>
         </form>
     </section>
