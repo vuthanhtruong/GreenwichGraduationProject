@@ -28,7 +28,7 @@ public class Students_SpecializedClasses extends Students_Classes {
     private SpecializedClasses specializedClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AddedBy", nullable = false)
+    @JoinColumn(name = "AddedBy", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Staffs addedBy;
 
