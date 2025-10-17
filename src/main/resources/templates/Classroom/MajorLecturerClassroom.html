@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Classroom - Win11</title>
+    <title>Major Lecturer Classroom - Win11</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/Classroom.css}">
 </head>
@@ -17,20 +17,29 @@
         </div>
     </th:block>
 
-    <!-- Banner (no image) -->
+    <!-- Banner -->
     <div class="class-banner" th:text="${classes.getNameClass()} ?: 'Unknown Class'"></div>
 
     <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
-            <a href="/student-home" class="btn"><i class="fas fa-home"></i> Home</a>
-            <a th:href="@{/student-home/student-classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
+            <a th:href="@{/major-lecturer-home}" class="btn"><i class="fas fa-home"></i> Home</a>
+            <a th:href="@{/major-lecturer-home/classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
         </div>
         <div class="toolbar-center">
-            <h2 style="margin:0;font-size:18px;font-weight:600;">Classroom</h2>
+            <h2 style="margin:0;font-size:18px;font-weight:600;">Lecturer Classroom</h2>
         </div>
         <div class="toolbar-right">
-            <button class="btn primary"><i class="fas fa-plus"></i> New Post</button>
+            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/upload-post}" class="inline-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="classId" th:value="${classes.classId}" />
+                <button type="submit" class="btn primary"><i class="fas fa-upload"></i> Upload Post</button>
+            </form>
+            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/create-assignment-slot}" class="inline-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="classId" th:value="${classes.classId}" />
+                <button type="submit" class="btn primary"><i class="fas fa-folder-plus"></i> Create Assignment Submission Slot</button>
+            </form>
         </div>
     </div>
 
@@ -49,7 +58,7 @@
                 <div class="post">
                     <i class="fas fa-clipboard-list"></i>
                     <div class="post-content">
-                        <strong th:text="${post.getCreatorName()}"></strong>
+                        <strong th:text="${post.getCreator().getId()}"></strong>
                         <span th:text="${post.content}"></span>
                         <small th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy')}"></small>
                     </div>

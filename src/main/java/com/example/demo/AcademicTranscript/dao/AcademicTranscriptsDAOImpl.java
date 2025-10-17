@@ -8,7 +8,7 @@ import com.example.demo.classes.majorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Grades;
 import com.example.demo.user.student.model.Students;
-import com.example.demo.students_Classes.abstractStudent_Class.model.Students_Classes;
+import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

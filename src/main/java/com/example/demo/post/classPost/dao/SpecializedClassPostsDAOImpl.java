@@ -13,7 +13,7 @@ import java.util.List;
 public class SpecializedClassPostsDAOImpl implements SpecializedClassPostsDAO {
     @Override
     public List<SpecializedClassPosts> getClassPostsByClass(String classId) {
-        return entityManager.createQuery("from SpecializedClassPosts s where s.specializedClass=:classId",SpecializedClassPosts.class)
+        return entityManager.createQuery("from SpecializedClassPosts s where s.specializedClass.classId=:classId",SpecializedClassPosts.class)
                 .setParameter("classId", classId).getResultList();
     }
 

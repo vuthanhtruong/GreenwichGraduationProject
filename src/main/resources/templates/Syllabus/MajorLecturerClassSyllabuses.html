@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Syllabuses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/ClassSyllabuses.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ===== Title Bar ===== -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-file-alt"></i> Class Syllabuses</h1>
+    </header>
+
+    <!-- ===== Toolbar ===== -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{/major-lecturer-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{/major-lecturer-home/classes-list}" class="btn">
+                <i class="fas fa-arrow-left"></i> Back to Class List
+            </a>
+        </div>
+        <div class="toolbar-right">
+            <p class="total">
+                <i class="fas fa-file-alt"></i>
+                <strong>Total Syllabuses:</strong>
+                <span th:text="${Syllabuses != null ? Syllabuses.size() : 0}"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== Error Alerts ===== -->
+    <div th:if="${errors != null and !errors.isEmpty()}" class="win11-alert error">
+        <i class="fas fa-exclamation-circle"></i>
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error}"></li>
+        </ul>
+    </div>
+
+    <!-- ===== Syllabuses Table ===== -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> Syllabus ID</th>
+                <th><i class="fas fa-book"></i> Syllabus Name</th>
+                <th><i class="fas fa-user"></i> Creator</th>
+                <th><i class="fas fa-file"></i> File Type</th>
+                <th><i class="fas fa-info-circle"></i> Status</th>
+                <th><i class="fas fa-eye"></i> Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="syllabus : ${Syllabuses}">
+                <td th:text="${syllabus.syllabusId}"></td>
+                <td th:text="${syllabus.syllabusName}"></td>
+                <td th:text="${syllabus.creator != null ? syllabus.creator.firstName + ' ' + syllabus.creator.lastName : 'N/A'}"></td>
+                <td th:text="${syllabus.fileType != null ? syllabus.fileType : 'N/A'}"></td>
+                <td th:text="${syllabus.status != null ? syllabus.status : 'N/A'}"></td>
+                <td>
+                    <a th:if="${syllabus.filePath != null}" th:href="@{${syllabus.filePath}}" class="btn primary small" target="_blank">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <span th:if="${syllabus.filePath == null}" class="text-muted">No file</span>
+                </td>
+            </tr>
+            <tr th:if="${Syllabuses == null or Syllabuses.isEmpty()}">
+                <td colspan="6" class="text-center">No syllabuses available.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

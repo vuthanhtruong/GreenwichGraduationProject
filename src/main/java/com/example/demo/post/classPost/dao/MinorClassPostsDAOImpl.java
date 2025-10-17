@@ -16,6 +16,6 @@ public class MinorClassPostsDAOImpl implements MinorClassPostsDAO {
 
     @Override
     public List<MinorClassPosts> getClassPostByClass(String classId) {
-        return entityManager.createQuery("FROM MinorClassPosts m where m.minorClass=:classId", MinorClassPosts.class).setParameter("classId", classId).getResultList();
+        return entityManager.createQuery("FROM MinorClassPosts m where m.minorClass.classId=:classId", MinorClassPosts.class).setParameter("classId", classId).getResultList();
     }
 }

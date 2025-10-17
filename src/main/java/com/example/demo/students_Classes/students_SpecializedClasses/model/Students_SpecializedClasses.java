@@ -1,7 +1,7 @@
 package com.example.demo.students_Classes.students_SpecializedClasses.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
-import com.example.demo.students_Classes.abstractStudent_Class.model.Students_Classes;
+import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;

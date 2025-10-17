@@ -1,6 +1,7 @@
 package com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.Lecturers_Classes;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;

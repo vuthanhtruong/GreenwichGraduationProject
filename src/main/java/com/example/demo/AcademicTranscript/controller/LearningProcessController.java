@@ -8,7 +8,7 @@ import com.example.demo.classes.majorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
-import com.example.demo.students_Classes.abstractStudent_Class.model.Students_Classes;
+import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

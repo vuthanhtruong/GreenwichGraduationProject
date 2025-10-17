@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Specializations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-book"></i> Your Specializations</h1>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <!-- Left: Home -->
+        <div class="toolbar-left">
+            <a th:href="@{/major-lecturer-home}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Specializations Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> Specialization ID</th>
+                <th><i class="fas fa-book-open"></i> Specialization Name</th>
+                <th><i class="fas fa-calendar-plus"></i> Created At</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="spec : ${Specializations}">
+                <td th:text="${spec.specialization.specializationId}"></td>
+                <td th:text="${spec.specialization.specializationName}"></td>
+                <td th:text="${spec.createdAt}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(Specializations)}">
+                <td colspan="5" class="text-center">
+                    <div class="alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> No specializations assigned to you.
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

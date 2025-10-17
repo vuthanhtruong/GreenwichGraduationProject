@@ -58,15 +58,7 @@
             <tr th:each="class : ${classes}">
                 <td th:text="${class.classId}"></td>
                 <td th:text="${class.nameClass}"></td>
-                <td>
-                    <span th:if="${class instanceof T(com.example.demo.majorClasses.model.MajorClasses) and class.subject != null}"
-                          th:text="${class.subject.subjectName}"></span>
-                    <span th:if="${class instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses) and class.specializedSubject != null}"
-                          th:text="${class.specializedSubject.specialization.specializationName}"></span>
-                    <span th:if="${!(class instanceof T(com.example.demo.majorClasses.model.MajorClasses)) and !(class instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses)) or (class.subject == null and class.specializedSubject == null)}">
-                        N/A
-                    </span>
-                </td>
+                <td th:text="${class.getSubjectType()}"></td>
                 <td th:text="${class.session != null ? class.session : 'N/A'}"></td>
                 <td th:text="${class.slotQuantity != null ? class.slotQuantity : 'N/A'}"></td>
                 <td th:text="${#temporals.format(class.createdAt, 'dd MMM yyyy')}"></td>
