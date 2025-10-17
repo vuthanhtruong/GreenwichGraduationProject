@@ -1,17 +1,14 @@
 package com.example.demo.AcademicTranscript.controller;
 
-import com.example.demo.AcademicTranscript.model.MajorAcademicTranscripts;
-import com.example.demo.AcademicTranscript.model.MinorAcademicTranscripts;
-import com.example.demo.AcademicTranscript.model.SpecializedAcademicTranscripts;
 import com.example.demo.AcademicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.classes.model.Classes;
-import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.classes.model.MinorClasses;
-import com.example.demo.classes.service.ClassesService;
-import com.example.demo.specializedClasses.model.SpecializedClasses;
-import com.example.demo.student.model.Students;
-import com.example.demo.student.service.StudentsService;
-import com.example.demo.student_class.model.Students_Classes;
+import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.user.student.model.Students;
+import com.example.demo.user.student.service.StudentsService;
+import com.example.demo.students_Classes.abstractStudent_Class.model.Students_Classes;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

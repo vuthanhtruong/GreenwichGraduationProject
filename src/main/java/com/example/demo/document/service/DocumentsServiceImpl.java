@@ -2,7 +2,7 @@ package com.example.demo.document.service;
 
 import com.example.demo.document.dao.DocumentsDAO;
 import com.example.demo.document.model.Documents;
-import com.example.demo.news.model.News;
+import com.example.demo.post.news.model.News;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

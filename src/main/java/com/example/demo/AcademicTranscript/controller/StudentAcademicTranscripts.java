@@ -1,7 +1,7 @@
 package com.example.demo.AcademicTranscript.controller;
 
 import com.example.demo.AcademicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.student.service.StudentsService;
+import com.example.demo.user.student.service.StudentsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

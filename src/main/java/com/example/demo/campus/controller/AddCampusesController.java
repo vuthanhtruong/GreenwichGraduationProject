@@ -1,7 +1,7 @@
 package com.example.demo.campus.controller;
 
-import com.example.demo.admin.model.Admins;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import jakarta.validation.Valid;

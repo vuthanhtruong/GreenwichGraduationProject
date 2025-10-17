@@ -1,9 +1,9 @@
 package com.example.demo.entity;
 
-import com.example.demo.classPost.model.ClassPosts;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.entity.AbstractClasses.Comments;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.student.model.Students;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

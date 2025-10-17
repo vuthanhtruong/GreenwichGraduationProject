@@ -59,11 +59,11 @@
                 <td th:text="${class.id.classId}"></td>
                 <td th:text="${class.classEntity.nameClass}"></td>
                 <td>
-                    <span th:if="${class.classEntity instanceof T(com.example.demo.classes.model.MajorClasses) and class.classEntity.subject != null}"
+                    <span th:if="${class.classEntity instanceof T(com.example.demo.majorClasses.model.MajorClasses) and class.classEntity.subject != null}"
                           th:text="${class.classEntity.subject.subjectName}"></span>
                     <span th:if="${class.classEntity instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses) and class.classEntity.specialization != null}"
                           th:text="${class.classEntity.specialization.specializationName}"></span>
-                    <span th:if="${!(class.classEntity instanceof T(com.example.demo.classes.model.MajorClasses)) and !(class.classEntity instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses)) or (class.classEntity.subject == null and class.classEntity.specialization == null)}">
+                    <span th:if="${!(class.classEntity instanceof T(com.example.demo.majorClasses.model.MajorClasses)) and !(class.classEntity instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses)) or (class.classEntity.subject == null and class.classEntity.specialization == null)}">
                         N/A
                     </span>
                 </td>

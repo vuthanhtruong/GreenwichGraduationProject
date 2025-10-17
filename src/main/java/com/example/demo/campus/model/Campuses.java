@@ -1,6 +1,6 @@
 package com.example.demo.campus.model;
 
-import com.example.demo.admin.model.Admins;
+import com.example.demo.user.admin.model.Admins;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

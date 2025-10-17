@@ -1,7 +1,7 @@
 package com.example.demo.Specialization.dao;
 
 import com.example.demo.Specialization.model.Specialization;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.major.model.Majors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

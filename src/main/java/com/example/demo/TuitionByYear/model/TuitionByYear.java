@@ -1,16 +1,12 @@
 package com.example.demo.TuitionByYear.model;
 
-import com.example.demo.admin.model.Admins;
+import com.example.demo.user.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
-import com.example.demo.classes.model.Classes;
-import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.classes.model.MinorClasses;
 import com.example.demo.entity.Enums.ContractStatus;
-import com.example.demo.majorSubject.model.MajorSubjects;
-import com.example.demo.specializedClasses.model.SpecializedClasses;
-import com.example.demo.specializedSubject.model.SpecializedSubject;
-import com.example.demo.subject.model.MinorSubjects;
-import com.example.demo.subject.model.Subjects;
+import com.example.demo.subject.majorSubject.model.MajorSubjects;
+import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
+import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.abstractSubject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;

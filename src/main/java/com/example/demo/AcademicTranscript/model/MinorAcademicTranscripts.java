@@ -1,11 +1,9 @@
 package com.example.demo.AcademicTranscript.model;
 
-import com.example.demo.classes.model.MinorClasses;
-import com.example.demo.deputyStaff.model.DeputyStaffs;
+import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.lecturer.model.MinorLecturers;
-import com.example.demo.student.model.Students;
-import com.example.demo.subject.model.MinorSubjects;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

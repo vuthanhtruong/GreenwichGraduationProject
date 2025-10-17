@@ -1,7 +1,7 @@
 package com.example.demo.scholarship.dao;
 
-import com.example.demo.admin.model.Admins;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.scholarship.model.Scholarships;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

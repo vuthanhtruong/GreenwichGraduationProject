@@ -1,6 +1,6 @@
 package com.example.demo.security.model;
 
-import com.example.demo.person.model.Persons;
+import com.example.demo.user.person.model.Persons;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 

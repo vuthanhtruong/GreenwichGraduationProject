@@ -1,9 +1,9 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.Enums.RelationshipToStudent;
-import com.example.demo.staff.model.Staffs;
-import com.example.demo.parentAccount.model.ParentAccounts;
-import com.example.demo.student.model.Students;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.parentAccount.model.ParentAccounts;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

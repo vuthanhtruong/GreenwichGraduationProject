@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/student-home/**", "/api/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**", "/api/staff-home/**").hasRole("STAFF")
-                        .requestMatchers("/lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
+                        .requestMatchers("/major-lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/login",

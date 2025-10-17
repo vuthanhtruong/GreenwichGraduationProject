@@ -1,6 +1,6 @@
 package com.example.demo.authenticator.model;
 
-import com.example.demo.person.model.Persons;
+import com.example.demo.user.person.model.Persons;
 import com.example.demo.entity.Enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.Getter;

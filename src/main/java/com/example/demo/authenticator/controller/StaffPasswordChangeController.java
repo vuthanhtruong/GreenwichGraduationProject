@@ -1,7 +1,7 @@
 package com.example.demo.authenticator.controller;
 
-import com.example.demo.staff.model.Staffs;
-import com.example.demo.staff.service.StaffsService;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,5 @@
-package com.example.demo.studentRequiredSubjects.model;
+package com.example.demo.studentRequiredMajorSubjects.model;
 
-import com.example.demo.student.model.Students;
-import com.example.demo.subject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

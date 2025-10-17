@@ -3,7 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.entity.AbstractClasses.Comments;
 import com.example.demo.entity.AbstractClasses.PublicPosts;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.person.model.Persons;
+import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

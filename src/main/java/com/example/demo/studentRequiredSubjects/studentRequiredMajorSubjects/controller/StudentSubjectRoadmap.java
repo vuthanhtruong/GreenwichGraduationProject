@@ -1,0 +1,28 @@
+package com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.controller;
+
+import com.example.demo.user.student.service.StudentsService;
+import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredSubjectsService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/student-home/student-subject-roadmap")
+public class StudentSubjectRoadmap {
+    private final StudentRequiredSubjectsService studentRequiredSubjectsService;
+    private final StudentsService  studentsService;
+
+    public StudentSubjectRoadmap(StudentRequiredSubjectsService studentRequiredSubjectsService, StudentsService studentsService) {
+        this.studentRequiredSubjectsService = studentRequiredSubjectsService;
+        this.studentsService = studentsService;
+    }
+
+
+    @GetMapping("")
+    public String StudentSubjectRoadmap(Model model) {
+        model.addAttribute("studentRequiredMajorSubjects", studentRequiredSubjectsService.studentMinorRoadmap(studentsService.getStudent()));
+        model.addAttribute("studentRequiredMinorSubjects", studentRequiredSubjectsService.studentMinorRoadmap(studentsService.getStudent()));
+        return "StudentSubjectRoadmap";
+    }
+}

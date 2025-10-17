@@ -1,8 +1,8 @@
 package com.example.demo.RetakeSubjects.model;
 
-import com.example.demo.student.model.Students;
-import com.example.demo.studentRequiredSubjects.model.StudentRetakeSubjectsId;
-import com.example.demo.subject.model.Subjects;
+import com.example.demo.user.student.model.Students;
+import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
+import com.example.demo.subject.abstractSubject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

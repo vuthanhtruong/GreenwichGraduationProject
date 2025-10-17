@@ -2,7 +2,7 @@ package com.example.demo.TuitionByYear.controller;
 
 import com.example.demo.TuitionByYear.model.TuitionByYear;
 import com.example.demo.TuitionByYear.service.TuitionByYearService;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,8 +1,8 @@
 package com.example.demo.curriculum.dao;
 
 import com.example.demo.curriculum.model.Curriculum;
-import com.example.demo.admin.model.Admins;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.admin.service.AdminsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

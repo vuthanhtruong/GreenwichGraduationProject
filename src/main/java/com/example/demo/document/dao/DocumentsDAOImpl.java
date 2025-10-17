@@ -1,7 +1,7 @@
 package com.example.demo.document.dao;
 
 import com.example.demo.document.model.Documents;
-import com.example.demo.news.model.News;
+import com.example.demo.post.news.model.News;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

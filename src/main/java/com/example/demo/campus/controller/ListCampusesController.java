@@ -1,6 +1,5 @@
 package com.example.demo.campus.controller;
 
-import com.example.demo.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
 import org.slf4j.Logger;

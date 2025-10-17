@@ -1,6 +1,6 @@
 package com.example.demo.major.controller;
 
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.major.service.MajorsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

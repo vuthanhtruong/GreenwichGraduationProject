@@ -2,7 +2,7 @@ package com.example.demo.EmailTemplates.dao;
 
 import com.example.demo.EmailTemplates.dto.EmailTemplateDTO;
 import com.example.demo.EmailTemplates.model.EmailTemplates;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.dao.CampusesDAO;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.persistence.EntityManager;

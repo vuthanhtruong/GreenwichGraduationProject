@@ -1,6 +1,6 @@
 package com.example.demo.room.controller;
 
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.room.service.RoomsService;

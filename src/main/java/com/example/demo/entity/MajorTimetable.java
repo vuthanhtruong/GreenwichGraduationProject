@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.classes.model.MajorClasses;
-import com.example.demo.staff.model.Staffs;
+import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.DaysOfWeek;

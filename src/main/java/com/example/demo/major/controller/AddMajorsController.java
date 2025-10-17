@@ -1,7 +1,7 @@
 package com.example.demo.major.controller;
 
-import com.example.demo.admin.model.Admins;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.major.service.MajorsService;
 import org.slf4j.Logger;
@@ -17,8 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Controller

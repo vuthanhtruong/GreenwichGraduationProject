@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.classPost.model.MinorClassPosts;
-import com.example.demo.employe.model.MinorEmployes;
+import com.example.demo.post.classPost.model.MinorClassPosts;
+import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.entity.AbstractClasses.Comments;
 import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;

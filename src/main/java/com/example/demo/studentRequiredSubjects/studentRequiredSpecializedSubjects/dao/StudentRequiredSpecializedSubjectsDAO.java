@@ -1,0 +1,18 @@
+package com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.dao;
+
+import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
+import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.model.StudentRequiredSpecializedSubjects;
+import com.example.demo.user.student.model.Students;
+
+import java.util.List;
+
+public interface StudentRequiredSpecializedSubjectsDAO {
+    List<SpecializedSubject> studentSpecializedRoadmap(Students student);
+    List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject);
+    List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject);
+    List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId);
+    boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId);
+    void addStudentRequiredSpecializedSubject(StudentRequiredSpecializedSubjects srs);
+    boolean removeStudentRequiredSpecializedSubject(String studentId, String subjectId);
+    boolean isStudentAlreadyRequiredForSpecializedSubject(String studentId, String subjectId);
+}

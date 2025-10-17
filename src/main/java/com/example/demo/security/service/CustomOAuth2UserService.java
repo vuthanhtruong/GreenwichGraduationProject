@@ -1,12 +1,12 @@
 package com.example.demo.security.service;
 
-import com.example.demo.admin.model.Admins;
+import com.example.demo.user.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
-import com.example.demo.lecturer.model.MajorLecturers;
-import com.example.demo.person.model.Persons;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.person.model.Persons;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
-import com.example.demo.staff.model.Staffs;
-import com.example.demo.student.model.Students;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -17,7 +17,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

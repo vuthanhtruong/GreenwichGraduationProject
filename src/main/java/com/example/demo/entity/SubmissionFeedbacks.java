@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.lecturer.model.MajorLecturers;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

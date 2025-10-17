@@ -1,16 +1,12 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.AbstractClasses.Attendance;
-import com.example.demo.entity.Enums.AttendanceStatus;
-import com.example.demo.staff.model.Staffs;
-import com.example.demo.student.model.Students;
+import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "SpecializedAttendance")

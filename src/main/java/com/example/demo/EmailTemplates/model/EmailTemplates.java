@@ -1,6 +1,6 @@
 package com.example.demo.EmailTemplates.model;
 
-import com.example.demo.admin.model.Admins;
+import com.example.demo.user.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.persistence.*;

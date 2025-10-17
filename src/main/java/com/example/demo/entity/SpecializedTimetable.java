@@ -1,10 +1,10 @@
 package com.example.demo.entity;
 
-import com.example.demo.specializedClasses.model.SpecializedClasses;
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
-import com.example.demo.staff.model.Staffs;
+import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

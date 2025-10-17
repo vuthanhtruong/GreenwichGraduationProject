@@ -1,7 +1,7 @@
 package com.example.demo.scholarshipByYear.dao;
 
-import com.example.demo.admin.model.Admins;
-import com.example.demo.admin.service.AdminsService;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.entity.Enums.ActivityStatus;
 import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
