@@ -1,6 +1,7 @@
-package com.example.demo.post.classPost.model;
+package com.example.demo.post.majorClassPosts.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;

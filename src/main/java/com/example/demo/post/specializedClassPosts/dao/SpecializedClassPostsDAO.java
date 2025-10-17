@@ -1,6 +1,6 @@
-package com.example.demo.post.classPost.dao;
+package com.example.demo.post.specializedClassPosts.dao;
 
-import com.example.demo.post.classPost.model.SpecializedClassPosts;
+import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.post.classPost.model.AssignmentSubmitSlots;
+import com.example.demo.post.assignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;

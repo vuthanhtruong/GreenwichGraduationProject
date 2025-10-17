@@ -1,6 +1,6 @@
-package com.example.demo.post.classPost.dao;
+package com.example.demo.post.minorClassPosts.dao;
 
-import com.example.demo.post.classPost.model.MinorClassPosts;
+import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

@@ -1,6 +1,7 @@
-package com.example.demo.post.classPost.model;
+package com.example.demo.post.assignmentSubmitSlots.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;

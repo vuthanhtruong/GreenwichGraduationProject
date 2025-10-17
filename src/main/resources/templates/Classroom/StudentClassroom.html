@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Lecturer Classroom - Win11</title>
+    <title>Classroom - Win11</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/Classroom.css}">
 </head>
@@ -23,22 +23,17 @@
     <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
-            <a th:href="@{/major-lecturer-home}" class="btn"><i class="fas fa-home"></i> Home</a>
-            <a th:href="@{/major-lecturer-home/classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
+            <a th:href="@{/student-home}" class="btn"><i class="fas fa-home"></i> Home</a>
+            <a th:href="@{/student-home/student-classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
         </div>
         <div class="toolbar-center">
-            <h2 style="margin:0;font-size:18px;font-weight:600;">Lecturer Classroom</h2>
+            <h2 style="margin:0;font-size:18px;font-weight:600;">Classroom</h2>
         </div>
         <div class="toolbar-right">
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/upload-post}" class="inline-form">
+            <form method="post" th:action="@{/student-home/student-classes-list/classroom/submit-assignment}" class="inline-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classes.classId}" />
-                <button type="submit" class="btn primary"><i class="fas fa-upload"></i> Upload Post</button>
-            </form>
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/create-assignment-slot}" class="inline-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" name="classId" th:value="${classes.classId}" />
-                <button type="submit" class="btn primary"><i class="fas fa-folder-plus"></i> Create Assignment Slot</button>
+                <button type="submit" class="btn primary"><i class="fas fa-upload"></i> Submit Assignment</button>
             </form>
         </div>
     </div>
@@ -56,10 +51,10 @@
                     </p>
                 </div>
             </th:block>
-            <th:block th:if="${ClassPostsList == null}">
+            <th:block th:if="${ClassPostsList == null or ClassPostsList.stream().noneMatch(post | post.getClassPostsType() == 'Assignment Submit Slot')}">
                 <p>Great, no assignments are due soon!</p>
             </th:block>
-            <a th:href="@{/major-lecturer-home/classes-list/classroom/assignments(classId=${classes.classId})}">View All</a>
+            <a th:href="@{/student-home/student-classes-list/classroom/assignments(classId=${classes.classId})}">View All</a>
         </div>
 
         <!-- Right: Stream -->

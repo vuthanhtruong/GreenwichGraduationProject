@@ -1,6 +1,6 @@
-package com.example.demo.post.classPost.service;
+package com.example.demo.post.majorClassPosts.service;
 
-import com.example.demo.post.classPost.model.MajorClassPosts;
+import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 
 import java.util.List;
 

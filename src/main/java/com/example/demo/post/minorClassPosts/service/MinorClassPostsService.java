@@ -1,6 +1,6 @@
-package com.example.demo.post.classPost.service;
+package com.example.demo.post.minorClassPosts.service;
 
-import com.example.demo.post.classPost.model.MinorClassPosts;
+import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
 
 import java.util.List;
 

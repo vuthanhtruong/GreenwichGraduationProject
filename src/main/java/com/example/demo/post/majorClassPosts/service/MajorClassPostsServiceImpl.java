@@ -1,7 +1,7 @@
-package com.example.demo.post.classPost.service;
+package com.example.demo.post.majorClassPosts.service;
 
-import com.example.demo.post.classPost.dao.MajorClassPostsDAO;
-import com.example.demo.post.classPost.model.MajorClassPosts;
+import com.example.demo.post.majorClassPosts.dao.MajorClassPostsDAO;
+import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

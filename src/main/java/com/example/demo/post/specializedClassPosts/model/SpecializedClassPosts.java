@@ -1,6 +1,7 @@
-package com.example.demo.post.classPost.model;
+package com.example.demo.post.specializedClassPosts.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
 import jakarta.persistence.*;
 import lombok.Getter;
