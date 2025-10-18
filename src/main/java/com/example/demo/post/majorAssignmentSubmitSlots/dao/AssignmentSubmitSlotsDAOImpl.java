@@ -1,7 +1,7 @@
-package com.example.demo.post.assignmentSubmitSlots.dao;
+package com.example.demo.post.majorAssignmentSubmitSlots.dao;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.post.assignmentSubmitSlots.model.AssignmentSubmitSlots;
+import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

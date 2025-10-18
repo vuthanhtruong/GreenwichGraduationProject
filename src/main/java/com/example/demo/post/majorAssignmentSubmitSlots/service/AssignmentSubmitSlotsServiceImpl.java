@@ -1,8 +1,8 @@
-package com.example.demo.post.assignmentSubmitSlots.service;
+package com.example.demo.post.majorAssignmentSubmitSlots.service;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.post.assignmentSubmitSlots.dao.AssignmentSubmitSlotsDAO;
-import com.example.demo.post.assignmentSubmitSlots.model.AssignmentSubmitSlots;
+import com.example.demo.post.majorAssignmentSubmitSlots.dao.AssignmentSubmitSlotsDAO;
+import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

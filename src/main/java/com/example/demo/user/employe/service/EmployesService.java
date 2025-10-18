@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface EmployesService {
     MajorEmployes getById(String id);
+    MajorEmployes getMajorEmployee();
     List<Rooms> getAll();
-
 }

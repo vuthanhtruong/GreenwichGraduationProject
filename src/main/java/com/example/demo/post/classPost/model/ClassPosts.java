@@ -1,9 +1,10 @@
 package com.example.demo.post.classPost.model;
 
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.post.assignmentSubmitSlots.model.AssignmentSubmitSlots;
+import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
+import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -43,7 +44,7 @@ public abstract class ClassPosts {
     }
 
     public String getClassPostsType() {
-        Hibernate.initialize(this); // Ensure the proxy is initialized
+        Hibernate.initialize(this);
         if (this instanceof MajorClassPosts) {
             return "Major Class Post";
         } else if (this instanceof AssignmentSubmitSlots) {
@@ -52,6 +53,8 @@ public abstract class ClassPosts {
             return "Specialized Class Post";
         } else if (this instanceof MinorClassPosts) {
             return "Minor Class Post";
+        }else if (this instanceof SpecializedAssignmentSubmitSlots) {
+            return "Specialized Assignment Submit Slot";
         }
         return "Unknown";
     }
@@ -70,6 +73,8 @@ public abstract class ClassPosts {
         } else if (this instanceof MinorClassPosts minorClassPosts) {
             Hibernate.initialize(minorClassPosts.getCreator());
             return minorClassPosts.getCreator() != null ? minorClassPosts.getCreator().getId() : "Unknown";
+        }else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
+            return specializedAssignmentSubmitSlots.getCreatorId();
         }
         return "Unknown";
     }

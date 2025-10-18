@@ -1,4 +1,4 @@
-package com.example.demo.post.assignmentSubmitSlots.model;
+package com.example.demo.post.majorAssignmentSubmitSlots.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.post.classPost.model.ClassPosts;

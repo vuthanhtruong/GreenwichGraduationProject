@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface EmployesDAO {
     MajorEmployes getById(String id);
+    MajorEmployes getMajorEmployee();
     List<Rooms> getAll();
 }
