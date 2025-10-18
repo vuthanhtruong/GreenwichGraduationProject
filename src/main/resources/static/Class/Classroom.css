@@ -1,3 +1,4 @@
+/* ===== Base ===== */
 body {
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #eef3ff, #f9fafc);
@@ -77,16 +78,19 @@ body {
     font-size: 15px;
     cursor: pointer;
     transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 .btn:hover {
     background: #f0f6ff;
     border-color: #2563eb;
     color: #2563eb;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
 }
 .btn.primary {
     background: #2563eb;
     color: #fff;
     border: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 .btn.primary:hover {
     background: #1e40af;
@@ -100,6 +104,15 @@ body {
     background: #b91c1c;
 }
 
+/* Member Button Variant */
+.btn.members {
+    background: #10b981;
+    color: #fff;
+}
+.btn.members:hover {
+    background: #059669;
+}
+
 /* ===== Layout ===== */
 .class-layout {
     display: grid;
@@ -108,7 +121,7 @@ body {
     align-items: flex-start;
 }
 
-/* ===== Deadline Panel ===== */
+/* ===== Panel ===== */
 .panel {
     background: #ffffff;
     border-radius: 16px;
@@ -116,6 +129,8 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     animation: fadeIn 0.3s ease;
 }
+
+/* ===== Deadlines ===== */
 .deadline-box h3 {
     margin-top: 0;
     display: flex;
@@ -127,6 +142,12 @@ body {
 .deadline-box p {
     margin: 12px 0;
     color: #374151;
+}
+.deadline-item strong {
+    color: #111827;
+}
+.deadline-item span {
+    color: #6b7280;
 }
 .deadline-box a {
     text-decoration: none;
@@ -174,6 +195,31 @@ body {
     font-size: 13px;
 }
 
+/* ===== Documents ===== */
+.documents {
+    margin-top: 8px;
+    background: #f9fafc;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+.documents strong {
+    font-size: 14px;
+    color: #1f2937;
+}
+.documents ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 6px 0 0;
+}
+.documents li a {
+    text-decoration: none;
+    color: #2563eb;
+    font-size: 14px;
+}
+.documents li a:hover {
+    text-decoration: underline;
+}
+
 /* ===== Overlay ===== */
 .overlay {
     display: none;
@@ -209,6 +255,8 @@ body {
     color: #1f2937;
     margin-top: 0;
 }
+
+/* ===== Form Styling ===== */
 .win11-panel {
     background: #f9fafc;
     border-radius: 12px;

@@ -1,5 +1,6 @@
 package com.example.demo.post.classPost.model;
 
+import com.example.demo.document.model.ClassDocuments;
 import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
@@ -12,6 +13,7 @@ import lombok.Setter;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "ClassPosts")
@@ -33,6 +35,9 @@ public abstract class ClassPosts {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ClassDocuments> documents;
 
     public ClassPosts() {}
 

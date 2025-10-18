@@ -2,6 +2,7 @@ package com.example.demo.classes.majorClasses.controller;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.document.service.ClassDocumentsService;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -34,16 +36,18 @@ public class MajorLecturerClassroomController {
     private final SpecializedClassPostsService specializedClassPostsService;
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final EmployesService employesService;
+    private final ClassDocumentsService classDocumentsService;
 
     public MajorLecturerClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
                                             SpecializedClassPostsService specializedClassPostsService,
                                             AssignmentSubmitSlotsService assignmentSubmitSlotsService,
-                                            EmployesService employesService) {
+                                            EmployesService employesService, ClassDocumentsService classDocumentsService) {
         this.classesService = classesService;
         this.majorClassPostsService = majorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.employesService = employesService;
+        this.classDocumentsService = classDocumentsService;
     }
 
     @GetMapping
@@ -96,7 +100,7 @@ public class MajorLecturerClassroomController {
     @PostMapping
     public String showClassroomPost(@RequestParam("classId") String classId, HttpSession session, Model model) {
         try {
-            session.setAttribute("classId", classId); // Lưu classId vào session
+            session.setAttribute("classId", classId);
             Classes classes = classesService.findClassById(classId);
             List<ClassPosts> classPostsList = new ArrayList<>();
 
@@ -136,6 +140,7 @@ public class MajorLecturerClassroomController {
     public String uploadMajorPost(
             @RequestParam("classId") String classId,
             @Valid @ModelAttribute("post") MajorClassPosts post,
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -188,6 +193,28 @@ public class MajorLecturerClassroomController {
 
             majorClassPostsService.saveMajorClassPosts(post);
 
+            // Handle file uploads
+            if (files != null && files.length > 0) {
+                if (files.length > 5) {
+                    model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
+                    model.addAttribute("post", post);
+                    model.addAttribute("classes", classes);
+                    model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                    model.addAttribute("openPostOverlay", true);
+                    return "MajorLecturerClassroom";
+                }
+
+                List<String> fileErrors = classDocumentsService.saveDocuments(post, files);
+                if (!fileErrors.isEmpty()) {
+                    model.addAttribute("errors", fileErrors);
+                    model.addAttribute("post", post);
+                    model.addAttribute("classes", classes);
+                    model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                    model.addAttribute("openPostOverlay", true);
+                    return "MajorLecturerClassroom";
+                }
+            }
+
             session.setAttribute("classId", classId);
             redirectAttributes.addFlashAttribute("message", "Major post created successfully!");
             return "redirect:/major-lecturer-home/classes-list/classroom";
@@ -205,6 +232,7 @@ public class MajorLecturerClassroomController {
     public String uploadSpecializedPost(
             @RequestParam("classId") String classId,
             @Valid @ModelAttribute("post") SpecializedClassPosts post,
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
             HttpSession session,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -250,11 +278,34 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("openPostOverlay", true);
                 return "SpecializedLecturerClassroom";
             }
+
             post.setPostId(specializedClassPostsService.generateUniquePostId(classId, LocalDate.now()));
             post.setCreatedAt(LocalDateTime.now());
             post.setCreator(creator);
 
             specializedClassPostsService.saveSpecializedClassPosts(post);
+
+            // Handle file uploads
+            if (files != null && files.length > 0) {
+                if (files.length > 5) {
+                    model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
+                    model.addAttribute("post", post);
+                    model.addAttribute("classes", classes);
+                    model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
+                    model.addAttribute("openPostOverlay", true);
+                    return "SpecializedLecturerClassroom";
+                }
+
+                List<String> fileErrors = classDocumentsService.saveDocuments(post, files);
+                if (!fileErrors.isEmpty()) {
+                    model.addAttribute("errors", fileErrors);
+                    model.addAttribute("post", post);
+                    model.addAttribute("classes", classes);
+                    model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
+                    model.addAttribute("openPostOverlay", true);
+                    return "SpecializedLecturerClassroom";
+                }
+            }
 
             session.setAttribute("classId", classId);
             redirectAttributes.addFlashAttribute("message", "Specialized post created successfully!");

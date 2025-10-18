@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.document.model;
 
 import com.example.demo.post.classPost.model.ClassPosts;
 import jakarta.persistence.*;
@@ -28,7 +28,7 @@ public class ClassDocuments {
     @Column(name = "FilePath", nullable = true)
     private String filePath;
 
-    @Column(name = "FileData", nullable = true)
+    @Column(name = "FileData", nullable = true, columnDefinition = "LONGBLOB")
     private byte[] fileData;
 
     public ClassDocuments() {}

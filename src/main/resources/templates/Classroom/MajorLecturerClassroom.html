@@ -45,6 +45,7 @@
                 <input type="hidden" name="classId" th:value="${classes.classId}" />
                 <button type="submit" class="btn primary"><i class="fas fa-folder-plus"></i> Create Assignment Slot</button>
             </form>
+            <a th:href="@{/major-lecturer-home/classes-list/classroom/members(classId=${classes.classId})}" class="btn primary"><i class="fas fa-users"></i> Class Members</a>
         </div>
     </div>
 
@@ -65,6 +66,13 @@
                             <textarea id="content" th:field="*{content}" required class="input" rows="5" placeholder="Enter post content..." aria-label="Post content"></textarea>
                             <th:block th:if="${errors != null and !errors.isEmpty()}">
                                 <div th:each="error : ${errors}" th:if="${error.contains('content')}" class="text-danger" th:text="${error}"></div>
+                            </th:block>
+                        </div>
+                        <div class="form-row">
+                            <label for="files"><i class="fas fa-file-upload"></i> Attach Files (max 5, 10MB each):</label>
+                            <input type="file" id="files" name="files" multiple accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" class="input" />
+                            <th:block th:if="${errors != null and !errors.isEmpty()}">
+                                <div th:each="error : ${errors}" th:if="${error.contains('file')}" class="text-danger" th:text="${error}"></div>
                             </th:block>
                         </div>
                     </div>
@@ -109,6 +117,17 @@
                         <small th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy HH:mm')}"></small>
                         <th:block th:if="${post.getClassPostsType() == 'Assignment Submit Slot' and post.dueDate != null}">
                             <small th:text="'Due: ' + ${#temporals.format(post.dueDate, 'dd MMM yyyy HH:mm')}"></small>
+                        </th:block>
+                        <!-- Display attached documents -->
+                        <th:block th:if="${post.documents != null and !post.documents.isEmpty()}">
+                            <div class="documents">
+                                <strong>Attached Documents:</strong>
+                                <ul>
+                                    <li th:each="doc : ${post.documents}">
+                                        <a th:href="@{'/documents/' + ${doc.documentId}}" th:text="${doc.documentTitle} ?: 'Document'"></a>
+                                    </li>
+                                </ul>
+                            </div>
                         </th:block>
                     </div>
                 </div>
