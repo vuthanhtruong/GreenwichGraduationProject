@@ -2,6 +2,7 @@ package com.example.demo.post.majorAssignmentSubmitSlots.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.post.classPost.model.ClassPosts;
+import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class AssignmentSubmitSlots extends ClassPosts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorLecturers creator;
+    private MajorEmployes creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
@@ -31,6 +32,6 @@ public class AssignmentSubmitSlots extends ClassPosts {
     @Column(name = "Content", nullable = true, length = 1000)
     private String content;
 
-    @Column(name = "Deadline", nullable = false)
+    @Column(name = "Deadline", nullable = true)
     private LocalDateTime deadline;
 }

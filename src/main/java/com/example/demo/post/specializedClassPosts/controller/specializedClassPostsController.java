@@ -1,20 +1,21 @@
-package com.example.demo.post.majorClassPosts.controller;
+package com.example.demo.post.specializedClassPosts.controller;
 
 import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.classes.abstractClass.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.document.service.ClassDocumentsService;
-import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
-import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
+import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.post.specializedClassPosts.service.SpecializedClassPostsService;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,19 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Controller
-@RequestMapping("/major-lecturer-home/classes-list/classroom")
-public class majorClassPostsController {
-
+public class specializedClassPostsController {
     private final ClassesService classesService;
     private final MajorClassPostsService majorClassPostsService;
     private final SpecializedClassPostsService specializedClassPostsService;
     private final EmployesService employesService;
     private final ClassDocumentsService classDocumentsService;
 
-    public majorClassPostsController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
-                                     SpecializedClassPostsService specializedClassPostsService,
-                                     EmployesService employesService, ClassDocumentsService classDocumentsService) {
+    public specializedClassPostsController(ClassesService classesService, MajorClassPostsService majorClassPostsService, SpecializedClassPostsService specializedClassPostsService, EmployesService employesService, ClassDocumentsService classDocumentsService) {
         this.classesService = classesService;
         this.majorClassPostsService = majorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
@@ -44,10 +40,10 @@ public class majorClassPostsController {
         this.classDocumentsService = classDocumentsService;
     }
 
-    @PostMapping("/upload-major-post")
-    public String uploadMajorPost(
+    @PostMapping("/upload-specialized-post")
+    public String uploadSpecializedPost(
             @RequestParam("classId") String classId,
-            @Valid @ModelAttribute("post") MajorClassPosts post,
+            @Valid @ModelAttribute("post") SpecializedClassPosts post,
             @RequestParam(value = "files", required = false) MultipartFile[] files,
             HttpSession session,
             Model model,
@@ -60,17 +56,16 @@ public class majorClassPostsController {
                 model.addAttribute("classes", new MajorClasses());
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("openPostOverlay", true);
-                return "MajorLecturerClassroom";
+                return "SpecializedLecturerClassroom";
             }
 
-            if (!(classes instanceof MajorClasses majorClasses)) {
-                model.addAttribute("errors", List.of("Class is not a MajorClass"));
+            if (!(classes instanceof SpecializedClasses specializedClasses)) {
+                model.addAttribute("errors", List.of("Class is not a SpecializedClass"));
                 model.addAttribute("post", post);
                 model.addAttribute("classes", classes);
-                model.addAttribute("Slot", new AssignmentSubmitSlots());
-                model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
+                model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openPostOverlay", true);
-                return "SpecializedLecturerClassroom";
+                return "MajorLecturerClassroom";
             }
 
             MajorEmployes creator = employesService.getMajorEmployee();
@@ -79,28 +74,28 @@ public class majorClassPostsController {
                 model.addAttribute("errors", List.of("No authenticated MajorEmployes found"));
                 model.addAttribute("post", post);
                 model.addAttribute("classes", classes);
-                model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openPostOverlay", true);
-                return "MajorLecturerClassroom";
+                return "SpecializedLecturerClassroom";
             }
+            post.setSpecializedClass(specializedClasses);
 
-            Map<String, String> errors = majorClassPostsService.validatePost(post);
+            Map<String, String> errors = specializedClassPostsService.validatePost(post);
             List<String> errorList = new ArrayList<>(errors.values());
-            post.setMajorClass(majorClasses);
 
             if (!errorList.isEmpty()) {
                 model.addAttribute("errors", errorList);
                 model.addAttribute("post", post);
                 model.addAttribute("classes", classes);
-                model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openPostOverlay", true);
-                return "MajorLecturerClassroom";
+                return "SpecializedLecturerClassroom";
             }
 
-            post.setPostId(majorClassPostsService.generateUniquePostId(classId, LocalDate.now()));
+            post.setPostId(specializedClassPostsService.generateUniquePostId(classId, LocalDate.now()));
             post.setCreatedAt(LocalDateTime.now());
 
-            majorClassPostsService.saveMajorClassPosts(post);
+            specializedClassPostsService.saveSpecializedClassPosts(post);
 
             // Handle file uploads
             if (files != null && files.length > 0) {
@@ -108,9 +103,9 @@ public class majorClassPostsController {
                     model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
                     model.addAttribute("post", post);
                     model.addAttribute("classes", classes);
-                    model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                    model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openPostOverlay", true);
-                    return "MajorLecturerClassroom";
+                    return "SpecializedLecturerClassroom";
                 }
 
                 List<String> fileErrors = classDocumentsService.saveDocuments(post, files);
@@ -118,23 +113,22 @@ public class majorClassPostsController {
                     model.addAttribute("errors", fileErrors);
                     model.addAttribute("post", post);
                     model.addAttribute("classes", classes);
-                    model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                    model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openPostOverlay", true);
-                    return "MajorLecturerClassroom";
+                    return "SpecializedLecturerClassroom";
                 }
             }
 
             session.setAttribute("classId", classId);
-            redirectAttributes.addFlashAttribute("message", "Major post created successfully!");
+            redirectAttributes.addFlashAttribute("message", "Specialized post created successfully!");
             return "redirect:/major-lecturer-home/classes-list/classroom";
         } catch (Exception e) {
-            model.addAttribute("errors", List.of("Failed to create major post: " + e.getMessage()));
+            model.addAttribute("errors", List.of("Failed to create specialized post: " + e.getMessage()));
             model.addAttribute("post", post);
             model.addAttribute("classes", classesService.findClassById(classId));
-            model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+            model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
             model.addAttribute("openPostOverlay", true);
-            return "MajorLecturerClassroom";
+            return "SpecializedLecturerClassroom";
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package com.example.demo.classes.majorClasses.controller;
+package com.example.demo.classes.abstractClass.controller;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.model.MinorClasses;
@@ -6,6 +6,8 @@ import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
+import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
+import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.classes.abstractClass.model.Classes;
@@ -32,13 +34,15 @@ public class StudentClassroomController {
     private final MinorClassPostsService minorClassPostsService;
     private final SpecializedClassPostsService specializedClassPostsService;
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
+    private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
 
-    public StudentClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService, MinorClassPostsService minorClassPostsService, SpecializedClassPostsService specializedClassPostsService, AssignmentSubmitSlotsService assignmentSubmitSlotsService) {
+    public StudentClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService, MinorClassPostsService minorClassPostsService, SpecializedClassPostsService specializedClassPostsService, AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
         this.classesService = classesService;
         this.majorClassPostsService = majorClassPostsService;
         this.minorClassPostsService = minorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
+        this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
     }
 
     @PostMapping
@@ -55,8 +59,9 @@ public class StudentClassroomController {
             } else if (classes instanceof MinorClasses) {
                 List<MinorClassPosts> minorClassPostsList = minorClassPostsService.getClassPostByClass(classId);
                 classPostsList.addAll(minorClassPostsList);
-            } else if (classes instanceof SpecializedClasses) {
+            } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
+                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
             }
 

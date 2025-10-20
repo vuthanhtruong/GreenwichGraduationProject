@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Specialized Lecturer Classroom - Win11</title>
+    <title>Specialized Lecturer Classroom</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/Classroom.css}">
 </head>
@@ -40,11 +40,9 @@
             <button type="button" class="btn primary" onclick="openPostOverlay()">
                 <i class="fas fa-upload"></i> Upload Post
             </button>
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/create-assignment-slot}" class="inline-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" name="classId" th:value="${classes.classId}" />
-                <button type="submit" class="btn primary"><i class="fas fa-folder-plus"></i> Create Assignment Slot</button>
-            </form>
+            <button type="button" class="btn primary" onclick="openSpecializedSlotOverlay()">
+                <i class="fas fa-folder-plus"></i> Create Specialized Assignment Slot
+            </button>
             <a th:href="@{/major-lecturer-home/classes-list/classroom/members(classId=${classes.classId})}" class="btn primary"><i class="fas fa-users"></i> Class Members</a>
         </div>
     </div>
@@ -83,6 +81,47 @@
         </div>
     </div>
 
+    <!-- Overlay Create Specialized Assignment Slot -->
+    <div id="specializedSlotOverlay" class="overlay" th:classappend="${openSpecializedSlotOverlay} ? 'active'">
+        <div class="overlay-content">
+            <h2><i class="fas fa-folder-plus"></i> Create New Specialized Assignment Submit Slot</h2>
+            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/create-specialized-assignment-slot}" th:object="${slot}" enctype="multipart/form-data">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="classId" th:value="${classes.classId}" />
+                <section class="win11-panel">
+                    <h2 class="panel-header"><i class="fas fa-clipboard-list"></i> Assignment Slot Details</h2>
+                    <div class="form-group">
+                        <div class="form-row">
+                            <label for="specializedContent"><i class="fas fa-comment"></i> Content:</label>
+                            <textarea id="specializedContent" th:field="*{content}" class="input" rows="5" placeholder="Enter specialized assignment slot description..." aria-label="Specialized assignment slot content"></textarea>
+                            <th:block th:if="${errors != null and !errors.isEmpty()}">
+                                <div th:each="error : ${errors}" th:if="${error.contains('content')}" class="text-danger" th:text="${error}"></div>
+                            </th:block>
+                        </div>
+                        <div class="form-row">
+                            <label for="specializedDeadline"><i class="fas fa-clock"></i> Deadline:</label>
+                            <input type="datetime-local" id="specializedDeadline" th:field="*{deadline}" required class="input" />
+                            <th:block th:if="${errors != null and !errors.isEmpty()}">
+                                <div th:each="error : ${errors}" th:if="${error.contains('deadline')}" class="text-danger" th:text="${error}"></div>
+                            </th:block>
+                        </div>
+                        <div class="form-row">
+                            <label for="specializedFiles"><i class="fas fa-file-upload"></i> Attach Files (max 5, 10MB each):</label>
+                            <input type="file" id="specializedFiles" name="files" multiple accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" class="input" />
+                            <th:block th:if="${errors != null and !errors.isEmpty()}">
+                                <div th:each="error : ${errors}" th:if="${error.contains('file')}" class="text-danger" th:text="${error}"></div>
+                            </th:block>
+                        </div>
+                    </div>
+                </section>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Specialized Assignment Slot</button>
+                    <button type="button" class="btn danger" onclick="closeSpecializedSlotOverlay()"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Layout -->
     <div class="class-layout">
         <!-- Left: Deadlines -->
@@ -90,13 +129,11 @@
             <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
             <th:block th:each="post : ${ClassPostsList}" th:if="${post.getClassPostsType() == 'Assignment Submit Slot' or post.getClassPostsType() == 'Specialized Assignment Submit Slot'}">
                 <div class="deadline-item">
-                    <p>
-                        <strong th:text="${post.title} ?: 'Assignment Slot'"></strong>
-                        <span th:if="${post.dueDate != null}" th:text="' (Due: ' + ${#temporals.format(post.dueDate, 'dd MMM yyyy HH:mm')} + ')'"></span>
-                    </p>
+                    <span th:text="${post.content} ?: 'No description'"></span>
+                    <small th:text="'Due: ' + ${#temporals.format(post.getCreatedAt(), 'dd MMM yyyy HH:mm')}"></small>
                 </div>
             </th:block>
-            <th:block th:if="${ClassPostsList == null or ClassPostsList.isEmpty()}">
+            <th:block th:if="${ClassPostsList == null}">
                 <p>Great, no assignments are due soon!</p>
             </th:block>
             <a th:href="@{/major-lecturer-home/classes-list/classroom/assignments(classId=${classes.classId})}">View All</a>
@@ -111,8 +148,8 @@
                         <strong th:text="${post.getClassPostsType()} + ' by ' + ${post.getCreatorId()}"></strong>
                         <span th:text="${post.content}"></span>
                         <small th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy HH:mm')}"></small>
-                        <th:block th:if="${(post.getClassPostsType()}">
-                            <small th:text="'Due: ' + ${#temporals.format(post.dueDate, 'dd MMM yyyy HH:mm')}"></small>
+                        <th:block th:if="${post.getClassPostsType() == 'Assignment Submit Slot' or post.getClassPostsType() == 'Specialized Assignment Submit Slot'}">
+                            <small th:text="'Due: ' + ${#temporals.format(post.deadline, 'dd MMM yyyy HH:mm')}"></small>
                         </th:block>
                         <!-- Display attached documents -->
                         <th:block th:if="${post.documents != null and !post.documents.isEmpty()}">
@@ -131,7 +168,7 @@
                             <th:block th:if="${post.getAllCommentsSorted() != null and !post.getAllCommentsSorted().isEmpty()}">
                                 <ul>
                                     <li th:each="comment : ${post.getAllCommentsSorted()}">
-                                        <span th:text="'By ' + ${comment.getCommenter()} + ': ' + ${comment.content}"></span>
+                                        <span th:text="'By ' + ${comment.getCommentId()} + ': ' + ${comment.getContent()}"></span>
                                         <small th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}"></small>
                                     </li>
                                 </ul>
@@ -151,8 +188,17 @@
     function openPostOverlay() {
         document.getElementById('postOverlay').classList.add('active');
     }
+
     function closePostOverlay() {
         document.getElementById('postOverlay').classList.remove('active');
+    }
+
+    function openSpecializedSlotOverlay() {
+        document.getElementById('specializedSlotOverlay').classList.add('active');
+    }
+
+    function closeSpecializedSlotOverlay() {
+        document.getElementById('specializedSlotOverlay').classList.remove('active');
     }
 </script>
 </body>

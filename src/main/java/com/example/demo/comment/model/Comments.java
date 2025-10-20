@@ -34,17 +34,6 @@ public abstract class Comments {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    public String Commenter() {
-        Hibernate.initialize(this);
-        if (this instanceof MajorComments majorComments) {
-            return majorComments.getCommenter().getFullName();
-        } else if (this instanceof MinorComments minorComments) {
-            return minorComments.getCommenter().getFullName();
-        } else if (this instanceof StudentComments studentComments) {
-            return studentComments.getCommenter().getFullName();
-        }
-        return "Unknown";
-    }
     public String getContent() {
         Hibernate.initialize(this);
         if (this instanceof MajorComments majorComments) {

@@ -1,4 +1,4 @@
-package com.example.demo.classes.majorClasses.controller;
+package com.example.demo.classes.abstractClass.controller;
 
 import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.classes.abstractClass.service.ClassesService;
@@ -65,14 +65,16 @@ public class MajorLecturerClassroomController {
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
+                model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
                 return "MajorLecturerClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
-                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(specializedClasses);
+                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
                 model.addAttribute("post", new SpecializedClassPosts());
+                model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
                 return "SpecializedLecturerClassroom";
@@ -105,6 +107,7 @@ public class MajorLecturerClassroomController {
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
+                model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
                 return "MajorLecturerClassroom";
@@ -112,6 +115,7 @@ public class MajorLecturerClassroomController {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 classPostsList.addAll(specializedClassPosts);
                 model.addAttribute("post", new SpecializedClassPosts());
+                model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
                 return "SpecializedLecturerClassroom";
