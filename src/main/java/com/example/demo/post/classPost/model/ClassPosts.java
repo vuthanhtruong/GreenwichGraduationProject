@@ -1,5 +1,6 @@
 package com.example.demo.post.classPost.model;
 
+import com.example.demo.comment.model.StudentComments;
 import com.example.demo.document.model.ClassDocuments;
 import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
@@ -13,6 +14,7 @@ import lombok.Setter;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,6 +41,9 @@ public abstract class ClassPosts {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ClassDocuments> documents;
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentComments> studentComments;
+
     public ClassPosts() {}
 
     public ClassPosts(String postId, Notifications notification, String content, LocalDateTime createdAt) {
@@ -58,7 +63,7 @@ public abstract class ClassPosts {
             return "Specialized Class Post";
         } else if (this instanceof MinorClassPosts) {
             return "Minor Class Post";
-        }else if (this instanceof SpecializedAssignmentSubmitSlots) {
+        } else if (this instanceof SpecializedAssignmentSubmitSlots) {
             return "Specialized Assignment Submit Slot";
         }
         return "Unknown";
@@ -78,7 +83,7 @@ public abstract class ClassPosts {
         } else if (this instanceof MinorClassPosts minorClassPosts) {
             Hibernate.initialize(minorClassPosts.getCreator());
             return minorClassPosts.getCreator() != null ? minorClassPosts.getCreator().getId() : "Unknown";
-        }else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
+        } else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
             return specializedAssignmentSubmitSlots.getCreatorId();
         }
         return "Unknown";

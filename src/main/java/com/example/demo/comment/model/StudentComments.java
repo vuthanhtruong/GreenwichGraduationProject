@@ -1,39 +1,40 @@
-package com.example.demo.entity;
+package com.example.demo.comment.model;
 
-import com.example.demo.entity.AbstractClasses.Comments;
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.user.person.model.Persons;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PublicComments")
+@Table(name = "StudentComments")
 @PrimaryKeyJoinColumn(name = "CommentID")
 @Getter
 @Setter
-public class PublicComments extends Comments {
+public class StudentComments extends Comments {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Persons commenter;
+    private Students commenter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private PublicPosts post;
+    private ClassPosts post;
 
-    public PublicComments() {}
+    public StudentComments() {}
 
-    public PublicComments(String commentId, Persons commenter, PublicPosts post, Notifications notification, String content, LocalDateTime createdAt) {
+    public StudentComments(String commentId, Students commenter, ClassPosts post, Notifications notification, String content, LocalDateTime createdAt) {
         super(commentId, notification, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }
+
 }

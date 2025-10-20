@@ -1,9 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.comment.model;
 
-import com.example.demo.post.classPost.model.ClassPosts;
-import com.example.demo.entity.AbstractClasses.Comments;
+import com.example.demo.entity.AbstractClasses.PublicPosts;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.user.student.model.Students;
+import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,25 +12,25 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "StudentComments")
+@Table(name = "PublicComments")
 @PrimaryKeyJoinColumn(name = "CommentID")
 @Getter
 @Setter
-public class StudentComments extends Comments {
+public class PublicComments extends Comments {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Students commenter;
+    private Persons commenter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private ClassPosts post;
+    private PublicPosts post;
 
-    public StudentComments() {}
+    public PublicComments() {}
 
-    public StudentComments(String commentId, Students commenter, ClassPosts post, Notifications notification, String content, LocalDateTime createdAt) {
+    public PublicComments(String commentId, Persons commenter, PublicPosts post, Notifications notification, String content, LocalDateTime createdAt) {
         super(commentId, notification, content, createdAt);
         this.commenter = commenter;
         this.post = post;

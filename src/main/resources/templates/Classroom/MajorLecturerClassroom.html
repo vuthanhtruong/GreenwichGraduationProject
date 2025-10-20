@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Major Lecturer Classroom - Win11</title>
+    <title>Specialized Lecturer Classroom - Win11</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/Classroom.css}">
 </head>
@@ -34,7 +34,7 @@
             <a th:href="@{/major-lecturer-home/classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
         </div>
         <div class="toolbar-center">
-            <h2 style="margin:0;font-size:18px;font-weight:600;">Major Lecturer Classroom</h2>
+            <h2 style="margin:0;font-size:18px;font-weight:600;">Specialized Lecturer Classroom</h2>
         </div>
         <div class="toolbar-right">
             <button type="button" class="btn primary" onclick="openPostOverlay()">
@@ -52,8 +52,8 @@
     <!-- Overlay Create Post -->
     <div id="postOverlay" class="overlay" th:classappend="${openPostOverlay} ? 'active'">
         <div class="overlay-content">
-            <h2><i class="fas fa-upload"></i> Create New Major Post</h2>
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/upload-major-post}" th:object="${post}" enctype="multipart/form-data">
+            <h2><i class="fas fa-upload"></i> Create New Specialized Post</h2>
+            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/upload-specialized-post}" th:object="${post}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classes.classId}" />
 
@@ -92,7 +92,7 @@
         <!-- Left: Deadlines -->
         <div class="panel deadline-box">
             <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
-            <th:block th:each="post : ${ClassPostsList}" th:if="${post.getClassPostsType() == 'Assignment Submit Slot'}">
+            <th:block th:each="post : ${ClassPostsList}" th:if="${post.getClassPostsType() == 'Assignment Submit Slot' or post.getClassPostsType() == 'Specialized Assignment Submit Slot'}">
                 <div class="deadline-item">
                     <p>
                         <strong th:text="${post.title} ?: 'Assignment Slot'"></strong>
@@ -110,12 +110,12 @@
         <div>
             <th:block th:each="post : ${ClassPostsList}">
                 <div class="post">
-                    <i class="fas" th:classappend="${post.getClassPostsType() == 'Assignment Submit Slot'} ? 'fa-folder' : 'fa-clipboard-list'"></i>
+                    <i class="fas" th:classappend="${post.getClassPostsType()}"></i>
                     <div class="post-content">
                         <strong th:text="${post.getClassPostsType()} + ' by ' + ${post.getCreatorId()}"></strong>
                         <span th:text="${post.content}"></span>
                         <small th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy HH:mm')}"></small>
-                        <th:block th:if="${post.getClassPostsType() == 'Assignment Submit Slot' and post.dueDate != null}">
+                        <th:block th:if="${(post.getClassPostsType() == 'Assignment Submit Slot' or post.getClassPostsType() == 'Specialized Assignment Submit Slot') and post.dueDate != null}">
                             <small th:text="'Due: ' + ${#temporals.format(post.dueDate, 'dd MMM yyyy HH:mm')}"></small>
                         </th:block>
                         <!-- Display attached documents -->
@@ -129,6 +129,21 @@
                                 </ul>
                             </div>
                         </th:block>
+                        <!-- Display all comments -->
+                        <div class="comments">
+                            <strong>Comments:</strong>
+                            <th:block th:if="${post.getClassPostsType() and post.getAllCommentsSorted() != null and !post.getAllCommentsSorted().isEmpty()}">
+                                <ul>
+                                    <li th:each="comment : ${post.getAllCommentsSorted()}">
+                                        <span th:text="'By ' + ${comment.Commenter()} + ': ' + ${comment.content}"></span>
+                                        <small th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}"></small>
+                                    </li>
+                                </ul>
+                            </th:block>
+                            <th:block th:if="${((post.getClassPostsType() == 'Major Class Post' or post.getClassPostsType() == 'Specialized Class Post') and (post.getAllCommentsSorted() == null or post.getAllCommentsSorted().isEmpty())) or (post.getClassPostsType() != 'Major Class Post' and post.getClassPostsType() != 'Specialized Class Post' and (post.getInitializedStudentComments() == null or post.getInitializedStudentComments().isEmpty()))}">
+                                <p>No comments yet.</p>
+                            </th:block>
+                        </div>
                     </div>
                 </div>
             </th:block>
