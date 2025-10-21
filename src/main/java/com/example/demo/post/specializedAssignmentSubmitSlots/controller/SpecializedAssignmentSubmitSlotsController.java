@@ -8,6 +8,7 @@ import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmit
 import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
 import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
+import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.post.specializedClassPosts.service.SpecializedClassPostsService;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
@@ -108,6 +109,7 @@ public class SpecializedAssignmentSubmitSlotsController {
                 if (files.length > 5) {
                     model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
                     model.addAttribute("specializedSlot", slot);
+                    model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openSpecializedSlotOverlay", true);
@@ -121,6 +123,7 @@ public class SpecializedAssignmentSubmitSlotsController {
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openSpecializedSlotOverlay", true);
+                    model.addAttribute("post", new SpecializedClassPosts());
                     return "SpecializedLecturerClassroom";
                 }
             }
@@ -133,6 +136,7 @@ public class SpecializedAssignmentSubmitSlotsController {
             model.addAttribute("specializedSlot", slot);
             model.addAttribute("classes", classesService.findClassById(classId));
             model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
+            model.addAttribute("post", new SpecializedClassPosts());
             model.addAttribute("openSpecializedSlotOverlay", true);
             return "SpecializedLecturerClassroom";
         }

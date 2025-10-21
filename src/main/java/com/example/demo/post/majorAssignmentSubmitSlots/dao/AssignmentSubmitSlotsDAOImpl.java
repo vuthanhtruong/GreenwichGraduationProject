@@ -1,6 +1,7 @@
 package com.example.demo.post.majorAssignmentSubmitSlots.dao;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -84,7 +85,7 @@ public class AssignmentSubmitSlotsDAOImpl implements AssignmentSubmitSlotsDAO {
         do {
             postId = prefix + String.format("%03d", count);
             count++;
-        } while (existsByPostId(postId));
+        } while (entityManager.find(ClassPosts.class, postId) != null);
         return postId;
     }
 

@@ -12,9 +12,11 @@ import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Controller
+@RequestMapping("/major-lecturer-home/classes-list/classroom")
 public class specializedClassPostsController {
     private final ClassesService classesService;
     private final MajorClassPostsService majorClassPostsService;

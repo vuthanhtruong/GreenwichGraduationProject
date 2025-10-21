@@ -69,6 +69,22 @@ public abstract class ClassPosts {
         return "Unknown";
     }
 
+    public Object Object () {
+        Hibernate.initialize(this);
+        if (this instanceof MajorClassPosts majorClassPosts) {
+            return majorClassPosts;
+        } else if (this instanceof AssignmentSubmitSlots assignmentSubmitSlots) {
+            return assignmentSubmitSlots;
+        } else if (this instanceof SpecializedClassPosts specializedClassPosts) {
+            return specializedClassPosts;
+        } else if (this instanceof MinorClassPosts minorClassPosts) {
+            return minorClassPosts;
+        } else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
+            return specializedAssignmentSubmitSlots;
+        }
+        return null;
+    }
+
     public String getCreatorId() {
         Hibernate.initialize(this); // Ensure the proxy is initialized
         if (this instanceof MajorClassPosts majorClassPosts) {
@@ -84,7 +100,8 @@ public abstract class ClassPosts {
             Hibernate.initialize(minorClassPosts.getCreator());
             return minorClassPosts.getCreator() != null ? minorClassPosts.getCreator().getId() : "Unknown";
         } else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
-            return specializedAssignmentSubmitSlots.getCreatorId();
+            Hibernate.initialize(specializedAssignmentSubmitSlots.getCreator());
+            return specializedAssignmentSubmitSlots.getCreator().getId();
         }
         return "Unknown";
     }

@@ -1,6 +1,7 @@
 package com.example.demo.post.specializedAssignmentSubmitSlots.dao;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -84,7 +85,7 @@ public class SpecializedAssignmentSubmitSlotsDAOImpl implements SpecializedAssig
         do {
             postId = prefix + String.format("%03d", count);
             count++;
-        } while (existsByPostId(postId));
+        } while (entityManager.find(ClassPosts.class, postId) != null);
         return postId;
     }
 

@@ -3,6 +3,7 @@ package com.example.demo.post.majorClassPosts.controller;
 import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.classes.abstractClass.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.comment.model.MajorComments;
 import com.example.demo.document.service.ClassDocumentsService;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
@@ -60,6 +61,7 @@ public class majorClassPostsController {
                 model.addAttribute("classes", new MajorClasses());
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("openPostOverlay", true);
+                model.addAttribute("newComment", new MajorComments());
                 return "MajorLecturerClassroom";
             }
 
@@ -70,6 +72,7 @@ public class majorClassPostsController {
                 model.addAttribute("Slot", new AssignmentSubmitSlots());
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openPostOverlay", true);
+                model.addAttribute("newComment", new MajorComments());
                 return "SpecializedLecturerClassroom";
             }
 
@@ -81,6 +84,7 @@ public class majorClassPostsController {
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openPostOverlay", true);
+                model.addAttribute("newComment", new MajorComments());
                 return "MajorLecturerClassroom";
             }
 
@@ -94,6 +98,7 @@ public class majorClassPostsController {
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openPostOverlay", true);
+                model.addAttribute("newComment", new MajorComments());
                 return "MajorLecturerClassroom";
             }
 
@@ -110,6 +115,7 @@ public class majorClassPostsController {
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                     model.addAttribute("openPostOverlay", true);
+                    model.addAttribute("newComment", new MajorComments());
                     return "MajorLecturerClassroom";
                 }
 
@@ -120,6 +126,7 @@ public class majorClassPostsController {
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                     model.addAttribute("openPostOverlay", true);
+                    model.addAttribute("newComment", new MajorComments());
                     return "MajorLecturerClassroom";
                 }
             }
@@ -133,6 +140,7 @@ public class majorClassPostsController {
             model.addAttribute("classes", classesService.findClassById(classId));
             model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
             model.addAttribute("openPostOverlay", true);
+            model.addAttribute("newComment", new MajorComments());
             return "MajorLecturerClassroom";
         }
     }

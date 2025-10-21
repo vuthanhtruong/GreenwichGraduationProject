@@ -1,11 +1,11 @@
-package com.example.demo.post.classPost.dao;
+package com.example.demo.post.classPost.service;
 
 import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.post.classPost.model.ClassPosts;
 
 import java.util.List;
 
-public interface ClassPostsDAO {
+public interface ClassPostsService {
     void savePost(ClassPosts post);
 
     ClassPosts findPostById(String postId);
