@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/staff-home/**", "/api/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/major-lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
+                        .requestMatchers("/classroom/**").hasAnyRole("STUDENT", "LECTURER", "STAFF") // Add this line
                         .requestMatchers(
                                 "/login",
                                 "/resources/**",

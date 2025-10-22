@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/major-lecturer-home/classes-list/classroom")
+@RequestMapping("/classroom")
 public class specializedClassPostsController {
     private final ClassesService classesService;
     private final MajorClassPostsService majorClassPostsService;
@@ -125,7 +125,7 @@ public class specializedClassPostsController {
 
             session.setAttribute("classId", classId);
             redirectAttributes.addFlashAttribute("message", "Specialized post created successfully!");
-            return "redirect:/major-lecturer-home/classes-list/classroom";
+            return "redirect:/classroom";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("Failed to create specialized post: " + e.getMessage()));
             model.addAttribute("post", post);

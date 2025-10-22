@@ -76,7 +76,7 @@
                 <td th:text="${clazz.specializedSubject != null ? clazz.specializedSubject.subjectName : 'N/A'}"></td>
                 <td th:text="${clazz.slotQuantity != null ? clazz.slotQuantity : 'N/A'}"></td>
                 <td>
-                    <form method="post" th:action="@{/staff-home/specialized-classes-list/classroom}" class="inline-form">
+                    <form method="post" th:action="@{/classroom}" class="inline-form">
                         <input type="hidden" name="classId" th:value="${clazz.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn small">

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/major-lecturer-home/classes-list/classroom")
+@RequestMapping("/classroom")
 public class SpecializedAssignmentSubmitSlotsController {
     private final ClassesService classesService;
     private final MajorClassPostsService majorClassPostsService;
@@ -129,7 +129,7 @@ public class SpecializedAssignmentSubmitSlotsController {
 
             session.setAttribute("classId", classId);
             redirectAttributes.addFlashAttribute("message", "Specialized assignment submit slot created successfully!");
-            return "redirect:/major-lecturer-home/classes-list/classroom";
+            return "redirect:/classroom";
         } catch (Exception e) {
             model.addAttribute("post", new SpecializedClassPosts());
             model.addAttribute("errors", List.of("Failed to create specialized assignment slot: " + e.getMessage()));

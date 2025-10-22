@@ -89,9 +89,13 @@
                 <td th:text="${clazz.subject != null ? clazz.subject.subjectName : 'N/A'}"></td>
                 <td th:text="${clazz.slotQuantity != null ? clazz.slotQuantity : 'N/A'}"></td>
                 <td>
-                    <a class="btn small" th:href="@{/classroom/{id}(id=${clazz.classId})}">
-                        <i class="fas fa-door-open"></i> Enter
-                    </a>
+                    <form method="post" th:action="@{/classroom}" class="inline-form">
+                        <input type="hidden" name="classId" th:value="${clazz.classId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn small">
+                            <i class="fas fa-door-open"></i> Enter
+                        </button>
+                    </form>
                 </td>
                 <td>
                     <form method="post" th:action="@{/staff-home/classes-list/timetable}" class="inline-form">

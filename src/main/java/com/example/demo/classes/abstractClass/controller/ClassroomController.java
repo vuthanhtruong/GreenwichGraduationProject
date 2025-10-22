@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/major-lecturer-home/classes-list/classroom")
-public class MajorLecturerClassroomController {
+@RequestMapping("/classroom")
+public class ClassroomController {
 
     private final ClassesService classesService;
     private final MajorClassPostsService majorClassPostsService;
@@ -34,9 +34,9 @@ public class MajorLecturerClassroomController {
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
 
-    public MajorLecturerClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
-                                            SpecializedClassPostsService specializedClassPostsService,
-                                            AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
+    public ClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
+                               SpecializedClassPostsService specializedClassPostsService,
+                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
         this.classesService = classesService;
         this.majorClassPostsService = majorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
@@ -53,7 +53,7 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("classes", new MajorClasses());
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("post", new MajorClassPosts());
-                return "MajorLecturerClassroom";
+                return "Classroom";
             }
 
             Classes classes = classesService.findClassById(classId);
@@ -71,8 +71,8 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("ClassPostsList", classPostsList);
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-major-post");
-                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-major-assignment-slot");
+                model.addAttribute("addPostClass", "/classroom/upload-major-post");
+                model.addAttribute("addAsm", "/classroom/create-major-assignment-slot");
                 return "MajorLecturerClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
@@ -86,8 +86,8 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("ClassPostsList", classPostsList);
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-specialized-post");
-                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-specialized-assignment-slot");
+                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
+                model.addAttribute("addAsm", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedLecturerClassroom";
             }
 
@@ -95,13 +95,13 @@ public class MajorLecturerClassroomController {
             model.addAttribute("classes", new MajorClasses());
             model.addAttribute("ClassPostsList", new ArrayList<>());
             model.addAttribute("post", new MajorClassPosts());
-            return "MajorLecturerClassroom";
+            return "Classroom";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("Failed to load classroom: " + e.getMessage()));
             model.addAttribute("classes", new MajorClasses());
             model.addAttribute("ClassPostsList", new ArrayList<>());
             model.addAttribute("post", new MajorClassPosts());
-            return "MajorLecturerClassroom";
+            return "Classroom";
         }
     }
 
@@ -124,8 +124,8 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("ClassPostsList", classPostsList);
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-major-post");
-                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-major-assignment-slot");
+                model.addAttribute("addPostClass", "/classroom/upload-major-post");
+                model.addAttribute("addAsm", "/classroom/create-major-assignment-slot");
                 return "MajorLecturerClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
@@ -139,8 +139,8 @@ public class MajorLecturerClassroomController {
                 model.addAttribute("ClassPostsList", classPostsList);
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-specialized-post");
-                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-specialized-assignment-slot");
+                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
+                model.addAttribute("addAsm", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedLecturerClassroom";
             }
 
@@ -148,13 +148,13 @@ public class MajorLecturerClassroomController {
             model.addAttribute("classes", new MajorClasses());
             model.addAttribute("ClassPostsList", new ArrayList<>());
             model.addAttribute("post", new MajorClassPosts());
-            return "MajorLecturerClassroom";
+            return "Classroom";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("Failed to load classroom: " + e.getMessage()));
             model.addAttribute("classes", new MajorClasses());
             model.addAttribute("ClassPostsList", new ArrayList<>());
             model.addAttribute("post", new MajorClassPosts());
-            return "MajorLecturerClassroom";
+            return "Classroom";
         }
     }
 }
