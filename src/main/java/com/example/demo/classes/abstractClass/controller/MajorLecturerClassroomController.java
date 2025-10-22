@@ -64,20 +64,30 @@ public class MajorLecturerClassroomController {
                 List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
+                model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-major-post");
+                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-major-assignment-slot");
                 return "MajorLecturerClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
                 classPostsList.addAll(assignmentSubmitSlots);
+                model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-specialized-post");
+                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-specialized-assignment-slot");
                 return "SpecializedLecturerClassroom";
             }
 
@@ -107,20 +117,30 @@ public class MajorLecturerClassroomController {
                 List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
+                model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-major-post");
+                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-major-assignment-slot");
                 return "MajorLecturerClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
                 classPostsList.addAll(assignmentSubmitSlots);
+                model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("addPostClass", "/major-lecturer-home/classes-list/classroom/upload-specialized-post");
+                model.addAttribute("addAsm", "/major-lecturer-home/classes-list/classroom/create-specialized-assignment-slot");
                 return "SpecializedLecturerClassroom";
             }
 

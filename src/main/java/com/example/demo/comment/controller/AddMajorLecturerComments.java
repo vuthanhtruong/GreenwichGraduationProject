@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/major-lecturer-home/classes-list/classroom")
-public class AddMajorComments {
+public class AddMajorLecturerComments {
     private final SpecializedCommentsService specializedCommentsService;
     private final MajorCommentsService majorCommentsService;
     private final MajorClassPostsService majorClassPostsService;
@@ -33,7 +33,7 @@ public class AddMajorComments {
     private final SpecializedClassPostsService specializedClassPostsService;
     private final ClassPostsService classPostsService;
 
-    public AddMajorComments(SpecializedCommentsService specializedCommentsService, MajorCommentsService majorCommentsService, MajorClassPostsService majorClassPostsService, EmployesService employesService, SpecializedClassPostsService specializedClassPostsService, ClassPostsService classPostsService) {
+    public AddMajorLecturerComments(SpecializedCommentsService specializedCommentsService, MajorCommentsService majorCommentsService, MajorClassPostsService majorClassPostsService, EmployesService employesService, SpecializedClassPostsService specializedClassPostsService, ClassPostsService classPostsService) {
         this.specializedCommentsService = specializedCommentsService;
         this.majorCommentsService = majorCommentsService;
         this.majorClassPostsService = majorClassPostsService;

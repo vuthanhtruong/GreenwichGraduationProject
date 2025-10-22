@@ -1,7 +1,10 @@
 package com.example.demo.students_Classes.students_SpecializedClasses.controller;
 
+import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClass.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
+import com.example.demo.students_Classes.abstractStudents_Class.model.StudentsClassesId;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.service.MajorLecturers_SpecializedClassesService;
 import com.example.demo.user.student.model.Students;
@@ -32,6 +35,7 @@ public class SpecializedClassesMemberArrangementController {
     private final MajorLecturers_SpecializedClassesService lecturersClassesService;
     private final StaffsService staffsService;
     private final StudentsService studentsService;
+    private final ClassesService classesService;
 
     @Autowired
     public SpecializedClassesMemberArrangementController(
@@ -39,12 +43,13 @@ public class SpecializedClassesMemberArrangementController {
             SpecializedClassesService specializedClassesService,
             MajorLecturers_SpecializedClassesService lecturersClassesService,
             StaffsService staffsService,
-            StudentsService studentsService) {
+            StudentsService studentsService, ClassesService classesService) {
         this.studentsSpecializedClassesService = studentsSpecializedClassesService;
         this.specializedClassesService = specializedClassesService;
         this.lecturersClassesService = lecturersClassesService;
         this.staffsService = staffsService;
         this.studentsService = studentsService;
+        this.classesService = classesService;
     }
 
     @PostMapping("/member-arrangement")
@@ -89,7 +94,7 @@ public class SpecializedClassesMemberArrangementController {
         }
 
         String subjectId = classEntity.getSpecializedSubject().getSubjectId();
-        List<Students> studentsInClass = studentsSpecializedClassesService.getStudentsByClass(classEntity);
+        List<Students_SpecializedClasses> studentsInClass = studentsSpecializedClassesService.getStudentsInClass(classId); // Updated to use getStudentsInClass
         List<Students> studentsNotInClass = studentsSpecializedClassesService.getStudentsNotInClassAndSubject(classId, subjectId);
         List<MajorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(classEntity);
         List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(classEntity);
@@ -225,8 +230,14 @@ public class SpecializedClassesMemberArrangementController {
                     Students student = studentsService.getStudentById(studentId);
                     if (student != null) {
                         Students_SpecializedClasses ssc = new Students_SpecializedClasses();
+                        // Initialize the composite key
+                        StudentsClassesId id = new StudentsClassesId();
+                        id.setStudentId(studentId);
+                        id.setClassId(classId);
                         ssc.setStudent(student);
+                        ssc.setId(id);
                         ssc.setSpecializedClass(classEntity);
+                        ssc.setClassEntity(classesService.findClassById(classId));
                         ssc.setAddedBy(currentStaff);
                         ssc.setCreatedAt(LocalDateTime.now());
                         studentsSpecializedClassesService.addStudentToClass(ssc);

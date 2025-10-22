@@ -34,9 +34,6 @@ public class AssignmentSubmitSlots extends ClassPosts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorClasses classEntity;
 
-    @Column(name = "Content", nullable = true, length = 1000)
-    private String content;
-
     @Column(name = "Deadline", nullable = true)
     private LocalDateTime deadline;
 

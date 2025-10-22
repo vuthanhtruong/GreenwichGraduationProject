@@ -60,6 +60,18 @@ public abstract class Students_Classes {
         return "N/A";
     }
 
+    public String getSubjectType() {
+        Classes classEntity = getClassEntity();
+        if (classEntity instanceof MajorClasses majorClass) {
+            return majorClass.getSubject().getSubjectName();
+        } else if (classEntity instanceof MinorClasses minorClass) {
+            return minorClass.getMinorSubject().getSubjectName();
+        } else if (classEntity instanceof SpecializedClasses specializedClass) {
+            return specializedClass.getSpecializedSubject().getSubjectName();
+        }
+        return "N/A";
+    }
+
     public Students_Classes() {}
 
     public Students_Classes(Students student, Classes classEntity, LocalDateTime createdAt) {

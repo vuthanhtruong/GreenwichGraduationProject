@@ -4,7 +4,6 @@ import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.classes.abstractClass.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.document.service.ClassDocumentsService;
-import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
 import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
@@ -47,10 +46,11 @@ public class SpecializedAssignmentSubmitSlotsController {
         this.classDocumentsService = classDocumentsService;
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
     }
+
     @PostMapping("/create-specialized-assignment-slot")
     public String createSpecializedAssignmentSlot(
             @RequestParam("classId") String classId,
-            @Valid @ModelAttribute("specializedSlot") SpecializedAssignmentSubmitSlots slot,
+            @Valid @ModelAttribute("slot") SpecializedAssignmentSubmitSlots slot,
             @RequestParam(value = "files", required = false) MultipartFile[] files,
             HttpSession session,
             Model model,
@@ -59,7 +59,6 @@ public class SpecializedAssignmentSubmitSlotsController {
             Classes classes = classesService.findClassById(classId);
             if (classes == null) {
                 model.addAttribute("errors", List.of("Class not found"));
-                model.addAttribute("specializedSlot", slot);
                 model.addAttribute("classes", new SpecializedClasses());
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("openSpecializedSlotOverlay", true);
@@ -67,8 +66,8 @@ public class SpecializedAssignmentSubmitSlotsController {
             }
 
             if (!(classes instanceof SpecializedClasses specializedClasses)) {
+                model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("errors", List.of("Class is not a SpecializedClass"));
-                model.addAttribute("specializedSlot", slot);
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
@@ -77,8 +76,8 @@ public class SpecializedAssignmentSubmitSlotsController {
 
             MajorEmployes creator = employesService.getMajorEmployee();
             if (creator == null) {
+                model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("errors", List.of("No authenticated MajorEmployes found"));
-                model.addAttribute("specializedSlot", slot);
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
@@ -92,8 +91,8 @@ public class SpecializedAssignmentSubmitSlotsController {
             List<String> errorList = new ArrayList<>(errors.values());
 
             if (!errorList.isEmpty()) {
+                model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("errors", errorList);
-                model.addAttribute("specializedSlot", slot);
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
@@ -107,8 +106,8 @@ public class SpecializedAssignmentSubmitSlotsController {
 
             if (files != null && files.length > 0) {
                 if (files.length > 5) {
+                    model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
-                    model.addAttribute("specializedSlot", slot);
                     model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
@@ -118,8 +117,8 @@ public class SpecializedAssignmentSubmitSlotsController {
 
                 List<String> fileErrors = classDocumentsService.saveDocuments(slot, files);
                 if (!fileErrors.isEmpty()) {
+                    model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("errors", fileErrors);
-                    model.addAttribute("specializedSlot", slot);
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openSpecializedSlotOverlay", true);
@@ -132,8 +131,8 @@ public class SpecializedAssignmentSubmitSlotsController {
             redirectAttributes.addFlashAttribute("message", "Specialized assignment submit slot created successfully!");
             return "redirect:/major-lecturer-home/classes-list/classroom";
         } catch (Exception e) {
+            model.addAttribute("post", new SpecializedClassPosts());
             model.addAttribute("errors", List.of("Failed to create specialized assignment slot: " + e.getMessage()));
-            model.addAttribute("specializedSlot", slot);
             model.addAttribute("classes", classesService.findClassById(classId));
             model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
             model.addAttribute("post", new SpecializedClassPosts());

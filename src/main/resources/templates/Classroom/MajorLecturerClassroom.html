@@ -30,8 +30,12 @@
     <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
-            <a th:href="@{/major-lecturer-home}" class="btn"><i class="fas fa-home"></i> Home</a>
-            <a th:href="@{/major-lecturer-home/classes-list}" class="btn"><i class="fas fa-arrow-left"></i> Back to Class List</a>
+            <a th:href="@{${home}}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{${listClass}}" class="btn">
+                <i class="fas fa-arrow-left"></i> Back to Class List
+            </a>
         </div>
         <div class="toolbar-center">
             <h2 style="margin:0;font-size:18px;font-weight:600;">Major Lecturer Classroom</h2>
@@ -51,7 +55,7 @@
     <div id="postOverlay" class="overlay" th:classappend="${openPostOverlay} ? 'active'">
         <div class="overlay-content">
             <h2><i class="fas fa-upload"></i> Create New Major Post</h2>
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/upload-major-post}" th:object="${post}" enctype="multipart/form-data">
+            <form method="post" th:action="@{${addPostClass}}" th:object="${post}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classes.classId}" />
                 <section class="win11-panel">
@@ -85,7 +89,7 @@
     <div id="slotOverlay" class="overlay" th:classappend="${openSlotOverlay} ? 'active'">
         <div class="overlay-content">
             <h2><i class="fas fa-folder-plus"></i> Create New Assignment Submit Slot</h2>
-            <form method="post" th:action="@{/major-lecturer-home/classes-list/classroom/create-major-assignment-slot}" th:object="${slot}" enctype="multipart/form-data">
+            <form method="post" th:action="@{${addAsm}}" th:object="${slot}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classes.classId}" />
                 <section class="win11-panel">
@@ -118,15 +122,15 @@
         <!-- Left: Deadlines -->
         <div class="panel deadline-box">
             <h3><i class="fas fa-clock"></i> Upcoming Deadlines</h3>
-            <th:block th:if="${ClassPostsList != null and !#lists.isEmpty(ClassPostsList)}">
-                <th:block th:each="post : ${ClassPostsList}" th:if="${post.getClassPostsType() == 'Assignment Submit Slot' or post.getClassPostsType() == 'Specialized Assignment Submit Slot'}">
+            <th:block th:if="${assignmentSubmitSlots != null}">
+                <th:block th:each="assignmentSubmitSlot : ${assignmentSubmitSlots}">
                     <div class="deadline-item">
-                        <span th:text="${post.content} ?: 'No description'"></span>
-                        <small th:text="'Due: ' + ${#temporals.format(post.deadline, 'dd MMM yyyy HH:mm')}"></small>
+                        <span th:text="${assignmentSubmitSlot.getContent()} ?: 'No description'"></span>
+                        <small th:text="'Due: ' + ${#temporals.format(assignmentSubmitSlot.getDeadline(), 'dd MMM yyyy HH:mm')}"></small>
                     </div>
                 </th:block>
             </th:block>
-            <th:block th:if="${ClassPostsList == null or #lists.isEmpty(ClassPostsList)}">
+            <th:block th:if="${assignmentSubmitSlots == null}">
                 <p>Great, no assignments are due soon!</p>
             </th:block>
             <a th:href="@{/major-lecturer-home/classes-list/classroom/assignments(classId=${classes.classId})}">View All</a>

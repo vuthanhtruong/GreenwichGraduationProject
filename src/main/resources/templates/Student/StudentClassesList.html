@@ -56,20 +56,12 @@
             </thead>
             <tbody>
             <tr th:each="class : ${classes}">
-                <td th:text="${class.id.classId}"></td>
-                <td th:text="${class.classEntity.nameClass}"></td>
-                <td>
-                    <span th:if="${class.classEntity instanceof T(com.example.demo.majorClasses.model.MajorClasses) and class.classEntity.subject != null}"
-                          th:text="${class.classEntity.subject.subjectName}"></span>
-                    <span th:if="${class.classEntity instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses) and class.classEntity.specialization != null}"
-                          th:text="${class.classEntity.specialization.specializationName}"></span>
-                    <span th:if="${!(class.classEntity instanceof T(com.example.demo.majorClasses.model.MajorClasses)) and !(class.classEntity instanceof T(com.example.demo.specializedClasses.model.SpecializedClasses)) or (class.classEntity.subject == null and class.classEntity.specialization == null)}">
-                        N/A
-                    </span>
-                </td>
-                <td th:text="${class.classEntity.session != null ? class.classEntity.session : 'N/A'}"></td>
-                <td th:text="${class.classEntity.slotQuantity != null ? class.classEntity.slotQuantity : 'N/A'}"></td>
-                <td th:text="${class.createdAt}"></td>
+                <td th:text="${class.getClassEntity().getClassId()}"></td>
+                <td th:text="${class.getSubjectName()}"></td>
+                <td th:text="${class.getSubjectType()}"></td>
+                <td th:text="${class.getClassEntity().getSession()}"></td>
+                <td th:text="${class.getClassEntity().getSlotQuantity()}"></td>
+                <td th:text="${#temporals.format(class.createdAt, 'dd MMM yyyy')}"></td>
                 <td>
                     <form th:action="@{/student-home/student-classes-list/classroom}" method="post" class="inline-form">
                         <input type="hidden" th:name="classId" th:value="${class.id.classId}" />
