@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/major-lecturer-home/classes-list/classroom")
+@RequestMapping("/classroom")
 public class AddMajorLecturerComments {
     private final SpecializedCommentsService specializedCommentsService;
     private final MajorCommentsService majorCommentsService;
@@ -73,10 +73,10 @@ public class AddMajorLecturerComments {
                 specializedCommentsService.saveComment(comment);
             }
             session.setAttribute("classId", classId);
-            return "redirect:/major-lecturer-home/classes-list/classroom";
+            return "redirect:/classroom";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("Failed to add comment: " + e.getMessage()));
-            return  "redirect:/major-lecturer-home/classes-list/classroom";
+            return  "redirect:/classroom";
         }
     }
 }
