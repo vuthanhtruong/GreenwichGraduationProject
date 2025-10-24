@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${className} + ' - Members'">Class Members</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/MemberInClassroom.css}">
+    <style>
+        .role-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; color: #fff; }
+        .role-student { background: #28a745; }
+        .role-lecturer { background: #007bff; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .actions { display: flex; gap: 4px; }
+        .btn.small { padding: 4px 8px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Error -->
+    <th:block th:if="${errors != null and !errors.isEmpty()}">
+        <div class="alert alert-danger" th:each="e : ${errors}">
+            <i class="fas fa-exclamation-triangle"></i> <span th:text="${e}"></span>
+        </div>
+    </th:block>
+
+    <!-- Banner -->
+    <div class="class-banner" th:text="${className} ?: 'Unknown Class'"></div>
+
+    <!-- Toolbar -->
+    <!-- Toolbar -->
+    <div class="search-toolbar">
+        <div class="toolbar-left">
+            <a th:href="@{${home}}" class="btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <!-- DÙNG FORM POST ĐỂ QUAY LẠI CLASSROOM -->
+            <form method="post" th:action="@{/classroom}" style="display:inline; margin:0;">
+                <input type="hidden" name="classId" th:value="${classId}" />
+                <button type="submit" class="btn">
+                    <i class="fas fa-arrow-left"></i> Back to Classroom
+                </button>
+            </form>
+        </div>
+
+        <div class="toolbar-center">
+            <h2 style="margin:0;font-size:18px;font-weight:600;">Class Members</h2>
+        </div>
+
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-user-graduate"></i>
+                <p><strong>Students:</strong> <span th:text="${studentsCount}"></span></p>
+            </div>
+            <div class="total">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <p><strong>Lecturers:</strong> <span th:text="${lecturersCount}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Avatar</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Birth</th>
+                <th>Gender</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person : ${members}">
+                <td th:text="${person.id}"></td>
+                <td>
+                    <img th:if="${person.avatar != null}"
+                         th:src="@{'/persons/avatar/' + ${person.id}}"
+                         class="avatar" th:alt="${person.fullName}" />
+                    <img th:unless="${person.avatar != null}"
+                         th:src="${person.defaultAvatarPath}"
+                         class="avatar" th:alt="${person.fullName}" />
+                </td>
+                <td th:text="${person.fullName}"></td>
+                <td th:text="${person.email} ?: '—'"></td>
+                <td th:text="${person.phoneNumber} ?: '—'"></td>
+                <td th:text="${person.birthDate} ?: '—'"></td>
+                <td th:text="${person.gender} ?: '—'"></td>
+                <td>
+                    <div class="actions">
+                        <!-- Chỉ hiện nút nhắn tin nếu là sinh viên -->
+                        <form th:if="${person['class'].simpleName == 'Students'}"
+                              method="get" th:action="@{/classroom/message-student}" class="inline-form">
+                            <input type="hidden" name="classId" th:value="${classId}" />
+                            <input type="hidden" name="studentId" th:value="${person.id}" />
+                            <button type="submit" class="btn primary small">
+                                <i class="fas fa-envelope"></i> Message
+                            </button>
+                        </form>
+                        <button th:unless="${person['class'].simpleName == 'Students'}"
+                                class="btn secondary small" disabled>
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${members == null or members.isEmpty()}">
+                <td colspan="9" style="text-align:center; color:#999;">
+                    <i class="fas fa-users-slash"></i> No members in this class.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

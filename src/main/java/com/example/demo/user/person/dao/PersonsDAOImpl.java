@@ -1,17 +1,36 @@
 package com.example.demo.user.person.dao;
 
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
 
 public class PersonsDAOImpl implements PersonsDAO {
+    @Override
+    public Persons getPerson() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Object principal = auth.getPrincipal();
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        return person;
+    }
+
     @Override
     public Persons getPersonByEmail(String email) {
         try {

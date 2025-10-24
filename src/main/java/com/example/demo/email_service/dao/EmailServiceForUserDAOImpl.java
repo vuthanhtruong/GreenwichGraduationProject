@@ -1,8 +1,8 @@
 package com.example.demo.email_service.dao;
 
-import com.example.demo.EmailTemplates.dto.EmailTemplateDTO;
-import com.example.demo.EmailTemplates.model.EmailTemplates;
-import com.example.demo.EmailTemplates.service.EmailTemplatesService;
+import com.example.demo.emailTemplates.dto.EmailTemplateDTO;
+import com.example.demo.emailTemplates.model.EmailTemplates;
+import com.example.demo.emailTemplates.service.EmailTemplatesService;
 import com.example.demo.email_service.dto.UserEmailContext;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.mail.MessagingException;

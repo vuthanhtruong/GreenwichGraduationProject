@@ -63,7 +63,7 @@
                 <td th:text="${class.getClassEntity().getSlotQuantity()}"></td>
                 <td th:text="${#temporals.format(class.createdAt, 'dd MMM yyyy')}"></td>
                 <td>
-                    <form th:action="@{/student-home/student-classes-list/classroom}" method="post" class="inline-form">
+                    <form th:action="@{/classroom}" method="post" class="inline-form">
                         <input type="hidden" th:name="classId" th:value="${class.id.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn primary small">

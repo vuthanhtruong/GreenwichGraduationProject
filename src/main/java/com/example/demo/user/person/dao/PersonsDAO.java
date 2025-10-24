@@ -10,4 +10,5 @@ public interface PersonsDAO {
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
     Persons getPersonByEmail(String email);
+    Persons getPerson();
 }

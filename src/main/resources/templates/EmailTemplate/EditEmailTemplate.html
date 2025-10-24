@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Email Template</title>
+    <link rel="stylesheet" th:href="@{/EditSupportTicket.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-edit"></i> Edit Email Template</h1>
+    </header>
+
+    <!-- Alert Messages -->
+    <div th:if="${errors != null and !errors.isEmpty()}" class="win11-alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <ul>
+            <li th:each="error : ${errors}" th:text="${error.value}"></li>
+        </ul>
+    </div>
+
+    <!-- Edit Form -->
+    <form th:action="@{/admin-home/email-templates/edit-template-form}"
+          th:object="${emailTemplate}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="_method" value="PUT">
+        <input type="hidden" th:field="*{id}">
+
+        <!-- Template Info -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-info-circle"></i> Template Info</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label><i class="fas fa-tag"></i> Type</label>
+                    <input th:field="*{type}" class="input" readonly />
+                    <small class="form-text">Type cannot be changed.</small>
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-handshake"></i> Greeting</label>
+                    <input th:field="*{greeting}" class="input" placeholder="e.g., Dear [Name]">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-signature"></i> Salutation</label>
+                    <input th:field="*{salutation}" class="input" placeholder="e.g., Best regards">
+                </div>
+            </div>
+        </section>
+
+        <!-- Images -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-image"></i> Images</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label>Current Header Image</label>
+                    <div th:if="${emailTemplate.headerImage}">
+                        <img th:src="@{/admin-home/email-templates/image/{id}/{type}(id=${emailTemplate.id},type='header')}"
+                             class="preview-image" alt="Header"/>
+                    </div>
+                    <div th:unless="${emailTemplate.headerImage}" class="no-image">No Header Image</div>
+                    <label for="headerImageFile">Replace Header Image</label>
+                    <input type="file" id="headerImageFile" name="headerImageFile" accept="image/*" class="input">
+                    <div th:if="${errors?.containsKey('headerImageFile')}" class="text-danger" th:text="${errors.get('headerImageFile')}"></div>
+                </div>
+
+                <div class="form-row">
+                    <label>Current Banner Image</label>
+                    <div th:if="${emailTemplate.bannerImage}">
+                        <img th:src="@{/admin-home/email-templates/image/{id}/{type}(id=${emailTemplate.id},type='banner')}"
+                             class="preview-image" alt="Banner"/>
+                    </div>
+                    <div th:unless="${emailTemplate.bannerImage}" class="no-image">No Banner Image</div>
+                    <label for="bannerImageFile">Replace Banner Image</label>
+                    <input type="file" id="bannerImageFile" name="bannerImageFile" accept="image/*" class="input">
+                    <div th:if="${errors?.containsKey('bannerImageFile')}" class="text-danger" th:text="${errors.get('bannerImageFile')}"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-align-left"></i> Content</h2>
+            <div class="form-group">
+                <div class="form-row">
+                    <label>Body</label>
+                    <textarea th:field="*{body}" class="input" rows="6"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>CTA Link</label>
+                    <input th:field="*{linkCta}" class="input" placeholder="https://example.com">
+                </div>
+                <div class="form-row">
+                    <label>Support</label>
+                    <input th:field="*{support}" class="input" placeholder="support@example.com">
+                </div>
+                <div class="form-row">
+                    <label>Copyright</label>
+                    <input th:field="*{copyrightNotice}" class="input">
+                </div>
+                <div class="form-row">
+                    <label>Facebook</label>
+                    <input th:field="*{linkFacebook}" class="input">
+                </div>
+                <div class="form-row">
+                    <label>YouTube</label>
+                    <input th:field="*{linkYoutube}" class="input">
+                </div>
+                <div class="form-row">
+                    <label>TikTok</label>
+                    <input th:field="*{linkTiktok}" class="input">
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Changes</button>
+            <a th:href="@{/admin-home/email-templates}" class="btn">Back to List</a>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>

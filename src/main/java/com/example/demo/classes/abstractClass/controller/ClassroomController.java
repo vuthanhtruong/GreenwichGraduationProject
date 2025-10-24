@@ -13,6 +13,10 @@ import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedA
 import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.post.specializedClassPosts.service.SpecializedClassPostsService;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.person.service.PersonsService;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.student.model.Students;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,20 +37,33 @@ public class ClassroomController {
     private final SpecializedClassPostsService specializedClassPostsService;
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
+    private final PersonsService personsService;
 
     public ClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
                                SpecializedClassPostsService specializedClassPostsService,
-                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
+                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, PersonsService personsService) {
         this.classesService = classesService;
         this.majorClassPostsService = majorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
+        this.personsService = personsService;
     }
 
     @GetMapping
     public String showClassroomGet(HttpSession session, Model model) {
         try {
+            if(personsService.getPerson() instanceof MajorLecturers){
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("listClass","/major-lecturer-home/classes-list");
+            } else if (personsService.getPerson() instanceof Staffs) {
+                model.addAttribute("home", "/staff-home");
+                model.addAttribute("listClass","/staff-home/classes-list");
+            } else if (personsService.getPerson() instanceof Students) {
+                model.addAttribute("home", "/student-home");
+                model.addAttribute("listClass", "/student-home/classes-list");
+            }
+
             String classId = (String) session.getAttribute("classId");
             if (classId == null) {
                 model.addAttribute("errors", List.of("No class selected"));
@@ -69,11 +86,7 @@ public class ClassroomController {
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
-                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
-                model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/classroom/upload-major-post");
-                model.addAttribute("addAsm", "/classroom/create-major-assignment-slot");
-                return "MajorLecturerClassroom";
+                return "MajorClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
@@ -84,11 +97,7 @@ public class ClassroomController {
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
-                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
-                model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
-                model.addAttribute("addAsm", "/classroom/create-specialized-assignment-slot");
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             model.addAttribute("errors", List.of("Invalid class type"));
@@ -108,6 +117,16 @@ public class ClassroomController {
     @PostMapping
     public String showClassroomPost(@RequestParam("classId") String classId, HttpSession session, Model model) {
         try {
+            if(personsService.getPerson() instanceof MajorLecturers){
+                model.addAttribute("home", "/major-lecturer-home");
+                model.addAttribute("listClass","/major-lecturer-home/classes-list");
+            } else if (personsService.getPerson() instanceof Staffs) {
+                model.addAttribute("home", "/staff-home");
+                model.addAttribute("listClass","/staff-home/classes-list");
+            } else if (personsService.getPerson() instanceof Students) {
+                model.addAttribute("home", "/student-home");
+                model.addAttribute("listClass", "/student-home/student-classes-list");
+            }
             session.setAttribute("classId", classId);
             Classes classes = classesService.findClassById(classId);
             List<ClassPosts> classPostsList = new ArrayList<>();
@@ -122,11 +141,7 @@ public class ClassroomController {
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
-                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
-                model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/classroom/upload-major-post");
-                model.addAttribute("addAsm", "/classroom/create-major-assignment-slot");
-                return "MajorLecturerClassroom";
+                return "MajorClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
@@ -137,11 +152,7 @@ public class ClassroomController {
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
-                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
-                model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
-                model.addAttribute("addAsm", "/classroom/create-specialized-assignment-slot");
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             model.addAttribute("errors", List.of("Invalid class type"));

@@ -194,7 +194,6 @@ public class StaffsDAOImpl implements StaffsDAO {
                     .setParameter("staff", staff)
                     .setParameter("major", staff.getMajorManagement());
             List<MajorClasses> classes = query.getResultList();
-            logger.info("Retrieved {} classes for staff ID: {}", classes.size(), staff.getId());
             return classes;
         } catch (Exception e) {
             logger.error("Error retrieving classes: {}", e.getMessage());

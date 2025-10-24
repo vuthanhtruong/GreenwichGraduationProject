@@ -40,15 +40,18 @@ public abstract class Subjects {
     public String getSubjectMajor(Subjects subject) {
         // Khởi tạo proxy để đảm bảo lấy đúng lớp con
         Hibernate.initialize(subject);
+        if (subject instanceof SpecializedSubject specializedSubject) {
+            return specializedSubject.getSpecialization().getSpecializationName();
+        }
 
         if (subject instanceof MajorSubjects majorSubject) {
-            return majorSubject.getMajor().getMajorName();
+            if (majorSubject.getMajor() != null) {
+                return majorSubject.getMajor().getMajorName();
+            }
+            return "Major Subject";
         }
         if (subject instanceof MinorSubjects minorSubject) {
             return "General";
-        }
-        if (subject instanceof SpecializedSubject specializedSubject) {
-            return specializedSubject.getSpecialization().getSpecializationName();
         }
         return "Unknown: " + subject.getSubjectName();
     }

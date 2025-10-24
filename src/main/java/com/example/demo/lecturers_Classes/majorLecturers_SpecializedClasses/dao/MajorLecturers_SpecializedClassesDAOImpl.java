@@ -74,11 +74,9 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
     @Override
     public List<MajorLecturers> listLecturersInClass(SpecializedClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.majorLecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class AND lc.majorLecturer.majorManagement = :major And lc.majorLecturer.campus=:campus",
+                        "SELECT lc.majorLecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class",
                         MajorLecturers.class)
                 .setParameter("class", classes)
-                .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("campus", staffsService.getCampusOfStaff())
                 .getResultList();
     }
 
