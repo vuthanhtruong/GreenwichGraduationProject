@@ -11,6 +11,8 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -52,6 +54,29 @@ public class DepositHistoriesDAOImpl implements DepositHistoriesDAO {
 
     @Override
     public void createDepositHistory(DepositHistories depositHistory) {
-        entityManager.merge(depositHistory); // luôn dùng merge để tránh detached
+        depositHistory.setHistoryId(generateHistoryId());
+        depositHistory.setCreatedAt(LocalDateTime.now());
+
+        // ĐẢM BẢO currentAmount KHÔNG NULL
+        if (depositHistory.getCurrentAmount() == null) {
+            depositHistory.setCurrentAmount(BigDecimal.ZERO);
+        }
+
+        entityManager.persist(depositHistory);
+    }
+    private String generateHistoryId() {
+        String id;
+        do {
+            id = "DH" + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    + "-" + String.format("%04d", new java.util.Random().nextInt(10000));
+        } while (isHistoryIdExists(id));
+        return id;
+    }
+
+    private boolean isHistoryIdExists(String id) {
+        return entityManager.createQuery(
+                        "SELECT COUNT(f) FROM FinancialHistories f WHERE f.historyId = :id", Long.class)
+                .setParameter("id", id)
+                .getSingleResult() > 0;
     }
 }

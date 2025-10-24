@@ -1,7 +1,7 @@
 package com.example.demo.majorLecturers_Specializations.dao;
 
 import com.example.demo.majorLecturers_Specializations.model.MajorLecturers_Specializations;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 
 import java.util.List;

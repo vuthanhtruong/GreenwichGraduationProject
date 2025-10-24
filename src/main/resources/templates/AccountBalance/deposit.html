@@ -24,7 +24,7 @@
     <!-- Deposit Form -->
     <section class="card" style="margin-top:20px;">
         <h2><i class="fas fa-money-bill-wave"></i> Deposit Money</h2>
-        <form th:action="@{/student-home/deposit/create}" method="post" class="deposit-form">
+        <form th:action="@{/student-home/deposit/create-new}" method="post" class="deposit-form">
             <input type="hidden" name="studentId" th:value="${student.id}" />
 
             <!-- Custom amount -->

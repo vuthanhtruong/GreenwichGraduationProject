@@ -2,48 +2,58 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Deposit Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Result</title>
+
+    <!-- Link đến CSS riêng của bạn -->
     <link rel="stylesheet" th:href="@{/DepositSuccess.css}" />
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <script>
+        // ⏳ Đếm ngược và tự chuyển hướng
+        let countdown = 5;
+        function startCountdown() {
+            const counter = document.getElementById("countdown");
+            const interval = setInterval(() => {
+                countdown--;
+                counter.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = "/student-home";
+                }
+            }, 1000);
+        }
+
+        window.onload = startCountdown;
+    </script>
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Title Bar -->
+    <!-- Header -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-check-circle"></i> Deposit Successful</h1>
-        <div class="title-actions">
-            <a th:href="@{/student-home}" class="btn">
-                <i class="fas fa-home"></i> Home
-            </a>
-        </div>
+        <h1><i class="fas fa-check-circle" style="color:#0078D7;"></i> Deposit Status</h1>
     </header>
 
-    <!-- Success Card -->
-    <section class="card success-card">
-        <div class="icon-circle">
-            <i class="fas fa-check"></i>
-        </div>
-        <h2>Deposit Completed!</h2>
-        <p>
-            You have successfully deposited
-            <strong th:text="${#numbers.formatDecimal(amount, 1, 'COMMA', 2, 'POINT')} + ' USD'"></strong>.
-        </p>
-        <p>
-            Your new balance is
-            <strong th:text="${#numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')} + ' USD'"></strong>.
-        </p>
+    <!-- Main content -->
+    <section class="card center">
+        <div class="result-box">
+            <i th:if="${message == 'Deposit successful!'}" class="fas fa-circle-check" style="font-size:4rem; color:#28a745;"></i>
+            <i th:if="${message != 'Deposit successful!'}" class="fas fa-exclamation-circle" style="font-size:4rem; color:#dc3545;"></i>
 
-        <div class="actions">
-            <a th:href="@{/student-home}" class="btn primary">
-                <i class="fas fa-arrow-left"></i> Back to Home
-            </a>
-            <a th:href="@{/student-home/deposit}" class="btn">
-                <i class="fas fa-wallet"></i> Make Another Deposit
+            <h2 th:text="${message}" style="margin-top:20px;"></h2>
+
+            <p style="margin-top:10px; color:#666;">
+                Redirecting to student home in
+                <span id="countdown" style="font-weight:bold; color:#0078D7;">5</span> seconds...
+            </p>
+
+            <a href="/student-home" class="btn primary" style="margin-top:20px;">
+                <i class="fas fa-home"></i> Go to Student Home
             </a>
         </div>
     </section>
-
 </div>
 </body>
 </html>

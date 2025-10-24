@@ -2,7 +2,7 @@ package com.example.demo.user.student.controller;
 
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.curriculum.service.CurriculumService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.authenticator.service.AuthenticatorsService;
@@ -13,7 +13,7 @@ import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.user.student.service.StudentsService;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

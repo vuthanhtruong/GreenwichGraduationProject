@@ -4,7 +4,7 @@ import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.Specialization.model.Specialization; // Updated from Majors
+import com.example.demo.specialization.model.Specialization; // Updated from Majors
 import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;

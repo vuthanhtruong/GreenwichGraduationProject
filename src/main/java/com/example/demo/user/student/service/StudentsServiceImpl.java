@@ -1,7 +1,7 @@
 package com.example.demo.user.student.service;
 
 import com.example.demo.curriculum.model.Curriculum;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.student.dao.StudentsDAO;
 import com.example.demo.major.model.Majors;
 import com.example.demo.user.student.model.Students;

@@ -1,6 +1,6 @@
 package com.example.demo.financialHistory.SupportTicketHistories.model;
 
-import com.example.demo.SupportTickets.model.SupportTickets;
+import com.example.demo.supportTickets.model.SupportTickets;
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.financialHistory.financialHistories.model.FinancialHistories;
 import com.example.demo.entity.Enums.Status;

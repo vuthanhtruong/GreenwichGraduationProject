@@ -56,6 +56,7 @@ public abstract class FinancialHistories {
     @Column(name = "version")
     private Long version;
 
+
     public String getHistoryType() {
         Hibernate.initialize(this); // Ensure the proxy is initialized
 

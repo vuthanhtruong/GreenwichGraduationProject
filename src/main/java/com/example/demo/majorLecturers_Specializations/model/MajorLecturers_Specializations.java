@@ -1,6 +1,6 @@
 package com.example.demo.majorLecturers_Specializations.model;
 
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;

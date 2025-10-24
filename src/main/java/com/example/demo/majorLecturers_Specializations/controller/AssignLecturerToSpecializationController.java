@@ -2,9 +2,9 @@ package com.example.demo.majorLecturers_Specializations.controller;
 
 import com.example.demo.majorLecturers_Specializations.model.MajorLecturersSpecializationsId;
 import com.example.demo.majorLecturers_Specializations.model.MajorLecturers_Specializations;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.majorLecturers_Specializations.service.MajorLecturersSpecializationsService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import com.example.demo.user.staff.model.Staffs;

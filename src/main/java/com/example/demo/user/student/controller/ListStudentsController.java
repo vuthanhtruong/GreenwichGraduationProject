@@ -1,7 +1,7 @@
 package com.example.demo.user.student.controller;
 
 import com.example.demo.curriculum.service.CurriculumService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.service.StudentsService;

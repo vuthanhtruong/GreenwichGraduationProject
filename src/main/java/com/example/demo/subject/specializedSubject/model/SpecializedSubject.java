@@ -1,7 +1,7 @@
 package com.example.demo.subject.specializedSubject.model;
 
 import com.example.demo.curriculum.model.Curriculum;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import jakarta.persistence.*;

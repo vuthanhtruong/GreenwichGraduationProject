@@ -1,8 +1,8 @@
 // LecturerSpecializationController.java
 package com.example.demo.majorLecturers_Specializations.controller;
 
-import com.example.demo.Specialization.model.Specialization;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.model.Specialization;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.user.staff.service.StaffsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

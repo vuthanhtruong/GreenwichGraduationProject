@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.curriculum.model.Curriculum;
-import com.example.demo.Specialization.model.Specialization;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;

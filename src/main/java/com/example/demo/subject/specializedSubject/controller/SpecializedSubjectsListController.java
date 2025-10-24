@@ -1,7 +1,7 @@
 package com.example.demo.subject.specializedSubject.controller;
 
 import com.example.demo.curriculum.service.CurriculumService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.subject.specializedSubject.service.SpecializedSubjectsService;

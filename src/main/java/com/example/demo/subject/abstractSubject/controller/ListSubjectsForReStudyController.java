@@ -1,7 +1,7 @@
 package com.example.demo.subject.abstractSubject.controller;
 
-import com.example.demo.TuitionByYear.model.TuitionByYear;
-import com.example.demo.TuitionByYear.service.TuitionByYearService;
+import com.example.demo.tuitionByYear.model.TuitionByYear;
+import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.campus.service.CampusesService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;

@@ -2,7 +2,7 @@
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
-import com.example.demo.Specialization.service.SpecializationService;
+import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
