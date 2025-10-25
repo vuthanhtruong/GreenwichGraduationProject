@@ -1,4 +1,4 @@
-package com.example.demo.user.majorLecturer.model;
+package com.example.demo.user.minorLecturer.model;
 
 public interface MinorLecturersInterface {
     String getDefaultAvatarPath();

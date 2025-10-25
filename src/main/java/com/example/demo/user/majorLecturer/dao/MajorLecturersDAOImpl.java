@@ -5,7 +5,7 @@ import com.example.demo.email_service.dto.LecturerEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.majorLecturer.model.MinorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.major.model.Majors;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.security.model.CustomOidcUserPrincipal;

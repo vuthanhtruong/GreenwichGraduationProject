@@ -1,7 +1,7 @@
-package com.example.demo.user.majorLecturer.controller;
+package com.example.demo.user.minorLecturer.controller;
 
 import com.example.demo.user.admin.service.AdminsService;
-import com.example.demo.user.majorLecturer.model.MinorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;

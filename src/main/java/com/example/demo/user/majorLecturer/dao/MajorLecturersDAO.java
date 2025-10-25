@@ -1,6 +1,6 @@
 package com.example.demo.user.majorLecturer.dao;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.majorLecturer.model.MinorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;

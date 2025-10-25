@@ -1,5 +1,7 @@
 package com.example.demo.user.staff.dao;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.email_service.dto.StaffEmailContext;
+import com.example.demo.email_service.service.EmailServiceForStaffService;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+    private final EmailServiceForStaffService emailServiceForStaffService;
     @Override
     public Campuses getCampusOfStaff() {
         return getStaff().getCampus();
@@ -143,7 +146,8 @@ public class StaffsDAOImpl implements StaffsDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public StaffsDAOImpl(PersonsService personsService, AdminsService adminsService, CampusesService campusesService, MajorsService majorsService) {
+    public StaffsDAOImpl(EmailServiceForStaffService emailServiceForStaffService, PersonsService personsService, AdminsService adminsService, CampusesService campusesService, MajorsService majorsService) {
+        this.emailServiceForStaffService = emailServiceForStaffService;
         this.personsService = personsService;
         this.adminsService = adminsService;
         this.campusesService = campusesService;
@@ -206,8 +210,28 @@ public class StaffsDAOImpl implements StaffsDAO {
         try {
             Admins currentAdmin = adminsService.getAdmin();
             staff.setCreator(currentAdmin);
-            entityManager.merge(staff);
-            logger.info("Added new staff with ID: {} by admin ID: {}", staff.getId(), currentAdmin.getId());
+            staff.setCreatedDate(LocalDate.now());
+            Staffs savedStaff = entityManager.merge(staff);
+
+            StaffEmailContext context = new StaffEmailContext(
+                    savedStaff.getId(),
+                    savedStaff.getFullName(),
+                    savedStaff.getEmail(),
+                    savedStaff.getPhoneNumber(),
+                    savedStaff.getBirthDate(),
+                    savedStaff.getGender() != null ? savedStaff.getGender().toString() : null,
+                    savedStaff.getFullAddress(),
+                    savedStaff.getCampus() != null ? savedStaff.getCampus().getCampusName() : null,
+                    savedStaff.getMajorManagement() != null ? savedStaff.getMajorManagement().getMajorName() : null,
+                    currentAdmin.getFullName(),
+                    savedStaff.getCreatedDate()
+            );
+
+            String subject = "Your Staff Account Information";
+            emailServiceForStaffService.sendEmailToNotifyLoginInformation(
+                    savedStaff.getEmail(), subject, context, randomPassword);
+
+            logger.info("Added new staff with ID: {} by admin ID: {}", savedStaff.getId(), currentAdmin.getId());
         } catch (Exception e) {
             logger.error("Error adding staff: {}", e.getMessage());
             throw new RuntimeException("Error adding staff: " + e.getMessage(), e);
@@ -244,12 +268,39 @@ public class StaffsDAOImpl implements StaffsDAO {
 
     @Override
     public void deleteStaff(String id) {
-        try {
-            Staffs staff = entityManager.find(Staffs.class, id);
-            entityManager.remove(staff);
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting staff with ID " + id + ": " + e.getMessage(), e);
+        Staffs staff = entityManager.find(Staffs.class, id);
+        if (staff == null) {
+            throw new IllegalArgumentException("Staff with ID " + id + " not found");
         }
+
+        // Gửi email trước khi xóa
+        StaffEmailContext context = new StaffEmailContext(
+                staff.getId(),
+                staff.getFullName(),
+                staff.getEmail(),
+                staff.getPhoneNumber(),
+                staff.getBirthDate(),
+                staff.getGender() != null ? staff.getGender().toString() : null,
+                staff.getFullAddress(),
+                staff.getCampus() != null ? staff.getCampus().getCampusName() : null,
+                staff.getMajorManagement() != null ? staff.getMajorManagement().getMajorName() : null,
+                staff.getCreator() != null ? staff.getCreator().getFullName() : null,
+                staff.getCreatedDate()
+        );
+
+        String subject = "Your staff account has been deactivated";
+        try {
+            emailServiceForStaffService.sendEmailToNotifyStaffDeletion(staff.getEmail(), subject, context);
+        } catch (Exception e) {
+            logger.warn("Failed to send deletion email to {}: {}", staff.getEmail(), e.getMessage());
+            // Không throw – xóa vẫn phải thành công
+        }
+
+        // Xóa các quan hệ liên quan (nếu có)
+        // Ví dụ: xóa MajorClasses, Specializations, v.v.
+
+        entityManager.remove(staff);
+        logger.info("Deleted staff with ID: {}", id);
     }
 
     @Override
@@ -276,7 +327,23 @@ public class StaffsDAOImpl implements StaffsDAO {
             }
             editStaffFields(existingStaff, staff);
             entityManager.merge(existingStaff);
-            String subject = "Your Staff Account Information After Being Edited";
+            StaffEmailContext context = new StaffEmailContext(
+                    existingStaff.getId(),
+                    existingStaff.getFullName(),
+                    existingStaff.getEmail(),
+                    existingStaff.getPhoneNumber(),
+                    existingStaff.getBirthDate(),
+                    existingStaff.getGender() != null ? existingStaff.getGender().toString() : null,
+                    existingStaff.getFullAddress(),
+                    existingStaff.getCampus() != null ? existingStaff.getCampus().getCampusName() : null,
+                    existingStaff.getMajorManagement() != null ? existingStaff.getMajorManagement().getMajorName() : null,
+                    existingStaff.getCreator() != null ? existingStaff.getCreator().getFullName() : null,
+                    existingStaff.getCreatedDate()
+            );
+
+            String subject = "Your staff account has been updated";
+            emailServiceForStaffService.sendEmailToNotifyInformationAfterEditing(
+                    existingStaff.getEmail(), subject, context);
         } catch (IOException | org.springframework.messaging.MessagingException e) {
             throw e;
         } catch (Exception e) {

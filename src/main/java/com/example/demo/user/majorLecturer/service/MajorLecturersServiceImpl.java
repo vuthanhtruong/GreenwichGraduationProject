@@ -2,7 +2,7 @@ package com.example.demo.user.majorLecturer.service;
 
 import com.example.demo.user.majorLecturer.dao.MajorLecturersDAO;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.majorLecturer.model.MinorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

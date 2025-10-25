@@ -1,4 +1,4 @@
-package com.example.demo.user.majorLecturer.model;
+package com.example.demo.user.minorLecturer.model;
 
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
