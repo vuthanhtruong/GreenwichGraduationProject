@@ -1,5 +1,8 @@
 package com.example.demo.user.admin.dao;
 
+import com.example.demo.email_service.dto.AdminEmailContext;
+import com.example.demo.email_service.service.EmailServiceForAdminService;
+import com.example.demo.email_service.service.EmailServiceForStaffService;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.user.person.model.Persons;
@@ -31,11 +34,14 @@ public class AdminsDAOImpl implements AdminsDAO {
     private final PersonsService personsService;
     private static final Logger logger = LoggerFactory.getLogger(AdminsDAOImpl.class);
 
+    private final EmailServiceForAdminService emailServiceForAdminService;
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    public AdminsDAOImpl(PersonsService personsService) {
+    public AdminsDAOImpl(PersonsService personsService, EmailServiceForAdminService emailServiceForAdminService) {
         this.personsService = personsService;
+        this.emailServiceForAdminService = emailServiceForAdminService;
     }
 
     @Override
@@ -236,5 +242,66 @@ public class AdminsDAOImpl implements AdminsDAO {
             logger.error("Error updating admin ID {}: {}", admin.getId(), e.getMessage(), e);
             throw new RuntimeException("Error updating admin: " + e.getMessage(), e);
         }
+    }
+    @Override
+    public void addAdmin(Admins admin, String rawPassword) {
+        try {
+            Admins currentAdmin = getAdmin();
+            Admins saved = entityManager.merge(admin);
+
+            // Gửi email
+            AdminEmailContext context = new AdminEmailContext(
+                    saved.getId(),
+                    saved.getFullName(),
+                    saved.getEmail(),
+                    saved.getPhoneNumber(),
+                    saved.getBirthDate(),
+                    saved.getGender() != null ? saved.getGender().toString() : null,
+                    saved.getFullAddress(),
+                    saved.getCampus() != null ? saved.getCampus().getCampusName() : null,
+                    currentAdmin.getFullName(),
+                    saved.getCreatedDate()
+            );
+
+            String subject = "Your Admin Account Has Been Created";
+            emailServiceForAdminService.sendEmailToNotifyLoginInformation(
+                    saved.getEmail(), subject, context, rawPassword);
+
+            logger.info("Added new admin ID: {} by {}", saved.getId(), currentAdmin.getId());
+        } catch (Exception e) {
+            logger.error("Error adding admin: {}", e.getMessage(), e);
+            throw new RuntimeException("Error adding admin: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void deleteAdmin(String id) {
+        Admins admin = entityManager.find(Admins.class, id);
+        if (admin == null) {
+            throw new IllegalArgumentException("Admin with ID " + id + " not found");
+        }
+
+        // Gửi email trước khi xóa
+        AdminEmailContext context = new AdminEmailContext(
+                admin.getId(),
+                admin.getFullName(),
+                admin.getEmail(),
+                admin.getPhoneNumber(),
+                admin.getBirthDate(),
+                admin.getGender() != null ? admin.getGender().toString() : null,
+                admin.getFullAddress(),
+                admin.getCampus() != null ? admin.getCampus().getCampusName() : null,
+                admin.getCreator() != null ? admin.getCreator().getFullName() : null,
+                admin.getCreatedDate()
+        );
+
+        String subject = "Your Admin Account Has Been Deactivated";
+        try {
+        } catch (Exception e) {
+            logger.warn("Failed to send deletion email to {}: {}", admin.getEmail(), e.getMessage());
+        }
+
+        entityManager.remove(admin);
+        logger.info("Deleted admin ID: {}", id);
     }
 }

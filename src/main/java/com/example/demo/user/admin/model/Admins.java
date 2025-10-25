@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "Admins")
 @PrimaryKeyJoinColumn(name = "ID")
@@ -24,6 +26,14 @@ public class Admins extends Persons {
     @Lob
     @Column(name = "FaceData", columnDefinition = "LONGTEXT", nullable = true)
     private String faceData;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CreatorID", nullable = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Admins creator;
+
+    @Column(name = "CreatedDate", nullable = true)
+    private LocalDateTime createdDate;
 
     @Override
     public String getRoleType() {

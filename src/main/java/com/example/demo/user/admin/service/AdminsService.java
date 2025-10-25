@@ -16,4 +16,6 @@ public interface AdminsService {
     Campuses getAdminCampus();
     void editAdmin(Admins admin, MultipartFile avatarFile) throws IOException;
     Map<String, String> validateAdmin(Admins admin, MultipartFile avatarFile);
+    void addAdmin(Admins admin, String rawPassword);
+    void deleteAdmin(String id);
 }

@@ -13,6 +13,16 @@ import java.util.Map;
 @Service
 public class AdminsServiceImpl implements AdminsService {
     @Override
+    public void addAdmin(Admins admin, String rawPassword) {
+        adminsDAO.addAdmin(admin, rawPassword);
+    }
+
+    @Override
+    public void deleteAdmin(String id) {
+        adminsDAO.deleteAdmin(id);
+    }
+
+    @Override
     public Map<String, String> validateAdmin(Admins admin, MultipartFile avatarFile) {
         return adminsDAO.validateAdmin(admin, avatarFile);
     }

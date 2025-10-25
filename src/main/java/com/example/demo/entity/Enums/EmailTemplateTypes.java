@@ -1,10 +1,13 @@
 package com.example.demo.entity.Enums;
 
 public enum EmailTemplateTypes {
-    // Student
     STUDENT_ADD,
     STUDENT_EDIT,
     STUDENT_DELETE,
+    // Student
+    ADMIN_ADD,
+    ADMIN_EDIT,
+    ADMIN_DELETE,
 
     // Staff
     STAFF_ADD,
