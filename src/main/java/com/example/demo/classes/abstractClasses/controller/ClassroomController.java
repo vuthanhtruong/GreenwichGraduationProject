@@ -1,7 +1,7 @@
-package com.example.demo.classes.abstractClass.controller;
+package com.example.demo.classes.abstractClasses.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.model.Classes;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.post.classPost.model.ClassPosts;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -53,15 +54,18 @@ public class ClassroomController {
     @GetMapping
     public String showClassroomGet(HttpSession session, Model model) {
         try {
-            if(personsService.getPerson() instanceof MajorLecturers){
+            if (personsService.getPerson() instanceof MajorLecturers) {
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("listClass","/major-lecturer-home/classes-list");
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("add", true);
             } else if (personsService.getPerson() instanceof Staffs) {
                 model.addAttribute("home", "/staff-home");
-                model.addAttribute("listClass","/staff-home/classes-list");
+                model.addAttribute("listClass", "/staff-home/classes-list");
+                model.addAttribute("add", true);
             } else if (personsService.getPerson() instanceof Students) {
                 model.addAttribute("home", "/student-home");
-                model.addAttribute("listClass", "/student-home/classes-list");
+                model.addAttribute("listClass", "/student-home/student-classes-list");
+                model.addAttribute("add", false);
             }
 
             String classId = (String) session.getAttribute("classId");
@@ -81,22 +85,30 @@ public class ClassroomController {
                 List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
+                // Sort by createdAt in descending order (newest first)
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("addPostClass", "/classroom/upload-major-post");
+                model.addAttribute("addASM", "/classroom/create-major-assignment-slot");
                 return "MajorClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
                 classPostsList.addAll(assignmentSubmitSlots);
+                // Sort by createdAt in descending order (newest first)
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
+                model.addAttribute("addASM", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedClassroom";
             }
 
@@ -117,15 +129,18 @@ public class ClassroomController {
     @PostMapping
     public String showClassroomPost(@RequestParam("classId") String classId, HttpSession session, Model model) {
         try {
-            if(personsService.getPerson() instanceof MajorLecturers){
+            if (personsService.getPerson() instanceof MajorLecturers) {
                 model.addAttribute("home", "/major-lecturer-home");
-                model.addAttribute("listClass","/major-lecturer-home/classes-list");
+                model.addAttribute("listClass", "/major-lecturer-home/classes-list");
+                model.addAttribute("add", true);
             } else if (personsService.getPerson() instanceof Staffs) {
                 model.addAttribute("home", "/staff-home");
-                model.addAttribute("listClass","/staff-home/classes-list");
+                model.addAttribute("listClass", "/staff-home/classes-list");
+                model.addAttribute("add", true);
             } else if (personsService.getPerson() instanceof Students) {
                 model.addAttribute("home", "/student-home");
                 model.addAttribute("listClass", "/student-home/student-classes-list");
+                model.addAttribute("add", false);
             }
             session.setAttribute("classId", classId);
             Classes classes = classesService.findClassById(classId);
@@ -136,22 +151,30 @@ public class ClassroomController {
                 List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
                 classPostsList.addAll(majorClassPostsList);
                 classPostsList.addAll(assignmentSubmitSlots);
+                // Sort by createdAt in descending order (newest first)
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
                 model.addAttribute("slot", new AssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("addPostClass", "/classroom/upload-major-post");
+                model.addAttribute("addASM", "/classroom/create-major-assignment-slot");
                 return "MajorClassroom";
             } else if (classes instanceof SpecializedClasses specializedClasses) {
                 List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
                 List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
                 classPostsList.addAll(specializedClassPosts);
                 classPostsList.addAll(assignmentSubmitSlots);
+                // Sort by createdAt in descending order (newest first)
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("slot", new SpecializedAssignmentSubmitSlots());
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", classPostsList);
+                model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
+                model.addAttribute("addASM", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedClassroom";
             }
 

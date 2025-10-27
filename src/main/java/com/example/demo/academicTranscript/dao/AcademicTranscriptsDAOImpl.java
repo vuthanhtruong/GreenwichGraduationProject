@@ -4,7 +4,7 @@ import com.example.demo.academicTranscript.model.MajorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Grades;
 import com.example.demo.user.student.model.Students;

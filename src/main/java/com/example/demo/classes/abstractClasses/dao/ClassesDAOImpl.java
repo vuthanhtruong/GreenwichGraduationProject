@@ -1,6 +1,6 @@
-package com.example.demo.classes.abstractClass.dao;
+package com.example.demo.classes.abstractClasses.dao;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

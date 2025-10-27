@@ -1,10 +1,10 @@
 package com.example.demo.academicTranscript.controller;
 
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.model.Classes;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;

@@ -64,7 +64,7 @@
                 <td th:text="${#temporals.format(class.createdAt, 'dd MMM yyyy')}"></td>
                 <td>
                     <form th:action="@{/classroom}" method="post" class="inline-form">
-                        <input type="hidden" th:name="classId" th:value="${class.id.classId}" />
+                        <input type="hidden" th:name="classId" th:value="${class.getClassEntity().getClassId()}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn primary small">
                             <i class="fas fa-door-open"></i> Access
@@ -73,8 +73,8 @@
                 </td>
                 <td>
                     <form th:action="@{/student-home/student-classes-list/syllabus}" method="get" class="inline-form">
-                        <input type="hidden" name="classId" th:value="${class.id.classId}" />
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden"  th:name="classId" th:value="${class.getClassEntity().getClassId()}" />
+                        <input type="hidden"  th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn secondary small">
                             <i class="fas fa-file-alt"></i> View Syllabus
                         </button>

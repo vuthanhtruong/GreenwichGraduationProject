@@ -1,6 +1,6 @@
 package com.example.demo.post.minorClassPosts.model;
 
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.entity.Enums.Notifications;

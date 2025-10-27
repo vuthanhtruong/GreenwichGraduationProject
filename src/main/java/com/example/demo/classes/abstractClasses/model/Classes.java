@@ -1,9 +1,8 @@
-package com.example.demo.classes.abstractClass.model;
+package com.example.demo.classes.abstractClasses.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
-import com.example.demo.document.model.ClassDocuments;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.user.staff.model.Staffs;
@@ -13,7 +12,6 @@ import lombok.Setter;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "classes")

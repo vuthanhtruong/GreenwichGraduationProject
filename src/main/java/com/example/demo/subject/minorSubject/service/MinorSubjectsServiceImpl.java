@@ -12,6 +12,10 @@ import java.util.Map;
 
 @Service
 public class MinorSubjectsServiceImpl implements MinorSubjectsService {
+    @Override
+    public List<MinorSubjects> getAllSubjects() {
+        return subjectsDAO.getAllSubjects();
+    }
 
     private final MinorSubjectsDAO subjectsDAO;
 

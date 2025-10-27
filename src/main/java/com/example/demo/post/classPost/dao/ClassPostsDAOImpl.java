@@ -1,8 +1,8 @@
 package com.example.demo.post.classPost.dao;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;

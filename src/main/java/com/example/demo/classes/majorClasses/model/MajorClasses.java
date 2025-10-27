@@ -1,6 +1,6 @@
 package com.example.demo.classes.majorClasses.model;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.user.staff.model.Staffs;

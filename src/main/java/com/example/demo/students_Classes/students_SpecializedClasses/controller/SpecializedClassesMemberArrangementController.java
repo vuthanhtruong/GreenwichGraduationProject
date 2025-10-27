@@ -1,7 +1,6 @@
 package com.example.demo.students_Classes.students_SpecializedClasses.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
 import com.example.demo.students_Classes.abstractStudents_Class.model.StudentsClassesId;

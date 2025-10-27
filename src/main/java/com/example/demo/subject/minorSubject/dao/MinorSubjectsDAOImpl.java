@@ -21,6 +21,10 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MinorSubjectsDAOImpl implements MinorSubjectsDAO {
+    @Override
+    public List<MinorSubjects> getAllSubjects() {
+        return entityManager.createQuery("select m from MinorSubjects m", MinorSubjects.class).getResultList();
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(MinorSubjectsDAOImpl.class);
 

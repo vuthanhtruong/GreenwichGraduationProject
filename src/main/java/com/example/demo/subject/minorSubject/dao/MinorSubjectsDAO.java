@@ -38,4 +38,6 @@ public interface MinorSubjectsDAO {
     boolean isDuplicateSubjectName(String subjectName, String subjectId);
 
     Map<String, String> validateSubject(MinorSubjects subject);
+
+    List<MinorSubjects> getAllSubjects();
 }

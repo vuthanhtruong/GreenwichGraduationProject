@@ -1,7 +1,7 @@
 package com.example.demo.post.specializedAssignmentSubmitSlots.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.model.Classes;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.document.service.ClassDocumentsService;
 import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;

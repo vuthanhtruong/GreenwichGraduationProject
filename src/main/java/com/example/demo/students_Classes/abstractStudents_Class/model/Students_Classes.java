@@ -1,8 +1,8 @@
 package com.example.demo.students_Classes.abstractStudents_Class.model;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.user.student.model.Students;

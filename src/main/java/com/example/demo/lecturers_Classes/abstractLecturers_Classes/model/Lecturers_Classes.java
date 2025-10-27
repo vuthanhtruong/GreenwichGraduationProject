@@ -1,6 +1,6 @@
 package com.example.demo.lecturers_Classes.abstractLecturers_Classes.model;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Notifications;

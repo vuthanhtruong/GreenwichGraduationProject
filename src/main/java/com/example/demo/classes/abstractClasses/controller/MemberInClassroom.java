@@ -1,7 +1,7 @@
-package com.example.demo.classes.abstractClass.controller;
+package com.example.demo.classes.abstractClasses.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.model.Classes;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.service.MajorLecturers_MajorClassesService;

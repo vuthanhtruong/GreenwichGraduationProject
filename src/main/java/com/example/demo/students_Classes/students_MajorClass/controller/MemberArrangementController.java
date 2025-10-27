@@ -1,6 +1,6 @@
 package com.example.demo.students_Classes.students_MajorClass.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;

@@ -11,6 +11,10 @@ import java.util.Map;
 
 @Service
 public class AssignmentSubmitSlotsServiceImpl implements AssignmentSubmitSlotsService {
+    public AssignmentSubmitSlotsServiceImpl(AssignmentSubmitSlotsDAO assignmentSubmitSlotsDAO) {
+        this.assignmentSubmitSlotsDAO = assignmentSubmitSlotsDAO;
+    }
+
     @Override
     public Map<String, String> validateSlot(AssignmentSubmitSlots slot) {
         return assignmentSubmitSlotsDAO.validateSlot(slot);
@@ -41,7 +45,8 @@ public class AssignmentSubmitSlotsServiceImpl implements AssignmentSubmitSlotsSe
         assignmentSubmitSlotsDAO.save(slot);
     }
 
-    private AssignmentSubmitSlotsDAO assignmentSubmitSlotsDAO;
+    private final AssignmentSubmitSlotsDAO assignmentSubmitSlotsDAO;
+
     @Override
     public List<AssignmentSubmitSlots> getAllAssignmentSubmitSlotsByClass(MajorClasses majorClass) {
         return assignmentSubmitSlotsDAO.getAllAssignmentSubmitSlotsByClass(majorClass);

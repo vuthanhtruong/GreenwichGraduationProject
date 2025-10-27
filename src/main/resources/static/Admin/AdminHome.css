@@ -1,209 +1,144 @@
-/* Base */
+/* ===== Base Style ===== */
 body {
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #eef2f7, #f9fafc);
+    background: #f3f4f6;
     margin: 0;
     color: #1a1a1a;
+    font-size: 16px;
     line-height: 1.6;
 }
 
 .win11-container {
-    max-width: 1200px;
-    margin: auto;
     padding: 24px;
+    max-width: 1400px;
+    margin: auto;
 }
 
-/* Title Bar */
+/* ===== Title Bar ===== */
 .win11-title-bar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.win11-title-bar h1 {
-    font-size: 26px;
-    margin: 0;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+}
+.win11-title-bar h1 {
+    font-size: 24px;
+    display: flex;
     align-items: center;
     gap: 12px;
-    font-weight: 700;
-    color: #2563eb;
+    margin: 0;
 }
-
 .win11-title-bar h2 {
-    font-size: 16px;
-    font-weight: 500;
-    margin-top: 8px;
+    font-size: 18px;
+    margin: 0;
     color: #4b5563;
 }
 
-/* Navigation */
+/* ===== Navigation Links ===== */
 .dashboard-nav {
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 14px;
+    gap: 16px;
     flex-wrap: wrap;
+    align-items: center;
 }
-
 .dashboard-nav a,
 .dashboard-nav button {
-    background: #f9fafc;
-    padding: 8px 16px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 14px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #ffffff;
     border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #1f2937;
+    font-size: 15px;
     cursor: pointer;
-    color: #1a1a1a;
-    transition: all 0.25s ease;
+    transition: all 0.2s;
 }
-
 .dashboard-nav a:hover,
 .dashboard-nav button:hover {
-    background: #2563eb;
-    color: #fff;
+    background: #f0f6ff;
     border-color: #2563eb;
-    transform: translateY(-2px);
+    color: #2563eb;
+}
+.dashboard-nav form {
+    margin: 0;
 }
 
-/* Dashboard Grid */
+/* ===== Dashboard Grid ===== */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
 }
 
-/* Cards */
+/* ===== Dashboard Cards ===== */
 .dashboard-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #fff;
+    justify-content: center;
+    padding: 24px 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    text-align: center;
     text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-card i {
-    font-size: 34px;
-    transition: transform 0.3s ease;
-}
-
-.dashboard-card span {
-    font-weight: 600;
     font-size: 16px;
-    letter-spacing: 0.3px;
+    font-weight: 500;
+    color: #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease-in-out;
 }
-
+.dashboard-card i {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
 .dashboard-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    background-color: #f9fafb;
+    color: #2563eb;
 }
 
-.dashboard-card:hover i {
-    transform: scale(1.2);
-}
+/* ===== Color Themes ===== */
+.dashboard-card.primary       { border-left: 6px solid #2563eb; }
+.dashboard-card.secondary     { border-left: 6px solid #7c3aed; }
+.dashboard-card.success       { border-left: 6px solid #16a34a; }
+.dashboard-card.danger        { border-left: 6px solid #dc2626; }
+.dashboard-card.warning       { border-left: 6px solid #facc15; }
+.dashboard-card.info          { border-left: 6px solid #0ea5e9; }
+.dashboard-card.major         { border-left: 6px solid #6366f1; }
+.dashboard-card.curriculum    { border-left: 6px solid #a855f7; }
+.dashboard-card.scholarship   { border-left: 6px solid #059669; }
+.dashboard-card.fee           { border-left: 6px solid #f97316; }
+.dashboard-card.light         { border-left: 6px solid #d97706; }
+.dashboard-card.email         { border-left: 6px solid #3b82f6; }
+.dashboard-card.support       { border-left: 6px solid #10b981; }
+.dashboard-card.contract      { border-left: 6px solid #8b5cf6; }
+.dashboard-card.colleague     { border-left: 6px solid #14b8a6; }
 
-.dashboard-card.scholarship {
-    background: linear-gradient(135deg, #9333ea, #6b21a8); /* tím nổi bật */
-    color: #fff;
-}
-/* Email Templates */
-.dashboard-card.email {
-    background: linear-gradient(135deg, #3b82f6, #1e3a8a); /* xanh tím than */
-    color: #fff;
-}
-
-
-
-/* Color Variants */
-.dashboard-card.primary { background: linear-gradient(135deg, #2563eb, #1e40af); }
-.dashboard-card.secondary { background: linear-gradient(135deg, #6b7280, #374151); }
-.dashboard-card.success { background: linear-gradient(135deg, #16a34a, #065f46); }
-.dashboard-card.danger { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
-.dashboard-card.warning { background: linear-gradient(135deg, #d97706, #92400e); }
-.dashboard-card.info { background: linear-gradient(135deg, #0891b2, #155e75); }
-.dashboard-card.light { background: linear-gradient(135deg, #f3f4f6, #d1d5db); color: #111827; }
-
-/* Responsive */
+/* ===== Responsive Adjustments ===== */
 @media (max-width: 768px) {
     .dashboard-nav {
         flex-direction: column;
-        gap: 8px;
+        align-items: flex-start;
     }
-}
-/* Support Tickets */
-.dashboard-card.support {
-    background: linear-gradient(135deg, #10b981, #047857); /* xanh ngọc đậm */
-    color: #fff;
-}
-/* Annual Re-study Fee */
-.dashboard-card.fee {
-    background: linear-gradient(135deg, #f59e0b, #b45309); /* golden/orange tones */
-    color: #fff;
-}
-/* Academic Contracts */
-.dashboard-card.contract {
-    background: linear-gradient(135deg, #8b5cf6, #4c1d95); /* elegant purple gradient */
-    color: #fff;
-}
 
-/* Majors List */
-.dashboard-card.major {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6); /* tím ánh xanh sang trọng */
-    color: #fff;
-}
+    .win11-title-bar {
+        padding: 16px;
+    }
 
-.dashboard-card.major:hover {
-    background: linear-gradient(135deg, #6d28d9, #4c1d95); /* nhấn mạnh khi hover */
-    transform: translateY(-6px);
-    box-shadow: 0 8px 18px rgba(124, 58, 237, 0.3);
-}
-/* Rooms List */
-.dashboard-card.room {
-    background: linear-gradient(135deg, #0284c7, #0c4a6e); /* xanh dương đậm sang trọng */
-    color: #fff;
-}
+    .dashboard-card {
+        font-size: 14px;
+        padding: 20px 12px;
+    }
 
-.dashboard-card.room:hover {
-    background: linear-gradient(135deg, #0369a1, #164e63);
-    transform: translateY(-6px);
-    box-shadow: 0 8px 18px rgba(3, 105, 161, 0.3);
-}
-
-/* Curriculums */
-.dashboard-card.curriculum {
-    background: linear-gradient(135deg, #14b8a6, #0f766e); /* teal xanh ngọc đậm */
-    color: #fff;
-}
-
-.dashboard-card.curriculum:hover {
-    background: linear-gradient(135deg, #0d9488, #115e59); /* hover nhấn mạnh */
-    transform: translateY(-6px);
-    box-shadow: 0 8px 18px rgba(20, 184, 166, 0.3);
-}
-.dashboard-card.colleague {
-    background-color: #8e44ad; /* Light purple tone */
-    color: white;
-}
-
-.dashboard-card.colleague:hover {
-    background-color: #732d91; /* Darker purple on hover */
+    .dashboard-card i {
+        font-size: 24px;
+    }
 }

@@ -1,7 +1,7 @@
-package com.example.demo.classes.abstractClass.service;
+package com.example.demo.classes.abstractClasses.service;
 
-import com.example.demo.classes.abstractClass.dao.ClassesDAO;
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.dao.ClassesDAO;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -1,6 +1,6 @@
 package com.example.demo.post.classPost.service;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.post.classPost.dao.ClassPostsDAO;
 import com.example.demo.post.classPost.model.ClassPosts;
 import org.springframework.stereotype.Service;

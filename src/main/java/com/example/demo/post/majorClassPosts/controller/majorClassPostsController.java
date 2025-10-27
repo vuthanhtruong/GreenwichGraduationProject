@@ -1,7 +1,7 @@
 package com.example.demo.post.majorClassPosts.controller;
 
-import com.example.demo.classes.abstractClass.model.Classes;
-import com.example.demo.classes.abstractClass.service.ClassesService;
+import com.example.demo.classes.abstractClasses.model.Classes;
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.comment.model.MajorComments;
 import com.example.demo.document.service.ClassDocumentsService;
@@ -62,7 +62,7 @@ public class majorClassPostsController {
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("openPostOverlay", true);
                 model.addAttribute("newComment", new MajorComments());
-                return "MajorLecturerClassroom";
+                return "MajorClassroom";
             }
 
             if (!(classes instanceof MajorClasses majorClasses)) {
@@ -73,7 +73,7 @@ public class majorClassPostsController {
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openPostOverlay", true);
                 model.addAttribute("newComment", new MajorComments());
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             MajorEmployes creator = employesService.getMajorEmployee();
@@ -85,7 +85,7 @@ public class majorClassPostsController {
                 model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openPostOverlay", true);
                 model.addAttribute("newComment", new MajorComments());
-                return "MajorLecturerClassroom";
+                return "MajorClassroom";
             }
 
             Map<String, String> errors = majorClassPostsService.validatePost(post);
@@ -99,7 +99,7 @@ public class majorClassPostsController {
                 model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                 model.addAttribute("openPostOverlay", true);
                 model.addAttribute("newComment", new MajorComments());
-                return "MajorLecturerClassroom";
+                return "MajorClassroom";
             }
 
             post.setPostId(majorClassPostsService.generateUniquePostId(classId, LocalDate.now()));
@@ -116,7 +116,7 @@ public class majorClassPostsController {
                     model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                     model.addAttribute("openPostOverlay", true);
                     model.addAttribute("newComment", new MajorComments());
-                    return "MajorLecturerClassroom";
+                    return "MajorClassroom";
                 }
 
                 List<String> fileErrors = classDocumentsService.saveDocuments(post, files);
@@ -127,7 +127,7 @@ public class majorClassPostsController {
                     model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
                     model.addAttribute("openPostOverlay", true);
                     model.addAttribute("newComment", new MajorComments());
-                    return "MajorLecturerClassroom";
+                    return "MajorClassroom";
                 }
             }
 
@@ -141,7 +141,7 @@ public class majorClassPostsController {
             model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
             model.addAttribute("openPostOverlay", true);
             model.addAttribute("newComment", new MajorComments());
-            return "MajorLecturerClassroom";
+            return "MajorClassroom";
         }
     }
 

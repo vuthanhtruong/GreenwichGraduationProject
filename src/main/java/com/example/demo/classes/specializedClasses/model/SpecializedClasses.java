@@ -1,6 +1,6 @@
 package com.example.demo.classes.specializedClasses.model;
 
-import com.example.demo.classes.abstractClass.model.Classes;
+import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.entity.Enums.Sessions;

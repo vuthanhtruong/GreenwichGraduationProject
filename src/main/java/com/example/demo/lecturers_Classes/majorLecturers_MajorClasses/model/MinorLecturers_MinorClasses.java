@@ -1,6 +1,6 @@
 package com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model;
 
-import com.example.demo.classes.majorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.Lecturers_Classes;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;

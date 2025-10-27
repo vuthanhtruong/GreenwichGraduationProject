@@ -1,15 +1,10 @@
 package com.example.demo.financialHistory.financialHistories.model;
 
 import com.example.demo.accountBalance.model.AccountBalances;
-import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.model.MinorClasses;
-import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.financialHistory.SupportTicketHistories.model.SupportTicketHistories;
 import com.example.demo.financialHistory.depositHistory.model.DepositHistories;
 import com.example.demo.financialHistory.paymentHistories.model.PaymentHistories;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
-import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
