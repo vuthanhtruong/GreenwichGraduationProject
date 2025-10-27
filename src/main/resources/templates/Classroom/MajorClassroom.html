@@ -170,7 +170,7 @@
                             <th:block th:if="${post.getAllCommentsSorted() != null and !post.getAllCommentsSorted().isEmpty()}">
                                 <ul>
                                     <li th:each="comment : ${post.getAllCommentsSorted()}">
-                                        <span th:text="'By ' + ${comment.CommentBy()} + ': ' + ${comment.getContent()}"></span>
+                                        <span th:text="'By ' + ${comment.getCommenterId()} + ': ' + ${comment.getContent()}"></span>
                                         <small th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}"></small>
                                     </li>
                                 </ul>

@@ -56,7 +56,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
             MajorLecturers_MajorClasses lecturerClass = new MajorLecturers_MajorClasses();
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
-            lecturerClass.setClazz(classes);
+            lecturerClass.setMajorClass(classes);
             lecturerClass.setLecturer(lecturer);
             lecturerClass.setCreatedAt(LocalDateTime.now());
             lecturerClass.setAddedBy(staffsService.getStaff());
@@ -67,7 +67,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
     @Override
     public List<MajorLecturers> listLecturersInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.class FROM MajorLecturers_MajorClasses lc WHERE lc.class = :class",
+                        "SELECT lc.lecturer FROM MajorLecturers_MajorClasses lc WHERE lc.majorClass = :class",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .getResultList();
@@ -77,7 +77,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
     public List<MajorLecturers> listLecturersNotInClass(MajorClasses classes) {
         return entityManager.createQuery(
                         "SELECT l FROM MajorLecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
-                                "(SELECT lc.lecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.class = :class)",
+                                "(SELECT lc.lecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.majorClass = :class)",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())

@@ -64,7 +64,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
             lecturerClass.setLecturer(lecturer);
-            lecturerClass.setClazz(classes);
+            lecturerClass.setSpecializedClass(classes);
             lecturerClass.setCreatedAt(LocalDateTime.now());
             lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
@@ -74,7 +74,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
     @Override
     public List<MajorLecturers> listLecturersInClass(SpecializedClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.lecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.class = :class",
+                        "SELECT lc.lecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .getResultList();
@@ -93,7 +93,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
                                     "AND NOT EXISTS (" +
                                     "    SELECT 1 FROM MajorLecturers_SpecializedClasses lc " +
                                     "    WHERE lc.lecturer = l " +
-                                    "    AND lc.class = :class" +
+                                    "    AND lc.specializedClass = :class" +
                                     ") " +
                                     // chỉ lấy giảng viên đã thuộc chuyên ngành tương ứng
                                     "AND EXISTS (" +

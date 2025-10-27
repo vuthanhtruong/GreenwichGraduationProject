@@ -31,7 +31,7 @@ public class MajorLecturers_SpecializedClasses extends Lecturers_Classes {
     @MapsId("classId")
     @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private SpecializedClasses clazz;
+    private SpecializedClasses specializedClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy")
@@ -40,28 +40,28 @@ public class MajorLecturers_SpecializedClasses extends Lecturers_Classes {
 
     public MajorLecturers_SpecializedClasses() {}
 
-    public MajorLecturers_SpecializedClasses(MajorLecturers lecturer, SpecializedClasses clazz, LocalDateTime createdAt, Staffs addedBy) {
-        super(lecturer.getId(), clazz.getClassId(), createdAt);
+    public MajorLecturers_SpecializedClasses(MajorLecturers lecturer, SpecializedClasses specializedClass, LocalDateTime createdAt, Staffs addedBy) {
+        super(lecturer.getId(), specializedClass.getClassId(), createdAt);
         this.lecturer = lecturer;
-        this.clazz = clazz;
+        this.specializedClass = specializedClass;
         this.addedBy = addedBy;
     }
     @Override
     public String getSession() {
-        return clazz != null ? String.valueOf(clazz.getSession()) : null;
+        return specializedClass != null ? String.valueOf(specializedClass.getSession()) : null;
     }
 
     @Override
     public Integer getSlotQuantity() {
-        return clazz != null ? clazz.getSlotQuantity() : null;
+        return specializedClass != null ? specializedClass.getSlotQuantity() : null;
     }
 
 
     @Override public String getLecturerId() { return lecturer != null ? lecturer.getId() : null; }
     @Override public String getLecturerName() { return lecturer != null ? lecturer.getFullName() : null; }
     @Override public Object getLecturerEntity() { return lecturer; }
-    @Override public String getClassId() { return clazz != null ? clazz.getClassId() : null; }
-    @Override public String getClassName() { return clazz != null ? clazz.getNameClass() : null; }
-    @Override public String getSubjectName() { return clazz != null && clazz.getSpecializedSubject() != null ? clazz.getSpecializedSubject().getSubjectName() : null; }
-    @Override public String getSubjectCode() { return clazz != null && clazz.getSpecializedSubject() != null ? clazz.getSpecializedSubject().getSubjectId() : null; }
+    @Override public String getClassId() { return specializedClass != null ? specializedClass.getClassId() : null; }
+    @Override public String getClassName() { return specializedClass != null ? specializedClass.getNameClass() : null; }
+    @Override public String getSubjectName() { return specializedClass != null && specializedClass.getSpecializedSubject() != null ? specializedClass.getSpecializedSubject().getSubjectName() : null; }
+    @Override public String getSubjectCode() { return specializedClass != null && specializedClass.getSpecializedSubject() != null ? specializedClass.getSpecializedSubject().getSubjectId() : null; }
 }
