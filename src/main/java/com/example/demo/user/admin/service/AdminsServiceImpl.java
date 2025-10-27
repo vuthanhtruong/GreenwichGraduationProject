@@ -7,11 +7,42 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class AdminsServiceImpl implements AdminsService {
+    @Override
+    public List<Admins> getPaginatedAdmins(int firstResult, int pageSize) {
+        return adminsDAO.getPaginatedAdmins(firstResult, pageSize);
+    }
+
+    @Override
+    public long countAdmins() {
+        return adminsDAO.countAdmins();
+    }
+
+    @Override
+    public List<Admins> searchAdmins(String searchType, String keyword, int firstResult, int pageSize) {
+        return adminsDAO.searchAdmins(searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public long countSearchResults(String searchType, String keyword) {
+        return adminsDAO.countSearchResults(searchType, keyword);
+    }
+
+    @Override
+    public String generateAdminId(LocalDate date) {
+        return adminsDAO.generateAdminId(date);
+    }
+
+    @Override
+    public String generateRandomPassword(int length) {
+        return adminsDAO.generateRandomPassword(length);
+    }
+
     @Override
     public void addAdmin(Admins admin, String rawPassword) {
         adminsDAO.addAdmin(admin, rawPassword);

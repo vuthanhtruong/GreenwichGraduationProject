@@ -1,5 +1,6 @@
-package com.example.demo.subject.abstractSubject.model;
+package com.example.demo.subject.minorSubject.model;
 
+import com.example.demo.subject.abstractSubject.model.Subjects;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import jakarta.persistence.*;
 import lombok.Getter;

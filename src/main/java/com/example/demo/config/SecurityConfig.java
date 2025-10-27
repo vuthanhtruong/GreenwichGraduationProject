@@ -39,8 +39,10 @@ public class SecurityConfig {
                         .requestMatchers("/student-home/**", "/api/student-home/**").hasRole("STUDENT")
                         .requestMatchers("/staff-home/**", "/api/staff-home/**").hasRole("STAFF")
                         .requestMatchers("/major-lecturer-home/**", "/api/lecturer-home/**").hasRole("LECTURER")
+                        .requestMatchers("/minor-lecturer-home/**", "/api/minor-lecturer-home/**").hasRole("MINOR")
+                        .requestMatchers("/deputy-staff-home/**", "/api/deputy-staff-home/**").hasRole("DEPUTY")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
-                        .requestMatchers("/classroom/**").hasAnyRole("STUDENT", "LECTURER", "STAFF") // Add this line
+                        .requestMatchers("/classroom/**").hasAnyRole("STUDENT", "LECTURER", "STAFF")
                         .requestMatchers(
                                 "/login",
                                 "/resources/**",
@@ -105,6 +107,8 @@ public class SecurityConfig {
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_STAFF"))) return "/staff-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_LECTURER"))) return "/major-lecturer-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return "/admin-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_DEPUTY"))) return "/deputy-staff-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_MINOR"))) return "/minor-lecturer-home";
         return null;
     }
 

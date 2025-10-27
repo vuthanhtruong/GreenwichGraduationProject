@@ -2,6 +2,7 @@ package com.example.demo.user.deputyStaff.dao;
 
 
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,4 +23,5 @@ public interface DeputyStaffsDAO {
     Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId);
     List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
+    DeputyStaffs getDeputyStaff();
 }

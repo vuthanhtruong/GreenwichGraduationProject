@@ -6,7 +6,7 @@ import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.service.StudentRequiredSpecializedSubjectsService;
 import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredSubjectsService;
-import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

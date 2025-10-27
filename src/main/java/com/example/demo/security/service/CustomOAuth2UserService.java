@@ -2,7 +2,9 @@ package com.example.demo.security.service;
 
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.user.staff.model.Staffs;
@@ -58,6 +60,8 @@ public class CustomOAuth2UserService extends OidcUserService {
         if (person instanceof MajorLecturers) return "ROLE_LECTURER";
         if (person instanceof Students) return "ROLE_STUDENT";
         if (person instanceof Admins) return "ROLE_ADMIN";
+        if (person instanceof DeputyStaffs) return "ROLE_DEPUTY";
+        if (person instanceof MinorLecturers) return "ROLE_MINOR";
         return "ROLE_USER";
     }
 }

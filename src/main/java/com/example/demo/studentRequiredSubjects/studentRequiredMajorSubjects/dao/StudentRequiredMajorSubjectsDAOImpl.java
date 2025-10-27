@@ -4,7 +4,7 @@ import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.staff.service.StaffsService;
-import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

@@ -21,4 +21,5 @@ public interface DeputyStaffsService {
     Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId);
     List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
+    DeputyStaffs getDeputyStaff();
 }

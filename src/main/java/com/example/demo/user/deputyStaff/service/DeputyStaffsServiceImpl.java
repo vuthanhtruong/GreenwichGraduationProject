@@ -13,6 +13,11 @@ import java.util.Map;
 @Service
 public class DeputyStaffsServiceImpl implements DeputyStaffsService {
     @Override
+    public DeputyStaffs getDeputyStaff() {
+        return deputyStaffsDAO.getDeputyStaff();
+    }
+
+    @Override
     public Map<String, String> validateDeputyStaff(DeputyStaffs deputyStaff, MultipartFile avatarFile, String campusId) {
         return deputyStaffsDAO.validateDeputyStaff(deputyStaff, avatarFile, campusId);
     }

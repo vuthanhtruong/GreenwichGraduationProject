@@ -269,6 +269,11 @@ public class StudentDAOImpl implements StudentsDAO {
                 .executeUpdate();
 
         // 🧩 4. Cuối cùng xóa student
+        entityManager.createQuery(
+                        "DELETE FROM Students_SpecializedClasses smc WHERE smc.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
         entityManager.remove(student);
     }
 

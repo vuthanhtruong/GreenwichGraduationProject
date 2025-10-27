@@ -3,7 +3,7 @@ package com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.mo
 import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.model.StudentRequiredSubjects;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.student.model.Students;
-import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

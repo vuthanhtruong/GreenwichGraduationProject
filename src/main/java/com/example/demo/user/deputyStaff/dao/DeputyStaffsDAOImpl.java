@@ -1,9 +1,13 @@
 package com.example.demo.user.deputyStaff.dao;
 
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.service.CampusesService;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,6 +15,8 @@ import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +29,26 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
+    @Override
+    public DeputyStaffs getDeputyStaff() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
+
+        Object principal = auth.getPrincipal();
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+
+        if (!(person instanceof DeputyStaffs)) {
+            throw new IllegalStateException("Authenticated user is not a student");
+        }
+        return entityManager.find(DeputyStaffs.class, person.getId());
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(DeputyStaffsDAOImpl.class);
     private final PersonsService personsService;
     private final AdminsService adminsService;

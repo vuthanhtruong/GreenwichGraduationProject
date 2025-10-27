@@ -1,5 +1,6 @@
 package com.example.demo.subject.abstractSubject.model;
 
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.entity.Enums.SubjectTypes;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;

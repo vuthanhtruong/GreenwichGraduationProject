@@ -5,7 +5,7 @@ import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
-import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Data;

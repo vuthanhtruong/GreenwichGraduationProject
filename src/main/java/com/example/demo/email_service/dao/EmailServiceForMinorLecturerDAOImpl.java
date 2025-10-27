@@ -50,7 +50,6 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
 
         String campus = safe.apply(context.campusName());
         String employmentType = safe.apply(context.employmentType());
-        String creator = safe.apply(context.creatorName());
 
         String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : baseUrl + "/login";
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
@@ -158,7 +157,6 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
                 .append("</tr>")
                 .append("<tr style='background:#f8fafc;'>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;font-family:sans-serif;'>Added By</td>")
-                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;font-family:sans-serif;'>").append(creator).append("</td>")
                 .append("</tr>")
                 .append("</table>");
 

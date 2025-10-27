@@ -3,7 +3,7 @@ package com.example.demo.classes.majorClasses.model;
 import com.example.demo.classes.abstractClass.model.Classes;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Sessions;
-import com.example.demo.subject.abstractSubject.model.MinorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

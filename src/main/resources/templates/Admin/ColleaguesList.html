@@ -91,11 +91,6 @@
                 <td th:text="${colleague.campus?.campusName} ?: 'N/A'"></td>
                 <td>
                     <div class="actions">
-                        <form method="post" th:action="@{/admin-home/colleagues-list/edit-colleague-form}" class="inline-form">
-                            <input type="hidden" name="id" th:value="${colleague.id}" />
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <button type="submit" class="btn small">Edit</button>
-                        </form>
                         <form method="post" th:action="@{/admin-home/colleagues-list/delete-colleague/{id}(id=${colleague.id})}" class="inline-form">
                             <input type="hidden" name="_method" value="delete" />
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

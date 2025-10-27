@@ -12,6 +12,5 @@ public record MinorLecturerEmailContext(
         String fullAddress,
         String campusName,
         String employmentType,
-        String creatorName,
         LocalDate createdDate
 ) {}
