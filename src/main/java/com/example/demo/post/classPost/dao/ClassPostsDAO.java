@@ -10,7 +10,7 @@ public interface ClassPostsDAO {
 
     ClassPosts findPostById(String postId);
 
-    List<ClassPosts> getClassPostsByClassId(Classes classes);
+    List<ClassPosts> getClassPostsByClassId(String classes);
 
     List<ClassPosts> getPaginatedClassPostsByClassId(Classes classes, int firstResult, int pageSize);
 

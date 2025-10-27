@@ -15,4 +15,5 @@ public interface AssignmentSubmitSlotsService {
     boolean existsByPostId(String postId);
     void save(AssignmentSubmitSlots slot);
     Map<String, String> validateSlot(AssignmentSubmitSlots slot);
+    List<AssignmentSubmitSlots> getAssignmentSubmitSlotsByClass(String majorClass);
 }

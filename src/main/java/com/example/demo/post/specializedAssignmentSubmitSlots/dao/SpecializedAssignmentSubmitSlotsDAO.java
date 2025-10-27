@@ -17,4 +17,5 @@ public interface SpecializedAssignmentSubmitSlotsDAO {
     String generateUniquePostId(String classId, LocalDate date);
     void deleteByPostId(String postId);
     Map<String, String> validateSlot(SpecializedAssignmentSubmitSlots slot);
+    List<SpecializedAssignmentSubmitSlots> getAllSpecializedAssignmentSubmitSlotsByClass(String classId);
 }

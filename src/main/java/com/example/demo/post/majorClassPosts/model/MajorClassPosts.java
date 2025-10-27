@@ -4,18 +4,17 @@ import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.MajorComments;
 import com.example.demo.comment.model.StudentComments;
+import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
-import com.example.demo.entity.Enums.Notifications;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +25,8 @@ import java.util.stream.Stream;
 @PrimaryKeyJoinColumn(name = "PostID")
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@OnDelete(action = OnDeleteAction.CASCADE)
 public class MajorClassPosts extends ClassPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,33 +44,40 @@ public class MajorClassPosts extends ClassPosts {
 
     public MajorClassPosts() {}
 
-    public MajorClassPosts(String postId, MajorEmployes creator, MajorClasses majorClass, Notifications notification, String content, LocalDateTime createdAt) {
+    public MajorClassPosts(String postId, MajorEmployes creator, MajorClasses majorClass,
+                           Notifications notification, String content, LocalDateTime createdAt) {
         super(postId, notification, content, createdAt);
         this.creator = creator;
         this.majorClass = majorClass;
     }
 
-    // Method to safely initialize and return majorComments
-    public List<MajorComments> getInitializedMajorComments() {
-        if (this.majorComments == null) {
-            this.majorComments = new ArrayList<>();
-        } else {
-            Hibernate.initialize(this.majorComments);
-        }
-        return this.majorComments;
+    @Override
+    public String getCreatorId() {
+        return creator != null ? creator.getId() : "Unknown";
     }
 
-    // New method to combine and sort MajorComments and StudentComments
-    public List<Comments> getAllCommentsSorted() {
-        // Initialize studentComments (from parent ClassPosts)
-        List<StudentComments> studentComments = getStudentComments();
-        // Initialize majorComments
-        List<MajorComments> majorComments = getMajorComments();
+    @Override
+    public String getClassPostsType() {
+        return "Major Class Post";
+    }
 
-        // Combine and sort by createdAt
+    @Override
+    public long getTotalComments() {
+        List<StudentComments> students = getStudentComments();
+        List<MajorComments> majors = majorComments;
+        if (students == null && majors == null) return 0;
         return Stream.concat(
-                        majorComments.stream(),
-                        studentComments.stream()
+                majors != null ? majors.stream() : Stream.empty(),
+                students != null ? students.stream() : Stream.empty()
+        ).count();
+    }
+
+    public List<Comments> getAllCommentsSorted() {
+        List<StudentComments> students = getStudentComments();
+        List<MajorComments> majors = majorComments;
+        return Stream.concat(
+                        majors != null ? majors.stream() : Stream.empty(),
+                        students != null ? students.stream() : Stream.empty()
                 )
                 .sorted(Comparator.comparing(Comments::getCreatedAt))
                 .collect(Collectors.toList());

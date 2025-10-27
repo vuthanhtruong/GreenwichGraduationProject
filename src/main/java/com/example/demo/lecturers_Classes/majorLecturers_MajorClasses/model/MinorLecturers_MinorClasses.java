@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @PrimaryKeyJoinColumns({
         @PrimaryKeyJoinColumn(name = "LecturerID", referencedColumnName = "LecturerID"),
-        @PrimaryKeyJoinColumn(name = "ClassID",    referencedColumnName = "ClassID")
+        @PrimaryKeyJoinColumn(name = "ClassID", referencedColumnName = "ClassID")
 })
 public class MinorLecturers_MinorClasses extends Lecturers_Classes {
 
@@ -26,12 +25,13 @@ public class MinorLecturers_MinorClasses extends Lecturers_Classes {
     @MapsId("lecturerId")
     @JoinColumn(name = "LecturerID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorLecturers minorLecturer;
+    private MinorLecturers lecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
+    @MapsId("classId")
+    @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorClasses minorClass;
+    private MinorClasses clazz;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy")
@@ -40,10 +40,28 @@ public class MinorLecturers_MinorClasses extends Lecturers_Classes {
 
     public MinorLecturers_MinorClasses() {}
 
-    public MinorLecturers_MinorClasses(MinorLecturers minorLecturer, MinorClasses minorClass, LocalDateTime createdAt, DeputyStaffs addedBy) {
-        super(minorLecturer.getId(), minorClass, createdAt);
-        this.minorLecturer = minorLecturer;
-        this.minorClass = minorClass;
+    public MinorLecturers_MinorClasses(MinorLecturers lecturer, MinorClasses clazz, LocalDateTime createdAt, DeputyStaffs addedBy) {
+        super(lecturer.getId(), clazz.getClassId(), createdAt);
+        this.lecturer = lecturer;
+        this.clazz = clazz;
         this.addedBy = addedBy;
     }
+    @Override
+    public String getSession() {
+        return clazz != null ? String.valueOf(clazz.getSession()) : null;
+    }
+
+    @Override
+    public Integer getSlotQuantity() {
+        return clazz != null ? clazz.getSlotQuantity() : null;
+    }
+
+
+    @Override public String getLecturerId() { return lecturer != null ? lecturer.getId() : null; }
+    @Override public String getLecturerName() { return lecturer != null ? lecturer.getFullName() : null; }
+    @Override public Object getLecturerEntity() { return lecturer; }
+    @Override public String getClassId() { return clazz != null ? clazz.getClassId() : null; }
+    @Override public String getClassName() { return clazz != null ? clazz.getNameClass() : null; }
+    @Override public String getSubjectName() { return clazz != null && clazz.getMinorSubject() != null ? clazz.getMinorSubject().getSubjectName() : null; }
+    @Override public String getSubjectCode() { return clazz != null && clazz.getMinorSubject() != null ? clazz.getMinorSubject().getSubjectId() : null; }
 }

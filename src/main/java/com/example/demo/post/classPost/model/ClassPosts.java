@@ -3,15 +3,10 @@ package com.example.demo.post.classPost.model;
 import com.example.demo.comment.model.StudentComments;
 import com.example.demo.document.model.ClassDocuments;
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
-import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
-import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
-import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
-import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,23 +16,24 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public abstract class ClassPosts {
 
     @Id
-    @Column(name = "PostID")
+    @Column(name = "PostID", nullable = false, updatable = false)
     private String postId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
+    @Column(name = "Notification")
     private Notifications notification;
 
-    @Column(name = "Content", nullable = true, length = 1000)
+    @Column(name = "Content", length = 1000)
     private String content;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClassDocuments> documents;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -52,56 +48,8 @@ public abstract class ClassPosts {
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 
-    public String getClassPostsType() {
-        Hibernate.initialize(this);
-        if (this instanceof MajorClassPosts) {
-            return "Major Class Post";
-        } else if (this instanceof AssignmentSubmitSlots) {
-            return "Assignment Submit Slot";
-        } else if (this instanceof SpecializedClassPosts) {
-            return "Specialized Class Post";
-        } else if (this instanceof MinorClassPosts) {
-            return "Minor Class Post";
-        } else if (this instanceof SpecializedAssignmentSubmitSlots) {
-            return "Specialized Assignment Submit Slot";
-        }
-        return "Unknown";
-    }
-
-    public Object Object () {
-        Hibernate.initialize(this);
-        if (this instanceof MajorClassPosts majorClassPosts) {
-            return majorClassPosts;
-        } else if (this instanceof AssignmentSubmitSlots assignmentSubmitSlots) {
-            return assignmentSubmitSlots;
-        } else if (this instanceof SpecializedClassPosts specializedClassPosts) {
-            return specializedClassPosts;
-        } else if (this instanceof MinorClassPosts minorClassPosts) {
-            return minorClassPosts;
-        } else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
-            return specializedAssignmentSubmitSlots;
-        }
-        return null;
-    }
-
-    public String getCreatorId() {
-        Hibernate.initialize(this); // Ensure the proxy is initialized
-        if (this instanceof MajorClassPosts majorClassPosts) {
-            Hibernate.initialize(majorClassPosts.getCreator());
-            return majorClassPosts.getCreator() != null ? majorClassPosts.getCreator().getId() : "Unknown";
-        } else if (this instanceof AssignmentSubmitSlots assignmentSubmitSlots) {
-            Hibernate.initialize(assignmentSubmitSlots.getCreator());
-            return assignmentSubmitSlots.getCreator() != null ? assignmentSubmitSlots.getCreator().getId() : "Unknown";
-        } else if (this instanceof SpecializedClassPosts specializedClassPosts) {
-            Hibernate.initialize(specializedClassPosts.getCreator());
-            return specializedClassPosts.getCreator() != null ? specializedClassPosts.getCreator().getId() : "Unknown";
-        } else if (this instanceof MinorClassPosts minorClassPosts) {
-            Hibernate.initialize(minorClassPosts.getCreator());
-            return minorClassPosts.getCreator() != null ? minorClassPosts.getCreator().getId() : "Unknown";
-        } else if (this instanceof SpecializedAssignmentSubmitSlots specializedAssignmentSubmitSlots) {
-            Hibernate.initialize(specializedAssignmentSubmitSlots.getCreator());
-            return specializedAssignmentSubmitSlots.getCreator().getId();
-        }
-        return "Unknown";
-    }
+    // 🔹 Abstract methods — subclass override thay vì instanceof
+    public abstract String getCreatorId();
+    public abstract String getClassPostsType();
+    public abstract long getTotalComments();
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorClassesDAO {
     @Override
     public List<MajorLecturers_MajorClasses> getClassByLecturer(MajorLecturers lecturers) {
-        return entityManager.createQuery("from MajorLecturers_MajorClasses m where m.majorLecturer=:lecturer",MajorLecturers_MajorClasses.class)
+        return entityManager.createQuery("from MajorLecturers_MajorClasses m where m.lecturer=:lecturer",MajorLecturers_MajorClasses.class)
                 .setParameter("lecturer",lecturers).getResultList();
     }
 
@@ -56,8 +56,8 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
             MajorLecturers_MajorClasses lecturerClass = new MajorLecturers_MajorClasses();
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
-            lecturerClass.setClassEntity(classes);
-            lecturerClass.setMajorLecturer(lecturer);
+            lecturerClass.setClazz(classes);
+            lecturerClass.setLecturer(lecturer);
             lecturerClass.setCreatedAt(LocalDateTime.now());
             lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
@@ -67,7 +67,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
     @Override
     public List<MajorLecturers> listLecturersInClass(MajorClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.majorLecturer FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class",
+                        "SELECT lc.class FROM MajorLecturers_MajorClasses lc WHERE lc.class = :class",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .getResultList();
@@ -77,7 +77,7 @@ public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorC
     public List<MajorLecturers> listLecturersNotInClass(MajorClasses classes) {
         return entityManager.createQuery(
                         "SELECT l FROM MajorLecturers l WHERE l.majorManagement = :major AND l.id NOT IN " +
-                                "(SELECT lc.majorLecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.classEntity = :class)",
+                                "(SELECT lc.lecturer.id FROM MajorLecturers_MajorClasses lc WHERE lc.class = :class)",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .setParameter("major", staffsService.getStaffMajor())

@@ -20,7 +20,7 @@ public class ClassPostsServiceImpl implements ClassPostsService {
     }
 
     @Override
-    public List<ClassPosts> getClassPostsByClassId(Classes classes) {
+    public List<ClassPosts> getClassPostsByClassId(String classes) {
         return classPostsDAO.getClassPostsByClassId(classes);
     }
 

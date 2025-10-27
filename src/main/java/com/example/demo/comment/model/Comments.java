@@ -1,15 +1,9 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.Enums.Notifications;
-import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
-import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
-import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
-import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
-import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 
@@ -25,36 +19,28 @@ public abstract class Comments {
     private String commentId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
+    @Column(name = "Notification")
     private Notifications notification;
 
-    @Column(name = "Content", nullable = true, length = 1000)
+    @Column(name = "Content", length = 1000)
     private String content;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
-    public String CommentBy() {
-        Hibernate.initialize(this);
-        if (this instanceof MajorComments majorComments) {
-            return majorComments.getCommenter().getFullName();
-        } else if (this instanceof MinorComments minorComments) {
-            return minorComments.getCommenter().getFullName();
-        } else if (this instanceof StudentComments studentComments) {
-            return studentComments.getCommenter().getFullName();
-        }
-        else if (this instanceof SpecializedComments specializedComments) {
-            return specializedComments.getCommenter().getFullName();
-        }
-        return "Unknown";
-    }
+    protected Comments() {}
 
-    public Comments() {}
-
-    public Comments(String commentId, Notifications notification, String content, LocalDateTime createdAt) {
+    protected Comments(String commentId, Notifications notification, String content, LocalDateTime createdAt) {
         this.commentId = commentId;
         this.notification = notification;
         this.content = content;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
+
+    // 🔹 Abstract API để xoá instanceof
+    public abstract String getCommenterId();
+    public abstract String getCommenterName();
+    public abstract Object getCommenterEntity();
+    public abstract String getPostId();
+    public abstract Object getPostEntity();
 }

@@ -31,15 +31,13 @@ public class AddMajorLecturerComments {
     private final MajorClassPostsService majorClassPostsService;
     private final EmployesService employesService;
     private final SpecializedClassPostsService specializedClassPostsService;
-    private final ClassPostsService classPostsService;
 
-    public AddMajorLecturerComments(SpecializedCommentsService specializedCommentsService, MajorCommentsService majorCommentsService, MajorClassPostsService majorClassPostsService, EmployesService employesService, SpecializedClassPostsService specializedClassPostsService, ClassPostsService classPostsService) {
+    public AddMajorLecturerComments(SpecializedCommentsService specializedCommentsService, MajorCommentsService majorCommentsService, MajorClassPostsService majorClassPostsService, EmployesService employesService, SpecializedClassPostsService specializedClassPostsService) {
         this.specializedCommentsService = specializedCommentsService;
         this.majorCommentsService = majorCommentsService;
         this.majorClassPostsService = majorClassPostsService;
         this.employesService = employesService;
         this.specializedClassPostsService = specializedClassPostsService;
-        this.classPostsService = classPostsService;
     }
 
     @PostMapping("/add-comment")
@@ -50,8 +48,7 @@ public class AddMajorLecturerComments {
             HttpSession session,
             Model model) {
         try {
-            ClassPosts cp=classPostsService.findPostById(postId);
-            if(cp instanceof MajorClassPosts) {
+            if(majorClassPostsService.getClassPostByClass(postId) != null) {
                 MajorEmployes commenter = employesService.getMajorEmployee();
                 MajorClassPosts post = majorClassPostsService.getMajorClassPost(postId);
                 MajorComments comment = new MajorComments();
@@ -61,7 +58,7 @@ public class AddMajorLecturerComments {
                 comment.setContent(content);
                 comment.setCreatedAt(LocalDateTime.now());
                 majorCommentsService.saveComment(comment);
-            } else if (cp instanceof SpecializedClassPosts) {
+            } else if (specializedClassPostsService.getClassPostsByClass(postId) != null) {
                 MajorEmployes commenter = employesService.getMajorEmployee();
                 SpecializedClassPosts post = specializedClassPostsService.getSpecializedClassPost(postId);
                 SpecializedComments comment = new SpecializedComments();

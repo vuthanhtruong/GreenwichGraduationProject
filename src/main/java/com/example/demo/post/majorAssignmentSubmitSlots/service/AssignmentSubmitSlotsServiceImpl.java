@@ -11,6 +11,11 @@ import java.util.Map;
 
 @Service
 public class AssignmentSubmitSlotsServiceImpl implements AssignmentSubmitSlotsService {
+    @Override
+    public List<AssignmentSubmitSlots> getAssignmentSubmitSlotsByClass(String majorClass) {
+        return assignmentSubmitSlotsDAO.getAssignmentSubmitSlotsByClass(majorClass);
+    }
+
     public AssignmentSubmitSlotsServiceImpl(AssignmentSubmitSlotsDAO assignmentSubmitSlotsDAO) {
         this.assignmentSubmitSlotsDAO = assignmentSubmitSlotsDAO;
     }

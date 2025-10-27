@@ -3,8 +3,11 @@ package com.example.demo.classes.abstractClasses.controller;
 import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.majorClasses.service.MajorClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
 import com.example.demo.post.classPost.model.ClassPosts;
+import com.example.demo.post.classPost.service.ClassPostsService;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
@@ -17,6 +20,7 @@ import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.person.service.PersonsService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
+import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,21 +38,22 @@ import java.util.List;
 public class ClassroomController {
 
     private final ClassesService classesService;
-    private final MajorClassPostsService majorClassPostsService;
-    private final SpecializedClassPostsService specializedClassPostsService;
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
     private final PersonsService personsService;
+    private final MajorClassesService majorClassesService;
+    private final SpecializedClassesService specializedClassesService;
+    private final ClassPostsService classPostsService;
 
-    public ClassroomController(ClassesService classesService, MajorClassPostsService majorClassPostsService,
-                               SpecializedClassPostsService specializedClassPostsService,
-                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, PersonsService personsService) {
+    public ClassroomController(ClassesService classesService,
+                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, PersonsService personsService, MajorClassesService majorClassesService, SpecializedClassesService specializedClassesService, ClassPostsService classPostsService) {
         this.classesService = classesService;
-        this.majorClassPostsService = majorClassPostsService;
-        this.specializedClassPostsService = specializedClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
         this.personsService = personsService;
+        this.majorClassesService = majorClassesService;
+        this.specializedClassesService = specializedClassesService;
+        this.classPostsService = classPostsService;
     }
 
     @GetMapping
@@ -78,14 +83,10 @@ public class ClassroomController {
             }
 
             Classes classes = classesService.findClassById(classId);
-            List<ClassPosts> classPostsList = new ArrayList<>();
+            List<ClassPosts> classPostsList=classPostsService.getClassPostsByClassId(classId);
 
-            if (classes instanceof MajorClasses majorClasses) {
-                List<MajorClassPosts> majorClassPostsList = majorClassPostsService.getClassPostByClass(classId);
-                List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
-                classPostsList.addAll(majorClassPostsList);
-                classPostsList.addAll(assignmentSubmitSlots);
-                // Sort by createdAt in descending order (newest first)
+            if (majorClassesService.getClassById(classId) != null) {
+                List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClassesService.getClassById(classId));
                 classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
@@ -95,12 +96,8 @@ public class ClassroomController {
                 model.addAttribute("addPostClass", "/classroom/upload-major-post");
                 model.addAttribute("addASM", "/classroom/create-major-assignment-slot");
                 return "MajorClassroom";
-            } else if (classes instanceof SpecializedClasses specializedClasses) {
-                List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
-                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
-                classPostsList.addAll(specializedClassPosts);
-                classPostsList.addAll(assignmentSubmitSlots);
-                // Sort by createdAt in descending order (newest first)
+            } else if (specializedClassesService.getClassById(classId) != null) {
+                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClassesService.getClassById(classId));
                 classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());
@@ -144,14 +141,10 @@ public class ClassroomController {
             }
             session.setAttribute("classId", classId);
             Classes classes = classesService.findClassById(classId);
-            List<ClassPosts> classPostsList = new ArrayList<>();
+            List<ClassPosts> classPostsList=classPostsService.getClassPostsByClassId(classId);
 
-            if (classes instanceof MajorClasses majorClasses) {
-                List<MajorClassPosts> majorClassPostsList = majorClassPostsService.getClassPostByClass(classId);
-                List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClasses);
-                classPostsList.addAll(majorClassPostsList);
-                classPostsList.addAll(assignmentSubmitSlots);
-                // Sort by createdAt in descending order (newest first)
+            if (majorClassesService.getClassById(classId) != null) {
+                List<AssignmentSubmitSlots> assignmentSubmitSlots = assignmentSubmitSlotsService.getAllAssignmentSubmitSlotsByClass(majorClassesService.getClassById(classId));
                 classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new MajorClassPosts());
@@ -161,12 +154,8 @@ public class ClassroomController {
                 model.addAttribute("addPostClass", "/classroom/upload-major-post");
                 model.addAttribute("addASM", "/classroom/create-major-assignment-slot");
                 return "MajorClassroom";
-            } else if (classes instanceof SpecializedClasses specializedClasses) {
-                List<SpecializedClassPosts> specializedClassPosts = specializedClassPostsService.getClassPostsByClass(classId);
-                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClasses);
-                classPostsList.addAll(specializedClassPosts);
-                classPostsList.addAll(assignmentSubmitSlots);
-                // Sort by createdAt in descending order (newest first)
+            } else if (specializedClassesService.getClassById(classId) != null) {
+                List<SpecializedAssignmentSubmitSlots> assignmentSubmitSlots = specializedAssignmentSubmitSlotsService.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClassesService.getClassById(classId));
                 classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
                 model.addAttribute("assignmentSubmitSlots", assignmentSubmitSlots);
                 model.addAttribute("post", new SpecializedClassPosts());

@@ -19,7 +19,7 @@ import java.util.List;
 public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_SpecializedClassesDAO {
     @Override
     public List<MajorLecturers_SpecializedClasses> getClassByLecturer(MajorLecturers lecturers) {
-        return entityManager.createQuery("from MajorLecturers_SpecializedClasses ms where ms.majorLecturer=:lecturers",MajorLecturers_SpecializedClasses.class).
+        return entityManager.createQuery("from MajorLecturers_SpecializedClasses ms where ms.lecturer=:lecturers",MajorLecturers_SpecializedClasses.class).
                 setParameter("lecturers",lecturers).getResultList();
     }
 
@@ -63,8 +63,8 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
             MajorLecturers_SpecializedClasses lecturerClass = new MajorLecturers_SpecializedClasses();
             LecturersClassesId id = new LecturersClassesId(lecturerId, classes.getClassId());
             lecturerClass.setId(id);
-            lecturerClass.setMajorLecturer(lecturer);
-            lecturerClass.setClassEntity(classes);
+            lecturerClass.setLecturer(lecturer);
+            lecturerClass.setClazz(classes);
             lecturerClass.setCreatedAt(LocalDateTime.now());
             lecturerClass.setAddedBy(staffsService.getStaff());
             entityManager.persist(lecturerClass);
@@ -74,7 +74,7 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
     @Override
     public List<MajorLecturers> listLecturersInClass(SpecializedClasses classes) {
         return entityManager.createQuery(
-                        "SELECT lc.majorLecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.specializedClass = :class",
+                        "SELECT lc.lecturer FROM MajorLecturers_SpecializedClasses lc WHERE lc.class = :class",
                         MajorLecturers.class)
                 .setParameter("class", classes)
                 .getResultList();
@@ -92,8 +92,8 @@ public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_
                                     // loại bỏ giảng viên đã có trong lớp chuyên ngành này
                                     "AND NOT EXISTS (" +
                                     "    SELECT 1 FROM MajorLecturers_SpecializedClasses lc " +
-                                    "    WHERE lc.majorLecturer = l " +
-                                    "    AND lc.specializedClass = :class" +
+                                    "    WHERE lc.lecturer = l " +
+                                    "    AND lc.class = :class" +
                                     ") " +
                                     // chỉ lấy giảng viên đã thuộc chuyên ngành tương ứng
                                     "AND EXISTS (" +

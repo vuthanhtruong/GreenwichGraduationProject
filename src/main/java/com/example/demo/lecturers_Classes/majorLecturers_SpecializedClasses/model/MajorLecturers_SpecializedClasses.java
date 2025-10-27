@@ -2,14 +2,13 @@ package com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.mod
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.Lecturers_Classes;
-import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @PrimaryKeyJoinColumns({
         @PrimaryKeyJoinColumn(name = "LecturerID", referencedColumnName = "LecturerID"),
-        @PrimaryKeyJoinColumn(name = "ClassID",    referencedColumnName = "ClassID")
+        @PrimaryKeyJoinColumn(name = "ClassID", referencedColumnName = "ClassID")
 })
 public class MajorLecturers_SpecializedClasses extends Lecturers_Classes {
 
@@ -26,12 +25,13 @@ public class MajorLecturers_SpecializedClasses extends Lecturers_Classes {
     @MapsId("lecturerId")
     @JoinColumn(name = "LecturerID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorLecturers majorLecturer;
+    private MajorLecturers lecturer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
+    @MapsId("classId")
+    @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private SpecializedClasses specializedClass;
+    private SpecializedClasses clazz;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy")
@@ -40,10 +40,28 @@ public class MajorLecturers_SpecializedClasses extends Lecturers_Classes {
 
     public MajorLecturers_SpecializedClasses() {}
 
-    public MajorLecturers_SpecializedClasses(MajorLecturers majorLecturer, SpecializedClasses specializedClass, LocalDateTime createdAt, Staffs addedBy) {
-        super(majorLecturer.getId(), specializedClass, createdAt);
-        this.majorLecturer = majorLecturer;
-        this.specializedClass = specializedClass;
+    public MajorLecturers_SpecializedClasses(MajorLecturers lecturer, SpecializedClasses clazz, LocalDateTime createdAt, Staffs addedBy) {
+        super(lecturer.getId(), clazz.getClassId(), createdAt);
+        this.lecturer = lecturer;
+        this.clazz = clazz;
         this.addedBy = addedBy;
     }
+    @Override
+    public String getSession() {
+        return clazz != null ? String.valueOf(clazz.getSession()) : null;
+    }
+
+    @Override
+    public Integer getSlotQuantity() {
+        return clazz != null ? clazz.getSlotQuantity() : null;
+    }
+
+
+    @Override public String getLecturerId() { return lecturer != null ? lecturer.getId() : null; }
+    @Override public String getLecturerName() { return lecturer != null ? lecturer.getFullName() : null; }
+    @Override public Object getLecturerEntity() { return lecturer; }
+    @Override public String getClassId() { return clazz != null ? clazz.getClassId() : null; }
+    @Override public String getClassName() { return clazz != null ? clazz.getNameClass() : null; }
+    @Override public String getSubjectName() { return clazz != null && clazz.getSpecializedSubject() != null ? clazz.getSpecializedSubject().getSubjectName() : null; }
+    @Override public String getSubjectCode() { return clazz != null && clazz.getSpecializedSubject() != null ? clazz.getSpecializedSubject().getSubjectId() : null; }
 }

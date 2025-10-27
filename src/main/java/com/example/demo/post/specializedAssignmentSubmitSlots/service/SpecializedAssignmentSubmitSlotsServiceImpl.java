@@ -12,6 +12,11 @@ import java.util.Map;
 @Service
 public class SpecializedAssignmentSubmitSlotsServiceImpl implements SpecializedAssignmentSubmitSlotsService {
     @Override
+    public List<SpecializedAssignmentSubmitSlots> getAllSpecializedAssignmentSubmitSlotsByClass(String classId) {
+        return specializedAssignmentSubmitSlotsDAO.getAllSpecializedAssignmentSubmitSlotsByClass(classId);
+    }
+
+    @Override
     public List<SpecializedAssignmentSubmitSlots> getAllSpecializedAssignmentSubmitSlotsByClass(SpecializedClasses specializedClass) {
         return specializedAssignmentSubmitSlotsDAO.getAllSpecializedAssignmentSubmitSlotsByClass(specializedClass);
     }

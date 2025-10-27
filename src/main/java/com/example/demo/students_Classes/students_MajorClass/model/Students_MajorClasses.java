@@ -18,25 +18,35 @@ import java.time.LocalDateTime;
 @Setter
 @PrimaryKeyJoinColumns({
         @PrimaryKeyJoinColumn(name = "StudentID", referencedColumnName = "StudentID"),
-        @PrimaryKeyJoinColumn(name = "ClassID",   referencedColumnName = "ClassID")
+        @PrimaryKeyJoinColumn(name = "ClassID", referencedColumnName = "ClassID")
 })
 public class Students_MajorClasses extends Students_Classes {
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses majorClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddedBy")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Staffs addedBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private MajorClasses majorClass;
+
     public Students_MajorClasses() {}
 
-    public Students_MajorClasses(Students student, MajorClasses majorClass, LocalDateTime createdAt, Staffs addedBy) {
+    public Students_MajorClasses(Students student, MajorClasses majorClass,
+                                 LocalDateTime createdAt, Staffs addedBy) {
         super(student, majorClass, createdAt);
-        this.majorClass = majorClass;
         this.addedBy = addedBy;
+    }
+
+    @Override
+    public String getSubjectName() {
+        return ((MajorClasses) getClassEntity()).getSubject().getSubjectName();
+    }
+
+    @Override
+    public String getSubjectType() {
+        return "Major";
     }
 }

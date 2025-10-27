@@ -29,13 +29,26 @@ public class MajorClasses extends Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    // Constructors
-    public MajorClasses() {
-    }
+    public MajorClasses() {}
 
-    public MajorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session, MajorSubjects subject, Staffs creator, LocalDateTime createdAt) {
+    public MajorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session,
+                        MajorSubjects subject, Staffs creator, LocalDateTime createdAt) {
         super(classId, nameClass, slotQuantity, session, createdAt);
         this.subject = subject;
         this.creator = creator;
+    }
+
+    @Override
+    public String getCreatorName() {
+        return (creator != null)
+                ? creator.getFirstName() + " " + creator.getLastName()
+                : "Unknown Creator";
+    }
+
+    @Override
+    public String getSubjectType() {
+        return (subject != null)
+                ? subject.getSubjectName()
+                : "Unknown Subject";
     }
 }

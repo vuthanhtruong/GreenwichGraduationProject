@@ -19,6 +19,11 @@ import java.util.Map;
 @Transactional
 public class AssignmentSubmitSlotsDAOImpl implements AssignmentSubmitSlotsDAO {
     @Override
+    public List<AssignmentSubmitSlots> getAssignmentSubmitSlotsByClass(String majorClass) {
+        return entityManager.createQuery("from AssignmentSubmitSlots a where a.classEntity.classId=:majorClass").setParameter("majorClass", majorClass).getResultList();
+    }
+
+    @Override
     public Map<String, String> validateSlot(AssignmentSubmitSlots slot) {
         Map<String, String> errors = new HashMap<>();
         if (slot.getContent() != null && slot.getContent().length() > 1000) {

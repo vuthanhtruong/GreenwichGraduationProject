@@ -30,9 +30,25 @@ public class PublicComments extends Comments {
 
     public PublicComments() {}
 
-    public PublicComments(String commentId, Persons commenter, PublicPosts post, Notifications notification, String content, LocalDateTime createdAt) {
+    public PublicComments(String commentId, Persons commenter, PublicPosts post,
+                          Notifications notification, String content, LocalDateTime createdAt) {
         super(commentId, notification, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }
+
+    @Override
+    public String getCommenterId() { return commenter != null ? commenter.getId() : null; }
+
+    @Override
+    public String getCommenterName() { return commenter != null ? commenter.getFullName() : null; }
+
+    @Override
+    public Object getCommenterEntity() { return commenter; }
+
+    @Override
+    public String getPostId() { return post != null ? post.getPostId() : null; }
+
+    @Override
+    public Object getPostEntity() { return post; }
 }

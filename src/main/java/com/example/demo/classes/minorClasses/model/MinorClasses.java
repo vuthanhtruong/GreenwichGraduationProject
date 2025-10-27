@@ -1,9 +1,9 @@
 package com.example.demo.classes.minorClasses.model;
 
 import com.example.demo.classes.abstractClasses.model.Classes;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,13 +29,26 @@ public class MinorClasses extends Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private DeputyStaffs creator;
 
-    // Constructors
-    public MinorClasses() {
-    }
+    public MinorClasses() {}
 
-    public MinorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session, MinorSubjects minorSubject, DeputyStaffs creator, LocalDateTime createdAt) {
+    public MinorClasses(String classId, String nameClass, Integer slotQuantity, Sessions session,
+                        MinorSubjects minorSubject, DeputyStaffs creator, LocalDateTime createdAt) {
         super(classId, nameClass, slotQuantity, session, createdAt);
         this.minorSubject = minorSubject;
         this.creator = creator;
+    }
+
+    @Override
+    public String getCreatorName() {
+        return (creator != null)
+                ? creator.getFirstName() + " " + creator.getLastName()
+                : "Unknown Creator";
+    }
+
+    @Override
+    public String getSubjectType() {
+        return (minorSubject != null)
+                ? minorSubject.getSubjectName()
+                : "Minor Subject";
     }
 }
