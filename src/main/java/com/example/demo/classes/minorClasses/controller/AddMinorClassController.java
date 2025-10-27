@@ -26,13 +26,11 @@ import java.util.List;
 public class AddMinorClassController {
 
     private final MinorClassesService classesService;
-    private final DeputyStaffsService deputyStaffsService;
     private final MinorSubjectsService subjectsService;
 
     @Autowired
-    public AddMinorClassController(MinorClassesService classesService, DeputyStaffsService deputyStaffsService, MinorSubjectsService subjectsService) {
+    public AddMinorClassController(MinorClassesService classesService, MinorSubjectsService subjectsService) {
         this.classesService = classesService;
-        this.deputyStaffsService = deputyStaffsService;
         this.subjectsService = subjectsService;
     }
 

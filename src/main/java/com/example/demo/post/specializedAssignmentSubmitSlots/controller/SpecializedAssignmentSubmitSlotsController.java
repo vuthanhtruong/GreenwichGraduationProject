@@ -4,11 +4,10 @@ import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.document.service.ClassDocumentsService;
-import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
-import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
-import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.post.specializedClassPosts.service.SpecializedClassPostsService;
+import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
+import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
 import jakarta.servlet.http.HttpSession;
@@ -31,16 +30,17 @@ import java.util.Map;
 @Controller
 @RequestMapping("/classroom")
 public class SpecializedAssignmentSubmitSlotsController {
+
     private final ClassesService classesService;
-    private final MajorClassPostsService majorClassPostsService;
     private final SpecializedClassPostsService specializedClassPostsService;
     private final EmployesService employesService;
     private final ClassDocumentsService classDocumentsService;
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
 
-    public SpecializedAssignmentSubmitSlotsController(ClassesService classesService, MajorClassPostsService majorClassPostsService, SpecializedClassPostsService specializedClassPostsService, EmployesService employesService, ClassDocumentsService classDocumentsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
+    public SpecializedAssignmentSubmitSlotsController(ClassesService classesService, SpecializedClassPostsService specializedClassPostsService,
+                                                      EmployesService employesService, ClassDocumentsService classDocumentsService,
+                                                      SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
         this.classesService = classesService;
-        this.majorClassPostsService = majorClassPostsService;
         this.specializedClassPostsService = specializedClassPostsService;
         this.employesService = employesService;
         this.classDocumentsService = classDocumentsService;
@@ -62,16 +62,16 @@ public class SpecializedAssignmentSubmitSlotsController {
                 model.addAttribute("classes", new SpecializedClasses());
                 model.addAttribute("ClassPostsList", new ArrayList<>());
                 model.addAttribute("openSpecializedSlotOverlay", true);
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             if (!(classes instanceof SpecializedClasses specializedClasses)) {
                 model.addAttribute("post", new SpecializedClassPosts());
                 model.addAttribute("errors", List.of("Class is not a SpecializedClass"));
                 model.addAttribute("classes", classes);
-                model.addAttribute("ClassPostsList", majorClassPostsService.getClassPostByClass(classId));
+                model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
-                return "MajorLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             MajorEmployes creator = employesService.getMajorEmployee();
@@ -81,7 +81,7 @@ public class SpecializedAssignmentSubmitSlotsController {
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             slot.setCreator(creator);
@@ -96,7 +96,7 @@ public class SpecializedAssignmentSubmitSlotsController {
                 model.addAttribute("classes", classes);
                 model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                 model.addAttribute("openSpecializedSlotOverlay", true);
-                return "SpecializedLecturerClassroom";
+                return "SpecializedClassroom";
             }
 
             slot.setPostId(specializedAssignmentSubmitSlotsService.generateUniquePostId(classId, LocalDate.now()));
@@ -108,11 +108,10 @@ public class SpecializedAssignmentSubmitSlotsController {
                 if (files.length > 5) {
                     model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("errors", List.of("Cannot upload more than 5 files"));
-                    model.addAttribute("post", new SpecializedClassPosts());
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openSpecializedSlotOverlay", true);
-                    return "SpecializedLecturerClassroom";
+                    return "SpecializedClassroom";
                 }
 
                 List<String> fileErrors = classDocumentsService.saveDocuments(slot, files);
@@ -122,8 +121,7 @@ public class SpecializedAssignmentSubmitSlotsController {
                     model.addAttribute("classes", classes);
                     model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
                     model.addAttribute("openSpecializedSlotOverlay", true);
-                    model.addAttribute("post", new SpecializedClassPosts());
-                    return "SpecializedLecturerClassroom";
+                    return "SpecializedClassroom";
                 }
             }
 
@@ -135,9 +133,8 @@ public class SpecializedAssignmentSubmitSlotsController {
             model.addAttribute("errors", List.of("Failed to create specialized assignment slot: " + e.getMessage()));
             model.addAttribute("classes", classesService.findClassById(classId));
             model.addAttribute("ClassPostsList", specializedClassPostsService.getClassPostsByClass(classId));
-            model.addAttribute("post", new SpecializedClassPosts());
             model.addAttribute("openSpecializedSlotOverlay", true);
-            return "SpecializedLecturerClassroom";
+            return "SpecializedClassroom";
         }
     }
 }
