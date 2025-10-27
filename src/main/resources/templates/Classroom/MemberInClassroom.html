@@ -71,7 +71,6 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
-                <th>Birth</th>
                 <th>Gender</th>
                 <th>Actions</th>
             </tr>
@@ -90,7 +89,6 @@
                 <td th:text="${person.fullName}"></td>
                 <td th:text="${person.email} ?: '—'"></td>
                 <td th:text="${person.phoneNumber} ?: '—'"></td>
-                <td th:text="${person.birthDate} ?: '—'"></td>
                 <td th:text="${person.gender} ?: '—'"></td>
                 <td>
                     <div class="actions">
