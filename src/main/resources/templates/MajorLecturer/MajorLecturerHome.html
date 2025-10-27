@@ -60,6 +60,20 @@
                 <span class="icon"><i class="fas fa-blog"></i></span>
                 <span class="meta"><strong>Blog</strong><small>Create & manage posts</small></span>
             </a>
+
+            <!-- NEW SECTION: Management & Colleagues -->
+            <a class="tile" th:href="@{/major-lecturer-home/your-manager}">
+                <span class="icon"><i class="fas fa-user-tie"></i></span>
+                <span class="meta"><strong>Your Manager</strong><small>View your direct supervisor</small></span>
+            </a>
+            <a class="tile" th:href="@{/major-lecturer-home/your-colleagues}">
+                <span class="icon"><i class="fas fa-users"></i></span>
+                <span class="meta"><strong>Your Colleagues</strong><small>See other lecturers in your department</small></span>
+            </a>
+            <a class="tile schedule" th:href="@{/major-lecturer-home/timetable}">
+                <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                <span class="meta"><strong>Schedule</strong><small>View and manage your timetable</small></span>
+            </a>
         </div>
     </section>
 
