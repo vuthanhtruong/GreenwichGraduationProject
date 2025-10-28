@@ -1,4 +1,4 @@
-package com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model;
+package com.example.demo.lecturers_Classes.abstractLecturers_Classes.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;

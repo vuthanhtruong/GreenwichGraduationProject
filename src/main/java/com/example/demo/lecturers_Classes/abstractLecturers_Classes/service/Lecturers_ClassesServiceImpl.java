@@ -29,9 +29,4 @@ public class Lecturers_ClassesServiceImpl implements Lecturers_ClassesService {
     public Lecturers_ClassesServiceImpl(Lecturers_ClassesDAO lecturersClassesDAO) {
         lecturers_ClassesDAO = lecturersClassesDAO;
     }
-
-    @Override
-    public List<Lecturers_Classes> getLecturers_ClassesByClassId(String classId) {
-        return lecturers_ClassesDAO.getLecturers_ClassesByClassId(classId);
-    }
 }

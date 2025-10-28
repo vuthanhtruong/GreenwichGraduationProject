@@ -27,10 +27,6 @@ public class Lecturers_ClassesDAOImpl implements Lecturers_ClassesDAO {
     }
 
     @Override
-    public List<Lecturers_Classes> getLecturers_ClassesByClassId(String classId) {
-        return entityManager.createQuery("from Lecturers_Classes lc where lc.classEntity.classId=:classId", Lecturers_Classes.class).setParameter("classId", classId).getResultList();
-    }
-    @Override
     public List<Lecturers_Classes> getClassesByLecturer(MajorLecturers lecturer) {
         List<Lecturers_Classes> result = new ArrayList<>();
         result.addAll(majorDAO.getClassByLecturer(lecturer));

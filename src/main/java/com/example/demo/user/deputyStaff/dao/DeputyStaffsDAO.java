@@ -1,6 +1,7 @@
 package com.example.demo.user.deputyStaff.dao;
 
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,4 +25,5 @@ public interface DeputyStaffsDAO {
     List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
     DeputyStaffs getDeputyStaff();
+    Campuses getCampus();
 }

@@ -1,5 +1,6 @@
 package com.example.demo.user.deputyStaff.dao;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
@@ -29,6 +30,11 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
+    @Override
+    public Campuses getCampus() {
+        return getDeputyStaff().getCampus();
+    }
+
     @Override
     public DeputyStaffs getDeputyStaff() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

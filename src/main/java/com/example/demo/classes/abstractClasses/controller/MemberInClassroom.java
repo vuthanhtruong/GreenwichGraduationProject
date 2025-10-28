@@ -3,12 +3,16 @@ package com.example.demo.classes.abstractClasses.controller;
 import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.service.MajorLecturers_MajorClassesService;
 import com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.service.MajorLecturers_SpecializedClassesService;
+import com.example.demo.lecturers_Classes.minorLecturers_MinorClasses.service.MinorLecturers_MinorClassesService;
 import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
+import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
 import com.example.demo.students_Classes.students_SpecializedClasses.service.StudentsSpecializedClassesService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
 import com.example.demo.user.staff.model.Staffs;
@@ -27,21 +31,25 @@ public class MemberInClassroom {
 
     private final StudentsSpecializedClassesService studentsSpecializedClassesService;
     private final StudentsMajorClassesService studentsMajorClassesService;
+    private final StudentsMinorClassesService studentsMinorClassesService;
     private final MajorLecturers_MajorClassesService majorLecturersMajorClassesService;
     private final MajorLecturers_SpecializedClassesService majorLecturersSpecializedClassesService;
+    private final MinorLecturers_MinorClassesService minorLecturers_MinorClassesService;
     private final ClassesService classesService;
     private final PersonsService personsService;
 
     public MemberInClassroom(
             StudentsSpecializedClassesService studentsSpecializedClassesService,
-            StudentsMajorClassesService studentsMajorClassesService,
+            StudentsMajorClassesService studentsMajorClassesService, StudentsMinorClassesService studentsMinorClassesService,
             MajorLecturers_MajorClassesService majorLecturersMajorClassesService,
-            MajorLecturers_SpecializedClassesService majorLecturersSpecializedClassesService,
+            MajorLecturers_SpecializedClassesService majorLecturersSpecializedClassesService, MinorLecturers_MinorClassesService minorLecturersMinorClassesService,
             ClassesService classesService, PersonsService personsService) {
         this.studentsSpecializedClassesService = studentsSpecializedClassesService;
         this.studentsMajorClassesService = studentsMajorClassesService;
+        this.studentsMinorClassesService = studentsMinorClassesService;
         this.majorLecturersMajorClassesService = majorLecturersMajorClassesService;
         this.majorLecturersSpecializedClassesService = majorLecturersSpecializedClassesService;
+        minorLecturers_MinorClassesService = minorLecturersMinorClassesService;
         this.classesService = classesService;
         this.personsService = personsService;
     }
@@ -79,7 +87,14 @@ public class MemberInClassroom {
                 List<MajorLecturers> lecturers = majorLecturersSpecializedClassesService.listLecturersInClass(specializedClasses);
                 members.addAll(students);
                 members.addAll(lecturers);
-            } else {
+            }
+            else if (classEntity instanceof MinorClasses minorClasses) {
+                List<Students> students = studentsMinorClassesService.getStudentsByClass(minorClasses);
+                List<MinorLecturers> lecturers = minorLecturers_MinorClassesService.listLecturersInClass(minorClasses);
+                members.addAll(students);
+                members.addAll(lecturers);
+            }
+            else {
                 return prepareErrorModel(model, classId, "Unsupported class type.");
             }
 

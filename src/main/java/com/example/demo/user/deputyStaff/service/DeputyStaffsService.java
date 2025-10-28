@@ -1,5 +1,6 @@
 package com.example.demo.user.deputyStaff.service;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,4 +23,5 @@ public interface DeputyStaffsService {
     List<DeputyStaffs> searchDeputyStaffs(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
     DeputyStaffs getDeputyStaff();
+    Campuses getCampus();
 }

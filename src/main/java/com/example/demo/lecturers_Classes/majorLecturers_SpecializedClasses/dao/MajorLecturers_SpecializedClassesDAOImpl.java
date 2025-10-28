@@ -3,7 +3,7 @@ package com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.dao
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
-import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model.LecturersClassesId;
+import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.LecturersClassesId;
 import com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.model.MajorLecturers_SpecializedClasses;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;

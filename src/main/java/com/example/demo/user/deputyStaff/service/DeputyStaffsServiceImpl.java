@@ -1,5 +1,6 @@
 package com.example.demo.user.deputyStaff.service;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.user.deputyStaff.dao.DeputyStaffsDAO;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,11 @@ import java.util.Map;
 
 @Service
 public class DeputyStaffsServiceImpl implements DeputyStaffsService {
+    @Override
+    public Campuses getCampus() {
+        return deputyStaffsDAO.getCampus();
+    }
+
     @Override
     public DeputyStaffs getDeputyStaff() {
         return deputyStaffsDAO.getDeputyStaff();

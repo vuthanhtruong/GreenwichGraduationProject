@@ -2,7 +2,7 @@ package com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.dao;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model.LecturersClassesId;
+import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.LecturersClassesId;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model.MajorLecturers_MajorClasses;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import com.example.demo.user.staff.service.StaffsService;
