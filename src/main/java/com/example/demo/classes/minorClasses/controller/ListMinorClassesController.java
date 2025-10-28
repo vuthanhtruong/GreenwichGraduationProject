@@ -4,6 +4,7 @@ import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,11 +25,13 @@ public class ListMinorClassesController {
 
     private final MinorClassesService classesService;
     private final MinorSubjectsService subjectsService;
+    private final DeputyStaffsService staffsService;
 
     @Autowired
-    public ListMinorClassesController(MinorClassesService classesService, MinorSubjectsService subjectsService) {
+    public ListMinorClassesController(MinorClassesService classesService, MinorSubjectsService subjectsService, DeputyStaffsService staffsService) {
         this.classesService = classesService;
         this.subjectsService = subjectsService;
+        this.staffsService = staffsService;
     }
 
     @GetMapping("")
@@ -45,14 +48,14 @@ public class ListMinorClassesController {
             }
             session.setAttribute("classPageSize", pageSize);
 
-            long totalClasses = classesService.numberOfClasses();
+            long totalClasses = classesService.numberOfClassesByCampus(staffsService.getCampus().getCampusId());
             int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
             pageClasses = Math.max(1, Math.min(pageClasses, totalPagesClasses));
             session.setAttribute("currentPageClasses", pageClasses);
             session.setAttribute("totalPagesClasses", totalPagesClasses);
 
             int firstResult = (pageClasses - 1) * pageSize;
-            List<MinorClasses> classes = classesService.getPaginatedClasses(firstResult, pageSize);
+            List<MinorClasses> classes = classesService.getPaginatedClassesByCampus(firstResult, pageSize,staffsService.getCampus().getCampusId());
 
             if (totalClasses == 0) {
                 model.addAttribute("classes", new ArrayList<>());

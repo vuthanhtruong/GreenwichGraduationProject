@@ -69,11 +69,11 @@ public class AddSpecializedClassController {
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("specializedSubjects", specializedSubjectsService.subjectsByMajor(staffsService.getStaff().getMajorManagement()));
-            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId()));
             return "SpecializedClassesList";
         }
 
@@ -82,7 +82,7 @@ public class AddSpecializedClassController {
             String classId = classesService.generateUniqueClassId(specializedSubjectIdSafe, LocalDateTime.now());
             newClass.setClassId(classId);
             newClass.setCreatedAt(LocalDateTime.now());
-
+            newClass.setCreator(staffsService.getStaff());
             classesService.addClass(newClass);
             log.info("Successfully added class with ID: {}", classId);
             redirectAttributes.addFlashAttribute("successMessage", "Class added successfully!");
@@ -93,11 +93,11 @@ public class AddSpecializedClassController {
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("specializedSubjects", specializedSubjectsService.subjectsByMajor(staffsService.getStaff().getMajorManagement()));
-            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId()));
             return "SpecializedClassesList";
         }
     }

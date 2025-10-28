@@ -72,7 +72,7 @@ public class ListSpecializedClassesController {
             }
 
             // Lấy danh sách lớp và phân trang
-            long totalClasses = classesService.numberOfClasses(staff.getMajorManagement());
+            long totalClasses = classesService.numberOfClassesByCampus(staff.getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
             int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
             pageClasses = Math.max(1, Math.min(pageClasses, totalPagesClasses));
             session.setAttribute("currentPageClasses", pageClasses);
@@ -80,7 +80,7 @@ public class ListSpecializedClassesController {
             log.debug("Total classes: {}, Total pages: {}, Current page: {}", totalClasses, totalPagesClasses, pageClasses);
 
             int firstResult = (pageClasses - 1) * pageSize;
-            List<SpecializedClasses> classes = classesService.getPaginatedClasses(firstResult, pageSize, staff.getMajorManagement());
+            List<SpecializedClasses> classes = classesService.getPaginatedClassesByCampus(firstResult, pageSize, staff.getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
             log.debug("Found {} classes for major ID: {}", classes.size(), staff.getMajorManagement().getMajorId());
 
             // Kiểm tra null cho specializedSubject

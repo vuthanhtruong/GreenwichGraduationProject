@@ -37,17 +37,34 @@
         <!-- Center (Filter Form) -->
         <form method="post" th:action="@{/staff-home/specialized-study-plan/filter-subjects}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="campusId" th:value="${campusId}">
+
+            <!-- Curriculum Filter -->
             <select name="curriculumId" class="input">
                 <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
                 <option th:each="curriculum : ${curriculums}"
                         th:value="${curriculum.curriculumId}"
                         th:text="${curriculum.name}"
-                        th:selected="${curriculumId == curriculum.curriculumId}"></option>
+                        th:selected="${curriculumId == curriculum.curriculumId}">
+                </option>
             </select>
+
+            <!-- Admission Year Filter -->
+            <select name="admissionYear" class="input">
+                <option th:each="year : ${admissionYears}"
+                        th:value="${year}"
+                        th:text="${year}"
+                        th:selected="${year == admissionYear}">
+                </option>
+            </select>
+
             <button type="submit" class="btn small primary">
                 <i class="fas fa-filter"></i> Filter
             </button>
-            <a th:if="${curriculumId != null}" th:href="@{/staff-home/specialized-study-plan}" class="btn small danger">
+
+            <a th:if="${curriculumId != null or admissionYear != null}"
+               th:href="@{/staff-home/specialized-study-plan}"
+               class="btn small danger">
                 <i class="fas fa-times"></i> Clear
             </a>
         </form>
@@ -80,13 +97,15 @@
                 <td th:text="${subject.subjectId}"></td>
                 <td th:text="${subject.subjectName}"></td>
                 <td th:text="${subject.semester ?: 'N/A'}"></td>
-                <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>
-                <td th:text="${subject.getSpecialization() != null} ? ${subject.getSpecialization().getSpecializationName()} : 'N/A'"></td>
-                <td th:text="${subject.getSpecialization().getMajor() != null} ? ${subject.getSpecialization().major.majorName} : 'N/A'"></td>
+                <td th:text="${subject.creator?.firstName} + ' ' + ${subject.creator?.lastName} ?: 'N/A'"></td>
+                <td th:text="${subject.specialization?.specializationName} ?: 'N/A'"></td>
+                <td th:text="${subject.specialization?.major?.majorName} ?: 'N/A'"></td>
                 <td>
                     <form th:action="@{/staff-home/specialized-study-plan/assign-members}" method="post" class="inline-form">
                         <input type="hidden" name="id" th:value="${subject.subjectId}">
                         <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+                        <input type="hidden" name="admissionYear" th:value="${admissionYear}">
+                        <input type="hidden" name="campusId" th:value="${campusId}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button class="btn small primary">
                             <i class="fas fa-users"></i> Assign Members
@@ -95,7 +114,7 @@
                 </td>
             </tr>
             <tr th:if="${subjects == null or #lists.isEmpty(subjects)}">
-                <td colspan="6" class="text-center">No subjects available.</td>
+                <td colspan="7" class="text-center">No subjects available for the selected criteria.</td>
             </tr>
             </tbody>
         </table>

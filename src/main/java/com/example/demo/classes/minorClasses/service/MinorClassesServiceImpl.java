@@ -25,10 +25,27 @@ public class MinorClassesServiceImpl implements MinorClassesService {
     @Override public void deleteClass(String id) { classesDAO.deleteClass(id); }
     @Override public String generateUniqueClassId(LocalDateTime createdDate) { return classesDAO.generateUniqueClassId(createdDate); }
     @Override public List<String> validateClass(MinorClasses classObj, String excludeId) { return classesDAO.validateClass(classObj, excludeId); }
-    @Override public List<MinorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize) { return classesDAO.searchClasses(searchType, keyword, firstResult, pageSize); }
-    @Override public long countSearchResults(String searchType, String keyword) { return classesDAO.countSearchResults(searchType, keyword); }
-    @Override public List<MinorClasses> getPaginatedClasses(int firstResult, int pageSize) { return classesDAO.getPaginatedClasses(firstResult, pageSize); }
-    @Override public long numberOfClasses() { return classesDAO.numberOfClasses(); }
+
+    @Override
+    public List<MinorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, String campusId) {
+        return classesDAO.searchClassesByCampus(searchType, keyword, firstResult, pageSize, campusId);
+    }
+
+    @Override
+    public long countSearchResultsByCampus(String searchType, String keyword, String campusId) {
+        return classesDAO.countSearchResultsByCampus(searchType, keyword, campusId);
+    }
+
+    @Override
+    public List<MinorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, String campusId) {
+        return classesDAO.getPaginatedClassesByCampus(firstResult, pageSize, campusId);
+    }
+
+    @Override
+    public long numberOfClassesByCampus(String campusId) {
+        return classesDAO.numberOfClassesByCampus(campusId);
+    }
+
     @Override public void setNullWhenDeletingSubject(MinorSubjects subject) { classesDAO.setNullWhenDeletingSubject(subject); }
     @Override public void deleteClassBySubject(MinorSubjects subject) { classesDAO.deleteClassBySubject(subject); }
 }

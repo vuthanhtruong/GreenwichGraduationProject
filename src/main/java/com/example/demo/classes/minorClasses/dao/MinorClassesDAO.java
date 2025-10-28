@@ -2,7 +2,6 @@ package com.example.demo.classes.minorClasses.dao;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,10 +15,10 @@ public interface MinorClassesDAO {
     void deleteClass(String id);
     String generateUniqueClassId(LocalDateTime createdDate);
     List<String> validateClass(MinorClasses classObj, String excludeId);
-    List<MinorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize );
-    long countSearchResults(String searchType, String keyword);
-    List<MinorClasses> getPaginatedClasses(int firstResult, int pageSize );
-    long numberOfClasses();
+    List<MinorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, String campusId);
+    long countSearchResultsByCampus(String searchType, String keyword, String campusId);
+    List<MinorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, String campusId);
+    long numberOfClassesByCampus(String campusId);
     void setNullWhenDeletingSubject(MinorSubjects subject);
     void deleteClassBySubject(MinorSubjects subject);
 }

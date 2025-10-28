@@ -3,7 +3,6 @@ package com.example.demo.classes.specializedClasses.dao;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.major.model.Majors;
-import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -25,31 +24,30 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final StaffsService staffsService;
-
-    public SpecializedClassesDAOImpl(StaffsService staffsService) {
-        if (staffsService == null) {
-            throw new IllegalArgumentException("StaffsService cannot be null");
-        }
-        this.staffsService = staffsService;
-    }
+    // KHÔNG DÙNG staffsService ĐỂ LỌC CAMPUS → chỉ dùng để gán creator
+    // Nếu cần gán creator → nên dùng SecurityContext (không bắt buộc ở DAO)
 
     @Override
-    public List<SpecializedClasses> ClassesByMajor(Majors major) {
-        if (major == null) {
-            log.warn("Received null major for ClassesByMajor query");
+    public List<SpecializedClasses> getClassesByMajorAndCampus(Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) {
+            log.warn("Invalid parameters: major={} or campusId={}", major, campusId);
             return List.of();
         }
         try {
             List<SpecializedClasses> result = entityManager.createQuery(
-                            "SELECT c FROM SpecializedClasses c JOIN FETCH c.specializedSubject s WHERE s.specialization.class = :major",
+                            "SELECT c FROM SpecializedClasses c " +
+                                    "JOIN FETCH c.specializedSubject s " +
+                                    "JOIN FETCH c.creator " +
+                                    "WHERE s.specialization.major = :major " +
+                                    "AND c.creator.campus.campusId = :campusId",
                             SpecializedClasses.class)
                     .setParameter("major", major)
+                    .setParameter("campusId", campusId)
                     .getResultList();
-            log.debug("Found {} specialized classes for major ID: {}", result.size(), major.getMajorId());
+            log.debug("Found {} specialized classes for major ID: {}, campus: {}", result.size(), major.getMajorId(), campusId);
             return result;
         } catch (Exception e) {
-            log.error("Error fetching specialized classes for major ID: {}", major.getMajorId(), e);
+            log.error("Error fetching classes for major ID: {}, campus: {}", major.getMajorId(), campusId, e);
             return List.of();
         }
     }
@@ -71,14 +69,13 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
     @Override
     public SpecializedClasses getClassById(String id) {
+        if (id == null || id.isBlank()) return null;
         try {
-            SpecializedClasses result = entityManager.createQuery(
+            return entityManager.createQuery(
                             "SELECT c FROM SpecializedClasses c JOIN FETCH c.specializedSubject JOIN FETCH c.creator WHERE c.classId = :id",
                             SpecializedClasses.class)
                     .setParameter("id", id)
                     .getSingleResult();
-            log.debug("Found specialized class with ID: {}", id);
-            return result;
         } catch (Exception e) {
             log.warn("Specialized class with ID: {} not found", id);
             return null;
@@ -87,14 +84,13 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
     @Override
     public SpecializedClasses getClassByName(String name) {
+        if (name == null || name.isBlank()) return null;
         try {
-            SpecializedClasses result = entityManager.createQuery(
+            return entityManager.createQuery(
                             "SELECT c FROM SpecializedClasses c JOIN FETCH c.specializedSubject JOIN FETCH c.creator WHERE c.nameClass = :name",
                             SpecializedClasses.class)
                     .setParameter("name", name)
                     .getSingleResult();
-            log.debug("Found specialized class with name: {}", name);
-            return result;
         } catch (Exception e) {
             log.warn("Specialized class with name: {} not found", name);
             return null;
@@ -103,94 +99,70 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
     @Override
     public void addClass(SpecializedClasses c) {
+        if (c == null) throw new IllegalArgumentException("Class object cannot be null");
         try {
-            c.setCreator(staffsService.getStaff());
             c.setCreatedAt(LocalDateTime.now());
             entityManager.persist(c);
             log.info("Added specialized class with ID: {}", c.getClassId());
         } catch (Exception e) {
             log.error("Error adding specialized class: {}", c.getClassId(), e);
-            throw new RuntimeException("Failed to add specialized class", e);
+            throw new RuntimeException("Failed to add class", e);
         }
     }
 
     @Override
     public SpecializedClasses editClass(String id, SpecializedClasses classObj) {
         if (classObj == null || id == null) {
-            log.error("Class object or ID is null");
             throw new IllegalArgumentException("Class object or ID cannot be null");
         }
 
-        SpecializedClasses existingClass = getClassById(id);
-        if (existingClass == null) {
-            log.error("Specialized class with ID: {} not found", id);
+        SpecializedClasses existing = getClassById(id);
+        if (existing == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
 
         List<String> errors = validateClass(classObj, id);
         if (!errors.isEmpty()) {
-            log.error("Validation errors for class ID {}: {}", id, String.join("; ", errors));
             throw new IllegalArgumentException(String.join("; ", errors));
         }
 
-        existingClass.setNameClass(classObj.getNameClass());
-        existingClass.setSlotQuantity(classObj.getSlotQuantity());
-        existingClass.setSession(classObj.getSession());
-        existingClass.setSpecializedSubject(classObj.getSpecializedSubject());
-        if (classObj.getCreator() != null) {
-            existingClass.setCreator(classObj.getCreator());
-        }
-        if (classObj.getCreatedAt() != null) {
-            existingClass.setCreatedAt(classObj.getCreatedAt());
-        }
+        existing.setNameClass(classObj.getNameClass());
+        existing.setSlotQuantity(classObj.getSlotQuantity());
+        existing.setSession(classObj.getSession());
+        existing.setSpecializedSubject(classObj.getSpecializedSubject());
 
-        SpecializedClasses updatedClass = entityManager.merge(existingClass);
-        log.info("Updated specialized class with ID: {}", id);
-        return updatedClass;
+        SpecializedClasses updated = entityManager.merge(existing);
+        log.info("Updated specialized class ID: {}", id);
+        return updated;
     }
 
     @Override
     public void deleteClass(String id) {
         SpecializedClasses c = getClassById(id);
         if (c == null) {
-            log.error("Specialized class with ID: {} not found", id);
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
         entityManager.remove(c);
-        log.info("Deleted specialized class with ID: {}", id);
+        log.info("Deleted specialized class ID: {}", id);
     }
 
     @Override
     public String generateUniqueClassId(String specializedSubjectId, LocalDateTime createdDate) {
-        String prefix;
-        switch (specializedSubjectId) {
-            case "spec001":
-                prefix = "CLSSBH";
-                break;
-            case "spec002":
-                prefix = "CLSSCH";
-                break;
-            case "spec003":
-                prefix = "CLSSDH";
-                break;
-            case "spec004":
-                prefix = "CLSSKH";
-                break;
-            default:
-                prefix = "CLSSGEN";
-                break;
-        }
+        String prefix = switch (specializedSubjectId) {
+            case "spec001" -> "CLSSBH";
+            case "spec002" -> "CLSSCH";
+            case "spec003" -> "CLSSDH";
+            case "spec004" -> "CLSSKH";
+            default -> "CLSSGEN";
+        };
 
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
-
         String classId;
         SecureRandom random = new SecureRandom();
         do {
-            String randomDigit = String.valueOf(random.nextInt(10));
-            classId = prefix + year + date + randomDigit;
+            classId = prefix + year + date + random.nextInt(10);
         } while (getClassById(classId) != null);
-        log.debug("Generated unique class ID: {}", classId);
         return classId;
     }
 
@@ -201,7 +173,7 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         if (classObj.getNameClass() == null || classObj.getNameClass().trim().isEmpty()) {
             errors.add("Class name cannot be blank.");
         } else if (!isValidName(classObj.getNameClass())) {
-            errors.add("Class name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+            errors.add("Class name is not valid.");
         }
 
         if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
@@ -213,9 +185,9 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         } else {
             SpecializedSubject subject = entityManager.find(SpecializedSubject.class, classObj.getSpecializedSubject().getSubjectId());
             if (subject == null) {
-                errors.add("Invalid specialized subject selected.");
+                errors.add("Invalid specialized subject.");
             } else {
-                classObj.setSpecializedSubject(subject); // Ensure managed entity
+                classObj.setSpecializedSubject(subject);
             }
         }
 
@@ -228,88 +200,102 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     }
 
     @Override
-    public List<SpecializedClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
-        String queryString = "SELECT c FROM SpecializedClasses c JOIN FETCH c.creator JOIN FETCH c.specializedSubject s WHERE s.specialization.class = :major";
+    public List<SpecializedClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return List.of();
+
+        String jpql = "SELECT c FROM SpecializedClasses c " +
+                "JOIN FETCH c.creator JOIN FETCH c.specializedSubject s " +
+                "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
+
         try {
-            List<SpecializedClasses> result = entityManager.createQuery(queryString, SpecializedClasses.class)
+            List<SpecializedClasses> result = entityManager.createQuery(jpql, SpecializedClasses.class)
                     .setParameter("major", major)
+                    .setParameter("campusId", campusId)
                     .setParameter("keyword", "%" + keyword + "%")
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize)
                     .getResultList();
-            log.debug("Found {} specialized classes for searchType: {}, keyword: {}", result.size(), searchType, keyword);
+            log.debug("Search found {} classes (type={}, keyword={})", result.size(), searchType, keyword);
             return result;
         } catch (Exception e) {
-            log.error("Error searching specialized classes: {}", e.getMessage(), e);
+            log.error("Search error", e);
             return List.of();
         }
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword, Majors major) {
-        String queryString = "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s WHERE s.specialization.major = :major";
+    public long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return 0;
+
+        String jpql = "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s " +
+                "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
+
         try {
-            Long result = entityManager.createQuery(queryString, Long.class)
+            Long count = entityManager.createQuery(jpql, Long.class)
                     .setParameter("major", major)
+                    .setParameter("campusId", campusId)
                     .setParameter("keyword", "%" + keyword + "%")
                     .getSingleResult();
-            log.debug("Counted {} search results for searchType: {}, keyword: {}", result, searchType, keyword);
-            return result;
+            return count != null ? count : 0;
         } catch (Exception e) {
-            log.error("Error counting search results: {}", e.getMessage(), e);
+            log.error("Count error", e);
             return 0;
         }
     }
 
     @Override
-    public List<SpecializedClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major) {
+    public List<SpecializedClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return List.of();
+
         try {
-            List<SpecializedClasses> result = entityManager.createQuery(
-                            "SELECT c FROM SpecializedClasses c JOIN FETCH c.creator JOIN FETCH c.specializedSubject s WHERE s.specialization.major = :major",
+            return entityManager.createQuery(
+                            "SELECT c FROM SpecializedClasses c " +
+                                    "JOIN FETCH c.creator JOIN FETCH c.specializedSubject s " +
+                                    "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId",
                             SpecializedClasses.class)
                     .setParameter("major", major)
+                    .setParameter("campusId", campusId)
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize)
                     .getResultList();
-            log.debug("Found {} paginated specialized classes for major ID: {}", result.size(), major.getMajorId());
-            return result;
         } catch (Exception e) {
-            log.error("Error fetching paginated specialized classes: {}", e.getMessage(), e);
+            log.error("Pagination error", e);
             return List.of();
         }
     }
 
     @Override
-    public long numberOfClasses(Majors major) {
+    public long numberOfClassesByCampus(Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return 0;
+
         try {
-            Long result = entityManager.createQuery(
-                            "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s WHERE s.specialization.major = :major",
+            Long count = entityManager.createQuery(
+                            "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s " +
+                                    "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId",
                             Long.class)
                     .setParameter("major", major)
+                    .setParameter("campusId", campusId)
                     .getSingleResult();
-            log.debug("Counted {} specialized classes for major ID: {}", result, major.getMajorId());
-            return result;
+            return count != null ? count : 0;
         } catch (Exception e) {
-            log.error("Error counting specialized classes: {}", e.getMessage(), e);
+            log.error("Count total error", e);
             return 0;
         }
     }
 
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
-        return name.matches(nameRegex);
+        return name != null && name.trim().matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
     }
 }

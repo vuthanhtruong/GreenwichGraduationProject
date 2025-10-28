@@ -3,6 +3,7 @@ package com.example.demo.tuitionByYear.service;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
+import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.tuitionByYear.dao.TuitionByYearDAO;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.model.TuitionByYearId;
@@ -13,6 +14,16 @@ import java.util.List;
 
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
+    @Override
+    public List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId) {
+        return tuitionByYearDAO.findAllAdmissionYearsWithSpecializedTuition(campusId);
+    }
+
+    @Override
+    public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
+        return tuitionByYearDAO.getSpecializedSubjectsWithTuitionByYearAndCurriculum(admissionYear,curriculum,campus);
+    }
+
     private final TuitionByYearDAO tuitionByYearDAO;
 
     public TuitionByYearServiceImpl(TuitionByYearDAO tuitionByYearDAO) {

@@ -3,7 +3,6 @@ package com.example.demo.classes.majorClasses.dao;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
-import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -17,17 +16,12 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorClassesDAOImpl implements MajorClassesDAO {
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final StaffsService staffsService;
-
-    public MajorClassesDAOImpl(StaffsService staffsService) {
-        if (staffsService == null) {
-            throw new IllegalArgumentException("StaffsService cannot be null");
-        }
-        this.staffsService = staffsService;
-    }
+    // KHÔNG CẦN StaffsService NỮA TRONG FILTER
+    // Chỉ dùng để gán creator khi addClass
 
     @Override
     public void SetNullWhenDeletingSubject(MajorSubjects subject) {
@@ -44,12 +38,19 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
-    public List<MajorClasses> ClassesByMajor(Majors major) {
-        if (major == null) {
+    public List<MajorClasses> getClassesByMajorAndCampus(Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) {
             return List.of();
         }
-        return entityManager.createQuery("SELECT s FROM MajorClasses s WHERE s.creator.majorManagement = :major", MajorClasses.class)
+        return entityManager.createQuery(
+                        "SELECT c FROM MajorClasses c " +
+                                "JOIN FETCH c.creator " +
+                                "LEFT JOIN FETCH c.subject " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId",
+                        MajorClasses.class)
                 .setParameter("major", major)
+                .setParameter("campusId", campusId)
                 .getResultList();
     }
 
@@ -76,7 +77,6 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
 
     @Override
     public void addClass(MajorClasses c) {
-        c.setCreator(staffsService.getStaff());
         c.setCreatedAt(LocalDateTime.now());
         entityManager.persist(c);
     }
@@ -92,7 +92,6 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
 
-        // Validate and throw exception if validation fails
         List<String> errors = validateClass(classObj, id);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("; ", errors));
@@ -101,8 +100,6 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
         existingClass.setNameClass(classObj.getNameClass());
         existingClass.setSlotQuantity(classObj.getSlotQuantity());
         existingClass.setSubject(classObj.getSubject());
-        if (classObj.getCreator() != null) existingClass.setCreator(classObj.getCreator());
-        if (classObj.getCreatedAt() != null) existingClass.setCreatedAt(classObj.getCreatedAt());
 
         return entityManager.merge(existingClass);
     }
@@ -118,24 +115,13 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
 
     @Override
     public String generateUniqueClassId(String majorId, LocalDateTime createdDate) {
-        String prefix;
-        switch (majorId) {
-            case "major001":
-                prefix = "CLSGBH";
-                break;
-            case "major002":
-                prefix = "CLSGCH";
-                break;
-            case "major003":
-                prefix = "CLSGDH";
-                break;
-            case "major004":
-                prefix = "CLSGKH";
-                break;
-            default:
-                prefix = "CLSGEN";
-                break;
-        }
+        String prefix = switch (majorId) {
+            case "major001" -> "CLSGBH";
+            case "major002" -> "CLSGCH";
+            case "major003" -> "CLSGDH";
+            case "major004" -> "CLSGKH";
+            default -> "CLSGEN";
+        };
 
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
@@ -170,7 +156,7 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
             if (subject == null) {
                 errors.add("Invalid subject selected.");
             } else {
-                classObj.setSubject(subject); // Ensure the subject is a managed entity
+                classObj.setSubject(subject);
             }
         }
 
@@ -183,15 +169,21 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
-    public List<MajorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
-        String queryString = "SELECT c FROM MajorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.subject WHERE c.creator.majorManagement = :major";
+    public List<MajorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return List.of();
+
+        String jpql = "SELECT c FROM MajorClasses c " +
+                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(queryString, MajorClasses.class)
+
+        return entityManager.createQuery(jpql, MajorClasses.class)
                 .setParameter("major", major)
+                .setParameter("campusId", campusId)
                 .setParameter("keyword", "%" + keyword + "%")
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -199,40 +191,53 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword, Majors major) {
-        String queryString = "SELECT COUNT(c) FROM MajorClasses c WHERE c.creator.majorManagement = :major";
+    public long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return 0;
+
+        String jpql = "SELECT COUNT(c) FROM MajorClasses c " +
+                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(queryString, Long.class)
+
+        return entityManager.createQuery(jpql, Long.class)
                 .setParameter("major", major)
+                .setParameter("campusId", campusId)
                 .setParameter("keyword", "%" + keyword + "%")
                 .getSingleResult();
     }
 
     @Override
-    public List<MajorClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major) {
-        return entityManager.createQuery("SELECT c FROM MajorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.subject WHERE c.creator.majorManagement = :major", MajorClasses.class)
+    public List<MajorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId) {
+        return entityManager.createQuery(
+                        "SELECT c FROM MajorClasses c " +
+                                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                        MajorClasses.class)
                 .setParameter("major", major)
+                .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
     }
 
     @Override
-    public long numberOfClasses(Majors major) {
-        return entityManager.createQuery("SELECT COUNT(c) FROM MajorClasses c WHERE c.creator.majorManagement = :major", Long.class)
+    public long numberOfClassesByCampus(Majors major, String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) return 0;
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM MajorClasses c " +
+                                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                        Long.class)
                 .setParameter("major", major)
+                .setParameter("campusId", campusId)
                 .getSingleResult();
     }
 
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
-        return name.matches(nameRegex);
+        if (name == null || name.trim().isEmpty()) return false;
+        return name.matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
     }
 }

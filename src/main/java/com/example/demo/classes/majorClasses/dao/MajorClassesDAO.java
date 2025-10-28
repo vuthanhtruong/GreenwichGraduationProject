@@ -10,7 +10,7 @@ import java.util.List;
 public interface MajorClassesDAO {
     void SetNullWhenDeletingSubject(MajorSubjects subject);
     void deleteClassBySubject(MajorSubjects subject);
-    List<MajorClasses> ClassesByMajor(Majors major);
+    List<MajorClasses> getClassesByMajorAndCampus(Majors major, String campusId);
     List<MajorClasses> getClasses();
     MajorClasses getClassById(String id);
     MajorClasses getClassByName(String name);
@@ -19,8 +19,8 @@ public interface MajorClassesDAO {
     void deleteClass(String id);
     String generateUniqueClassId(String majorId, LocalDateTime createdDate);
     List<String> validateClass(MajorClasses classObj, String excludeId);
-    List<MajorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major);
-    long countSearchResults(String searchType, String keyword, Majors major);
-    List<MajorClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major);
-    long numberOfClasses(Majors major);
+    List<MajorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId);
+    long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId);
+    List<MajorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId);
+    long numberOfClassesByCampus(Majors major, String campusId);
 }

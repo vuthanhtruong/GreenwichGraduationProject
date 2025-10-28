@@ -71,10 +71,11 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
         return entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN StudentRequiredMajorSubjects srs " +
                                 "ON s.id = srs.student.id AND srs.subject = :subjects " +
-                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL",
+                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND s.curriculum=:curriculum",
                         Students.class)
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("curriculum", subjects.getCurriculum())
                 .getResultList();
     }
 

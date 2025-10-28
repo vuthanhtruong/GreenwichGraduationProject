@@ -50,11 +50,11 @@ public class SearchClassesController {
             long totalClasses;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalClasses = classesService.numberOfClasses(staffsService.getStaffMajor());
-                classes = classesService.getPaginatedClasses((page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
+                totalClasses = classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
+                classes = classesService.getPaginatedClassesByCampus((page - 1) * pageSize, pageSize, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
             } else {
-                classes = classesService.searchClasses(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
-                totalClasses = classesService.countSearchResults(searchType, keyword, staffsService.getStaffMajor());
+                classes = classesService.searchClassesByCampus(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
+                totalClasses = classesService.countSearchResultsByCampus(searchType, keyword, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
             }
 
             if (totalClasses == 0) {
@@ -109,11 +109,11 @@ public class SearchClassesController {
             long totalClasses;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalClasses = classesService.numberOfClasses(staffsService.getStaffMajor());
-                classes = classesService.getPaginatedClasses((page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
+                totalClasses = classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
+                classes = classesService.getPaginatedClassesByCampus((page - 1) * pageSize, pageSize, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
             } else {
-                classes = classesService.searchClasses(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaffMajor());
-                totalClasses = classesService.countSearchResults(searchType, keyword, staffsService.getStaffMajor());
+                classes = classesService.searchClassesByCampus(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
+                totalClasses = classesService.countSearchResultsByCampus(searchType, keyword, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
             }
 
             if (totalClasses == 0) {

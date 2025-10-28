@@ -60,12 +60,11 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus And srs.student.curriculum=:curriculum",
+                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus",
                         StudentRequiredSpecializedSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
                 .setParameter("campus",staffsService.getCampusOfStaff())
-                .setParameter("curriculum", subject.getCurriculum())
                 .getResultList();
     }
 
@@ -78,7 +77,7 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
                                 "WHERE s.specialization.major = :major " +
-                                "AND s.campus = :campus " +
+                                "AND s.curriculum=:curriculum AND s.campus = :campus " +
                                 "AND NOT EXISTS (" +
                                 "   SELECT 1 FROM StudentRequiredSpecializedSubjects srs " +
                                 "   WHERE srs.student = s " +
@@ -87,6 +86,7 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
                         Students.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("curriculum",subject.getCurriculum())
                 .setParameter("campus", staffsService.getCampusOfStaff())
                 .getResultList();
     }

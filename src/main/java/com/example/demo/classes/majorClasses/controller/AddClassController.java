@@ -54,11 +54,11 @@ public class AddClassController {
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor()));
+            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaffMajor()));
+            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
             return "ClassesList";
         }
 
@@ -67,7 +67,7 @@ public class AddClassController {
             String classId = classesService.generateUniqueClassId(majorId, LocalDateTime.now());
             newClass.setClassId(classId);
             newClass.setCreatedAt(LocalDateTime.now());
-
+            newClass.setCreator(staffsService.getStaff());
             classesService.addClass(newClass);
             redirectAttributes.addFlashAttribute("successMessage", "Class added successfully!");
             return "redirect:/staff-home/classes-list";
@@ -76,11 +76,11 @@ public class AddClassController {
             model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("classes", classesService.getPaginatedClasses(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor()));
+            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
             model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClasses(staffsService.getStaffMajor()));
+            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
             return "ClassesList";
         }
     }

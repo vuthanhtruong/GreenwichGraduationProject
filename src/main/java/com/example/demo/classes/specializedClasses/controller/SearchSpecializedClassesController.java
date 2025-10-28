@@ -52,11 +52,11 @@ public class SearchSpecializedClassesController {
             long totalClasses;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalClasses = classesService.numberOfClasses(staffsService.getStaff().getMajorManagement());
-                classes = classesService.getPaginatedClasses((page - 1) * pageSize, pageSize, staffsService.getStaff().getMajorManagement());
+                totalClasses = classesService.numberOfClassesByCampus(staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
+                classes = classesService.getPaginatedClassesByCampus((page - 1) * pageSize, pageSize, staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
             } else {
-                classes = classesService.searchClasses(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaff().getMajorManagement());
-                totalClasses = classesService.countSearchResults(searchType, keyword, staffsService.getStaff().getMajorManagement());
+                classes = classesService.searchClassesByCampus(searchType, keyword, (page - 1) * pageSize, pageSize, staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
+                totalClasses = classesService.countSearchResultsByCampus(searchType, keyword, staffsService.getStaff().getMajorManagement(),staffsService.getCampusOfStaff().getCampusId());
             }
 
             if (totalClasses == 0) {

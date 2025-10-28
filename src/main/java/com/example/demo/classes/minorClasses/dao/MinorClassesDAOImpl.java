@@ -2,7 +2,6 @@ package com.example.demo.classes.minorClasses.dao;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
-import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -19,14 +18,6 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final DeputyStaffsService deputyStaffsService;
-
-    public MinorClassesDAOImpl(DeputyStaffsService deputyStaffsService) {
-        if (deputyStaffsService == null) {
-            throw new IllegalArgumentException("DeputyStaffsService cannot be null");
-        }
-        this.deputyStaffsService = deputyStaffsService;
-    }
 
     @Override
     public List<MinorClasses> getClasses() {
@@ -40,6 +31,7 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @Override
     public MinorClasses getClassByName(String name) {
+        if (name == null || name.isBlank()) return null;
         try {
             return entityManager.createQuery("SELECT c FROM MinorClasses c WHERE c.nameClass = :name", MinorClasses.class)
                     .setParameter("name", name)
@@ -51,7 +43,7 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @Override
     public void addClass(MinorClasses c) {
-        c.setCreator(deputyStaffsService.getDeputyStaff());
+        if (c == null) throw new IllegalArgumentException("Class object cannot be null");
         c.setCreatedAt(LocalDateTime.now());
         entityManager.persist(c);
     }
@@ -62,8 +54,8 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
             throw new IllegalArgumentException("Class object or ID cannot be null");
         }
 
-        MinorClasses existingClass = entityManager.find(MinorClasses.class, id);
-        if (existingClass == null) {
+        MinorClasses existing = entityManager.find(MinorClasses.class, id);
+        if (existing == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
 
@@ -72,19 +64,17 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
 
-        existingClass.setNameClass(classObj.getNameClass());
-        existingClass.setSlotQuantity(classObj.getSlotQuantity());
-        existingClass.setSession(classObj.getSession());
-        existingClass.setMinorSubject(classObj.getMinorSubject());
-        if (classObj.getCreator() != null) existingClass.setCreator(classObj.getCreator());
-        if (classObj.getCreatedAt() != null) existingClass.setCreatedAt(classObj.getCreatedAt());
+        existing.setNameClass(classObj.getNameClass());
+        existing.setSlotQuantity(classObj.getSlotQuantity());
+        existing.setSession(classObj.getSession());
+        existing.setMinorSubject(classObj.getMinorSubject());
 
-        return entityManager.merge(existingClass);
+        return entityManager.merge(existing);
     }
 
     @Override
     public void deleteClass(String id) {
-        MinorClasses c = entityManager.find(MinorClasses.class, id);
+        MinorClasses c = getClassById(id);
         if (c == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
@@ -96,12 +86,10 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
         String prefix = "CLSMIN";
         String year = String.format("%02d", createdDate.getYear() % 100);
         String date = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
-
         String classId;
         SecureRandom random = new SecureRandom();
         do {
-            String randomDigit = String.valueOf(random.nextInt(10));
-            classId = prefix + year + date + randomDigit;
+            classId = prefix + year + date + random.nextInt(10);
         } while (getClassById(classId) != null);
         return classId;
     }
@@ -144,14 +132,20 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
-    public List<MinorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize) {
-        String query = "SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject WHERE 1=1";
+    public List<MinorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, String campusId) {
+        if (campusId == null || campusId.isBlank()) return List.of();
+
+        String jpql = "SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject " +
+                "WHERE c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            query += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            query += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(query, MinorClasses.class)
+
+        return entityManager.createQuery(jpql, MinorClasses.class)
+                .setParameter("campusId", campusId)
                 .setParameter("keyword", "%" + keyword + "%")
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -159,29 +153,46 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword) {
-        String query = "SELECT COUNT(c) FROM MinorClasses c WHERE 1=1";
+    public long countSearchResultsByCampus(String searchType, String keyword, String campusId) {
+        if (campusId == null || campusId.isBlank()) return 0;
+
+        String jpql = "SELECT COUNT(c) FROM MinorClasses c WHERE c.creator.campus.campusId = :campusId";
+
         if ("name".equals(searchType)) {
-            query += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            query += " AND c.classId LIKE :keyword";
+            jpql += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(query, Long.class)
+
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
                 .setParameter("keyword", "%" + keyword + "%")
                 .getSingleResult();
     }
 
     @Override
-    public List<MinorClasses> getPaginatedClasses(int firstResult, int pageSize) {
-        return entityManager.createQuery("SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject", MinorClasses.class)
+    public List<MinorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, String campusId) {
+        if (campusId == null || campusId.isBlank()) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject " +
+                                "WHERE c.creator.campus.campusId = :campusId",
+                        MinorClasses.class)
+                .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
     }
 
     @Override
-    public long numberOfClasses() {
-        return entityManager.createQuery("SELECT COUNT(c) FROM MinorClasses c", Long.class).getSingleResult();
+    public long numberOfClassesByCampus(String campusId) {
+        if (campusId == null || campusId.isBlank()) return 0;
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM MinorClasses c WHERE c.creator.campus.campusId = :campusId",
+                        Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
     }
 
     @Override
@@ -199,7 +210,6 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) return false;
-        return name.matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
+        return name != null && name.trim().matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
     }
 }

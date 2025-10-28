@@ -48,14 +48,14 @@ public class ListClassesController {
             session.setAttribute("classPageSize", pageSize);
 
             String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
-            long totalClasses = classesService.numberOfClasses(staffsService.getStaffMajor());
+            long totalClasses = classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
             int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
             pageClasses = Math.max(1, Math.min(pageClasses, totalPagesClasses));
             session.setAttribute("currentPageClasses", pageClasses);
             session.setAttribute("totalPagesClasses", totalPagesClasses);
 
             int firstResult = (pageClasses - 1) * pageSize;
-            List<MajorClasses> classes = classesService.getPaginatedClasses(firstResult, pageSize, staffsService.getStaffMajor());
+            List<MajorClasses> classes = classesService.getPaginatedClassesByCampus(firstResult, pageSize, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId());
 
             if (totalClasses == 0) {
                 model.addAttribute("classes", new ArrayList<>());

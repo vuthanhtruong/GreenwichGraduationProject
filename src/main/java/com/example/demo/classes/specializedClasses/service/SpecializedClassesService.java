@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SpecializedClassesService {
-    List<SpecializedClasses> ClassesByMajor(Majors major);
+    List<SpecializedClasses> getClassesByMajorAndCampus(Majors major, String campusId);
     List<SpecializedClasses> getClasses();
     SpecializedClasses getClassById(String id);
     SpecializedClasses getClassByName(String name);
@@ -16,8 +16,8 @@ public interface SpecializedClassesService {
     void deleteClass(String id);
     String generateUniqueClassId(String specializationId, LocalDateTime createdDate);
     List<String> validateClass(SpecializedClasses classObj, String excludeId);
-    List<SpecializedClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major);
-    long countSearchResults(String searchType, String keyword, Majors major);
-    List<SpecializedClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major);
-    long numberOfClasses(Majors major);
+    List<SpecializedClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId);
+    long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId);
+    List<SpecializedClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId);
+    long numberOfClassesByCampus(Majors major, String campusId);
 }

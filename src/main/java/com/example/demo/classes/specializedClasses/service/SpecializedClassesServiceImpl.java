@@ -20,8 +20,28 @@ public class SpecializedClassesServiceImpl implements SpecializedClassesService 
     }
 
     @Override
-    public List<SpecializedClasses> ClassesByMajor(Majors major) {
-        return classesDAO.ClassesByMajor(major);
+    public List<SpecializedClasses> getClassesByMajorAndCampus(Majors major, String campusId) {
+        return classesDAO.getClassesByMajorAndCampus(major, campusId);
+    }
+
+    @Override
+    public List<SpecializedClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId) {
+        return classesDAO.searchClassesByCampus(searchType, keyword, firstResult, pageSize, major, campusId);
+    }
+
+    @Override
+    public long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId) {
+        return classesDAO.countSearchResultsByCampus(searchType, keyword, major, campusId);
+    }
+
+    @Override
+    public List<SpecializedClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId) {
+        return classesDAO.getPaginatedClassesByCampus(firstResult, pageSize, major, campusId);
+    }
+
+    @Override
+    public long numberOfClassesByCampus(Majors major, String campusId) {
+        return classesDAO.numberOfClassesByCampus(major, campusId);
     }
 
     @Override
@@ -45,8 +65,8 @@ public class SpecializedClassesServiceImpl implements SpecializedClassesService 
     }
 
     @Override
-    public SpecializedClasses editClass(String id, SpecializedClasses classObj) {
-        return classesDAO.editClass(id, classObj);
+    public SpecializedClasses editClass(String id, SpecializedClasses c) {
+        return classesDAO.editClass(id, c);
     }
 
     @Override
@@ -62,25 +82,5 @@ public class SpecializedClassesServiceImpl implements SpecializedClassesService 
     @Override
     public List<String> validateClass(SpecializedClasses classObj, String excludeId) {
         return classesDAO.validateClass(classObj, excludeId);
-    }
-
-    @Override
-    public List<SpecializedClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize, Majors major) {
-        return classesDAO.searchClasses(searchType, keyword, firstResult, pageSize, major);
-    }
-
-    @Override
-    public long countSearchResults(String searchType, String keyword, Majors major) {
-        return classesDAO.countSearchResults(searchType, keyword, major);
-    }
-
-    @Override
-    public List<SpecializedClasses> getPaginatedClasses(int firstResult, int pageSize, Majors major) {
-        return classesDAO.getPaginatedClasses(firstResult, pageSize, major);
-    }
-
-    @Override
-    public long numberOfClasses(Majors major) {
-        return classesDAO.numberOfClasses(major);
     }
 }
