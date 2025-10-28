@@ -4,10 +4,22 @@ import com.example.demo.comment.dao.StudentCommentsDAO;
 import com.example.demo.comment.model.StudentComments;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StudentCommentsServiceImpl implements StudentCommentsService{
+    @Override
+    public Map<String, String> validateComment(StudentComments comment) {
+        return studentCommentsDAO.validateComment(comment);
+    }
+
+    @Override
+    public String generateUniqueCommentId(String postId, LocalDate createdDate) {
+        return studentCommentsDAO.generateUniqueCommentId(postId, createdDate);
+    }
+
     @Override
     public void saveComment(StudentComments comment) {
         studentCommentsDAO.saveComment(comment);

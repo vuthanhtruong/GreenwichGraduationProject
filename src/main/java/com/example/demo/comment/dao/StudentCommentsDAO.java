@@ -2,7 +2,9 @@ package com.example.demo.comment.dao;
 
 import com.example.demo.comment.model.StudentComments;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface StudentCommentsDAO {
 
@@ -19,4 +21,9 @@ public interface StudentCommentsDAO {
     void deleteComment(String commentId);
 
     boolean existsCommentById(String commentId);
+
+    String generateUniqueCommentId(String postId, LocalDate createdDate);
+
+    Map<String, String> validateComment(StudentComments comment);
+
 }

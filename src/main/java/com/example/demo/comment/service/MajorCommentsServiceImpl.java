@@ -4,10 +4,22 @@ import com.example.demo.comment.dao.MajorCommentsDAO;
 import com.example.demo.comment.model.MajorComments;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MajorCommentsServiceImpl implements MajorCommentsService{
+    @Override
+    public Map<String, String> validateComment(MajorComments comment) {
+        return majorCommentsDAO.validateComment(comment);
+    }
+
+    @Override
+    public String generateUniqueCommentId(String postId, LocalDate createdDate) {
+        return majorCommentsDAO.generateUniqueCommentId(postId, createdDate);
+    }
+
     @Override
     public void saveComment(MajorComments comment) {
         majorCommentsDAO.saveComment(comment);

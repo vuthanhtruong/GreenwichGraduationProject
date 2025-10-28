@@ -1,12 +1,17 @@
 package com.example.demo.comment.dao;
 
+import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.MajorComments;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -118,5 +123,38 @@ public class MajorCommentsDAOImpl implements MajorCommentsDAO {
         } catch (Exception e) {
             throw new RuntimeException("Error checking comment existence: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public String generateUniqueCommentId(String postId, LocalDate createdDate) {
+        if (postId == null || postId.trim().isEmpty()) {
+            postId = "POST";
+        }
+        if (createdDate == null) {
+            createdDate = LocalDate.now();
+        }
+
+        String prefix = postId.length() >= 6 ? postId.substring(0, 6) : postId; // Lấy 6 ký tự đầu
+        String datePart = String.format("%02d%02d", createdDate.getMonthValue(), createdDate.getDayOfMonth());
+        String commentId;
+        SecureRandom random = new SecureRandom();
+
+        do {
+            int randomNum = random.nextInt(10000); // 0000 - 9999
+            commentId = prefix + datePart + String.format("%04d", randomNum);
+        } while (entityManager.find(Comments.class, commentId) != null); // Kiểm tra trùng
+
+        return commentId;
+    }
+
+    @Override
+    public Map<String, String> validateComment(MajorComments comment) {
+        Map<String, String> errors = new HashMap<>();
+        if (comment.getContent() == null || comment.getContent().trim().isEmpty()) {
+            errors.put("content", "Comment content cannot be empty");
+        } else if (comment.getContent().length() > 1000) {
+            errors.put("content", "Comment cannot exceed 1000 characters");
+        }
+        return errors;
     }
 }

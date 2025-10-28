@@ -3,6 +3,8 @@ package com.example.demo.classes.specializedClasses.controller;
 import com.example.demo.specialization.service.SpecializationService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
+import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
+import com.example.demo.subject.specializedSubject.service.SpecializedSubjectsService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.validation.Valid;
@@ -21,18 +23,18 @@ public class EditSpecializedClassController {
 
     private final SpecializedClassesService classesService;
     private final StaffsService staffsService;
-    private final SpecializationService specializationService;
+    private final SpecializedSubjectsService specializedSubjectsService;
 
     @Autowired
-    public EditSpecializedClassController(SpecializedClassesService classesService, StaffsService staffsService, SpecializationService specializationService) {
+    public EditSpecializedClassController(SpecializedClassesService classesService, StaffsService staffsService, SpecializedSubjectsService specializedSubjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
-        this.specializationService = specializationService;
+        this.specializedSubjectsService = specializedSubjectsService;
     }
 
     @PostMapping("/edit-class-form")
     public String showEditClassForm(
-            @RequestParam("id") String classId,
+            @RequestParam("classId") String classId,
             @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
@@ -71,7 +73,7 @@ public class EditSpecializedClassController {
         }
 
         model.addAttribute("class", editClass);
-        model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
+        model.addAttribute("specializationsSubject", specializedSubjectsService.getSubjects());
         model.addAttribute("source", source);
         model.addAttribute("searchType", searchType != null ? searchType : "name");
         model.addAttribute("keyword", keyword != null ? keyword : "");
@@ -97,7 +99,7 @@ public class EditSpecializedClassController {
             errors.addAll(bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage()).toList());
             model.addAttribute("editErrors", errors);
             model.addAttribute("class", classObj);
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("specializationsSubject", specializedSubjectsService.getSubjects());
             model.addAttribute("source", source);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
@@ -122,7 +124,7 @@ public class EditSpecializedClassController {
         } catch (Exception e) {
             model.addAttribute("editErrors", List.of("Error updating class: " + e.getMessage()));
             model.addAttribute("class", classObj);
-            model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
+            model.addAttribute("specializationsSubject", specializedSubjectsService.getSubjects());
             model.addAttribute("source", source);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");

@@ -29,7 +29,7 @@ public class DeleteSpecializedClassController {
 
     @DeleteMapping("/delete-class/{id}")
     public String deleteClass(
-            @PathVariable("id") String classId,
+            @PathVariable("classId") String classId,
             @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,

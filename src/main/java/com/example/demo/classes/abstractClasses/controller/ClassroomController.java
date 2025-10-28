@@ -4,23 +4,23 @@ import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
-import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.post.classPost.service.ClassPostsService;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
-import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
+import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
 import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
-import com.example.demo.post.specializedClassPosts.service.SpecializedClassPostsService;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.person.service.PersonsService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
-import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,9 +44,10 @@ public class ClassroomController {
     private final MajorClassesService majorClassesService;
     private final SpecializedClassesService specializedClassesService;
     private final ClassPostsService classPostsService;
+    private final MinorClassesService minorClassesService;
 
     public ClassroomController(ClassesService classesService,
-                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, PersonsService personsService, MajorClassesService majorClassesService, SpecializedClassesService specializedClassesService, ClassPostsService classPostsService) {
+                               AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, PersonsService personsService, MajorClassesService majorClassesService, SpecializedClassesService specializedClassesService, ClassPostsService classPostsService, MinorClassesService minorClassesService) {
         this.classesService = classesService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
@@ -54,6 +55,7 @@ public class ClassroomController {
         this.majorClassesService = majorClassesService;
         this.specializedClassesService = specializedClassesService;
         this.classPostsService = classPostsService;
+        this.minorClassesService = minorClassesService;
     }
 
     @GetMapping
@@ -70,6 +72,16 @@ public class ClassroomController {
             } else if (personsService.getPerson() instanceof Students) {
                 model.addAttribute("home", "/student-home");
                 model.addAttribute("listClass", "/student-home/student-classes-list");
+                model.addAttribute("add", false);
+            }
+            else if (personsService.getPerson() instanceof MinorLecturers) {
+                model.addAttribute("home", "/minor-lecturer-home");
+                model.addAttribute("listClass", "/minor-lecturer-home/classes-list");
+                model.addAttribute("add", false);
+            }
+            else if (personsService.getPerson() instanceof DeputyStaffs) {
+                model.addAttribute("home", "/deputy-staff-home");
+                model.addAttribute("listClass", "/deputy-staff-home/minor-classes-list");
                 model.addAttribute("add", false);
             }
 
@@ -107,6 +119,13 @@ public class ClassroomController {
                 model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
                 model.addAttribute("addASM", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedClassroom";
+            } else if (minorClassesService.getClassById(classId) != null) {
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
+                model.addAttribute("post", new MinorClassPosts());
+                model.addAttribute("addPostClass", "/classroom/upload-minor-post");
+                model.addAttribute("classes", classes);
+                model.addAttribute("ClassPostsList", classPostsList);
+                return "MinorClassroom";
             }
 
             model.addAttribute("errors", List.of("Invalid class type"));
@@ -139,6 +158,16 @@ public class ClassroomController {
                 model.addAttribute("listClass", "/student-home/student-classes-list");
                 model.addAttribute("add", false);
             }
+            else if (personsService.getPerson() instanceof MinorLecturers) {
+                model.addAttribute("home", "/minor-lecturer-home");
+                model.addAttribute("listClass", "/minor-lecturer-home/classes-list");
+                model.addAttribute("add", true);
+            }
+            else if (personsService.getPerson() instanceof DeputyStaffs) {
+                model.addAttribute("home", "/deputy-staff-home");
+                model.addAttribute("listClass", "/deputy-staff-home/minor-classes-list");
+                model.addAttribute("add", true);
+            }
             session.setAttribute("classId", classId);
             Classes classes = classesService.findClassById(classId);
             List<ClassPosts> classPostsList=classPostsService.getClassPostsByClassId(classId);
@@ -165,6 +194,13 @@ public class ClassroomController {
                 model.addAttribute("addPostClass", "/classroom/upload-specialized-post");
                 model.addAttribute("addASM", "/classroom/create-specialized-assignment-slot");
                 return "SpecializedClassroom";
+            }else if (minorClassesService.getClassById(classId) != null) {
+                classPostsList.sort(Comparator.comparing(ClassPosts::getCreatedAt, Comparator.reverseOrder()));
+                model.addAttribute("post", new MinorClassPosts());
+                model.addAttribute("addPostClass", "/classroom/upload-minor-post");
+                model.addAttribute("classes", classes);
+                model.addAttribute("ClassPostsList", classPostsList);
+                return "MinorClassroom";
             }
 
             model.addAttribute("errors", List.of("Invalid class type"));

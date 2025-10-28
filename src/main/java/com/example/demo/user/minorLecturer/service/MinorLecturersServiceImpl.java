@@ -11,6 +11,10 @@ import java.util.Map;
 
 @Service
 public class MinorLecturersServiceImpl implements MinorLecturersService {
+    @Override
+    public MinorLecturers getMinorLecturer() {
+        return minorLecturersDAO.getMinorLecturer();
+    }
 
     private final MinorLecturersDAO minorLecturersDAO;
 

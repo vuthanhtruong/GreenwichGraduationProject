@@ -32,7 +32,7 @@ public class EditClassController {
 
     @PostMapping("/edit-class-form")
     public String showEditClassForm(
-            @RequestParam("id") String classId,
+            @RequestParam("classId") String classId,
             @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,

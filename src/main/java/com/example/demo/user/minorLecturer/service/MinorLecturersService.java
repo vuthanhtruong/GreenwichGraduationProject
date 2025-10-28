@@ -23,4 +23,5 @@ public interface MinorLecturersService {
     // Added missing methods
     String generateRandomPassword(int length);
     String generateUniqueMinorLectureId(LocalDate createdDate);
+    MinorLecturers getMinorLecturer();
 }

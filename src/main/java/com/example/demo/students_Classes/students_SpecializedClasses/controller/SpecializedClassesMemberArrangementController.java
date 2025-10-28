@@ -53,7 +53,7 @@ public class SpecializedClassesMemberArrangementController {
 
     @PostMapping("/member-arrangement")
     public String handleMemberArrangementForm(
-            @RequestParam("id") String classId,
+            @RequestParam("classId") String classId,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
         SpecializedClasses classEntity = specializedClassesService.getClassById(classId);

@@ -4,10 +4,22 @@ import com.example.demo.comment.dao.SpecializedCommentsDAO;
 import com.example.demo.comment.model.SpecializedComments;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SpecializedCommentsServiceImpl implements SpecializedCommentsService {
+    @Override
+    public Map<String, String> validateComment(SpecializedComments comment) {
+        return specializedCommentsDAO.validateComment(comment);
+    }
+
+    @Override
+    public String generateUniqueCommentId(String postId, LocalDate createdDate) {
+        return specializedCommentsDAO.generateUniqueCommentId(postId, createdDate);
+    }
+
     private final SpecializedCommentsDAO specializedCommentsDAO;
 
     public SpecializedCommentsServiceImpl(SpecializedCommentsDAO specializedCommentsDAO) {

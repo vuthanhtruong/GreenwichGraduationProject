@@ -43,9 +43,9 @@
                 </div>
                 <div class="col-md-4">
                     <label for="editSpecializedSubjectId" class="form-label">Specialized Subject:</label>
-                    <select id="editSpecializedSubjectId" th:field="*{specializedSubject.specializedSubjectId}" class="form-control" required>
+                    <select id="editSpecializedSubjectId" th:field="*{specializedSubject.subjectId}" class="form-control" required>
                         <option value="">Select specialized subject</option>
-                        <option th:each="subject : ${specializedSubjects}" th:value="${subject.specializedSubjectId}" th:text="${subject.subjectName}" th:selected="${class.specializedSubject != null and subject.specializedSubjectId == class.specializedSubject.specializedSubjectId}"></option>
+                        <option th:each="subject : ${specializationsSubject}" th:value="${subject.getSubjectId()}" th:text="${subject.subjectName}" th:selected="${class.specializedSubject != null and subject.getSubjectId() == class.specializedSubject.getSubjectId()}"></option>
                     </select>
                     <div class="text-danger" th:each="error : ${editErrors}" th:if="${#strings.toLowerCase(error).contains('specialized subject') or #strings.toLowerCase(error).contains('invalid specialized subject')}" th:text="${error}"></div>
                 </div>

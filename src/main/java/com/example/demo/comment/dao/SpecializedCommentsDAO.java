@@ -2,7 +2,9 @@ package com.example.demo.comment.dao;
 
 import com.example.demo.comment.model.SpecializedComments;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface SpecializedCommentsDAO {
     void saveComment(SpecializedComments comment);
@@ -18,4 +20,9 @@ public interface SpecializedCommentsDAO {
     void deleteComment(String commentId);
 
     boolean existsCommentById(String commentId);
+
+    String generateUniqueCommentId(String postId, LocalDate createdDate);
+
+    Map<String, String> validateComment(SpecializedComments comment);
+
 }

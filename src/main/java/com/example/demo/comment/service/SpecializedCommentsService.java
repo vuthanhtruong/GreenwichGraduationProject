@@ -2,7 +2,9 @@ package com.example.demo.comment.service;
 
 import com.example.demo.comment.model.SpecializedComments;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface SpecializedCommentsService {
     void saveComment(SpecializedComments comment);
@@ -18,4 +20,8 @@ public interface SpecializedCommentsService {
     void deleteComment(String commentId);
 
     boolean existsCommentById(String commentId);
+
+    String generateUniqueCommentId(String postId, LocalDate createdDate);
+
+    Map<String, String> validateComment(SpecializedComments comment);
 }

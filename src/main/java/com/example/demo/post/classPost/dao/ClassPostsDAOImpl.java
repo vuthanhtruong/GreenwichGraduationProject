@@ -35,20 +35,16 @@ public class ClassPostsDAOImpl implements ClassPostsDAO {
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
     private final SpecializedClassPostsService specializedClassPostsService;
-    private final MajorClassesService majorClassesService;
-    private final MinorClassesService minorClassesService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public ClassPostsDAOImpl(MajorClassPostsService majorClassPostsService, MinorClassPostsService minorClassPostsService, AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, SpecializedClassPostsService specializedClassPostsService, MajorClassesService majorClassesService, MinorClassesService minorClassesService) {
+    public ClassPostsDAOImpl(MajorClassPostsService majorClassPostsService, MinorClassPostsService minorClassPostsService, AssignmentSubmitSlotsService assignmentSubmitSlotsService, SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, SpecializedClassPostsService specializedClassPostsService) {
         this.majorClassPostsService = majorClassPostsService;
         this.minorClassPostsService = minorClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
         this.specializedClassPostsService = specializedClassPostsService;
-        this.majorClassesService = majorClassesService;
-        this.minorClassesService = minorClassesService;
     }
 
     @Override
