@@ -1,5 +1,6 @@
 package com.example.demo.user.student.controller;
 
+import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
@@ -19,9 +20,11 @@ import java.util.List;
 public class SearchStudentsController {
 
     private final StudentsService studentsService;
+    private final StaffsService staffsService;
 
-    public SearchStudentsController(StudentsService studentsService) {
+    public SearchStudentsController(StudentsService studentsService, StaffsService staffsService) {
         this.studentsService = studentsService;
+        this.staffsService = staffsService;
     }
 
     @GetMapping("/search-students")
@@ -47,11 +50,11 @@ public class SearchStudentsController {
             long totalStudents;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalStudents = studentsService.numberOfStudents();
-                students = studentsService.getPaginatedStudents((page - 1) * pageSize, pageSize);
+                totalStudents = studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId());
+                students = studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
             } else {
-                students = studentsService.searchStudents(searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalStudents = studentsService.countSearchResults(searchType, keyword);
+                students = studentsService.searchStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
+                totalStudents = studentsService.countSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
             }
 
             if (totalStudents == 0) {
@@ -113,11 +116,11 @@ public class SearchStudentsController {
             long totalStudents;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalStudents = studentsService.numberOfStudents();
-                students = studentsService.getPaginatedStudents((page - 1) * pageSize, pageSize);
+                totalStudents = studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId());
+                students = studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
             } else {
-                students = studentsService.searchStudents(searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalStudents = studentsService.countSearchResults(searchType, keyword);
+                students = studentsService.searchStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
+                totalStudents = studentsService.countSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
             }
 
             if (totalStudents == 0) {

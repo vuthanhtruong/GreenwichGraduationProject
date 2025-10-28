@@ -3,6 +3,7 @@ package com.example.demo.subject.abstractSubject.controller;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.campus.service.CampusesService;
+import com.example.demo.user.admin.service.AdminsService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,10 +25,12 @@ public class ListSubjectsForReStudyController {
 
     private final TuitionByYearService tuitionService;
     private final CampusesService campusService;
+    private final AdminsService adminsService;
 
-    public ListSubjectsForReStudyController(TuitionByYearService tuitionService, CampusesService campusService) {
+    public ListSubjectsForReStudyController(TuitionByYearService tuitionService, CampusesService campusService, AdminsService adminsService) {
         this.tuitionService = tuitionService;
         this.campusService = campusService;
+        this.adminsService = adminsService;
     }
 
     // Hiển thị trang ban đầu
@@ -46,7 +49,7 @@ public class ListSubjectsForReStudyController {
         }
 
         // Lấy tất cả admission years từ TuitionByYear
-        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears();
+        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears(adminsService.getAdminCampus());
 
         int currentYear = LocalDate.now().getYear();
         List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
@@ -62,7 +65,7 @@ public class ListSubjectsForReStudyController {
         Integer selectedYear = admissionYear != null ? admissionYear : currentYear;
 
         // Lấy danh sách TuitionByYear đã có tuition > 0 (học phí chuẩn)
-        List<TuitionByYear> eligibleTuitions = tuitionService.getTuitionsWithFeeByYear(selectedYear);
+        List<TuitionByYear> eligibleTuitions = tuitionService.getTuitionsWithFeeByYearAndCampus(selectedYear,adminsService.getAdminCampus());
 
         // Map subjectId → TuitionByYear
         Map<String, TuitionByYear> tuitionMap = eligibleTuitions.stream()

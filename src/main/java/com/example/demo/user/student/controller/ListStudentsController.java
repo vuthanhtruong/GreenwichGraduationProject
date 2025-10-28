@@ -47,7 +47,7 @@ public class ListStudentsController {
             session.setAttribute("pageSize", pageSize);
             session.setAttribute("currentPage", page);
 
-            Long totalStudents = studentsService.numberOfStudents();
+            Long totalStudents = studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId());
 
             if (totalStudents == 0) {
                 model.addAttribute("students", new ArrayList<>());
@@ -68,7 +68,7 @@ public class ListStudentsController {
 
             int firstResult = (page - 1) * pageSize;
 
-            List<Students> students = studentsService.getPaginatedStudents(firstResult, pageSize);
+            List<Students> students = studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),firstResult, pageSize);
 
             model.addAttribute("students", students);
             model.addAttribute("currentPage", page);

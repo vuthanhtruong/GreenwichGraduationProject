@@ -41,14 +41,14 @@ public class TuitionFeesByCampusController {
                 model.addAttribute("errorMessage", "Please select a valid campus.");
                 // Reload necessary data for the view
                 model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
                 return "TuitionFeesByCampus";
             }
             if (admissionYear == null) {
                 model.addAttribute("errorMessage", "Please select a valid admission year.");
                 // Reload necessary data for the view
                 model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
                 return "TuitionFeesByCampus";
             }
             // Fetch data
@@ -57,7 +57,7 @@ public class TuitionFeesByCampusController {
                 model.addAttribute("errorMessage", "Selected campus not found.");
                 // Reload necessary data for the view
                 model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+                model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
                 return "TuitionFeesByCampus";
             }
 
@@ -71,7 +71,7 @@ public class TuitionFeesByCampusController {
             model.addAttribute("referenceTuitions", referenceTuitions);
             model.addAttribute("selectedYear", admissionYear);
             model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
             model.addAttribute("mycampus", adminsService.getAdminCampus());
 
             return "TuitionFeesByCampus";
@@ -79,13 +79,13 @@ public class TuitionFeesByCampusController {
             model.addAttribute("errorMessage", e.getMessage());
             // Reload necessary data for the view
             model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
             return "TuitionFeesByCampus";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "An error occurred while fetching tuition fees.");
             // Reload necessary data for the view
             model.addAttribute("Campuses", campusesService.listOfExceptionFieldsCampus());
-            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears());
+            model.addAttribute("admissionYears", tuitionByYearService.findAllAdmissionYears(adminsService.getAdminCampus()));
             return "TuitionFeesByCampus";
         }
     }

@@ -98,11 +98,11 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
-            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("students", studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("pageSize")));
             model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
-            model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("totalStudents", studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             if (avatarFile != null && !avatarFile.isEmpty()) {
@@ -169,11 +169,11 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
-            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("students", studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("pageSize")));
             model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
-            model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("totalStudents", studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";
@@ -187,11 +187,11 @@ public class AddStudentController {
             model.addAttribute("parentEmail2", parentEmail2);
             model.addAttribute("supportPhoneNumber2", supportPhoneNumber2);
             model.addAttribute("parentRelationship2", parentRelationship2);
-            model.addAttribute("students", studentsService.getPaginatedStudents(0, (Integer) session.getAttribute("pageSize")));
+            model.addAttribute("students", studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("pageSize")));
             model.addAttribute("currentPage", session.getAttribute("currentPage") != null ? session.getAttribute("currentPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("totalPages") != null ? session.getAttribute("totalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("pageSize") != null ? session.getAttribute("pageSize") : 5);
-            model.addAttribute("totalStudents", studentsService.numberOfStudents());
+            model.addAttribute("totalStudents", studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId()));
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";

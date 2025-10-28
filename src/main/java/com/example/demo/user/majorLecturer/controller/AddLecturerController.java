@@ -47,11 +47,11 @@ public class AddLecturerController {
             model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
-            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
-            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId()));
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     session.setAttribute("tempAvatar", avatarFile.getBytes());
@@ -92,20 +92,20 @@ public class AddLecturerController {
         } catch (IOException e) {
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
-            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
-            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId()));
             return "LecturersList";
         } catch (Exception e) {
             model.addAttribute("errors", errors);
             model.addAttribute("lecturer", lecturer);
-            model.addAttribute("teachers", lecturesService.getPaginatedLecturers(0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
+            model.addAttribute("teachers", lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),0, (Integer) session.getAttribute("lecturerPageSize") != null ? (Integer) session.getAttribute("lecturerPageSize") : 5));
             model.addAttribute("currentPage", session.getAttribute("lecturerPage") != null ? session.getAttribute("lecturerPage") : 1);
             model.addAttribute("totalPages", session.getAttribute("lecturerTotalPages") != null ? session.getAttribute("lecturerTotalPages") : 1);
             model.addAttribute("pageSize", session.getAttribute("lecturerPageSize") != null ? session.getAttribute("lecturerPageSize") : 5);
-            model.addAttribute("totalLecturers", lecturesService.numberOfLecturers());
+            model.addAttribute("totalLecturers", lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId()));
             return "LecturersList";
         }
     }

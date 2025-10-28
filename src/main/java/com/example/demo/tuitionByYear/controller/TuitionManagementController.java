@@ -5,6 +5,7 @@ import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.campus.service.CampusesService;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import com.example.demo.subject.abstractSubject.service.SubjectsService;
+import com.example.demo.user.admin.service.AdminsService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +28,13 @@ public class TuitionManagementController {
     private final TuitionByYearService tuitionService;
     private final SubjectsService subjectService;
     private final CampusesService campusService;
+    private final AdminsService adminsService;
 
-    public TuitionManagementController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService) {
+    public TuitionManagementController(TuitionByYearService tuitionService, SubjectsService subjectService, CampusesService campusService, AdminsService adminsService) {
         this.tuitionService = tuitionService;
         this.subjectService = subjectService;
         this.campusService = campusService;
+        this.adminsService = adminsService;
     }
 
     // Hiển thị trang ban đầu
@@ -50,7 +53,7 @@ public class TuitionManagementController {
         }
 
         // Lấy tất cả admission years từ TuitionByYear
-        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears();
+        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears(adminsService.getAdminCampus());
 
         int currentYear = LocalDate.now().getYear();
         List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
@@ -69,7 +72,7 @@ public class TuitionManagementController {
         List<Subjects> subjects = subjectService.getSubjects();
 
         // Map subjectId → TuitionByYear (nếu có record cho năm đó)
-        Map<String, TuitionByYear> tuitionMap = tuitionService.findByAdmissionYear(selectedYear)
+        Map<String, TuitionByYear> tuitionMap = tuitionService.findByAdmissionYear(selectedYear,adminsService.getAdminCampus())
                 .stream()
                 .collect(Collectors.toMap(t -> t.getId().getSubjectId(), t -> t));
 

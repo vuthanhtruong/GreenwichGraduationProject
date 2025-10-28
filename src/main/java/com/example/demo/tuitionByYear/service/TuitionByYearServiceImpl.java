@@ -1,48 +1,27 @@
 package com.example.demo.tuitionByYear.service;
 
+import com.example.demo.campus.model.Campuses;
+import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.tuitionByYear.dao.TuitionByYearDAO;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.model.TuitionByYearId;
+import com.example.demo.user.admin.service.AdminsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
-    @Override
-    public void finalizeContracts(Integer admissionYear) {
-        tuitionByYearDAO.finalizeContracts(admissionYear);
-    }
+    private final TuitionByYearDAO tuitionByYearDAO;
 
-    @Override
-    public List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear) {
-        return tuitionByYearDAO.getTuitionsWithReStudyFeeByYear(admissionYear);
-    }
-
-    @Override
-    public List<TuitionByYear> getTuitionsWithoutReStudyFeeByYear(Integer admissionYear) {
-        return tuitionByYearDAO.getTuitionsWithoutReStudyFeeByYear(admissionYear);
+    public TuitionByYearServiceImpl(TuitionByYearDAO tuitionByYearDAO) {
+        this.tuitionByYearDAO = tuitionByYearDAO;
     }
 
     @Override
     public List<TuitionByYear> tuitionFeesByCampus(String campusId, Integer admissionYear) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID cannot be null or empty");
-        }
-        if (admissionYear == null) {
-            throw new IllegalArgumentException("Admission year cannot be null");
-        }
-        return tuitionByYearDAO.tuitionFeesByCampus(campusId.trim(), admissionYear); // ✅ gọi DAO
-    }
-
-
-    @Override
-    public List<TuitionByYear> getTuitionsWithFeeByYear(Integer admissionYear) {
-        return tuitionByYearDAO.getTuitionsWithFeeByYear(admissionYear);
-    }
-
-    @Override
-    public List<TuitionByYear> getTuitionsWithoutFeeByYear(Integer admissionYear) {
-        return tuitionByYearDAO.getTuitionsWithoutFeeByYear(admissionYear);
+        return tuitionByYearDAO.tuitionFeesByCampus(campusId, admissionYear);
     }
 
     @Override
@@ -60,20 +39,48 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
         tuitionByYearDAO.createTuition(tuition);
     }
 
-    private final TuitionByYearDAO  tuitionByYearDAO;
-
-    public TuitionByYearServiceImpl(TuitionByYearDAO tuitionByYearDAO) {
-        this.tuitionByYearDAO = tuitionByYearDAO;
+    @Override
+    public List<TuitionByYear> getTuitionsWithFeeByYearAndCampus(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.getTuitionsWithFeeByYearAndCampus(admissionYear, campus);
     }
 
     @Override
-    public List<TuitionByYear> findByAdmissionYear(Integer admissionYear) {
-        return tuitionByYearDAO.findByAdmissionYear(admissionYear);
+    public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
+        return tuitionByYearDAO.getMajorSubjectsWithTuitionByYearAndCurriculum(admissionYear, curriculum, campus);
     }
 
     @Override
-    public List<Integer> findAllAdmissionYears() {
-        return tuitionByYearDAO.findAllAdmissionYears();
+    public List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus) {
+        return tuitionByYearDAO.findAllAdmissionYearsWithMajorTuition(campus);
     }
 
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutFeeByYear(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.getTuitionsWithoutFeeByYear(admissionYear, campus);
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithReStudyFeeByYear(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.getTuitionsWithReStudyFeeByYear(admissionYear, campus);
+    }
+
+    @Override
+    public List<TuitionByYear> getTuitionsWithoutReStudyFeeByYear(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.getTuitionsWithoutReStudyFeeByYear(admissionYear, campus);
+    }
+
+    @Override
+    public List<Integer> findAllAdmissionYears(Campuses campus) {
+        return tuitionByYearDAO.findAllAdmissionYears(campus);
+    }
+
+    @Override
+    public List<TuitionByYear> findByAdmissionYear(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.findByAdmissionYear(admissionYear, campus);
+    }
+
+    @Override
+    public void finalizeContracts(Integer admissionYear, Campuses campus) {
+        tuitionByYearDAO.finalizeContracts(admissionYear, campus);
+    }
 }

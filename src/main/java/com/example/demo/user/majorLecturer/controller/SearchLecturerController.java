@@ -2,6 +2,7 @@ package com.example.demo.user.majorLecturer.controller;
 
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
+import com.example.demo.user.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +20,11 @@ import java.util.List;
 public class SearchLecturerController {
 
     private final MajorLecturersService lecturesService;
+    private final StaffsService staffsService;
 
-    public SearchLecturerController(MajorLecturersService lecturesService) {
+    public SearchLecturerController(MajorLecturersService lecturesService, StaffsService staffsService) {
         this.lecturesService = lecturesService;
+        this.staffsService = staffsService;
     }
 
 
@@ -48,11 +51,11 @@ public class SearchLecturerController {
             long totalLecturers;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalLecturers = lecturesService.numberOfLecturers();
-                lecturers = lecturesService.getPaginatedLecturers((page - 1) * pageSize, pageSize);
+                totalLecturers = lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId());
+                lecturers = lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
             } else {
-                lecturers = lecturesService.searchLecturers(searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalLecturers = lecturesService.countSearchResults(searchType, keyword);
+                lecturers = lecturesService.searchLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
+                totalLecturers = lecturesService.countSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
             }
 
             if (totalLecturers == 0) {
@@ -113,11 +116,11 @@ public class SearchLecturerController {
             long totalLecturers;
 
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalLecturers = lecturesService.numberOfLecturers();
-                lecturers = lecturesService.getPaginatedLecturers((page - 1) * pageSize, pageSize);
+                totalLecturers = lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId());
+                lecturers = lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
             } else {
-                lecturers = lecturesService.searchLecturers(searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalLecturers = lecturesService.countSearchResults(searchType, keyword);
+                lecturers = lecturesService.searchLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
+                totalLecturers = lecturesService.countMinorLecturersSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
             }
 
             if (totalLecturers == 0) {

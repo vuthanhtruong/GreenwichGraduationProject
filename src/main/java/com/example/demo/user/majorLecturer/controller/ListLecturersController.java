@@ -18,10 +18,12 @@ import java.util.List;
 public class ListLecturersController {
 
     private final MajorLecturersService lecturesService;
+    private final StaffsService staffsService;
 
-    public ListLecturersController(StaffsService staffsService, MajorLecturersService lecturesService) {
+    public ListLecturersController(StaffsService staffsService, MajorLecturersService lecturesService, StaffsService staffsService1) {
 
         this.lecturesService = lecturesService;
+        this.staffsService = staffsService1;
     }
 
     @GetMapping("")
@@ -39,7 +41,7 @@ public class ListLecturersController {
             }
             session.setAttribute("lecturerPageSize", pageSize);
 
-            Long totalLecturers = lecturesService.numberOfLecturers();
+            Long totalLecturers = lecturesService.numberOfLecturersByCampus(staffsService.getCampusOfStaff().getCampusId());
             int totalPages = Math.max(1, (int) Math.ceil((double) totalLecturers / pageSize));
             page = Math.max(1, Math.min(page, totalPages));
             session.setAttribute("lecturerPage", page);
@@ -58,7 +60,7 @@ public class ListLecturersController {
             }
 
             int firstResult = (page - 1) * pageSize;
-            List<MajorLecturers> teachers = lecturesService.getPaginatedLecturers(firstResult, pageSize);
+            List<MajorLecturers> teachers = lecturesService.getPaginatedLecturersByCampus(staffsService.getCampusOfStaff().getCampusId(),firstResult, pageSize);
 
             model.addAttribute("teachers", teachers);
             model.addAttribute("lecturer", new MajorLecturers());

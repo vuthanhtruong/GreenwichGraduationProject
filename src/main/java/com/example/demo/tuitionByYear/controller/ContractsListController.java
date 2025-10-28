@@ -7,6 +7,7 @@ import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.scholarship.service.ScholarshipsService;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
+import com.example.demo.user.admin.service.AdminsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -34,15 +35,17 @@ public class ContractsListController {
     private final ScholarshipsService scholarshipsService;
     private final ScholarshipByYearService scholarshipByYearService;
     private final CampusesService campusService;
+    private final AdminsService adminsService;
 
     public ContractsListController(TuitionByYearService tuitionService,
                                    ScholarshipsService scholarshipsService,
                                    ScholarshipByYearService scholarshipByYearService,
-                                   CampusesService campusService) {
+                                   CampusesService campusService, AdminsService adminsService) {
         this.tuitionService = tuitionService;
         this.scholarshipsService = scholarshipsService;
         this.scholarshipByYearService = scholarshipByYearService;
         this.campusService = campusService;
+        this.adminsService = adminsService;
     }
 
     @GetMapping
@@ -60,7 +63,7 @@ public class ContractsListController {
         }
 
         // Lấy tất cả admission years
-        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears();
+        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears(adminsService.getAdminCampus());
         List<Integer> admissionYearsFromScholarships = scholarshipByYearService.getAllAdmissionYears();
         List<Integer> admissionYears = admissionYearsFromTuition.stream()
                 .filter(admissionYearsFromScholarships::contains)
@@ -80,9 +83,9 @@ public class ContractsListController {
         Integer selectedYear = admissionYear != null ? admissionYear : currentYear;
 
         // Lấy danh sách TuitionByYear với tuition > 0
-        List<TuitionByYear> tuitionsWithFee = tuitionService.getTuitionsWithFeeByYear(selectedYear);
-        List<TuitionByYear> tuitionsWithReStudyFee = tuitionService.getTuitionsWithReStudyFeeByYear(selectedYear);
-        List<TuitionByYear> tuitionsWithoutReStudyFee = tuitionService.getTuitionsWithoutReStudyFeeByYear(selectedYear);
+        List<TuitionByYear> tuitionsWithFee = tuitionService.getTuitionsWithFeeByYearAndCampus(selectedYear,adminsService.getAdminCampus());
+        List<TuitionByYear> tuitionsWithReStudyFee = tuitionService.getTuitionsWithReStudyFeeByYear(selectedYear,adminsService.getAdminCampus());
+        List<TuitionByYear> tuitionsWithoutReStudyFee = tuitionService.getTuitionsWithoutReStudyFeeByYear(selectedYear,adminsService.getAdminCampus());
 
         // Lấy danh sách học bổng
         List<Scholarships> allScholarships = scholarshipsService.getAllScholarships();
@@ -119,7 +122,7 @@ public class ContractsListController {
             }
 
             // Kiểm tra dữ liệu học phí
-            List<TuitionByYear> tuitions = tuitionService.getTuitionsWithFeeByYear(admissionYear);
+            List<TuitionByYear> tuitions = tuitionService.getTuitionsWithFeeByYearAndCampus(admissionYear,adminsService.getAdminCampus());
             if (tuitions.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "No tuition fees found for the selected year.");
                 return "redirect:/admin-home/contracts-list";
@@ -158,7 +161,7 @@ public class ContractsListController {
             }
 
             // Chốt hợp đồng cho học phí
-            tuitionService.finalizeContracts(admissionYear);
+            tuitionService.finalizeContracts(admissionYear,adminsService.getAdminCampus());
 
             // Chốt hợp đồng cho học bổng
             scholarshipByYearService.finalizeScholarshipContracts(admissionYear);

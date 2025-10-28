@@ -15,6 +15,13 @@ import java.util.Map;
 
 @Service
 public class StudentsServiceImpl implements StudentsService {
+
+    private final StudentsDAO studentsDAO;
+
+    public StudentsServiceImpl(StudentsDAO studentsDAO) {
+        this.studentsDAO = studentsDAO;
+    }
+
     @Override
     public Map<String, String> StudentValidation(Students student, MultipartFile avatarFile) {
         return studentsDAO.StudentValidation(student, avatarFile);
@@ -22,7 +29,7 @@ public class StudentsServiceImpl implements StudentsService {
 
     @Override
     public Students addStudents(Students students, Curriculum curriculum, Specialization specialization, String randomPassword) {
-        return studentsDAO.addStudents(students, curriculum,specialization, randomPassword);
+        return studentsDAO.addStudents(students, curriculum, specialization, randomPassword);
     }
 
     @Override
@@ -36,8 +43,8 @@ public class StudentsServiceImpl implements StudentsService {
     }
 
     @Override
-    public List<Integer> getUniqueAdmissionYears() {
-        return studentsDAO.getUniqueAdmissionYears();
+    public List<Integer> getUniqueAdmissionYearsByCampus(String campusId) {
+        return studentsDAO.getUniqueAdmissionYearsByCampus(campusId);
     }
 
     @Override
@@ -49,19 +56,35 @@ public class StudentsServiceImpl implements StudentsService {
     public Students findById(String studentId) {
         return studentsDAO.findById(studentId);
     }
+
     @Override
-    public long totalStudentsByCampus(String campus) {
-        return studentsDAO.totalStudentsByCampus(campus);
+    public long totalStudentsByCampus(String campusId) {
+        return studentsDAO.totalStudentsByCampus(campusId);
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword) {
-        return studentsDAO.countSearchResults(searchType, keyword);
+    public long numberOfStudentsByCampus(String campusId) {
+        return studentsDAO.numberOfStudentsByCampus(campusId);
     }
 
     @Override
-    public List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize) {
-        return studentsDAO.searchStudents(searchType, keyword, firstResult, pageSize);
+    public List<Students> getStudents() {
+        return studentsDAO.getStudents();
+    }
+
+    @Override
+    public void deleteStudent(String id) {
+        studentsDAO.deleteStudent(id);
+    }
+
+    @Override
+    public void editStudent(String id, Curriculum curriculum, Specialization specialization, Students student) throws MessagingException {
+        studentsDAO.editStudent(id, curriculum, specialization, student);
+    }
+
+    @Override
+    public Students getStudentById(String id) {
+        return studentsDAO.getStudentById(id);
     }
 
     @Override
@@ -82,41 +105,5 @@ public class StudentsServiceImpl implements StudentsService {
     @Override
     public Majors getStudentMajor() {
         return studentsDAO.getStudentMajor();
-    }
-
-    private final StudentsDAO studentsDAO;
-
-    public StudentsServiceImpl(StudentsDAO studentsDAO) {
-        this.studentsDAO = studentsDAO;
-    }
-
-    @Override
-    public List<Students> getStudents() {
-        return studentsDAO.getStudents();
-    }
-
-    @Override
-    public long numberOfStudents() {
-        return studentsDAO.numberOfStudents();
-    }
-
-    @Override
-    public void deleteStudent(String id) {
-        studentsDAO.deleteStudent(id);
-    }
-
-    @Override
-    public void editStudent(String id, Curriculum curriculum, Specialization specialization,Students student) throws MessagingException {
-        studentsDAO.editStudent(id, curriculum, specialization,student);
-    }
-
-    @Override
-    public Students getStudentById(String id) {
-        return studentsDAO.getStudentById(id);
-    }
-
-    @Override
-    public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
-        return studentsDAO.getPaginatedStudents(firstResult, pageSize);
     }
 }

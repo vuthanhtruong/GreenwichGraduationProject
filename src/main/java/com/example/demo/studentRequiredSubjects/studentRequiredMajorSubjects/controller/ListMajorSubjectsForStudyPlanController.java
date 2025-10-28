@@ -3,14 +3,12 @@ package com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.co
 import com.example.demo.curriculum.service.CurriculumService;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
+import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.user.staff.service.StaffsService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,43 +16,82 @@ import java.util.List;
 @RequestMapping("/staff-home")
 @PreAuthorize("hasRole('STAFF')")
 public class ListMajorSubjectsForStudyPlanController {
-    private final MajorSubjectsService subjectsService;
+
     private final StaffsService staffsService;
     private final CurriculumService curriculumService;
+    private final TuitionByYearService tuitionByYearService;
 
     public ListMajorSubjectsForStudyPlanController(
-            MajorSubjectsService subjectsService, StaffsService staffsService, CurriculumService curriculumService) {
-        this.subjectsService = subjectsService;
+            MajorSubjectsService subjectsService,
+            StaffsService staffsService,
+            CurriculumService curriculumService,
+            TuitionByYearService tuitionByYearService) {
         this.staffsService = staffsService;
         this.curriculumService = curriculumService;
+        this.tuitionByYearService = tuitionByYearService;
     }
 
     @GetMapping("/study-plan")
-    public String getStudyPlan(Model model) {
-        List<MajorSubjects> subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
+    public String getStudyPlan(
+            @RequestParam(required = false) String curriculumId,
+            @RequestParam(required = false) Integer admissionYear,
+            Model model) {
+
+        // Nếu không truyền admissionYear → mặc định là năm hiện tại
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
+        }
+
+        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithMajorTuition(staffsService.getCampusOfStaff());
+        List<MajorSubjects> subjects;
+
+        // Lấy danh sách môn học có học phí theo năm và chương trình
+        subjects = tuitionByYearService.getMajorSubjectsWithTuitionByYearAndCurriculum(
+                admissionYear,
+                curriculumService.getCurriculums().getFirst(),
+                staffsService.getCampusOfStaff()
+        );
+
         model.addAttribute("subjects", subjects);
         model.addAttribute("curriculums", curriculumService.getCurriculums());
+        model.addAttribute("admissionYears", admissionYears);
+        model.addAttribute("curriculumId", curriculumId);
+        model.addAttribute("admissionYear", admissionYear);
         model.addAttribute("totalSubjects", subjects.size());
+
         return "StudyPlan";
     }
 
+
+    // Lọc theo curriculum + admissionYear
     @PostMapping("/study-plan/filter-subjects")
     public String filterSubjects(
             @RequestParam(required = false) String curriculumId,
+            @RequestParam(required = false) Integer admissionYear,
             Model model) {
-        List<MajorSubjects> subjects;
-        if (curriculumId == null || curriculumId.isEmpty()) {
-            subjects = subjectsService.subjectsByMajor(staffsService.getStaffMajor());
-        } else {
-            subjects = subjectsService.getSubjectsByCurriculumId(curriculumId);
-            if (subjects.isEmpty()) {
-                model.addAttribute("errorMessage", "No subjects found for the selected curriculum.");
-            }
+
+        // Nếu không truyền admissionYear → mặc định là năm hiện tại
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
         }
+
+        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithMajorTuition(staffsService.getCampusOfStaff());
+        List<MajorSubjects> subjects;
+
+        // Lấy danh sách môn học có học phí theo năm và chương trình
+        subjects = tuitionByYearService.getMajorSubjectsWithTuitionByYearAndCurriculum(
+                admissionYear,
+                curriculumService.getCurriculumById(curriculumId),
+                staffsService.getCampusOfStaff()
+        );
+
         model.addAttribute("subjects", subjects);
         model.addAttribute("curriculums", curriculumService.getCurriculums());
+        model.addAttribute("admissionYears", admissionYears);
         model.addAttribute("curriculumId", curriculumId);
+        model.addAttribute("admissionYear", admissionYear);
         model.addAttribute("totalSubjects", subjects.size());
+
         return "FilterSubjects";
     }
 }

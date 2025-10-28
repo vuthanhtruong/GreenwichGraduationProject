@@ -61,7 +61,7 @@ public class UpdateAnnualReStudyFeeController {
             }
 
             // Lấy danh sách subjects đã có học phí chuẩn (tuition > 0)
-            List<TuitionByYear> standardTuitions = tuitionService.getTuitionsWithFeeByYear(admissionYear);
+            List<TuitionByYear> standardTuitions = tuitionService.getTuitionsWithFeeByYearAndCampus(admissionYear,adminsService.getAdminCampus());
             List<Subjects> eligibleSubjects = standardTuitions.stream()
                     .map(TuitionByYear::getSubject)
                     .toList();

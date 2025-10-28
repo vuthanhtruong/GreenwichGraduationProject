@@ -134,17 +134,13 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     private boolean isValidEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
+        if (email == null || email.trim().isEmpty()) return false;
         String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         return email.matches(emailRegex);
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            return true; // cho phép bỏ trống
-        }
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) return true;
         String phoneRegex = "^\\+?[1-9][0-9]{7,14}$";
         return phoneNumber.matches(phoneRegex);
     }
@@ -160,9 +156,7 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public Students getStudent() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            throw new IllegalStateException("No authenticated user");
-        }
+        if (auth == null) throw new IllegalStateException("No authenticated user");
 
         Object principal = auth.getPrincipal();
         Persons person = switch (principal) {
@@ -192,9 +186,8 @@ public class StudentDAOImpl implements StudentsDAO {
     @Override
     public Students addStudents(Students student, Curriculum curriculum, Specialization specialization, String randomPassword) {
         Staffs staff = staffsService.getStaff();
-        if (staff == null) {
-            throw new IllegalStateException("No authenticated staff found");
-        }
+        if (staff == null) throw new IllegalStateException("No authenticated staff found");
+
         student.setCampus(staff.getCampus());
         student.setSpecialization(specialization);
         student.setCreator(staff);
@@ -204,7 +197,6 @@ public class StudentDAOImpl implements StudentsDAO {
         student.setCreatedDate(LocalDate.now());
         Students savedStudent = entityManager.merge(student);
 
-        // Create StudentEmailContext
         StudentEmailContext context = new StudentEmailContext(
                 savedStudent.getId(),
                 savedStudent.getFullName(),
@@ -231,14 +223,11 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public long numberOfStudents() {
-        Staffs staff = staffsService.getStaff();
-        if (staff == null || staff.getMajorManagement() == null) {
-            return 0L;
-        }
+    public long numberOfStudentsByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) return 0L;
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(s) FROM Students s WHERE s.specialization.major = :staffmajor")
-                .setParameter("staffmajor", staff.getMajorManagement())
+                        "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId")
+                .setParameter("campusId", campusId)
                 .getSingleResult();
     }
 
@@ -250,25 +239,21 @@ public class StudentDAOImpl implements StudentsDAO {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
 
-        // 🧩 1. Xóa các bản ghi trong StudentRequiredMajorSubjects
         entityManager.createQuery(
                         "DELETE FROM StudentRequiredMajorSubjects srms WHERE srms.id.studentId = :studentId")
                 .setParameter("studentId", id)
                 .executeUpdate();
 
-        // 🧩 2. Xóa các bản ghi trong StudentRequiredMinorSubjects
         entityManager.createQuery(
                         "DELETE FROM StudentRequiredMinorSubjects srms WHERE srms.id.studentId = :studentId")
                 .setParameter("studentId", id)
                 .executeUpdate();
 
-        // 🧩 3. Xóa các bản ghi trong Students_MajorClasses
         entityManager.createQuery(
                         "DELETE FROM Students_MajorClasses smc WHERE smc.id.studentId = :studentId")
                 .setParameter("studentId", id)
                 .executeUpdate();
 
-        // 🧩 4. Cuối cùng xóa student
         entityManager.createQuery(
                         "DELETE FROM Students_SpecializedClasses smc WHERE smc.id.studentId = :studentId")
                 .setParameter("studentId", id)
@@ -277,33 +262,25 @@ public class StudentDAOImpl implements StudentsDAO {
         entityManager.remove(student);
     }
 
-
-
     @Override
-    public void editStudent(String id, Curriculum curriculum,Specialization specialization, Students student) throws MessagingException {
+    public void editStudent(String id, Curriculum curriculum, Specialization specialization, Students student) throws MessagingException {
         if (student == null || id == null) {
             throw new IllegalArgumentException("Student object or ID cannot be null");
         }
         Students existingStudent = entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.id = :id",
-                        Students.class)
+                        "SELECT s FROM Students s WHERE s.id = :id", Students.class)
                 .setParameter("id", id)
                 .getSingleResult();
         if (existingStudent == null) {
             throw new IllegalArgumentException("Student with ID " + id + " not found");
         }
-        student.setCurriculum(curriculum);
-        student.setSpecialization(specialization);
-        editStudentFields(existingStudent, student);
 
-        // Update curriculum if provided
-        if (curriculum != null) {
-            existingStudent.setCurriculum(curriculum);
-        }
+        editStudentFields(existingStudent, student);
+        if (curriculum != null) existingStudent.setCurriculum(curriculum);
+        if (specialization != null) existingStudent.setSpecialization(specialization);
 
         entityManager.merge(existingStudent);
 
-        // Create StudentEmailContext
         StudentEmailContext context = new StudentEmailContext(
                 existingStudent.getId(),
                 existingStudent.getFullName(),
@@ -330,76 +307,19 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public List<Students> getPaginatedStudents(int firstResult, int pageSize) {
-        Staffs staff = staffsService.getStaff();
-        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
-            return List.of();
-        }
+    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.trim().isEmpty()) return List.of();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.specialization.major = :staffmajor AND s.campus = :campuses",
-                        Students.class)
-                .setParameter("staffmajor", staff.getMajorManagement())
-                .setParameter("campuses", staff.getCampus())
+                        "SELECT s FROM Students s WHERE s.campus.id = :campusId", Students.class)
+                .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
     }
 
     @Override
-    public List<Students> searchStudents(String searchType, String keyword, int firstResult, int pageSize) {
-        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
-            return List.of();
-        }
-
-        Staffs staff = staffsService.getStaff();
-        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
-            return List.of();
-        }
-
-        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator " +
-                "WHERE s.specialization.major = :staffmajor AND s.campus = :campuses";
-
-        if ("name".equals(searchType)) {
-            keyword = keyword.toLowerCase().trim();
-            String[] words = keyword.split("\\s+");
-            StringBuilder nameCondition = new StringBuilder();
-            for (int i = 0; i < words.length; i++) {
-                if (i > 0) {
-                    nameCondition.append(" AND ");
-                }
-                nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
-            }
-            queryString += " AND (" + nameCondition.toString() + ")";
-        } else if ("id".equals(searchType)) {
-            queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
-        } else {
-            return List.of();
-        }
-
-        TypedQuery<Students> query = entityManager.createQuery(queryString, Students.class)
-                .setParameter("staffmajor", staff.getMajorManagement())
-                .setParameter("campuses", staff.getCampus())
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize);
-
-        if ("name".equals(searchType)) {
-            String[] words = keyword.split("\\s+");
-            for (int i = 0; i < words.length; i++) {
-                query.setParameter("word" + i, "%" + words[i] + "%");
-            }
-        } else if ("id".equals(searchType)) {
-            query.setParameter("keyword", "%" + keyword.trim() + "%");
-        }
-
-        return query.getResultList();
-    }
-
-    @Override
     public List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        if (keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+        if (campusId == null || campusId.trim().isEmpty() || keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
             return List.of();
         }
 
@@ -411,9 +331,7 @@ public class StudentDAOImpl implements StudentsDAO {
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
             for (int i = 0; i < words.length; i++) {
-                if (i > 0) {
-                    nameCondition.append(" AND ");
-                }
+                if (i > 0) nameCondition.append(" AND ");
                 nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
             }
             queryString += " AND (" + nameCondition.toString() + ")";
@@ -441,26 +359,18 @@ public class StudentDAOImpl implements StudentsDAO {
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
+    public long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        if (campusId == null || campusId.trim().isEmpty() || keyword == null || keyword.trim().isEmpty()) {
             return 0L;
         }
 
-        Staffs staff = staffsService.getStaff();
-        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
-            return 0L;
-        }
-
-        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.specialization.major = :staffmajor AND s.campus = :campuses";
-
+        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
             StringBuilder nameCondition = new StringBuilder();
             for (int i = 0; i < words.length; i++) {
-                if (i > 0) {
-                    nameCondition.append(" AND ");
-                }
+                if (i > 0) nameCondition.append(" AND ");
                 nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
             }
             queryString += " AND (" + nameCondition.toString() + ")";
@@ -471,8 +381,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
 
         TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
-                .setParameter("staffmajor", staff.getMajorManagement())
-                .setParameter("campuses", staff.getCampus());
+                .setParameter("campusId", campusId);
 
         if ("name".equals(searchType)) {
             String[] words = keyword.split("\\s+");
@@ -484,6 +393,35 @@ public class StudentDAOImpl implements StudentsDAO {
         }
 
         return query.getSingleResult();
+    }
+
+    @Override
+    public List<Integer> getUniqueAdmissionYearsByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) return List.of();
+        String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
+                "WHERE s.campus.id = :campusId " +
+                "ORDER BY YEAR(s.admissionYear) ASC";
+        return entityManager.createQuery(jpql, Integer.class)
+                .setParameter("campusId", campusId)
+                .getResultList().stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Students findById(String studentId) {
+        return entityManager.find(Students.class, studentId);
+    }
+
+    @Override
+    public long totalStudentsByCampus(String campusId) {
+        if (campusId == null || campusId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Campus ID must not be null or empty");
+        }
+        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
     }
 
     private void editStudentFields(Students existing, Students edited) {
@@ -505,97 +443,5 @@ public class StudentDAOImpl implements StudentsDAO {
         if (edited.getCreator() != null) existing.setCreator(edited.getCreator());
         if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
         if (edited.getSpecialization() != null) existing.setSpecialization(edited.getSpecialization());
-        if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
-    }
-
-    @Override
-    public List<Integer> getUniqueAdmissionYears() {
-        Staffs staff = staffsService.getStaff();
-        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) {
-            return List.of();
-        }
-        String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
-                "WHERE s.specialization.major = :staffmajor AND s.campus = :campuses " +
-                "ORDER BY YEAR(s.admissionYear) ASC";
-        return entityManager.createQuery(jpql, Integer.class)
-                .setParameter("staffmajor", staff.getMajorManagement())
-                .setParameter("campuses", staff.getCampus())
-                .getResultList().stream().filter(year -> year != null).collect(Collectors.toList());
-    }
-
-    @Override
-    public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
-        try {
-            if (campusId == null || campusId.trim().isEmpty()) {
-                throw new IllegalArgumentException("Campus ID must not be null or empty");
-            }
-            if (keyword == null || keyword.trim().isEmpty()) {
-                return 0L;
-            }
-
-            String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
-            if ("name".equals(searchType)) {
-                keyword = keyword.toLowerCase().trim();
-                String[] words = keyword.split("\\s+");
-                StringBuilder nameCondition = new StringBuilder();
-                for (int i = 0; i < words.length; i++) {
-                    if (i > 0) {
-                        nameCondition.append(" AND ");
-                    }
-                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i).append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
-                }
-                queryString += " AND (" + nameCondition.toString() + ")";
-            } else if ("id".equals(searchType)) {
-                queryString += " AND LOWER(s.id) LIKE LOWER(:keyword)";
-            } else {
-                return 0L;
-            }
-
-            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
-                    .setParameter("campusId", campusId);
-
-            if ("name".equals(searchType)) {
-                String[] words = keyword.split("\\s+");
-                for (int i = 0; i < words.length; i++) {
-                    query.setParameter("word" + i, "%" + words[i] + "%");
-                }
-            } else if ("id".equals(searchType)) {
-                query.setParameter("keyword", "%" + keyword.trim() + "%");
-            }
-
-            return query.getSingleResult();
-        } catch (Exception e) {
-            throw new RuntimeException("Error counting search results by campus: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-        String jpql = "SELECT s FROM Students s WHERE s.campus.id = :campusId";
-        return entityManager.createQuery(jpql, Students.class)
-                .setParameter("campusId", campusId)
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
-    }
-
-    @Override
-    public Students findById(String studentId) {
-        return entityManager.find(Students.class, studentId);
-    }
-
-    @Override
-    public long totalStudentsByCampus(String campusId) {
-        if (campusId == null || campusId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Campus ID must not be null or empty");
-        }
-
-        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("campusId", campusId)
-                .getSingleResult();
     }
 }
