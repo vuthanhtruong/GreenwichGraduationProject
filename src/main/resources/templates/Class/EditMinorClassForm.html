@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deputy Staff - Edit Minor Class</title>
-    <link rel="stylesheet" th:href="@{/MajorClassesList.css}">
+    <title>Edit Minor Class</title>
+    <link rel="stylesheet" th:href="@{/EditFormClass.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -13,69 +13,135 @@
     <!-- Title Bar -->
     <header class="win11-title-bar">
         <h1><i class="fas fa-chalkboard-teacher"></i> Edit Minor Class</h1>
-        <nav class="dashboard-nav">
-            <a th:href="@{/deputy-staff-home}" class="btn"><i class="fas fa-home"></i> Home</a>
-            <form th:action="@{/logout}" method="post" style="display:inline;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" class="btn danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </form>
-        </nav>
     </header>
 
-    <!-- Alerts -->
-    <div th:if="${editErrors}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${editErrors}" th:text="${error}"></li>
-        </ul>
+    <!-- Back Navigation -->
+    <nav class="mb-3 d-flex justify-content-end container">
+        <a th:if="${source == 'search'}"
+           class="btn"
+           th:href="@{/deputy-staff-home/minor-classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+            <i class="fas fa-arrow-left"></i> Back to Search
+        </a>
+        <a th:if="${source != 'search'}"
+           class="btn"
+           th:href="@{/deputy-staff-home/minor-classes-list(page=${page}, pageSize=${pageSize})}">
+            <i class="fas fa-arrow-left"></i> Minor Classes List
+        </a>
+    </nav>
+
+    <!-- Success Message -->
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
     </div>
 
-    <!-- Edit Form -->
-    <section class="form-container">
-        <form th:action="@{/deputy-staff-home/minor-classes/edit-class}" method="post" th:object="${class}">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <input type="hidden" name="_method" value="PUT" />
-            <input type="hidden" th:field="*{classId}" />
-            <input type="hidden" name="source" th:value="${source}" />
-            <input type="hidden" name="searchType" th:value="${searchType}" />
-            <input type="hidden" name="keyword" th:value="${keyword}" />
-            <input type="hidden" name="page" th:value="${page}" />
-            <input type="hidden" name="pageSize" th:value="${pageSize}" />
+    <!-- Form -->
+    <main class="container">
+        <section class="mb-4">
+            <form method="post"
+                  th:action="@{/deputy-staff-home/minor-classes-list/edit-class}"
+                  th:object="${class}">
 
-            <div class="form-group">
-                <label for="nameClass"><i class="fas fa-chalkboard"></i> Class Name</label>
-                <input type="text" id="nameClass" th:field="*{nameClass}" class="input" placeholder="Enter class name" />
-            </div>
-            <div class="form-group">
-                <label for="slotQuantity"><i class="fas fa-chair"></i> Total Slots</label>
-                <input type="number" id="slotQuantity" th:field="*{slotQuantity}" class="input" min="1" placeholder="Enter total slots" />
-            </div>
-            <div class="form-group">
-                <label for="subjectId"><i class="fas fa-book"></i> Subject</label>
-                <select id="subjectId" th:field="*{minorSubject.subjectId}" class="input">
-                    <option value="">Select a subject</option>
-                    <option th:each="subject : ${subjects}" th:value="${subject.subjectId}" th:text="${subject.subjectName}"></option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="session"><i class="fas fa-clock"></i> Session</label>
-                <select id="session" th:field="*{session}" class="input">
-                    <option value="">Select a session</option>
-                    <option th:each="session : ${sessions}" th:value="${session}" th:text="${session}"></option>
-                </select>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save</button>
-                <a th:href="@{/deputy-staff-home/minor-classes(page=${page}, pageSize=${pageSize})}"
-                   th:if="${source == 'list'}"
-                   class="btn danger"><i class="fas fa-times"></i> Cancel</a>
-                <a th:href="@{/deputy-staff-home/minor-classes/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
-                   th:if="${source == 'search'}"
-                   class="btn danger"><i class="fas fa-times"></i> Cancel</a>
-            </div>
-        </form>
-    </section>
+                <!-- CSRF & Method -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="_method" value="PUT">
+                <input type="hidden" th:field="*{classId}">
 
+                <!-- Hidden Params -->
+                <input type="hidden" name="source" th:value="${source}"/>
+                <input type="hidden" name="searchType" th:value="${searchType}"/>
+                <input type="hidden" name="keyword" th:value="${keyword}"/>
+                <input type="hidden" name="page" th:value="${page}"/>
+                <input type="hidden" name="pageSize" th:value="${pageSize}"/>
+
+                <div class="row g-3">
+                    <!-- Class Name -->
+                    <div class="col-md-4">
+                        <label for="editNameClass" class="form-label">
+                            <i class="fas fa-chalkboard"></i> Class Name:
+                        </label>
+                        <input id="editNameClass" th:field="*{nameClass}" class="form-control" required type="text">
+                        <div class="text-danger"
+                             th:each="error : ${errors}"
+                             th:if="${error.contains('nameClass') or error.contains('Name Class') or error.contains('Class name is already in use.')}"
+                             th:text="${error}">
+                        </div>
+                    </div>
+
+                    <!-- Total Slots -->
+                    <div class="col-md-4">
+                        <label for="editSlotQuantity" class="form-label">
+                            <i class="fas fa-chair"></i> Total Slots:
+                        </label>
+                        <input id="editSlotQuantity" th:field="*{slotQuantity}" class="form-control" required type="number" min="1">
+                        <div class="text-danger"
+                             th:each="error : ${errors}"
+                             th:if="${error.contains('slotQuantity') or error.contains('Slot Quantity')}"
+                             th:text="${error}">
+                        </div>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="col-md-4">
+                        <label for="editSubjectId" class="form-label">
+                            <i class="fas fa-book"></i> Subject:
+                        </label>
+                        <select id="editSubjectId" name="minorSubject.subjectId" class="form-control" required>
+                            <option value="">Select subject</option>
+                            <option th:each="subject : ${subjects}"
+                                    th:value="${subject.subjectId}"
+                                    th:text="${subject.subjectName}"
+                                    th:selected="${subject.subjectId == class.minorSubject?.subjectId}">
+                            </option>
+                        </select>
+                        <div class="text-danger"
+                             th:each="error : ${errors}"
+                             th:if="${error.contains('subject') or error.contains('Subject') or error.contains('Invalid subject selected.')}"
+                             th:text="${error}">
+                        </div>
+                    </div>
+
+                    <!-- Session -->
+                    <div class="col-md-4">
+                        <label for="editSession" class="form-label">
+                            <i class="fas fa-clock"></i> Session:
+                        </label>
+                        <select id="editSession" th:field="*{session}" class="form-control" required>
+                            <option value="">Select session</option>
+                            <option th:each="sess : ${sessions}"
+                                    th:value="${sess}"
+                                    th:text="${sess}"
+                                    th:selected="${sess == class.session}">
+                            </option>
+                        </select>
+                        <div class="text-danger"
+                             th:each="error : ${errors}"
+                             th:if="${error.contains('session') or error.contains('Session')}"
+                             th:text="${error}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-4">
+                    <button class="btn primary" type="submit">
+                        <i class="fas fa-save"></i> Save Class
+                    </button>
+                    <a th:if="${source == 'search'}"
+                       class="btn danger"
+                       th:href="@{/deputy-staff-home/minor-classes-list/search-classes(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <a th:if="${source != 'search'}"
+                       class="btn danger"
+                       th:href="@{/deputy-staff-home/minor-classes-list(page=${page}, pageSize=${pageSize})}">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </section>
+    </main>
 </div>
+
 </body>
 </html>

@@ -2,7 +2,6 @@ package com.example.demo.classes.minorClasses.dao;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,9 +16,9 @@ import java.util.List;
 @Repository
 @Transactional
 public class MinorClassesDAOImpl implements MinorClassesDAO {
+
     @PersistenceContext
     private EntityManager entityManager;
-
     private final DeputyStaffsService deputyStaffsService;
 
     public MinorClassesDAOImpl(DeputyStaffsService deputyStaffsService) {
@@ -31,8 +30,7 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @Override
     public List<MinorClasses> getClasses() {
-        return entityManager.createQuery("SELECT c FROM MinorClasses c ", MinorClasses.class)
-                .getResultList();
+        return entityManager.createQuery("SELECT c FROM MinorClasses c", MinorClasses.class).getResultList();
     }
 
     @Override
@@ -146,15 +144,14 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
-    public List<MinorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize ) {
-        String queryString = "SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject ";
+    public List<MinorClasses> searchClasses(String searchType, String keyword, int firstResult, int pageSize) {
+        String query = "SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject WHERE 1=1";
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            query += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            query += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(queryString, MinorClasses.class)
-
+        return entityManager.createQuery(query, MinorClasses.class)
                 .setParameter("keyword", "%" + keyword + "%")
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -162,21 +159,21 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
-    public long countSearchResults(String searchType, String keyword ) {
-        String queryString = "SELECT COUNT(c) FROM MinorClasses c ";
+    public long countSearchResults(String searchType, String keyword) {
+        String query = "SELECT COUNT(c) FROM MinorClasses c WHERE 1=1";
         if ("name".equals(searchType)) {
-            queryString += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+            query += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
         } else {
-            queryString += " AND c.classId LIKE :keyword";
+            query += " AND c.classId LIKE :keyword";
         }
-        return entityManager.createQuery(queryString, Long.class)
+        return entityManager.createQuery(query, Long.class)
                 .setParameter("keyword", "%" + keyword + "%")
                 .getSingleResult();
     }
 
     @Override
     public List<MinorClasses> getPaginatedClasses(int firstResult, int pageSize) {
-        return entityManager.createQuery("SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject ", MinorClasses.class)
+        return entityManager.createQuery("SELECT c FROM MinorClasses c JOIN FETCH c.creator LEFT JOIN FETCH c.minorSubject", MinorClasses.class)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
                 .getResultList();
@@ -184,8 +181,7 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @Override
     public long numberOfClasses() {
-        return entityManager.createQuery("SELECT COUNT(c) FROM MinorClasses c ", Long.class)
-                .getSingleResult();
+        return entityManager.createQuery("SELECT COUNT(c) FROM MinorClasses c", Long.class).getSingleResult();
     }
 
     @Override
@@ -203,10 +199,7 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
-        return name.matches(nameRegex);
+        if (name == null || name.trim().isEmpty()) return false;
+        return name.matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
     }
 }

@@ -291,7 +291,7 @@ public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
                 throw new IllegalArgumentException("Subject with ID " + id + " not found");
             }
             if (subject.getSubjectName() != null) {
-                existingSubject.setSubjectName(subject.getSubjectName().toUpperCase());
+                existingSubject.setSubjectName(subject.getSubjectName());
             }
             if (subject.getSemester() != null) {
                 existingSubject.setSemester(subject.getSemester());

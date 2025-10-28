@@ -27,7 +27,9 @@ public class EditMinorClassController {
     private final MinorSubjectsService subjectsService;
 
     @Autowired
-    public EditMinorClassController(MinorClassesService classesService, DeputyStaffsService deputyStaffsService, MinorSubjectsService subjectsService) {
+    public EditMinorClassController(MinorClassesService classesService,
+                                    DeputyStaffsService deputyStaffsService,
+                                    MinorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.deputyStaffsService = deputyStaffsService;
         this.subjectsService = subjectsService;
@@ -35,7 +37,7 @@ public class EditMinorClassController {
 
     @PostMapping("/edit-class-form")
     public String showEditClassForm(
-            @RequestParam("id") String classId,
+            @RequestParam String classId,
             @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
@@ -43,34 +45,17 @@ public class EditMinorClassController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             Model model,
             RedirectAttributes redirectAttributes) {
+
         DeputyStaffs user = deputyStaffsService.getDeputyStaff();
         if (user == null) {
             redirectAttributes.addFlashAttribute("errors", List.of("Only deputy staff members can edit classes."));
-            if (source.equals("search")) {
-                redirectAttributes.addFlashAttribute("searchType", searchType);
-                redirectAttributes.addFlashAttribute("keyword", keyword);
-                redirectAttributes.addFlashAttribute("page", page);
-                redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
-                return "redirect:/deputy-staff-home/minor-classes-list/search-classes";
-            }
-            redirectAttributes.addFlashAttribute("page", page);
-            redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
-            return "redirect:/deputy-staff-home/minor-classes-list";
+            return redirectBack(source, searchType, keyword, page, pageSize, redirectAttributes);
         }
 
         MinorClasses editClass = classesService.getClassById(classId);
         if (editClass == null) {
             redirectAttributes.addFlashAttribute("errors", List.of("Class not found."));
-            if (source.equals("search")) {
-                redirectAttributes.addFlashAttribute("searchType", searchType);
-                redirectAttributes.addFlashAttribute("keyword", keyword);
-                redirectAttributes.addFlashAttribute("page", page);
-                redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
-                return "redirect:/deputy-staff-home/minor-classes-list/search-classes";
-            }
-            redirectAttributes.addFlashAttribute("page", page);
-            redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
-            return "redirect:/deputy-staff-home/minor-classes-list";
+            return redirectBack(source, searchType, keyword, page, pageSize, redirectAttributes);
         }
 
         model.addAttribute("class", editClass);
@@ -81,6 +66,7 @@ public class EditMinorClassController {
         model.addAttribute("keyword", keyword != null ? keyword : "");
         model.addAttribute("page", page);
         model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
+
         return "EditMinorClassForm";
     }
 
@@ -95,10 +81,13 @@ public class EditMinorClassController {
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             RedirectAttributes redirectAttributes,
             Model model) {
+
         List<String> errors = classesService.validateClass(classObj, classObj.getClassId());
 
         if (!errors.isEmpty() || bindingResult.hasErrors()) {
-            errors.addAll(bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage()).toList());
+            errors.addAll(bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage()).toList());
+
             model.addAttribute("editErrors", errors);
             model.addAttribute("class", classObj);
             model.addAttribute("subjects", subjectsService.getAllSubjects());
@@ -114,16 +103,19 @@ public class EditMinorClassController {
         try {
             classesService.editClass(classObj.getClassId(), classObj);
             redirectAttributes.addFlashAttribute("successMessage", "Class edited successfully!");
-            if (source.equals("search") && searchType != null && keyword != null) {
+
+            if ("search".equals(source) && searchType != null && !searchType.isEmpty() && keyword != null && !keyword.isEmpty()) {
                 redirectAttributes.addFlashAttribute("searchType", searchType);
                 redirectAttributes.addFlashAttribute("keyword", keyword);
                 redirectAttributes.addFlashAttribute("page", page);
                 redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
                 return "redirect:/deputy-staff-home/minor-classes-list/search-classes";
             }
+
             redirectAttributes.addFlashAttribute("page", page);
             redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
             return "redirect:/deputy-staff-home/minor-classes-list";
+
         } catch (Exception e) {
             model.addAttribute("editErrors", List.of("Error updating class: " + e.getMessage()));
             model.addAttribute("class", classObj);
@@ -136,5 +128,19 @@ public class EditMinorClassController {
             model.addAttribute("pageSize", pageSize != null ? pageSize : 5);
             return "EditMinorClassForm";
         }
+    }
+
+    // Helper method
+    private String redirectBack(String source, String searchType, String keyword, int page, Integer pageSize, RedirectAttributes ra) {
+        if ("search".equals(source)) {
+            ra.addFlashAttribute("searchType", searchType);
+            ra.addFlashAttribute("keyword", keyword);
+            ra.addFlashAttribute("page", page);
+            ra.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
+            return "redirect:/deputy-staff-home/minor-classes-list/search-classes";
+        }
+        ra.addFlashAttribute("page", page);
+        ra.addFlashAttribute("pageSize", pageSize != null ? pageSize : 5);
+        return "redirect:/deputy-staff-home/minor-classes-list";
     }
 }

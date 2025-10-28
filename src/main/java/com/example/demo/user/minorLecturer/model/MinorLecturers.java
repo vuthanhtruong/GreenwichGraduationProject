@@ -29,9 +29,9 @@ public class MinorLecturers extends MinorEmployes implements MinorLecturersInter
     @Override
     public String getDefaultAvatarPath() {
         if (getAvatar() != null) {
-            return null;
+            return null; // Avatar exists, no default needed
         }
-        return getGender() == Gender.MALE ? "/DefaultAvatar/MinorLecturer_Boy.png" : "/DefaultAvatar/MinorLecturer_Girl.png";
+        return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
     }
 
     @Override

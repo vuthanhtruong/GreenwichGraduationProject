@@ -3,8 +3,6 @@ package com.example.demo.classes.minorClasses.controller;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.entity.Enums.Sessions;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
-import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +23,11 @@ import java.util.List;
 public class ListMinorClassesController {
 
     private final MinorClassesService classesService;
-    private final DeputyStaffsService deputyStaffsService;
     private final MinorSubjectsService subjectsService;
 
     @Autowired
-    public ListMinorClassesController(MinorClassesService classesService, DeputyStaffsService deputyStaffsService, MinorSubjectsService subjectsService) {
+    public ListMinorClassesController(MinorClassesService classesService, MinorSubjectsService subjectsService) {
         this.classesService = classesService;
-        this.deputyStaffsService = deputyStaffsService;
         this.subjectsService = subjectsService;
     }
 
@@ -45,25 +41,9 @@ public class ListMinorClassesController {
         try {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("classPageSize");
-                if (pageSize == null) {
-                    pageSize = 5;
-                }
+                if (pageSize == null) pageSize = 5;
             }
             session.setAttribute("classPageSize", pageSize);
-
-            DeputyStaffs deputyStaff = deputyStaffsService.getDeputyStaff();
-            if (deputyStaff == null) {
-                model.addAttribute("errors", List.of("No authenticated deputy staff found."));
-                model.addAttribute("classes", new ArrayList<>());
-                model.addAttribute("currentPageClasses", 1);
-                model.addAttribute("totalPagesClasses", 1);
-                model.addAttribute("pageSize", pageSize);
-                model.addAttribute("totalClasses", 0);
-                model.addAttribute("newClass", new MinorClasses());
-                model.addAttribute("subjects", subjectsService.getAllSubjects());
-                model.addAttribute("sessions", Sessions.values());
-                return "MinorClassesList";
-            }
 
             long totalClasses = classesService.numberOfClasses();
             int totalPagesClasses = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
@@ -81,9 +61,9 @@ public class ListMinorClassesController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalClasses", 0);
                 model.addAttribute("subjects", subjectsService.getAllSubjects());
-                model.addAttribute("newClass", new MinorClasses());
                 model.addAttribute("sessions", Sessions.values());
-                model.addAttribute("message", "No classes found.");
+                model.addAttribute("newClass", new MinorClasses());
+                model.addAttribute("message", "No minor classes found.");
                 model.addAttribute("alertClass", "alert-warning");
                 return "MinorClassesList";
             }
@@ -97,16 +77,16 @@ public class ListMinorClassesController {
             model.addAttribute("subjects", subjectsService.getAllSubjects());
             model.addAttribute("sessions", Sessions.values());
             return "MinorClassesList";
+
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving classes: " + e.getMessage()));
-            model.addAttribute("classes", new ArrayList<>());
+            model.addAttribute("newClass", new MinorClasses());
+            model.addAttribute("subjects", subjectsService.getAllSubjects());
+            model.addAttribute("sessions", Sessions.values());
             model.addAttribute("currentPageClasses", 1);
             model.addAttribute("totalPagesClasses", 1);
-            model.addAttribute("pageSize", pageSize);
+            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
             model.addAttribute("totalClasses", 0);
-            model.addAttribute("subjects", subjectsService.getAllSubjects());
-            model.addAttribute("newClass", new MinorClasses());
-            model.addAttribute("sessions", Sessions.values());
             return "MinorClassesList";
         }
     }

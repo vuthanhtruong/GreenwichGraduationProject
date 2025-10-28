@@ -28,9 +28,9 @@ public class DeleteMinorClassController {
         this.deputyStaffsService = deputyStaffsService;
     }
 
-    @DeleteMapping("/delete-class/{id}")
+    @DeleteMapping("/delete-class")
     public String deleteClass(
-            @PathVariable("id") String classId,
+            @RequestParam String classId,
             @RequestParam(value = "source", required = false, defaultValue = "list") String source,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
