@@ -74,6 +74,11 @@ body {
     flex: 1;
     text-align: center;
 }
+.toolbar-center h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
 
 /* ===== Buttons ===== */
 .btn {
@@ -117,12 +122,25 @@ body {
 .btn.danger:hover {
     background: #b91c1c;
 }
-.btn.members {
-    background: #10b981;
-    color: #fff;
+.btn.small {
+    font-size: 14px;
+    padding: 8px 14px;
 }
-.btn.members:hover {
-    background: #059669;
+.btn-view {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: #1f2937;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 6px;
+    transition: all 0.25s ease;
+}
+.btn-view:hover {
+    background: #e0ebff;
+    border-color: #2563eb;
+    color: #2563eb;
 }
 
 /* ===== Layout ===== */
@@ -155,29 +173,18 @@ body {
     background: #f9fafc;
     border-radius: 10px;
     padding: 10px 14px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     transition: background 0.25s ease;
 }
 .deadline-item:hover {
     background: #e0ebff;
 }
-.deadline-item span {
-    display: block;
+.deadline-item strong {
     color: #111827;
 }
 .deadline-item small {
     color: #6b7280;
     font-size: 13px;
-}
-.deadline-box a {
-    display: inline-block;
-    margin-top: 10px;
-    text-decoration: none;
-    color: #2563eb;
-    font-weight: 500;
-}
-.deadline-box a:hover {
-    text-decoration: underline;
 }
 
 /* ===== Posts ===== */
@@ -187,8 +194,8 @@ body {
     padding: 18px 22px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 18px;
     animation: fadeIn 0.3s ease;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -197,28 +204,27 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.1);
 }
-.post i {
-    font-size: 22px;
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.post-header i {
+    font-size: 20px;
     color: #2563eb;
-    margin-top: 4px;
 }
-.post-content {
-    flex: 1;
-}
-.post-content strong {
+.post-header strong {
     display: block;
     color: #1f2937;
     font-size: 16px;
-    margin-bottom: 6px;
 }
-.post-content span {
-    display: block;
-    color: #374151;
-    margin-bottom: 8px;
-}
-.post-content small {
+.post-header small {
     color: #6b7280;
     font-size: 13px;
+}
+.post p {
+    margin: 0;
+    color: #374151;
 }
 
 /* ===== Documents ===== */
@@ -294,15 +300,6 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.04);
     margin-top: 12px;
 }
-.comments form label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #1f2937;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
-}
 .comments form textarea {
     width: 100%;
     border: 1px solid #d1d5db;
@@ -317,11 +314,6 @@ body {
     outline: none;
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-}
-.comments .form-actions {
-    margin-top: 8px;
-    display: flex;
-    justify-content: flex-end;
 }
 
 /* ===== Overlay ===== */

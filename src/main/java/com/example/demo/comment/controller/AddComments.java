@@ -1,11 +1,9 @@
 package com.example.demo.comment.controller;
 
-import com.example.demo.comment.model.MajorComments;
-import com.example.demo.comment.model.MinorComments;
-import com.example.demo.comment.model.SpecializedComments;
-import com.example.demo.comment.service.MajorCommentsService;
-import com.example.demo.comment.service.MinorCommentsService;
-import com.example.demo.comment.service.SpecializedCommentsService;
+import com.example.demo.comment.model.*;
+import com.example.demo.comment.service.*;
+import com.example.demo.post.classPost.model.ClassPosts;
+import com.example.demo.post.classPost.service.ClassPostsService;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.post.majorClassPosts.service.MajorClassPostsService;
 import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
@@ -15,9 +13,11 @@ import com.example.demo.post.specializedClassPosts.service.SpecializedClassPosts
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
+import com.example.demo.user.person.service.PersonsService;
+import com.example.demo.user.student.model.Students;
+import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,31 +34,29 @@ import java.util.Map;
 public class AddComments {
 
     private final MajorClassPostsService majorClassPostsService;
-    private final SpecializedClassPostsService specializedClassPostsService;
     private final MinorClassPostsService minorClassPostsService;
-
+    private final ClassPostsService classPostsService;
     private final MajorCommentsService majorCommentsService;
-    private final SpecializedCommentsService specializedCommentsService;
     private final MinorCommentsService minorCommentsService;
-
-    private final EmployesService employesService;
+    private final StudentCommentsService studentCommentsService;
+    private final PersonsService personsService;
 
     public AddComments(
             MajorClassPostsService majorClassPostsService,
-            SpecializedClassPostsService specializedClassPostsService,
             MinorClassPostsService minorClassPostsService,
+            ClassPostsService classPostsService,
             MajorCommentsService majorCommentsService,
-            SpecializedCommentsService specializedCommentsService,
             MinorCommentsService minorCommentsService,
-            EmployesService employesService) {
+            StudentCommentsService studentCommentsService,
+            PersonsService personsService) {
 
         this.majorClassPostsService = majorClassPostsService;
-        this.specializedClassPostsService = specializedClassPostsService;
         this.minorClassPostsService = minorClassPostsService;
+        this.classPostsService = classPostsService;
         this.majorCommentsService = majorCommentsService;
-        this.specializedCommentsService = specializedCommentsService;
         this.minorCommentsService = minorCommentsService;
-        this.employesService = employesService;
+        this.studentCommentsService = studentCommentsService;
+        this.personsService = personsService;
     }
 
     @PostMapping("/add-comment")
@@ -70,88 +68,51 @@ public class AddComments {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // 1. Kiểm tra postId và classId
-            if (postId == null || postId.trim().isEmpty() || classId == null || classId.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("errors", List.of("Invalid post or class ID"));
-                return redirectToClassroom(classId, session);
+            if (isEmpty(postId) || isEmpty(classId) || isEmpty(content)) {
+                return redirectWithError("Invalid input", classId, session, redirectAttributes);
             }
 
-            // 2. Xác định loại post và xử lý tương ứng
-            if (majorClassPostsService.getMajorClassPost(postId) != null) {
-                return handleMajorComment(postId, content, redirectAttributes);
-            } else if (specializedClassPostsService.getSpecializedClassPost(postId) != null) {
-                return handleSpecializedComment(postId, content, redirectAttributes);
-            } else if (minorClassPostsService.getMinorClassPost(postId) != null) {
-                return handleMinorComment(postId, content, redirectAttributes);
+            ClassPosts post = classPostsService.findPostById(postId);
+            Object person = personsService.getPerson();
+            if (person instanceof MajorEmployes majorEmployee) {
+                return handleMajorComment(postId, content, majorEmployee, classId, session, redirectAttributes);
+            } else if (person instanceof MinorEmployes minorEmployee) {
+                return handleMinorComment(postId, content, minorEmployee, classId, session, redirectAttributes);
+            } else if (person instanceof Students student) {
+                return handleStudentComment(post, content, student, classId, session, redirectAttributes);
             } else {
-                redirectAttributes.addFlashAttribute("errors", List.of("Post not found"));
-                return redirectToClassroom(classId, session);
+                return redirectWithError("Unauthorized user type", classId, session, redirectAttributes);
             }
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errors", List.of("Failed to add comment: " + e.getMessage()));
-            return redirectToClassroom(classId, session);
+            return redirectWithError("Failed to add comment: " + e.getMessage(), classId, session, redirectAttributes);
         }
     }
 
     // ================== MAJOR COMMENT ==================
-    private String handleMajorComment(String postId, String content, RedirectAttributes redirectAttributes) {
-        MajorEmployes commenter = employesService.getMajorEmployee();
-        if (commenter == null) {
-            redirectAttributes.addFlashAttribute("errors", List.of("Unauthorized: Major employee not found"));
-            return "redirect:/classroom";
+    private String handleMajorComment(String postId, String content, MajorEmployes commenter,
+                                      String classId, HttpSession session, RedirectAttributes ra) {
+        MajorClassPosts post = majorClassPostsService.getMajorClassPost(postId);
+        if (post == null) {
+            return redirectWithError("Major post not found", classId, session, ra);
         }
 
-        MajorClassPosts post = majorClassPostsService.getMajorClassPost(postId);
         MajorComments comment = createMajorComment(post, commenter, content);
         Map<String, String> errors = majorCommentsService.validateComment(comment);
-
         if (!errors.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errors", new ArrayList<>(errors.values()));
-            return "redirect:/classroom";
+            ra.addFlashAttribute("errors", new ArrayList<>(errors.values()));
+            return redirectToClassroom(classId, session);
         }
 
         majorCommentsService.saveComment(comment);
-        redirectAttributes.addFlashAttribute("message", "Comment added successfully!");
-        return "redirect:/classroom";
+        ra.addFlashAttribute("message", "Comment added successfully!");
+        return redirectToClassroom(classId, session);
     }
 
     private MajorComments createMajorComment(MajorClassPosts post, MajorEmployes commenter, String content) {
         MajorComments comment = new MajorComments();
         comment.setCommentId(majorCommentsService.generateUniqueCommentId(post.getPostId(), LocalDate.now()));
-        comment.setContent(content);
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setPost(post);
-        comment.setCommenter(commenter);
-        return comment;
-    }
-
-    // ================== SPECIALIZED COMMENT ==================
-    private String handleSpecializedComment(String postId, String content, RedirectAttributes redirectAttributes) {
-        MajorEmployes commenter = employesService.getMajorEmployee(); // Có thể dùng chung
-        if (commenter == null) {
-            redirectAttributes.addFlashAttribute("errors", List.of("Unauthorized: Employee not found"));
-            return "redirect:/classroom";
-        }
-
-        SpecializedClassPosts post = specializedClassPostsService.getSpecializedClassPost(postId);
-        SpecializedComments comment = createSpecializedComment(post, commenter, content);
-        Map<String, String> errors = specializedCommentsService.validateComment(comment);
-
-        if (!errors.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errors", new ArrayList<>(errors.values()));
-            return "redirect:/classroom";
-        }
-
-        specializedCommentsService.saveComment(comment);
-        redirectAttributes.addFlashAttribute("message", "Comment added successfully!");
-        return "redirect:/classroom";
-    }
-
-    private SpecializedComments createSpecializedComment(SpecializedClassPosts post, MajorEmployes commenter, String content) {
-        SpecializedComments comment = new SpecializedComments();
-        comment.setCommentId(specializedCommentsService.generateUniqueCommentId(post.getPostId(), LocalDate.now()));
-        comment.setContent(content);
+        comment.setContent(content.trim());
         comment.setCreatedAt(LocalDateTime.now());
         comment.setPost(post);
         comment.setCommenter(commenter);
@@ -159,38 +120,71 @@ public class AddComments {
     }
 
     // ================== MINOR COMMENT ==================
-    private String handleMinorComment(String postId, String content, RedirectAttributes redirectAttributes) {
-        MinorEmployes commenter = employesService.getMinorEmployee();
-        if (commenter == null) {
-            redirectAttributes.addFlashAttribute("errors", List.of("Unauthorized: Minor employee not found"));
-            return "redirect:/classroom";
+    private String handleMinorComment(String postId, String content, MinorEmployes commenter,
+                                      String classId, HttpSession session, RedirectAttributes ra) {
+        MinorClassPosts post = minorClassPostsService.getMinorClassPost(postId);
+        if (post == null) {
+            return redirectWithError("Minor post not found", classId, session, ra);
         }
 
-        MinorClassPosts post = minorClassPostsService.getMinorClassPost(postId);
         MinorComments comment = createMinorComment(post, commenter, content);
         Map<String, String> errors = minorCommentsService.validateComment(comment);
-
         if (!errors.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errors", new ArrayList<>(errors.values()));
-            return "redirect:/classroom";
+            ra.addFlashAttribute("errors", new ArrayList<>(errors.values()));
+            return redirectToClassroom(classId, session);
         }
 
         minorCommentsService.saveComment(comment);
-        redirectAttributes.addFlashAttribute("message", "Comment added successfully!");
-        return "redirect:/classroom";
+        ra.addFlashAttribute("message", "Comment added successfully!");
+        return redirectToClassroom(classId, session);
     }
 
     private MinorComments createMinorComment(MinorClassPosts post, MinorEmployes commenter, String content) {
         MinorComments comment = new MinorComments();
         comment.setCommentId(minorCommentsService.generateUniqueCommentId(post.getPostId(), LocalDate.now()));
-        comment.setContent(content);
+        comment.setContent(content.trim());
         comment.setCreatedAt(LocalDateTime.now());
         comment.setPost(post);
         comment.setCommenter(commenter);
         return comment;
     }
 
+    // ================== STUDENT COMMENT ==================
+    private String handleStudentComment(ClassPosts post, String content, Students commenter,
+                                        String classId, HttpSession session, RedirectAttributes ra) {
+        StudentComments comment = createStudentComment(post, commenter, content);
+        Map<String, String> errors = studentCommentsService.validateComment(comment);
+        if (!errors.isEmpty()) {
+            ra.addFlashAttribute("errors", new ArrayList<>(errors.values()));
+            return redirectToClassroom(classId, session);
+        }
+
+        studentCommentsService.saveComment(comment);
+        ra.addFlashAttribute("message", "Comment added successfully!");
+        return redirectToClassroom(classId, session);
+    }
+
+    private StudentComments createStudentComment(ClassPosts post, Students commenter, String content) {
+        StudentComments comment = new StudentComments();
+        comment.setCommentId(studentCommentsService.generateUniqueCommentId(post.getPostId(), LocalDate.now()));
+        comment.setContent(content.trim());
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setPost(post);
+        comment.setCommenter(commenter);
+        comment.setNotification(null);
+        return comment;
+    }
+
     // ================== HELPER ==================
+    private boolean isEmpty(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private String redirectWithError(String error, String classId, HttpSession session, RedirectAttributes ra) {
+        ra.addFlashAttribute("errors", List.of(error));
+        return redirectToClassroom(classId, session);
+    }
+
     private String redirectToClassroom(String classId, HttpSession session) {
         session.setAttribute("classId", classId);
         return "redirect:/classroom";

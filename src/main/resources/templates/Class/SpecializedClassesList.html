@@ -238,7 +238,7 @@
                         <!-- Specialized Subject -->
                         <div class="form-row">
                             <label for="specializedSubjectId"><i class="fas fa-book"></i> Subject:</label>
-                            <select id="specializedSubjectId" name="specializedSubject.subjectId" class="input" required>
+                            <select id="specializedSubjectId" name="specializedSubjectId" class="input" required>
                                 <option value="">Select subject</option>
                                 <option th:each="subject : ${specializedSubjects}"
                                         th:value="${subject.subjectId}"

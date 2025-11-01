@@ -6,6 +6,7 @@ import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.students_Classes.abstractStudents_Class.service.StudentsClassesService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
@@ -26,13 +27,15 @@ public class LearningProcessController {
     private final AcademicTranscriptsService academicTranscriptsService;
     private final StudentsService studentsService;
     private final ClassesService classesService;
+    private final StudentsClassesService studentsClassesService;
 
     public LearningProcessController(AcademicTranscriptsService academicTranscriptsService,
                                      StudentsService studentsService,
-                                     ClassesService classesService) {
+                                     ClassesService classesService, StudentsClassesService studentsClassesService) {
         this.academicTranscriptsService = academicTranscriptsService;
         this.studentsService = studentsService;
         this.classesService = classesService;
+        this.studentsClassesService = studentsClassesService;
     }
 
     @GetMapping("")
@@ -42,7 +45,7 @@ public class LearningProcessController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) Integer pageSize) {
         try {
-            // Lấy thông tin học sinh hiện tại
+            // Lấy sinh viên hiện tại
             Students student = studentsService.getStudent();
             if (student == null) {
                 model.addAttribute("errors", List.of("Student not found"));
@@ -58,13 +61,14 @@ public class LearningProcessController {
             if (pageSize == null) {
                 pageSize = (Integer) session.getAttribute("learningProcessPageSize");
                 if (pageSize == null) {
-                    pageSize = 10; // Mặc định 10 lớp/trang
+                    pageSize = 10;
                 }
             }
             session.setAttribute("learningProcessPageSize", pageSize);
 
-            // Lấy danh sách lớp học
-            List<Students_Classes> classes = academicTranscriptsService.getLearningProcess(student);
+            // LẤY DANH SÁCH LỚP ĐÃ ĐĂNG KÝ QUA StudentsClassesService
+            List<Students_Classes> classes = studentsClassesService.getClassByStudent(student.getId());
+
             Long totalClasses = (long) classes.size();
             int totalPages = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
             page = Math.max(1, Math.min(page, totalPages));
@@ -81,7 +85,7 @@ public class LearningProcessController {
                 return "LearningProcess";
             }
 
-            // Áp dụng phân trang thủ công
+            // Phân trang thủ công
             int firstResult = (page - 1) * pageSize;
             int lastResult = Math.min(firstResult + pageSize, classes.size());
             List<Students_Classes> paginatedClasses = classes.subList(firstResult, lastResult);
@@ -92,6 +96,7 @@ public class LearningProcessController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalClasses", totalClasses);
             return "LearningProcess";
+
         } catch (Exception e) {
             model.addAttribute("errors", List.of("Error fetching classes: " + e.getMessage()));
             model.addAttribute("classes", new ArrayList<>());

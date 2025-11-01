@@ -56,10 +56,10 @@
             </thead>
             <tbody>
             <tr th:each="studentClass : ${classes}">
-                <td th:text="${studentClass.getClassEntity().getClassId()}"></td>
-                <td th:text="${studentClass.getClassEntity()?.getNameClass() ?: 'N/A'}"></td>
+                <td th:text="${studentClass.classEntity.getClassId()}"></td>
+                <td th:text="${studentClass.classEntity.getNameClass() ?: 'N/A'}"></td>
                 <td th:text="${studentClass.getSubjectName()}"></td>
-                <td th:text="${studentClass.getClassEntity()?.getSession() ?: 'N/A'}"></td>
+                <td th:text="${studentClass.classEntity.getSession() ?: 'N/A'}"></td>
                 <td th:text="${studentClass.createdAt}"></td>
                 <td>
                     <form method="get" th:action="@{/student-home/learning-process/detail-scores}" class="inline-form">

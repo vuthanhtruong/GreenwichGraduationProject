@@ -1,5 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.submission.model;
 
+import com.example.demo.document.model.SubmissionDocuments;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Submissions")
@@ -33,6 +36,10 @@ public class Submissions {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    // DANH SÁCH FILE SINH VIÊN NỘP
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SubmissionDocuments> submissionDocuments = new ArrayList<>();
 
     public Submissions() {}
 
