@@ -1,7 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.submission.model;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.submission.model.Submissions;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import jakarta.persistence.*;
 import lombok.Getter;

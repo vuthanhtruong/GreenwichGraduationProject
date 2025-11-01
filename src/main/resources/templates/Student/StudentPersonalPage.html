@@ -4,211 +4,191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student - Profile</title>
-
-    <!-- Main CSS -->
-    <link rel="stylesheet" th:href="@{/StudentPersonal.css}">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/AdminPersonal.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
 
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-user-edit"></i> Your Profile</h1>
-        <nav class="dashboard-nav">
-            <a th:href="@{/student-home}" class="btn"><i class="fas fa-home"></i> Home</a>
-            <form th:action="@{/logout}" method="post" style="display:inline;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" class="btn danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </form>
-        </nav>
+        <h1><i class="fas fa-user"></i> Your Profile</h1>
+        <a th:href="@{/student-home}" class="btn"><i class="fas fa-home"></i> Home</a>
     </header>
 
-    <!-- Success Message -->
-    <div th:if="${message != null}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
+    <!-- Content -->
+    <div class="win11-content">
 
-    <!-- General (non-field) Errors -->
-    <div th:if="${errors != null}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error}"></li>
-        </ul>
-    </div>
-
-    <!-- Password Errors (if any) -->
-    <div th:if="${passwordErrors != null}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${passwordErrors}" th:text="${error}"></li>
-        </ul>
-    </div>
-
-    <!-- Main Panel -->
-    <section class="win11-panel">
         <!-- Avatar -->
-        <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
-        <div class="form-group text-center">
+        <section class="win11-panel text-center">
+            <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
             <div class="avatar-container">
-                <img th:if="${student.avatar != null}" th:src="@{'/student-home/personal-page/avatar/' + ${student.id}}"
-                     class="avatar-img" th:alt="${student.firstName + ' ' + student.lastName}" />
-                <img th:if="${student.avatar == null and student.gender == 'MALE'}" th:src="@{/DefaultAvatar/Student_Male.png}"
-                     class="avatar-img" th:alt="${student.firstName + ' ' + student.lastName}" />
-                <img th:if="${student.avatar == null and student.gender != 'MALE'}" th:src="@{/DefaultAvatar/Student_Female.png}"
-                     class="avatar-img" th:alt="${student.firstName + ' ' + student.lastName}" />
+                <img th:if="${student.avatar != null}"
+                     th:src="@{'/student-home/personal-page/avatar/' + ${student.id}}"
+                     class="avatar-img" alt="Student Avatar">
+
+                <img th:if="${student.avatar == null and student.gender == 'MALE'}"
+                     th:src="@{/DefaultAvatar/Student_Male.png}"
+                     class="avatar-img" alt="Default Male Avatar">
+
+                <img th:if="${student.avatar == null and student.gender != 'MALE'}"
+                     th:src="@{/DefaultAvatar/Student_Female.png}"
+                     class="avatar-img" alt="Default Female Avatar">
             </div>
-        </div>
+        </section>
 
         <!-- Personal Info -->
-        <h2 class="panel-header"><i class="fas fa-id-card"></i> Personal Information</h2>
-        <div class="form-group grid-2">
-            <div class="form-row">
-                <label><i class="fas fa-user"></i> First Name</label>
-                <p th:text="${student.firstName} ?: 'N/A'"></p>
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-id-card"></i> Personal Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label><i class="fas fa-user"></i> First Name:</label>
+                    <input th:value="${student.firstName}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-user"></i> Last Name:</label>
+                    <input th:value="${student.lastName}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-envelope"></i> Email:</label>
+                    <input th:value="${student.email}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-phone"></i> Phone:</label>
+                    <input th:value="${student.phoneNumber}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-birthday-cake"></i> Birth Date:</label>
+                    <input th:value="${student.birthDate}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-venus-mars"></i> Gender:</label>
+                    <input th:value="${student.gender}" readonly class="input readonly">
+                </div>
             </div>
-            <div class="form-row">
-                <label><i class="fas fa-user"></i> Last Name</label>
-                <p th:text="${student.lastName} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-envelope"></i> Email</label>
-                <p th:text="${student.email} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-phone"></i> Phone</label>
-                <p th:text="${student.phoneNumber} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-birthday-cake"></i> Birth Date</label>
-                <p th:text="${student.birthDate} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-venus-mars"></i> Gender</label>
-                <p th:text="${student.gender} ?: 'N/A'"></p>
-            </div>
-        </div>
+        </section>
 
         <!-- Address -->
-        <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information</h2>
-        <div class="form-group grid-2">
-            <div class="form-row">
-                <label><i class="fas fa-flag"></i> Country</label>
-                <p th:text="${student.country} ?: 'N/A'"></p>
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label><i class="fas fa-flag"></i> Country:</label>
+                    <input th:value="${student.country}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-location-dot"></i> Province:</label>
+                    <input th:value="${student.province}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-city"></i> City:</label>
+                    <input th:value="${student.city}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-map"></i> District:</label>
+                    <input th:value="${student.district}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-map-pin"></i> Ward:</label>
+                    <input th:value="${student.ward}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-road"></i> Street/House:</label>
+                    <input th:value="${student.street}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-mail-bulk"></i> Postal Code:</label>
+                    <input th:value="${student.postalCode}" readonly class="input readonly">
+                </div>
             </div>
-            <div class="form-row">
-                <label><i class="fas fa-location-dot"></i> Province</label>
-                <p th:text="${student.province} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-city"></i> City</label>
-                <p th:text="${student.city} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-map"></i> District</label>
-                <p th:text="${student.district} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-map-pin"></i> Ward</label>
-                <p th:text="${student.ward} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-road"></i> Street</label>
-                <p th:text="${student.street} ?: 'N/A'"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-mail-bulk"></i> Postal Code</label>
-                <p th:text="${student.postalCode} ?: 'N/A'"></p>
-            </div>
-        </div>
+        </section>
 
-        <!-- Additional Info (e.g., Major, Specialization, Campus) -->
-        <h2 class="panel-header"><i class="fas fa-graduation-cap"></i> Academic Information</h2>
-        <div class="form-group grid-2">
-            <div class="form-row">
-                <label><i class="fas fa-university"></i> Campus</label>
-                <p th:text="${student.campus != null ? student.campus.campusName : 'N/A'}"></p>
+        <!-- Academic Info -->
+        <section class="win11-panel">
+            <h2 class="panel-header"><i class="fas fa-graduation-cap"></i> Academic Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label><i class="fas fa-university"></i> Campus:</label>
+                    <input th:value="${student.campus != null ? student.campus.campusName : 'N/A'}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-book"></i> Major:</label>
+                    <input th:value="${student.specialization != null && student.specialization.major != null ? student.specialization.major.majorName : 'N/A'}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-book-open"></i> Specialization:</label>
+                    <input th:value="${student.specialization != null ? student.specialization.specializationName : 'N/A'}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label><i class="fas fa-calendar-alt"></i> Admission Year:</label>
+                    <input th:value="${student.admissionYear}" readonly class="input readonly">
+                </div>
             </div>
-            <div class="form-row">
-                <label><i class="fas fa-book"></i> Major</label>
-                <p th:text="${student.specialization != null && student.specialization.major != null ? student.specialization.major.majorName : 'N/A'}"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-book-open"></i> Specialization</label>
-                <p th:text="${student.specialization != null ? student.specialization.specializationName : 'N/A'}"></p>
-            </div>
-            <div class="form-row">
-                <label><i class="fas fa-calendar-alt"></i> Admission Year</label>
-                <p th:text="${student.admissionYear} ?: 'N/A'"></p>
-            </div>
-        </div>
-
-        <!-- Change Password Button -->
-        <div class="form-group">
-            <button type="button" class="btn primary" onclick="openChangePasswordModal()">
-                <i class="fas fa-key"></i> Change Password
-            </button>
-        </div>
+        </section>
 
         <!-- Actions -->
         <div class="form-actions">
+            <button type="button" class="btn primary" onclick="openChangePasswordModal()">
+                <i class="fas fa-key"></i> Change Password
+            </button>
             <a th:href="@{/student-home}" class="btn danger"><i class="fas fa-times"></i> Back</a>
         </div>
-    </section>
-
-    <!-- Change Password Modal -->
-    <div id="changePasswordModal" class="modal" aria-hidden="true">
-        <div class="modal-content">
-            <button class="modal-close" aria-label="Close" onclick="closeChangePasswordModal()">&times;</button>
-            <h3 class="modal-title"><i class="fas fa-key"></i> Change Password</h3>
-
-            <form th:action="@{/student-home/personal-page/change-password}" method="post" class="modal-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <div class="form-row">
-                    <label for="currentPassword"><i class="fas fa-lock"></i> Current Password</label>
-                    <input id="currentPassword" name="currentPassword" type="password" required class="input" />
-                    <div class="text-danger" th:each="error : ${passwordErrors}" th:if="${error.contains('currentPassword')}" th:text="${error}"></div>
-                </div>
-                <div class="form-row">
-                    <label for="newPassword"><i class="fas fa-lock"></i> New Password</label>
-                    <input id="newPassword" name="newPassword" type="password" required class="input" />
-                    <div class="text-danger" th:each="error : ${passwordErrors}" th:if="${error.contains('newPassword')}" th:text="${error}"></div>
-                </div>
-                <div class="form-row">
-                    <label for="confirmNewPassword"><i class="fas fa-lock"></i> Confirm New Password</label>
-                    <input id="confirmNewPassword" name="confirmNewPassword" type="password" required class="input" />
-                    <div class="text-danger" th:each="error : ${passwordErrors}" th:if="${error.contains('confirmNewPassword')}" th:text="${error}"></div>
-                </div>
-                <div class="form-actions modal-actions">
-                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Password</button>
-                    <button type="button" class="btn danger" onclick="closeChangePasswordModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
     </div>
-
 </div>
 
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Close" onclick="closeChangePasswordModal()">x</button>
+        <h3 class="modal-title"><i class="fas fa-key"></i> Change Password</h3>
+        <form th:action="@{/student-home/personal-page/change-password}" method="post" class="modal-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <div class="form-row">
+                <label for="currentPassword"><i class="fas fa-lock"></i> Current Password:</label>
+                <input id="currentPassword" name="currentPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('currentPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-row">
+                <label for="newPassword"><i class="fas fa-lock"></i> New Password:</label>
+                <input id="newPassword" name="newPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('newPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-row">
+                <label for="confirmNewPassword"><i class="fas fa-lock"></i> Confirm Password:</label>
+                <input id="confirmNewPassword" name="confirmNewPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('confirmNewPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-actions modal-actions">
+                <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save</button>
+                <button type="button" class="btn danger" onclick="closeChangePasswordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Script -->
 <script>
     function openChangePasswordModal() {
         const modal = document.getElementById('changePasswordModal');
         modal.style.display = 'flex';
         modal.setAttribute('aria-hidden', 'false');
     }
+
     function closeChangePasswordModal() {
         const modal = document.getElementById('changePasswordModal');
         modal.style.display = 'none';
         modal.setAttribute('aria-hidden', 'true');
     }
-    // Close when click outside content
-    window.addEventListener('click', function(e) {
+
+    window.addEventListener('click', e => {
         const modal = document.getElementById('changePasswordModal');
         if (modal && e.target === modal) closeChangePasswordModal();
     });
-    // Escape key closes modal
-    window.addEventListener('keydown', function(e) {
+    window.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeChangePasswordModal();
     });
 </script>

@@ -67,8 +67,6 @@
                 <th><i class="fas fa-phone"></i> Phone</th>
                 <th><i class="fas fa-birthday-cake"></i> Birth Date</th>
                 <th><i class="fas fa-venus-mars"></i> Gender</th>
-                <th><i class="fas fa-venus-mars"></i> Specialization</th>
-                <th><i class="fas fa-venus-mars"></i> Curriculum</th>
                 <th><i class="fas fa-graduation-cap"></i> Major</th>
                 <th><i class="fas fa-building"></i> Campus</th>
             </tr>
@@ -87,8 +85,6 @@
                 <td th:text="${student.phoneNumber}"></td>
                 <td th:text="${student.birthDate}"></td>
                 <td th:text="${student.gender}"></td>
-                <td th:text="${student.getSpecialization().getSpecializationName()}"></td>
-                <td th:text="${student.getCurriculum().getName()}"></td>
                 <td th:text="${student.specialization.major.majorId}"></td>
                 <td th:text="${student.campus?.campusName}"></td>
             </tr>

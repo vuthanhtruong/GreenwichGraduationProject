@@ -31,7 +31,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="deposit : ${DepositHistories}">
-                    <td th:text="${deposit.depositHistoryId}">N/A</td>
+                    <td th:text="${deposit.getHistoryId()}">N/A</td>
                     <td th:text="${#numbers.formatDecimal(deposit.amount, 1, 'COMMA', 2, 'POINT')}">N/A</td>
                     <td th:text="${#temporals.format(deposit.depositTime, 'yyyy-MM-dd HH:mm:ss')}">N/A</td>
                     <td>

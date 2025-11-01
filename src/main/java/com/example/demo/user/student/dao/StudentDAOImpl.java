@@ -164,12 +164,7 @@ public class StudentDAOImpl implements StudentsDAO {
             case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
-
-        if (!(person instanceof Students student)) {
-            throw new IllegalStateException("Authenticated user is not a student");
-        }
-
-        return entityManager.find(Students.class, student.getId());
+        return entityManager.find(Students.class, person.getId());
     }
 
     @Override

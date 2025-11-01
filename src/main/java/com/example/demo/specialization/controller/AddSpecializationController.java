@@ -25,13 +25,11 @@ public class AddSpecializationController {
 
     private final SpecializationService specializationService;
     private final MajorsService majorsService;
-    private final StaffsService staffsService;
 
     @Autowired
-    public AddSpecializationController(SpecializationService specializationService, MajorsService majorsService, StaffsService staffsService) {
+    public AddSpecializationController(SpecializationService specializationService, MajorsService majorsService) {
         this.specializationService = specializationService;
         this.majorsService = majorsService;
-        this.staffsService = staffsService;
     }
 
     @PostMapping("/add-specialization")

@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Home</title>
-    <link rel="stylesheet" th:href="@{/AdminHome.css}">
+    <link rel="stylesheet" th:href="@{/StaffHome.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<main class="win11-container">
+<div class="win11-container">
 
-    <!-- ===== Header ===== -->
+    <!-- ===== Title Bar ===== -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-user-shield"></i> Admin Home</h1>
-        <h2>
-            Welcome, <span th:text="${admin.getLastName()} + ' ' + ${admin.getFirstName()}"></span>
-        </h2>
+        <div class="title-left">
+            <h1><i class="fas fa-user-shield"></i> Admin Home</h1>
+            <h2>Welcome, <span th:text="${admin.lastName} + ' ' + ${admin.firstName}"></span></h2>
+        </div>
+
         <nav class="dashboard-nav">
-            <a th:href="@{/admin-home/personal-page}"><i class="fas fa-id-card"></i> Personal Page</a>
-            <a th:href="@{/admin-home/messages-list}"><i class="fas fa-envelope"></i> Messages</a>
+            <a th:href="@{/admin-home/personal-page}">
+                <i class="fas fa-id-card"></i> Personal Page
+            </a>
+            <a th:href="@{/admin-home/messages-list}">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
             <form th:action="@{/logout}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -26,97 +31,104 @@
         </nav>
     </header>
 
+
     <!-- ===== Dashboard Grid ===== -->
     <section class="dashboard-grid">
 
-        <!-- 🟦 GROUP A: HUMAN RESOURCES MANAGEMENT -->
+        <!-- 🟦 HUMAN RESOURCES MANAGEMENT -->
         <a class="dashboard-card primary" th:href="@{/admin-home/staffs-list}">
-            <i class="fas fa-users-cog"></i>
-            <span>Staffs List</span>
+            <span class="icon"><i class="fas fa-users-cog"></i></span>
+            <span class="meta"><strong>Staffs List</strong><small>Manage all staff members</small></span>
         </a>
 
-        <a class="dashboard-card secondary" th:href="@{/admin-home/deputy-staffs-list}">
-            <i class="fas fa-user-tie"></i>
-            <span>Deputy Staffs</span>
+        <a class="dashboard-card info" th:href="@{/admin-home/deputy-staffs-list}">
+            <span class="icon"><i class="fas fa-user-tie"></i></span>
+            <span class="meta"><strong>Deputy Staffs</strong><small>Assistants and coordinators</small></span>
         </a>
 
         <a class="dashboard-card success" th:href="@{/admin-home/lecturers-list}">
-            <i class="fas fa-chalkboard-teacher"></i>
-            <span>Lecturers</span>
+            <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
+            <span class="meta"><strong>Lecturers</strong><small>Manage academic personnel</small></span>
         </a>
 
-        <a class="dashboard-card danger" th:href="@{/admin-home/minor-lecturers-list}">
-            <i class="fas fa-user-graduate"></i>
-            <span>Minor Lecturers</span>
+        <a class="dashboard-card warning" th:href="@{/admin-home/minor-lecturers-list}">
+            <span class="icon"><i class="fas fa-user-graduate"></i></span>
+            <span class="meta"><strong>Minor Lecturers</strong><small>Assist lecturers overview</small></span>
         </a>
 
-        <!-- 🟨 GROUP B: ACADEMIC MANAGEMENT -->
-        <a class="dashboard-card warning" th:href="@{/admin-home/students-list}">
-            <i class="fas fa-user-graduate"></i>
-            <span>Students</span>
+
+        <!-- 🟨 ACADEMIC MANAGEMENT -->
+        <a class="dashboard-card focus" th:href="@{/admin-home/students-list}">
+            <span class="icon"><i class="fas fa-user-graduate"></i></span>
+            <span class="meta"><strong>Students</strong><small>Student list & info</small></span>
         </a>
 
-        <a class="dashboard-card info" th:href="@{/admin-home/tuition-management}">
-            <i class="fas fa-money-check-alt"></i>
-            <span>Tuition Management</span>
+        <a class="dashboard-card deep-info" th:href="@{/admin-home/tuition-management}">
+            <span class="icon"><i class="fas fa-money-check-alt"></i></span>
+            <span class="meta"><strong>Tuition Management</strong><small>Payments & invoices</small></span>
         </a>
 
-        <a class="dashboard-card major" th:href="@{/admin-home/majors-list}">
-            <i class="fas fa-graduation-cap"></i>
-            <span>Majors List</span>
+        <a class="dashboard-card professional" th:href="@{/admin-home/majors-list}">
+            <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+            <span class="meta"><strong>Majors List</strong><small>Manage academic majors</small></span>
         </a>
 
-        <a class="dashboard-card curriculum" th:href="@{/admin-home/curriculums-list}">
-            <i class="fas fa-scroll"></i>
-            <span>Curriculums</span>
+        <a class="dashboard-card deep-focus" th:href="@{/admin-home/curriculums-list}">
+            <span class="icon"><i class="fas fa-scroll"></i></span>
+            <span class="meta"><strong>Curriculums</strong><small>Subject outlines & structure</small></span>
         </a>
 
-        <!-- 🟩 GROUP C: FINANCIAL & SCHOLARSHIP -->
-        <a class="dashboard-card scholarship" th:href="@{/admin-home/scholarship-by-year-list}">
-            <i class="fas fa-award"></i>
-            <span>Scholarship Policies</span>
+
+        <!-- 🟩 FINANCIAL & SCHOLARSHIP -->
+        <a class="dashboard-card award" th:href="@{/admin-home/scholarship-by-year-list}">
+            <span class="icon"><i class="fas fa-award"></i></span>
+            <span class="meta"><strong>Scholarship Policies</strong><small>Manage awards by year</small></span>
         </a>
 
-        <a class="dashboard-card fee" th:href="@{/admin-home/annual-restudy-fee}">
-            <i class="fas fa-coins"></i>
-            <span>Annual Re-study Fee</span>
+        <a class="dashboard-card success" th:href="@{/admin-home/annual-restudy-fee}">
+            <span class="icon"><i class="fas fa-coins"></i></span>
+            <span class="meta"><strong>Annual Re-study Fee</strong><small>Manage re-study policies</small></span>
         </a>
 
-        <!-- 🟫 GROUP D: INFRASTRUCTURE MANAGEMENT -->
-        <a class="dashboard-card light" th:href="@{/admin-home/campuses-list}">
-            <i class="fas fa-school"></i>
-            <span>Campuses</span>
+
+        <!-- 🟫 INFRASTRUCTURE MANAGEMENT -->
+        <a class="dashboard-card neutral" th:href="@{/admin-home/campuses-list}">
+            <span class="icon"><i class="fas fa-school"></i></span>
+            <span class="meta"><strong>Campuses</strong><small>View and manage campuses</small></span>
         </a>
 
         <a class="dashboard-card info" th:href="@{/admin-home/rooms-list}">
-            <i class="fas fa-door-open"></i>
-            <span>Rooms</span>
+            <span class="icon"><i class="fas fa-door-open"></i></span>
+            <span class="meta"><strong>Rooms</strong><small>Manage lecture & exam rooms</small></span>
         </a>
 
-        <!-- 🟪 GROUP E: COMMUNICATION & SUPPORT -->
-        <a class="dashboard-card email" th:href="@{/admin-home/email-templates}">
-            <i class="fas fa-envelope-open-text"></i>
-            <span>Email Templates</span>
+
+        <!-- 🟪 COMMUNICATION & SUPPORT -->
+        <a class="dashboard-card primary" th:href="@{/admin-home/email-templates}">
+            <span class="icon"><i class="fas fa-envelope-open-text"></i></span>
+            <span class="meta"><strong>Email Templates</strong><small>System email customization</small></span>
         </a>
 
-        <a class="dashboard-card support" th:href="@{/admin-home/support-tickets}">
-            <i class="fas fa-headset"></i>
-            <span>Support Tickets</span>
+        <a class="dashboard-card focus" th:href="@{/admin-home/support-tickets}">
+            <span class="icon"><i class="fas fa-headset"></i></span>
+            <span class="meta"><strong>Support Tickets</strong><small>Student & staff support</small></span>
         </a>
 
-        <!-- ⚙️ GROUP F: SYSTEM & CONTRACT MANAGEMENT -->
-        <a class="dashboard-card contract" th:href="@{/admin-home/contracts-list}">
-            <i class="fas fa-file-contract"></i>
-            <span>Academic Contracts</span>
+
+        <!-- ⚙️ SYSTEM & CONTRACT MANAGEMENT -->
+        <a class="dashboard-card professional" th:href="@{/admin-home/contracts-list}">
+            <span class="icon"><i class="fas fa-file-contract"></i></span>
+            <span class="meta"><strong>Academic Contracts</strong><small>Manage agreements</small></span>
         </a>
 
         <a class="dashboard-card colleague" th:href="@{/admin-home/colleagues-list}">
-            <i class="fas fa-handshake"></i>
-            <span>Your Colleagues</span>
+            <span class="icon"><i class="fas fa-handshake"></i></span>
+            <span class="meta"><strong>Your Colleagues</strong><small>Collaborate with admins</small></span>
         </a>
 
     </section>
-</main>
+
+</div>
 
 </body>
 </html>

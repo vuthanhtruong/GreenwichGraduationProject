@@ -4,6 +4,7 @@ import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSl
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.submission.model.Submissions;
 import com.example.demo.submission.service.SubmissionsService;
+import com.example.demo.user.employe.service.EmployesService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
@@ -21,14 +22,16 @@ public class AssignmentDetailController {
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final StudentsService studentsService;
     private final SubmissionsService submissionsService;
+    private final EmployesService employesService;
 
     public AssignmentDetailController(
             AssignmentSubmitSlotsService assignmentSubmitSlotsService,
             StudentsService studentsService,
-            SubmissionsService submissionsService) {
+            SubmissionsService submissionsService, EmployesService employesService) {
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.studentsService = studentsService;
         this.submissionsService = submissionsService;
+        this.employesService = employesService;
     }
 
     // GET: Xem chi tiết (F5, back, share link)
@@ -71,6 +74,8 @@ public class AssignmentDetailController {
         Submissions submission = null;
         if (isStudent) {
             submission = submissionsService.getSubmissionByStudentAndAssignment(student.getId(), postId);
+        } else if (employesService.getMajorEmployee()!=null) {
+            List<Submissions> assignmentSubmitSlots=submissionsService.getSubmissionsByAssignment(postId);
         }
 
         model.addAttribute("assignment", assignment);

@@ -11,20 +11,8 @@
 
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-user-tie"></i> <i class="fas fa-edit"></i> Update Lecturer</h1>
+        <h1><i class="fas fa-user-tie"></i> <i class="fas fa-edit"></i> Edit Lecturer</h1>
     </header>
-
-    <!-- Global Alert -->
-    <div th:if="${message}" class="win11-alert" th:classappend="${alertClass}" role="alert">
-        <i class="fas fa-info-circle"></i>
-        <span th:text="${message}"></span>
-    </div>
-    <div th:if="${errors != null and !errors.isEmpty()}" class="win11-alert error" role="alert">
-        <i class="fas fa-exclamation-circle"></i>
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error}"></li>
-        </ul>
-    </div>
 
     <!-- Content -->
     <div class="win11-content">
