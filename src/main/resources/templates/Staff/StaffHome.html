@@ -8,15 +8,15 @@
 </head>
 <body>
 
-<!-- Background -->
-<div class="background"></div>
-
 <div class="win11-container">
 
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-user-tie"></i> Staff Home - <span th:text="${major}"></span></h1>
-        <h2>Welcome, <span th:text="${staff.lastName} + ' ' + ${staff.firstName}"></span></h2>
+        <div class="title-left">
+            <h1><i class="fas fa-user-tie"></i> Staff Home - <span th:text="${major}"></span></h1>
+            <h2>Welcome, <span th:text="${staff.lastName} + ' ' + ${staff.firstName}"></span></h2>
+        </div>
+
         <nav class="dashboard-nav">
             <a th:href="@{/staff-home/personal-page}"><i class="fas fa-id-card"></i> Personal Page</a>
             <a th:href="@{/staff-home/messages-list}"><i class="fas fa-envelope"></i> Messages</a>
@@ -27,88 +27,73 @@
         </nav>
     </header>
 
+
     <!-- Dashboard Grid -->
     <section class="dashboard-grid">
-
-        <!-- ===== GROUP A: STAFF & STUDENTS MANAGEMENT ===== -->
-        <a class="dashboard-card primary" th:href="@{/staff-home/lecturers-list}">
-            <i class="fas fa-chalkboard-teacher"></i>
-            <span>Lecturers List</span>
+        <!-- STAFF & STUDENTS -->
+        <a class="dashboard-card" th:href="@{/staff-home/lecturers-list}">
+            <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
+            <span class="meta"><strong>Lecturers List</strong><small>Manage lecturers</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/students-list}">
+            <span class="icon"><i class="fas fa-user-graduate"></i></span>
+            <span class="meta"><strong>Students List</strong><small>View & manage students</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/lecturer-specialization}">
+            <span class="icon"><i class="fas fa-briefcase"></i></span>
+            <span class="meta"><strong>Lecturer Specialization</strong><small>Assign & review specializations</small></span>
         </a>
 
-        <a class="dashboard-card success" th:href="@{/staff-home/students-list}">
-            <i class="fas fa-user-graduate"></i>
-            <span>Students List</span>
+        <!-- ACADEMIC CONTENT -->
+        <a class="dashboard-card" th:href="@{/staff-home/major-subjects-list}">
+            <span class="icon"><i class="fas fa-book-open"></i></span>
+            <span class="meta"><strong>Subjects & Syllabus</strong><small>Manage academic content</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/specialized-subjects-list}">
+            <span class="icon"><i class="fas fa-layer-group"></i></span>
+            <span class="meta"><strong>Specialized Subjects</strong><small>Oversee specialization materials</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/study-plan}">
+            <span class="icon"><i class="fas fa-tasks"></i></span>
+            <span class="meta"><strong>Study Plan</strong><small>Manage course schedules</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/specialized-study-plan}">
+            <span class="icon"><i class="fas fa-diagram-project"></i></span>
+            <span class="meta"><strong>Specialized Study Plan</strong><small>Advanced study management</small></span>
         </a>
 
-        <a class="dashboard-card professional" th:href="@{/staff-home/lecturer-specialization}">
-            <i class="fas fa-briefcase"></i>
-            <span>Lecturer Specialization</span>
+        <!-- CLASSES & ACTIVITIES -->
+        <a class="dashboard-card" th:href="@{/staff-home/classes-list}">
+            <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+            <span class="meta"><strong>Classes Arrangement</strong><small>Organize general classes</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/specialized-classes-list}">
+            <span class="icon"><i class="fas fa-calendar-check"></i></span>
+            <span class="meta"><strong>Specialized Classes</strong><small>Manage focused schedules</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/news-list}">
+            <span class="icon"><i class="fas fa-newspaper"></i></span>
+            <span class="meta"><strong>News</strong><small>Post and update announcements</small></span>
+        </a>
+        <a class="dashboard-card" th:href="@{/staff-home/award-scholarships}">
+            <span class="icon"><i class="fas fa-trophy"></i></span>
+            <span class="meta"><strong>Award Scholarships</strong><small>Manage academic awards</small></span>
         </a>
 
-        <!-- ===== GROUP B: ACADEMIC CONTENT & STUDY PLANS ===== -->
-        <a class="dashboard-card warning" th:href="@{/staff-home/major-subjects-list}">
-            <i class="fas fa-book-open"></i>
-            <span>Subjects & Syllabus</span>
+        <!-- COMMUNICATION -->
+        <a class="dashboard-card" th:href="@{/staff-home/student-feedback}">
+            <span class="icon"><i class="fas fa-comments"></i></span>
+            <span class="meta"><strong>Student Feedback</strong><small>Review opinions & feedback</small></span>
         </a>
-
-        <a class="dashboard-card focus" th:href="@{/staff-home/specialized-subjects-list}">
-            <i class="fas fa-layer-group"></i>
-            <span>Specialized Subjects</span>
+        <a class="dashboard-card" th:href="@{/staff-home/blogs}">
+            <span class="icon"><i class="fas fa-blog"></i></span>
+            <span class="meta"><strong>Blogs</strong><small>Publish & share updates</small></span>
         </a>
-
-        <a class="dashboard-card neutral" th:href="@{/staff-home/study-plan}">
-            <i class="fas fa-tasks"></i>
-            <span>Study Plan</span>
+        <a class="dashboard-card" th:href="@{/staff-home/colleagues-list}">
+            <span class="icon"><i class="fas fa-handshake"></i></span>
+            <span class="meta"><strong>Your Colleagues</strong><small>Collaborate with peers</small></span>
         </a>
-
-        <!-- ✅ Specialized Study Plan -->
-        <a class="dashboard-card deep-focus" th:href="@{/staff-home/specialized-study-plan}">
-            <i class="fas fa-diagram-project"></i>
-            <span>Specialized Study Plan</span>
-        </a>
-
-        <!-- ===== GROUP C: CLASS SCHEDULE & ACTIVITIES ===== -->
-        <a class="dashboard-card info" th:href="@{/staff-home/classes-list}">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Classes Arrangement</span>
-        </a>
-
-        <!-- ✅ NEW: Specialized Classes Arrangement -->
-        <a class="dashboard-card deep-info" th:href="@{/staff-home/specialized-classes-list}">
-            <i class="fas fa-calendar-check"></i>
-            <span>Specialized Classes Arrangement</span>
-        </a>
-
-        <a class="dashboard-card dark" th:href="@{/staff-home/news-list}">
-            <i class="fas fa-newspaper"></i>
-            <span>News</span>
-        </a>
-
-        <a class="dashboard-card award" th:href="@{/staff-home/award-scholarships}">
-            <i class="fas fa-trophy"></i>
-            <span>Award Scholarships</span>
-        </a>
-
-        <!-- ===== GROUP D: COMMUNICATION & COMMUNITY ===== -->
-        <a class="dashboard-card neutral" th:href="@{/staff-home/student-feedback}">
-            <i class="fas fa-comments"></i>
-            <span>Student Feedback</span>
-        </a>
-
-        <a class="dashboard-card neutral" th:href="@{/staff-home/blogs}">
-            <i class="fas fa-blog"></i>
-            <span>Blogs</span>
-        </a>
-
-        <!-- 🟦 NEW SECTION: YOUR COLLEAGUES -->
-        <a class="dashboard-card colleague" th:href="@{/staff-home/colleagues-list}">
-            <i class="fas fa-handshake"></i>
-            <span>Your Colleagues</span>
-        </a>
-
     </section>
 </div>
-
 </body>
 </html>

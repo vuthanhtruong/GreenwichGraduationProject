@@ -10,34 +10,18 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1>
-            <i class="fas fa-chalkboard-teacher"></i>
-            Member Arrangement for Class:
-            <span th:text="${class != null} ? ${class.nameClass} : 'N/A'"></span>
-        </h1>
-    </header>
-
     <!-- Unified Toolbar -->
-    <div class="search-toolbar">
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Back Navigation + Title -->
         <div class="toolbar-left">
-            <a class="btn" th:href="@{/staff-home/classes-list}">
-                <i class="fas fa-arrow-left"></i> Classes List
+            <a th:href="@{/staff-home/classes-list}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back to Classes List
             </a>
+            <h2 class="page-title">
+                <i class="fas fa-user-cog"></i> Member Arrangement
+            </h2>
         </div>
     </div>
-
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-
     <!-- Students in Class -->
     <section class="win11-panel">
         <h2 class="panel-header"><i class="fas fa-users"></i> Students in Class</h2>

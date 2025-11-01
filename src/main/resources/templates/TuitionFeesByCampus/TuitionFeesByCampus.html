@@ -10,55 +10,64 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-university"></i> Reference Tuition Fees</h1>
-    </header>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
-        <!-- Left: Back to Main Page -->
+    <!-- ==== Unified Toolbar (Consistent Admin Layout) ==== -->
+    <div class="search-toolbar unified-bar">
+        <!-- LEFT -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home/tuition-management}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Manage Tuition Fees <span th:text="${mycampus.campusName}"></span>
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
+            <a th:href="@{/admin-home/tuition-management}" class="btn">
+                <i class="fas fa-coins"></i> Manage Tuition Fees
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-university"></i>
+                Reference Tuition Fees
+                <small th:text="'for ' + (${mycampus != null ? mycampus.campusName : 'Campus'})"></small>
+            </h2>
         </div>
 
-        <!-- Center: Select Campus and Year -->
+        <!-- CENTER: Campus + Year Filters -->
         <form method="post" th:action="@{/admin-home/tuition-management/reference}" class="toolbar-center">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            <div class="d-flex align-items-center">
-                <label for="campusId" class="me-2"><i class="fas fa-university"></i> Campus:</label>
-                <select id="campusId" name="campusId" class="form-select d-inline-block w-auto me-3" required>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="form-group d-flex align-items-center gap-3">
+                <label for="campusId"><i class="fas fa-university"></i> Campus:</label>
+                <select id="campusId" name="campusId" class="input small" required>
                     <option value="" disabled th:unless="${Campuses.size() > 0}">No campuses available</option>
                     <option th:each="campus : ${Campuses}"
                             th:value="${campus.campusId}"
                             th:text="${campus.campusName}"
-                            th:selected="${campus.campusId == referenceCampus?.campusId}"></option>
+                            th:selected="${campus.campusId == referenceCampus?.campusId}">
+                    </option>
                 </select>
-                <label for="admissionYear" class="me-2"><i class="fas fa-calendar-alt"></i> Year:</label>
-                <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto me-3" required>
+
+                <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
+                <select id="admissionYear" name="admissionYear" class="input small" required>
                     <option value="" disabled th:unless="${admissionYears.size() > 0}">No years available</option>
                     <option th:each="year : ${admissionYears}"
                             th:value="${year}"
                             th:text="${year}"
-                            th:selected="${year == selectedYear}"></option>
+                            th:selected="${year == selectedYear}">
+                    </option>
                 </select>
-                <button type="submit" class="btn btn-info">
+
+                <button type="submit" class="btn small">
                     <i class="fas fa-search"></i> Reference
                 </button>
             </div>
         </form>
 
-        <!-- Right: Total -->
+        <!-- RIGHT: Total -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-list"></i>
-                <p><strong>Total Subjects:</strong>
-                    <span th:text="${referenceTuitions != null ? referenceTuitions.size() : 0}"></span></p>
+                <strong>Total Subjects:</strong>
+                <span th:text="${referenceTuitions != null ? referenceTuitions.size() : 0}"></span>
             </div>
         </div>
     </div>
+
 
     <!-- Reference Tuition Fees Table -->
     <div class="win11-panel">

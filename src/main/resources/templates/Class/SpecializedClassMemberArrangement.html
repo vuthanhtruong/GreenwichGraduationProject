@@ -10,32 +10,22 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-users"></i> Assign Members to Class: <span th:text="${class.nameClass}"></span></h1>
-    </header>
-
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn">
-                <i class="fas fa-home"></i> Back to Home
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
             <a th:href="@{/staff-home/specialized-classes-list}" class="btn">
-                <i class="fas fa-list"></i> Back to Classes
+                <i class="fas fa-list"></i> Classes
             </a>
+            <h2 class="page-title">
+                <i class="fas fa-user-gear"></i>
+                Assign Members – <span th:text="${class.nameClass}"></span>
+            </h2>
         </div>
     </div>
+
 
     <!-- Assigned Lecturers -->
     <div class="table-container">

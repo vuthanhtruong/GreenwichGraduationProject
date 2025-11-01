@@ -4,30 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Curriculums</title>
-    <link rel="stylesheet" th:href="@{/CurriculumsList.css}">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> Manage Curriculums</h1>
-    </header>
+    <!-- ===== Unified Toolbar ===== -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Home + Title -->
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
 
-    <div class="win11-content">
-        <div class="toolbar">
-            <div class="toolbar-left">
-                <a th:href="@{/admin-home}" class="btn">
-                    <i class="fas fa-home"></i> Home
-                </a>
-            </div>
-            <div class="toolbar-right">
-                <button class="btn primary" onclick="openAddOverlay()">
-                    <i class="fas fa-plus"></i> Add New Curriculum
-                </button>
-            </div>
+            <h2 class="page-title"><i class="fas fa-book"></i> Manage Curriculums</h2>
         </div>
+        <!-- Right: Add Curriculum -->
+        <div class="toolbar-right">
+            <button class="btn primary small" onclick="openAddOverlay()">
+                <i class="fas fa-plus"></i> Add New Curriculum
+            </button>
+        </div>
+    </div>
 
-        <section class="win11-panel">
+
+    <section class="win11-panel">
             <h2 class="panel-header"><i class="fas fa-list"></i> Curriculum List</h2>
             <div th:if="${message}" class="win11-alert success">
                 <i class="fas fa-check-circle"></i>
