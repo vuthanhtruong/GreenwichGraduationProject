@@ -9,19 +9,6 @@
 </head>
 <body>
 <div class="win11-container">
-
-    <!-- Success / Error Messages -->
-    <th:block th:if="${message != null}">
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i> <span th:text="${message}"></span>
-        </div>
-    </th:block>
-    <th:block th:if="${errors != null and !errors.isEmpty()}">
-        <div class="alert alert-danger" th:each="error : ${errors}">
-            <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
-        </div>
-    </th:block>
-
     <!-- Back Button -->
     <div class="search-toolbar">
         <div class="toolbar-left">

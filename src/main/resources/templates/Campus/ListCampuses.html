@@ -38,28 +38,25 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title Bar -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-university"></i> List of Campuses</h1>
-    </header>
-
-    <div class="win11-content">
-
-        <!-- Back + Add -->
-        <div class="form-actions mb-3">
-            <a class="btn" th:href="@{/admin-home}">
-                <i class="fas fa-arrow-left"></i> Home
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
+        </div>
+
+        <div class="toolbar-center">
+            <h1 class="page-title"><i class="fas fa-university"></i> Campuses Management</h1>
+            <p class="subtitle">View, search, and manage all campuses</p>
+        </div>
+
+        <div class="toolbar-right">
             <button type="button" class="btn primary" onclick="openOverlay()">
                 <i class="fas fa-plus-circle"></i> Add Campus
             </button>
         </div>
-
-        <!-- Alerts -->
-        <div th:if="${message}" class="win11-alert success">
-            <i class="fas fa-check-circle"></i>
-            <span th:text="${message}"></span>
-        </div>
+    </div>
 
         <!-- Search -->
         <section class="win11-panel">

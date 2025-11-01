@@ -5,31 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${className} + ' - Members'">Class Members</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/MemberInClassroom.css}">
-    <style>
-        .role-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; color: #fff; }
-        .role-student { background: #28a745; }
-        .role-lecturer { background: #007bff; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .actions { display: flex; gap: 4px; }
-        .btn.small { padding: 4px 8px; font-size: 0.8rem; }
-    </style>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Error -->
-    <th:block th:if="${errors != null and !errors.isEmpty()}">
-        <div class="alert alert-danger" th:each="e : ${errors}">
-            <i class="fas fa-exclamation-triangle"></i> <span th:text="${e}"></span>
-        </div>
-    </th:block>
-
-    <!-- Banner -->
-    <div class="class-banner" th:text="${className} ?: 'Unknown Class'"></div>
-
-    <!-- Toolbar -->
-    <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
             <a th:href="@{${home}}" class="btn">
@@ -46,7 +26,7 @@
         </div>
 
         <div class="toolbar-center">
-            <h2 style="margin:0;font-size:18px;font-weight:600;">Class Members</h2>
+            <h2  th:text="${className}"></h2>
         </div>
 
         <div class="toolbar-right">

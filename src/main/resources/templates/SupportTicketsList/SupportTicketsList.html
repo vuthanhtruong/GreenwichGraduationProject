@@ -8,37 +8,55 @@
 </head>
 <body>
 <div class="win11-container">
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-headset"></i> Support Tickets Management</h1>
-    </header>
-
-    <div class="search-toolbar">
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Navigation -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home}" class="btn"><i class="fas fa-home"></i> Home</a>
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
         </div>
 
-        <form method="get" th:action="@{/admin-home/support-tickets}" class="toolbar-center">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <select name="searchType" class="input">
-                <option value="name" th:selected="${searchType == 'name'}">Name</option>
-                <option value="id" th:selected="${searchType == 'id'}">ID</option>
-            </select>
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input" />
-            <button type="submit" class="btn"><i class="fas fa-search"></i> Search</button>
-            <a th:if="${keyword != null}" th:href="@{/admin-home/support-tickets}" class="btn danger">Clear</a>
-        </form>
+        <!-- Center: Search -->
+        <div class="toolbar-center">
+            <form method="get" th:action="@{/admin-home/support-tickets}" class="search-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <select name="searchType" class="input">
+                    <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                    <option value="id" th:selected="${searchType == 'id'}">ID</option>
+                </select>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search tickets..." class="input" />
+                <button type="submit" class="btn small">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a th:if="${keyword != null}" th:href="@{/admin-home/support-tickets}" class="btn danger small">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </form>
+        </div>
 
+        <!-- Right: Actions + Stats -->
         <div class="toolbar-right">
             <form method="post" th:action="@{/admin-home/support-tickets}" class="page-size-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <label>Show:</label>
-                <input type="number" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small" />
+                <label for="pageSizeInput">Show:</label>
+                <input type="number" id="pageSizeInput" name="pageSize" min="1" max="100"
+                       th:value="${pageSize}" class="input small" />
                 <button type="submit" class="btn small">Apply</button>
             </form>
-            <div class="total">Total: <span th:text="${totalTickets}"></span></div>
-            <button type="button" class="btn primary" onclick="openOverlay()">Add Ticket</button>
+
+            <div class="total">
+                <i class="fas fa-ticket-alt"></i>
+                <strong>Total:</strong>
+                <span th:text="${totalTickets}"></span>
+            </div>
+
+            <button type="button" class="btn primary" onclick="openOverlay()">
+                <i class="fas fa-plus-circle"></i> Add Ticket
+            </button>
         </div>
     </div>
+
 
     <div class="table-container">
         <table class="win11-table">

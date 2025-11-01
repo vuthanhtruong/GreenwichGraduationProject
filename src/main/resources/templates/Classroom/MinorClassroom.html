@@ -9,13 +9,6 @@
 </head>
 <body>
 <div class="win11-container">
-    <!-- Error messages -->
-    <th:block th:if="${errors != null and !errors.isEmpty()}">
-        <div class="alert alert-danger" th:each="error : ${errors}">
-            <span th:text="${error}"></span>
-        </div>
-    </th:block>
-
     <!-- Banner -->
     <div class="class-banner" th:text="${classes.nameClass} ?: 'Unknown Class'"></div>
 

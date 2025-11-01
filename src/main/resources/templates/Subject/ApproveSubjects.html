@@ -11,35 +11,40 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> Approve Subjects</h1>
-    </header>
-
-    <!-- Unified Toolbar -->
-    <div class="search-toolbar">
-        <!-- Left -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Navigation -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Home
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
-            <form th:action="@{/admin-home/tuition-management}" method="post" class="d-inline">
+
+            <form th:action="@{/admin-home/tuition-management}" method="post" class="inline-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="admissionYear" th:value="${admissionYear}">
-                <button type="submit" class="btn btn-secondary">
+                <button type="submit" class="btn small">
                     <i class="fas fa-arrow-left"></i> Back to List
                 </button>
             </form>
         </div>
 
-        <!-- Right (Total count) -->
+        <!-- Center: Page Title -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-book"></i> Approve Subjects
+            </h2>
+        </div>
+
+        <!-- Right: Total Count -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-list"></i>
-                <p><strong>Total Unaccepted Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
+                <span><strong>Total Unaccepted Subjects:</strong>
+                <span th:text="${totalSubjects}"></span>
+            </span>
             </div>
         </div>
     </div>
+
 
     <!-- Subjects Table -->
     <form th:action="@{/admin-home/tuition-management/approve-subjects/approve}" method="post" class="table-container">

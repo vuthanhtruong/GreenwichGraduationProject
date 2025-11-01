@@ -10,25 +10,14 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1>Filtered Subjects</h1>
-    </header>
-
-    <!-- Alert -->
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <span th:text="${errorMessage}"></span>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
-        <!-- Left -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Navigation -->
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn">
-                Back to Home
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
-            <a th:href="@{/staff-home/study-plan}" class="btn">
-                View All Subjects
+            <a th:href="@{/staff-home/study-plan}" class="btn small">
+                <i class="fas fa-list"></i> View All Subjects
             </a>
         </div>
 
@@ -36,7 +25,7 @@
         <form method="post" th:action="@{/staff-home/study-plan/filter-subjects}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <select name="admissionYear" class="input">
+            <select name="admissionYear" class="input small">
                 <option value="" th:selected="${admissionYear == null}">All Years</option>
                 <option th:each="year : ${admissionYears}"
                         th:value="${year}"
@@ -44,7 +33,7 @@
                         th:selected="${admissionYear == year}"></option>
             </select>
 
-            <select name="curriculumId" class="input">
+            <select name="curriculumId" class="input small">
                 <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
                 <option th:each="curriculum : ${curriculums}"
                         th:value="${curriculum.curriculumId}"
@@ -53,17 +42,21 @@
             </select>
 
             <button type="submit" class="btn small primary">
-                Filter
+                <i class="fas fa-filter"></i> Filter
             </button>
         </form>
 
-        <!-- Right -->
+        <!-- Right: Total Subjects -->
         <div class="toolbar-right">
-            <div class="total-students">
-                <p><strong>Total Subjects:</strong> <span th:text="${totalSubjects}"></span></p>
+            <div class="total">
+                <i class="fas fa-book-open"></i>
+                <span><strong>Total Subjects:</strong>
+                <span th:text="${totalSubjects}"></span>
+            </span>
             </div>
         </div>
     </div>
+
 
     <!-- Table -->
     <div class="table-container">

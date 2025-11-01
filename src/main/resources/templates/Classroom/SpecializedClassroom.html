@@ -9,17 +9,6 @@
 </head>
 <body>
 <div class="win11-container">
-
-    <!-- Error messages -->
-    <th:block th:if="${errors != null and !errors.isEmpty()}">
-        <div class="alert alert-danger" th:each="error : ${errors}">
-            <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
-        </div>
-    </th:block>
-
-    <!-- Banner -->
-    <div class="class-banner" th:text="${classes.nameClass} ?: 'Unknown Class'"></div>
-
     <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
@@ -31,7 +20,7 @@
             </a>
         </div>
         <div class="toolbar-center">
-            <h2>Specialized Lecturer Classroom</h2>
+            <h2 th:text="${classes.nameClass}"></h2>
         </div>
         <div class="toolbar-right">
             <th:block th:if="${add}">

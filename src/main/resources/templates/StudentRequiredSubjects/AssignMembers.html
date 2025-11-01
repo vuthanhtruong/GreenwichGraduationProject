@@ -10,32 +10,27 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-users"></i> Assign Members to Subject: <span th:text="${subject.subjectName}"></span></h1>
-    </header>
-
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Navigation -->
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn">
-                <i class="fas fa-home"></i> Back to Home
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
-            <a th:href="@{/staff-home/study-plan(curriculumId=${curriculumId})}" class="btn">
+            <a th:href="@{/staff-home/study-plan(curriculumId=${curriculumId})}" class="btn small">
                 <i class="fas fa-list"></i> Back to Subjects
             </a>
         </div>
+
+        <!-- Center: Title -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-users"></i>
+                Assign Members to Subject:
+                <span style="color:#2563eb;" th:text="${subject.subjectName}"></span>
+            </h2>
+        </div>
     </div>
+
 
     <!-- Assigned Students -->
     <div class="table-container">

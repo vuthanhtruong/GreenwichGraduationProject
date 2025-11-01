@@ -10,31 +10,28 @@
 <body>
 <div class="win11-container">
 
-    <!-- ===== Title Bar ===== -->
-    <header class="win11-title-bar">
-        <h1> Your Taught Classes</h1>
-    </header>
-
-    <!-- ===== Toolbar ===== -->
-    <div class="search-toolbar">
+    <!-- ===== Unified Toolbar ===== -->
+    <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/major-lecturer-home}" class="btn">
-                Home
+            <a th:href="@{/major-lecturer-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
         </div>
-        <div class="toolbar-right">
-            <p class="total">
-                Total Classes:
-                <strong th:text="${totalClasses}"></strong>
-            </p>
-        </div>
-    </div>
 
-    <!-- ===== Error Alerts ===== -->
-    <div th:if="${errors != null and !errors.isEmpty()}" class="win11-alert error">
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error}"></li>
-        </ul>
+        <div class="toolbar-center">
+            <h1 class="page-title">
+                <i class="fas fa-person-chalkboard"></i> Your Taught Classes
+            </h1>
+            <p class="subtitle">View and access the classes you’re teaching this term</p>
+        </div>
+
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-layer-group"></i>
+                <strong>Total Classes:</strong>
+                <span th:text="${totalClasses}"></span>
+            </div>
+        </div>
     </div>
 
     <!-- ===== Classes Table ===== -->

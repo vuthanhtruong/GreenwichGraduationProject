@@ -10,43 +10,35 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title Bar -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-building"></i> List of Rooms</h1>
-    </header>
-
-    <div class="win11-content">
-
-        <!-- Back + Add -->
-        <div class="form-actions mb-3">
-            <a class="btn" th:href="@{/admin-home}">
-                <i class="fas fa-arrow-left"></i> Home
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Home -->
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
+        </div>
+
+        <!-- Center: Title -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-building"></i> List of Rooms
+            </h2>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="toolbar-right">
             <button type="button" class="btn primary" onclick="openOnlineOverlay()">
-                <i class="fas fa-plus-circle"></i> Add Online Room
+                <i class="fas fa-video"></i> Add Online Room
             </button>
             <button type="button" class="btn primary" onclick="openOfflineOverlay()">
-                <i class="fas fa-plus-circle"></i> Add Offline Room
+                <i class="fas fa-building"></i> Add Offline Room
             </button>
         </div>
+    </div>
 
-        <!-- Alerts -->
-        <div th:if="${message}" class="win11-alert success">
-            <i class="fas fa-check-circle"></i>
-            <span th:text="${message}"></span>
-        </div>
-        <div th:if="${error}" class="win11-alert error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${error}"></span>
-        </div>
-        <div th:if="${errors}" class="win11-alert error">
-            <i class="fas fa-exclamation-circle"></i>
-            <ul>
-                <li th:each="error : ${errors}" th:text="${error.value}"></li>
-            </ul>
-        </div>
 
-        <!-- Online Rooms -->
+    <!-- Online Rooms -->
         <section class="win11-panel">
             <h2 class="panel-header">Online Rooms</h2>
             <div class="room-grid">

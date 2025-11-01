@@ -10,29 +10,24 @@
 <body>
 <div class="win11-container">
 
-    <!-- Title -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-briefcase"></i> Assign Lecturers to <span th:text="${specialization.specializationName}"></span></h1>
-    </header>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
+    <!-- Unified Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Back -->
         <div class="toolbar-left">
-            <a th:href="@{/staff-home/lecturer-specialization}" class="btn">
-                <i class="fas fa-arrow-left"></i> Back to Specialization List
+            <a th:href="@{/staff-home/lecturer-specialization}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back
             </a>
+        </div>
+
+        <!-- Center: Page Title -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-briefcase"></i> Assign Lecturers to
+                <span th:text="${specialization.specializationName}"></span>
+            </h2>
         </div>
     </div>
 
-    <!-- Alerts -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
 
     <!-- Lecturers Not Yet Assigned -->
     <section class="win11-panel">

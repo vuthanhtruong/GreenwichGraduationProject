@@ -10,46 +10,41 @@
 </head>
 <body>
 <div class="win11-container">
-    <!-- Header -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-award"></i> Award Scholarships</h1>
-    </header>
-
-    <!-- Alert Messages -->
-    <div th:if="${successMessage}" class="win11-alert success">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${errorMessage}"></span>
-    </div>
-
-    <!-- Toolbar -->
-    <div class="search-toolbar">
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Home -->
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Home
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
             </a>
         </div>
+
+        <!-- Center: Year Selection -->
         <form method="post" th:action="@{/staff-home/award-scholarships}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Year:</label>
-            <select id="admissionYear" name="admissionYear" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
-                <option value="" disabled th:unless="${admissionYears != null and admissionYears.size() > 0}">No years available</option>
+            <select id="admissionYear" name="admissionYear" class="input small" onchange="this.form.submit()">
+                <option value="" disabled th:unless="${admissionYears != null and admissionYears.size() > 0}">
+                    No years available
+                </option>
                 <option th:each="year : ${admissionYears}"
                         th:value="${year}"
                         th:text="${year}"
-                        th:selected="${year == selectedYear}"></option>
+                        th:selected="${year == selectedYear}">
+                </option>
             </select>
         </form>
+
+        <!-- Right: Total Awarded -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-list"></i>
-                <p><strong>Total Awarded:</strong> <span th:text="${awardedScholarships != null ? awardedScholarships.size() : 0}"></span></p>
+                <span><strong>Total Awarded:</strong>
+                <span th:text="${awardedScholarships != null ? awardedScholarships.size() : 0}"></span>
+            </span>
             </div>
         </div>
     </div>
+
 
     <!-- Form cấp học bổng -->
     <section class="win11-panel">

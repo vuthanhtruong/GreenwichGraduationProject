@@ -9,14 +9,26 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<header class="text-center">
-    <h1><i class="fas fa-chalkboard-teacher"></i> Arrange Class</h1>
-</header>
-<nav class="mb-3 d-flex justify-content-end">
-    <a class="btn btn-secondary" th:href="@{/staff-home}">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </a>
-</nav>
+<!-- ===== Unified Toolbar ===== -->
+<div class="search-toolbar unified-bar">
+    <div class="toolbar-left">
+        <a th:href="@{/staff-home}" class="btn home-btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </div>
+
+    <div class="toolbar-center text-center">
+        <h1 class="page-title"><i class="fas fa-chalkboard-teacher"></i> Arrange Classes</h1>
+        <p class="subtitle">Manage, assign members, and organize class details</p>
+    </div>
+
+    <div class="toolbar-right">
+            <span class="total">
+                <i class="fas fa-layer-group"></i>
+                Total Classes: <strong th:text="${totalClasses ?: 0}"></strong>
+            </span>
+    </div>
+</div>
 <main class="container">
     <!-- Form tìm kiếm lớp học -->
     <section class="mb-4">
