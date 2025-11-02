@@ -1,174 +1,116 @@
+// com.example.demo.submission.dao.SubmissionFeedbacksDAOImpl.java
 package com.example.demo.submission.dao;
 
-import com.example.demo.submission.model.SubmissionFeedbacks;
-import com.example.demo.submission.model.SubmissionFeedbacksId;
-import com.example.demo.submission.model.Submissions;
+import com.example.demo.entity.Enums.Grades;
+import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
+import com.example.demo.submission.model.*;
+import com.example.demo.submission.service.SubmissionsService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @Transactional
 public class SubmissionFeedbacksDAOImpl implements SubmissionFeedbacksDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionFeedbacksDAOImpl.class);
-
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
+
+    private final MajorLecturersService majorLecturersService;
+    private final SubmissionsService submissionsService;
+
+    public SubmissionFeedbacksDAOImpl(MajorLecturersService majorLecturersService, SubmissionsService submissionsService) {
+        this.majorLecturersService = majorLecturersService;
+        this.submissionsService = submissionsService;
+    }
 
     @Override
-    public SubmissionFeedbacks saveFeedback(MajorLecturers announcer,
-                                            Submissions submission,
-                                            String content,
-                                            com.example.demo.entity.Enums.Grades grade) {
-        if (announcer == null || submission == null) {
-            throw new IllegalArgumentException("Announcer and submission cannot be null");
+    public void save(SubmissionFeedbacks feedback) {
+        if (feedback.getId() == null) {
+            em.persist(feedback);
+        } else {
+            em.merge(feedback);
         }
+    }
 
-        SubmissionFeedbacksId id = new SubmissionFeedbacksId(
-                announcer.getId(),
-                submission.getId().getSubmittedBy(),
-                submission.getId().getAssignmentSubmitSlotId()
-        );
+    @Override
+    public SubmissionFeedbacks findById(SubmissionFeedbacksId id) {
+        return em.find(SubmissionFeedbacks.class, id);
+    }
 
-        SubmissionFeedbacks feedback = entityManager.find(SubmissionFeedbacks.class, id);
+    @Override
+    public SubmissionFeedbacks findBySubmission(String submittedBy, String assignmentSlotId) {
+        try {
+            return em.createQuery("""
+                    SELECT f FROM SubmissionFeedbacks f
+                    WHERE f.id.submittedBy = :submittedBy
+                      AND f.id.assignmentSubmitSlotId = :assignmentSlotId
+                    """, SubmissionFeedbacks.class)
+                    .setParameter("submittedBy", submittedBy)
+                    .setParameter("assignmentSlotId", assignmentSlotId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    // ĐÃ CÓ ĐIỂM (có feedback + grade != null)
+    @Override
+    public List<Submissions> getSubmissionsWithGrade(String assignmentSlotId) {
+        return em.createQuery("""
+                SELECT s FROM Submissions s
+                JOIN SubmissionFeedbacks f ON s.id = f.submission.id
+                WHERE s.id.assignmentSubmitSlotId = :assignmentSlotId
+                  AND f.grade IS NOT NULL
+                """, Submissions.class)
+                .setParameter("assignmentSlotId", assignmentSlotId)
+                .getResultList();
+    }
+
+    // CHƯA CÓ ĐIỂM (có nộp nhưng chưa chấm)
+    @Override
+    public List<Submissions> getSubmissionsWithoutGrade(String assignmentSlotId) {
+        return em.createQuery("""
+                SELECT s FROM Submissions s
+                LEFT JOIN SubmissionFeedbacks f 
+                  ON s.id.submittedBy = f.id.submittedBy 
+                 AND s.id.assignmentSubmitSlotId = f.id.assignmentSubmitSlotId
+                WHERE s.id.assignmentSubmitSlotId = :assignmentSlotId
+                  AND (f.grade IS NULL OR f.id IS NULL)
+                """, Submissions.class)
+                .setParameter("assignmentSlotId", assignmentSlotId)
+                .getResultList();
+    }
+    // SubmissionFeedbacksServiceImpl.java
+    @Override
+    public SubmissionFeedbacks getFeedback(String submittedBy, String assignmentSlotId, String announcerId) {
+        SubmissionFeedbacksId id = new SubmissionFeedbacksId(announcerId, submittedBy, assignmentSlotId);
+        return findById(id);
+    }
+
+    @Override
+    public void saveFeedback(String submittedBy, String assignmentSlotId, String announcerId, String content, Grades grade) {
+        SubmissionFeedbacksId id = new SubmissionFeedbacksId(announcerId, submittedBy, assignmentSlotId);
+        SubmissionFeedbacks feedback = findById(id);
+
         if (feedback == null) {
-            feedback = new SubmissionFeedbacks(announcer, submission);
+            SubmissionsId submissionId = new SubmissionsId(submittedBy, assignmentSlotId);
+            Submissions submission = submissionsService.findById(submissionId);
+            if (submission == null) {
+                throw new IllegalArgumentException("Bài nộp không tồn tại!");
+            }
+            MajorLecturers lecturer = majorLecturersService.getLecturerById(announcerId);
+            feedback = new SubmissionFeedbacks(lecturer, submission);
         }
 
         feedback.setContent(content);
         feedback.setGrade(grade);
-
-        try {
-            feedback = entityManager.merge(feedback);
-            logger.info("Saved feedback for submission: {}-{}",
-                    submission.getId().getSubmittedBy(), submission.getId().getAssignmentSubmitSlotId());
-            return feedback;
-        } catch (Exception e) {
-            logger.error("Error saving feedback: {}", e.getMessage());
-            throw new RuntimeException("Failed to save feedback: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Optional<SubmissionFeedbacks> findByAnnouncerAndSubmission(MajorLecturers announcer, Submissions submission) {
-        if (announcer == null || submission == null) return Optional.empty();
-
-        SubmissionFeedbacksId id = new SubmissionFeedbacksId(
-                announcer.getId(),
-                submission.getId().getSubmittedBy(),
-                submission.getId().getAssignmentSubmitSlotId()
-        );
-
-        SubmissionFeedbacks feedback = entityManager.find(SubmissionFeedbacks.class, id);
-        return Optional.ofNullable(feedback);
-    }
-
-    @Override
-    public Optional<SubmissionFeedbacks> findBySubmission(Submissions submission) {
-        if (submission == null) return Optional.empty();
-
-        String jpql = "SELECT f FROM SubmissionFeedbacks f WHERE " +
-                "f.submission.id.submittedBy = :submittedBy AND " +
-                "f.submission.id.assignmentSubmitSlotId = :slotId";
-
-        try {
-            SubmissionFeedbacks feedback = entityManager.createQuery(jpql, SubmissionFeedbacks.class)
-                    .setParameter("submittedBy", submission.getId().getSubmittedBy())
-                    .setParameter("slotId", submission.getId().getAssignmentSubmitSlotId())
-                    .getSingleResult();
-            return Optional.ofNullable(feedback);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public void delete(SubmissionFeedbacks feedback) {
-        if (feedback == null) return;
-        try {
-            SubmissionFeedbacks managed = entityManager.contains(feedback) ? feedback : entityManager.merge(feedback);
-            entityManager.remove(managed);
-            logger.info("Deleted feedback for submission: {}-{}",
-                    feedback.getSubmission().getId().getSubmittedBy(),
-                    feedback.getSubmission().getId().getAssignmentSubmitSlotId());
-        } catch (Exception e) {
-            logger.error("Error deleting feedback: {}", e.getMessage());
-            throw new RuntimeException("Failed to delete feedback", e);
-        }
-    }
-
-    @Override
-    public boolean existsBySubmission(Submissions submission) {
-        return findBySubmission(submission).isPresent();
-    }
-
-    @Override
-    public List<Submissions> getSubmissionsWithFeedback(String assignmentSlotId) {
-        String jpql = """
-            SELECT DISTINCT s FROM Submissions s
-            JOIN FETCH s.submittedBy
-            JOIN SubmissionFeedbacks f ON 
-                f.submission.id.submittedBy = s.id.submittedBy AND 
-                f.submission.id.assignmentSubmitSlotId = s.id.assignmentSubmitSlotId
-            WHERE s.id.assignmentSubmitSlotId = :slotId
-            """;
-        return entityManager.createQuery(jpql, Submissions.class)
-                .setParameter("slotId", assignmentSlotId)
-                .getResultList();
-    }
-
-    @Override
-    public List<Submissions> getSubmissionsWithoutFeedback(String assignmentSlotId) {
-        String jpql = """
-            SELECT s FROM Submissions s
-            JOIN FETCH s.submittedBy
-            WHERE s.id.assignmentSubmitSlotId = :slotId
-              AND NOT EXISTS (
-                SELECT 1 FROM SubmissionFeedbacks f 
-                WHERE f.submission.id.submittedBy = s.id.submittedBy 
-                  AND f.submission.id.assignmentSubmitSlotId = s.id.assignmentSubmitSlotId
-              )
-            """;
-        return entityManager.createQuery(jpql, Submissions.class)
-                .setParameter("slotId", assignmentSlotId)
-                .getResultList();
-    }
-
-    @Override
-    public long countSubmissionsWithFeedback(String assignmentSlotId) {
-        String jpql = """
-            SELECT COUNT(DISTINCT s.id) FROM Submissions s
-            JOIN SubmissionFeedbacks f ON 
-                f.submission.id.submittedBy = s.id.submittedBy AND 
-                f.submission.id.assignmentSubmitSlotId = s.id.assignmentSubmitSlotId
-            WHERE s.id.assignmentSubmitSlotId = :slotId
-            """;
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("slotId", assignmentSlotId)
-                .getSingleResult();
-    }
-
-    @Override
-    public long countSubmissionsWithoutFeedback(String assignmentSlotId) {
-        String jpql = """
-            SELECT COUNT(s) FROM Submissions s
-            WHERE s.id.assignmentSubmitSlotId = :slotId
-              AND NOT EXISTS (
-                SELECT 1 FROM SubmissionFeedbacks f 
-                WHERE f.submission.id.submittedBy = s.id.submittedBy 
-                  AND f.submission.id.assignmentSubmitSlotId = s.id.assignmentSubmitSlotId
-              )
-            """;
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("slotId", assignmentSlotId)
-                .getSingleResult();
+        save(feedback);
     }
 }

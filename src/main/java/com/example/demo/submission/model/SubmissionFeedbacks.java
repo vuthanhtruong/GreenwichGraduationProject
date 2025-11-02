@@ -23,11 +23,16 @@ public class SubmissionFeedbacks {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorLecturers announcer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("submissionId")
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "SubmissionID", referencedColumnName = "SubmittedBy", nullable = false),
-            @JoinColumn(name = "AssignmentSubmitSlotID", referencedColumnName = "AssignmentSubmitSlotID", nullable = false)
+            @JoinColumn(name = "SubmissionID",
+                    referencedColumnName = "SubmittedBy",
+                    nullable = false,
+                    insertable = false, updatable = false), // <-- THÊM
+            @JoinColumn(name = "AssignmentSubmitSlotID",
+                    referencedColumnName = "AssignmentSubmitSlotID",
+                    nullable = false,
+                    insertable = false, updatable = false)  // <-- THÊM
     })
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Submissions submission;

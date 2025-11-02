@@ -1,6 +1,7 @@
 package com.example.demo.submission.dao;
 
 import com.example.demo.submission.model.Submissions;
+import com.example.demo.submission.model.SubmissionsId;
 import com.example.demo.user.student.model.Students;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,4 +15,7 @@ public interface SubmissionsDAO {
     void save(Submissions submission);
     boolean exists(String studentId, String assignmentId);
     void submitAssignment(Students student, String postId, List<MultipartFile> files);
+    List<Students> getStudentsNotSubmitted(String classId, String assignmentId);
+    Submissions findById(SubmissionsId id);
+
 }

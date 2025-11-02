@@ -30,6 +30,30 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
     public SubmissionsDAOImpl(AssignmentSubmitSlotsService assignmentSubmitSlotsService) {
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
     }
+    @Override
+    public List<Students> getStudentsNotSubmitted(String classId, String assignmentId) {
+        try {
+            return em.createQuery("""
+                SELECT s FROM Students s
+                WHERE EXISTS (
+                    SELECT 1 FROM Students_Classes sc 
+                    WHERE sc.student = s 
+                      AND sc.classEntity.classId = :classId
+                )
+                AND s.id NOT IN (
+                    SELECT sub.id.submittedBy 
+                    FROM Submissions sub 
+                    WHERE sub.id.assignmentSubmitSlotId = :assignmentId
+                )
+                ORDER BY s.firstName, s.lastName
+                """, Students.class)
+                    .setParameter("classId", classId)
+                    .setParameter("assignmentId", assignmentId)
+                    .getResultList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 
     @Override
     public List<Submissions> getSubmissionsByAssignment(String assignmentId) {
@@ -157,5 +181,9 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
             submission.getSubmissionDocuments().add(doc);
         }
         save(submission);
+    }
+    @Override
+    public Submissions findById(SubmissionsId id) {
+        return em.find(Submissions.class, id);
     }
 }

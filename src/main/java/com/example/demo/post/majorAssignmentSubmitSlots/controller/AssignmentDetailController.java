@@ -1,8 +1,11 @@
+// com.example.demo.post.majorAssignmentSubmitSlots.controller.AssignmentDetailController
 package com.example.demo.post.majorAssignmentSubmitSlots.controller;
 
+import com.example.demo.entity.Enums.Grades;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.submission.model.Submissions;
+import com.example.demo.submission.service.SubmissionFeedbacksService;
 import com.example.demo.submission.service.SubmissionsService;
 import com.example.demo.user.employe.service.EmployesService;
 import com.example.demo.user.student.model.Students;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,36 +27,36 @@ public class AssignmentDetailController {
     private final StudentsService studentsService;
     private final SubmissionsService submissionsService;
     private final EmployesService employesService;
+    private final SubmissionFeedbacksService submissionFeedbacksService;
 
     public AssignmentDetailController(
             AssignmentSubmitSlotsService assignmentSubmitSlotsService,
             StudentsService studentsService,
-            SubmissionsService submissionsService, EmployesService employesService) {
+            SubmissionsService submissionsService,
+            EmployesService employesService,
+            SubmissionFeedbacksService submissionFeedbacksService) {
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.studentsService = studentsService;
         this.submissionsService = submissionsService;
         this.employesService = employesService;
+        this.submissionFeedbacksService = submissionFeedbacksService;
     }
 
-    // GET: Xem chi tiết (F5, back, share link)
     @GetMapping("/assignment-detail")
     public String getAssignmentDetail(
             @RequestParam("postId") String postId,
             @RequestParam("classId") String classId,
             HttpSession session,
             Model model) {
-
         return handleAssignmentDetail(postId, classId, session, model);
     }
 
-    // POST: Vào từ form ẩn (click deadline)
     @PostMapping("/assignment-detail")
     public String postAssignmentDetail(
             @RequestParam("postId") String postId,
             @RequestParam("classId") String classId,
             HttpSession session,
             Model model) {
-
         return handleAssignmentDetail(postId, classId, session, model);
     }
 
@@ -71,19 +75,54 @@ public class AssignmentDetailController {
         boolean isPastDeadline = assignment.getDeadline() != null
                 && LocalDateTime.now().isAfter(assignment.getDeadline());
 
-        Submissions submission = null;
         if (isStudent) {
-            submission = submissionsService.getSubmissionByStudentAndAssignment(student.getId(), postId);
-        } else if (employesService.getMajorEmployee()!=null) {
-            List<Submissions> assignmentSubmitSlots=submissionsService.getSubmissionsByAssignment(postId);
+            Submissions submission = submissionsService.getSubmissionByStudentAndAssignment(student.getId(), postId);
+            model.addAttribute("submission", submission);
+        } else if (employesService.getMajorEmployee() != null) {
+            // LẤY TẤT CẢ BÀI NỘP
+            List<Submissions> allSubmissions = submissionsService.getSubmissionsByAssignment(postId);
+
+            // PHÂN LOẠI: ĐÃ CHẤM & CHƯA CHẤM
+            List<Submissions> graded = submissionFeedbacksService.getSubmissionsWithGrade(postId);
+            List<Submissions> ungraded = submissionFeedbacksService.getSubmissionsWithoutGrade(postId);
+
+            // DANH SÁCH CHƯA NỘP (không thay đổi)
+            List<Students> notSubmitted = submissionsService.getStudentsNotSubmitted(classId, postId);
+
+            model.addAttribute("graded", graded);
+            model.addAttribute("ungraded", ungraded);
+            model.addAttribute("notSubmitted", notSubmitted);
+            model.addAttribute("grades", Grades.values());
+            model.addAttribute("currentLecturerId", employesService.getMajorEmployee().getId());
         }
 
         model.addAttribute("assignment", assignment);
         model.addAttribute("classId", classId);
         model.addAttribute("isStudent", isStudent);
         model.addAttribute("isPastDeadline", isPastDeadline);
-        model.addAttribute("submission", submission);
 
         return isStudent ? "StudentAssignmentDetail" : "AssignmentDetail";
+    }
+    // com.example.demo.post.majorAssignmentSubmitSlots.controller.AssignmentDetailController
+    @PostMapping("/save-feedback")
+    public String saveFeedback(
+            @RequestParam String postId,
+            @RequestParam String classId,
+            @RequestParam String submittedBy,
+            @RequestParam String assignmentSlotId,
+            @RequestParam String announcerId,
+            @RequestParam(required = false) Grades grade,
+            @RequestParam(required = false) String content,
+            RedirectAttributes redirectAttrs) {
+
+        try {
+            submissionFeedbacksService.saveFeedback(
+                    submittedBy, assignmentSlotId, announcerId, content, grade);
+            redirectAttrs.addFlashAttribute("success", "Chấm điểm thành công!");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("error", "Lỗi: " + e.getMessage());
+        }
+
+        return "redirect:/classroom/assignment-detail?postId=" + postId + "&classId=" + classId;
     }
 }
