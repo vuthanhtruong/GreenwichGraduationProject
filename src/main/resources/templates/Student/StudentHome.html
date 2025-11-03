@@ -79,10 +79,16 @@
             <span class="meta"><strong>Blog</strong><small>Posts & updates</small></span>
         </a>
 
+        <a class="dashboard-card" th:href="@{/messages}">
+            <span class="icon"><i class="fas fa-envelope-open-text"></i></span>
+            <span class="meta"><strong>Messages</strong><small>View & reply to messages</small></span>
+        </a>
+
         <a class="dashboard-card" th:href="@{/student-home/support-tickets}">
             <span class="icon"><i class="fas fa-headset"></i></span>
             <span class="meta"><strong>Support Tickets</strong><small>Request help & track issues</small></span>
         </a>
+
 
         <!-- FINANCE -->
         <a class="dashboard-card" th:href="@{/student-home/financial-histories}">
@@ -94,6 +100,7 @@
             <span class="icon"><i class="fas fa-trophy"></i></span>
             <span class="meta"><strong>Scholarships</strong><small>Awards & achievements</small></span>
         </a>
+
 
         <!-- SOCIAL -->
         <a class="dashboard-card" th:href="@{/student-home/classmates}">

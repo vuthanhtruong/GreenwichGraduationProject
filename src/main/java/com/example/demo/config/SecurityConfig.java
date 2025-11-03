@@ -31,7 +31,6 @@ public class SecurityConfig {
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
         this.customOAuth2UserService = customOAuth2UserService;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -42,18 +41,26 @@ public class SecurityConfig {
                         .requestMatchers("/minor-lecturer-home/**", "/api/minor-lecturer-home/**").hasRole("MINOR")
                         .requestMatchers("/deputy-staff-home/**", "/api/deputy-staff-home/**").hasRole("DEPUTY")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
-                        .requestMatchers("/classroom/**").hasAnyRole("STUDENT", "LECTURER", "STAFF","DEPUTY", "MINOR")
+                        // === COMMON ACCESS ===
+                        .requestMatchers("/classroom/**", "/messages/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
                         .requestMatchers(
                                 "/login",
                                 "/resources/**",
                                 "/css/**",
                                 "/js/**",
                                 "/*.css",
+                                "/*.js",
                                 "/oauth2/**",
                                 "/home",
-                                "/auth/reset-password/**"
+                                "/auth/reset-password/**",
+                                "/ws/**",           // ← THÊM
+                                "/sockjs.min.js",   // ← THÊM
+                                "/stomp.umd.min.js" // ← THÊM
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/ws/**") // ← THÊM
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

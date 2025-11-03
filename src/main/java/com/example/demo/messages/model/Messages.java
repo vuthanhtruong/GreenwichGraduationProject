@@ -1,12 +1,11 @@
-package com.example.demo.entity;
+package com.example.demo.messages.model;
 
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.entity.Enums.Notifications;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -20,24 +19,31 @@ public class Messages {
     @Column(name = "MessageID", nullable = false)
     private String messageId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MessageSenderID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    // ← CÁC CỘT THÊM
+    @Column(name = "MessageSenderID")
+    private String messageSenderId;
+
+    @Column(name = "MessageRecipientID")
+    private String messageRecipientId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sender_id", nullable = false)
+    @JsonIgnoreProperties({"creator", "password", "classes", "hibernateLazyInitializer"})
     private Persons sender;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MessageRecipientID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "recipient_id", nullable = false)
+    @JsonIgnoreProperties({"creator", "password", "classes", "hibernateLazyInitializer"})
     private Persons recipient;
 
     @Column(name = "Datetime", nullable = false)
     private LocalDateTime datetime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
+    @Column(name = "Notification")
     private Notifications notification;
 
-    @Column(name = "Text", nullable = true, length = 1000)
+    @Column(name = "Text", length = 1000)
     private String text;
 
     public Messages() {}
@@ -50,5 +56,9 @@ public class Messages {
         this.sender = sender;
         this.recipient = recipient;
         this.datetime = datetime;
+
+        // ← TỰ ĐỘNG GÁN
+        this.messageSenderId = sender.getId();
+        this.messageRecipientId = recipient.getId();
     }
 }

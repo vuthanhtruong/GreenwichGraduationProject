@@ -15,11 +15,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-
 public class PersonsDAOImpl implements PersonsDAO {
     @Override
     public Persons getPerson() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
 
         Object principal = auth.getPrincipal();
         Persons person = switch (principal) {

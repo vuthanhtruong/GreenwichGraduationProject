@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Messages</title>
+    <style>
+        .messages-container { display: flex; height: 100vh; background: #f5f5f5; font-family: Arial; }
+        .sidebar { width: 300px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        #noChat { flex: 1; display: flex; align-items: center; justify-content: center; color: #999; }
+        #chatArea { display: none; flex-direction: column; height: 100%; }
+        #messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; }
+        .message { margin: 8px 0; padding: 10px 14px; border-radius: 18px; max-width: 70%; word-wrap: break-word; }
+        .sent { background: #0078d4; color: white; margin-left: auto; }
+        .received { background: #e5e5ea; color: black; margin-right: auto; }
+        .input-area { display: flex; padding: 12px; border-top: 1px solid #ddd; background: white; }
+        #messageInput { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        #sendBtn { margin-left: 8px; padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 20px; cursor: pointer; }
+        #sendBtn:hover { background: #106ebe; }
+        #sendBtn:disabled { background: #ccc; cursor: not-allowed; }
+        .user-item { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .user-item:hover { background: #f0f0f0; }
+        .user-item.active { background: #e6f3ff; }
+        .chat-header { padding: 16px; border-bottom: 1px solid #ddd; background: white; font-weight: bold; }
+        .status { font-size: 0.8rem; color: #666; padding: 8px 16px; text-align: center; background: #f0f0f0; }
+        .status.connected { color: #28a745; background: #d4edda; }
+        .status.error { color: #dc3545; background: #f8d7da; }
+    </style>
+
+    <script th:src="@{/sockjs.min.js}"></script>
+    <script th:src="@{/stomp.umd.min.js}"></script>
+</head>
+<body>
+<div class="messages-container">
+    <div class="sidebar">
+        <div class="status" id="connectionStatus">Đang kết nối...</div>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li th:each="user : ${recentUsers}"
+                class="user-item"
+                th:data-user-id="${user.id}"
+                th:data-full-name="${user.getFullName()}">
+                <div th:text="${user.getFullName()}"></div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="chat-area">
+        <div id="noChat"><p>Chọn người để chat</p></div>
+        <div id="chatArea">
+            <div class="chat-header" id="chatName">Chat</div>
+            <div id="messages"></div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." />
+                <button id="sendBtn">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    if (typeof window.StompJs === 'undefined') {
+        document.body.innerHTML = "<h2>Lỗi: Không tải được thư viện STOMP</h2>";
+        throw new Error("StompJs not loaded");
+    }
+
+    const { Client } = window.StompJs;
+    let stompClient = null;
+    let selectedUserId = null;
+    const openChatWith = /*[[${openChatWith}]]*/ null;
+    const currentUserId = /*[[${currentUserId}]]*/ null;
+
+    function updateStatus(message, type) {
+        const status = document.getElementById('connectionStatus');
+        status.textContent = message;
+        status.className = 'status ' + type;
+    }
+
+    function connect() {
+        if (!currentUserId) {
+            updateStatus('Không có user', 'error');
+            return;
+        }
+
+        stompClient = new Client({
+            webSocketFactory: () => new SockJS('/ws'),
+            reconnectDelay: 5000,
+            debug: (str) => console.log(str)
+        });
+
+        stompClient.onConnect = (frame) => {
+            console.log('✅ WebSocket connected:', frame);
+            updateStatus('Đã kết nối', 'connected');
+
+            stompClient.subscribe('/user/queue/messages', (message) => {
+                const msg = JSON.parse(message.body);
+                console.log('📩 Received:', msg);
+
+                if (selectedUserId &&
+                    (msg.sender.id === selectedUserId || msg.recipient.id === selectedUserId)) {
+                    displayMessage(msg);
+                }
+            });
+
+            if (openChatWith) {
+                loadAndOpenChat(openChatWith);
+            }
+        };
+
+        stompClient.onStompError = (frame) => {
+            console.error('❌ STOMP error:', frame);
+            updateStatus('Lỗi kết nối', 'error');
+        };
+
+        stompClient.onWebSocketClose = () => {
+            console.log('🔌 WebSocket closed');
+            updateStatus('Mất kết nối', 'error');
+        };
+
+        stompClient.activate();
+    }
+
+    function loadAndOpenChat(userId) {
+        selectedUserId = userId;
+        document.querySelectorAll('.user-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.userId === userId);
+        });
+
+        fetch(`/messages/user-info?userId=${userId}`)
+            .then(r => r.ok ? r.json() : Promise.reject('User not found'))
+            .then(user => {
+                document.getElementById('chatName').textContent = user.fullName;
+                showChatArea();
+                loadChatHistory(userId);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('chatName').textContent = 'Unknown User';
+                showChatArea();
+                loadChatHistory(userId);
+            });
+    }
+
+    function showChatArea() {
+        document.getElementById('noChat').style.display = 'none';
+        document.getElementById('chatArea').style.display = 'flex';
+    }
+
+    function loadChatHistory(userId) {
+        fetch('/messages/load-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ otherUserId: userId, page: 0 })
+        })
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('messages');
+                container.innerHTML = '';
+                data.messages.forEach(msg => displayMessage(msg));
+                container.scrollTop = container.scrollHeight;
+            })
+            .catch(err => console.error('Load chat error:', err));
+    }
+
+    function displayMessage(msg) {
+        const container = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = msg.sender.id === currentUserId ? 'message sent' : 'message received';
+        div.textContent = msg.text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+
+        if (!text || !selectedUserId) return;
+
+        if (!stompClient || !stompClient.connected) {
+            alert('Chưa kết nối WebSocket!');
+            return;
+        }
+
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true;
+
+        try {
+            stompClient.publish({
+                destination: '/app/chat.send',
+                body: JSON.stringify({
+                    recipientId: selectedUserId,
+                    text: text
+                })
+            });
+            input.value = '';
+            console.log('✉️ Sent message:', text);
+        } catch (error) {
+            console.error('Send error:', error);
+            alert('Gửi tin nhắn thất bại!');
+        } finally {
+            btn.disabled = false;
+            input.focus();
+        }
+    }
+
+    // Event listeners
+    document.querySelectorAll('.user-item').forEach(item => {
+        item.addEventListener('click', () => {
+            loadAndOpenChat(item.dataset.userId);
+        });
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    // Start connection
+    connect();
+    /*]]>*/
+</script>
+</body>
+</html>

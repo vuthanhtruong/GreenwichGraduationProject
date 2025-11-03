@@ -123,6 +123,49 @@
         </p>
     </div>
 
+    <!-- 2. ĐÃ NỘP → HIỂN THỊ FILE + ĐIỂM + FEEDBACK -->
+    <div class="panel" th:if="${submission != null}">
+        <h3 class="submit-success"><i class="fas fa-check-circle"></i> You have submitted</h3>
+        <p><strong>Submitted at:</strong>
+            <span th:text="${#temporals.format(submission.createdAt, 'dd MMM yyyy HH:mm')}"></span>
+        </p>
+
+        <!-- Your Files -->
+        <div class="documents" th:if="${submission.submissionDocuments != null and !submission.submissionDocuments.isEmpty()}">
+            <strong>Your Files:</strong>
+            <ul style="margin: 8px 0; padding-left: 20px;">
+                <li th:each="doc : ${submission.submissionDocuments}" class="file-item">
+                    <i class="fas fa-file-check"></i>
+                    <span th:text="${doc.filePath}"></span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- GRADE & FEEDBACK -->
+        <div class="panel" th:if="${submission.feedback != null}" style="margin-top: 16px;">
+            <h3 class="grade-title">
+                <i class="fas fa-star"></i> Your Grade & Feedback
+            </h3>
+
+            <div class="grade-info">
+                <div class="grade-badge">
+                    <i class="fas fa-trophy"></i>
+                    <strong>Grade:</strong>
+                    <span class="grade-value" th:text="${submission.feedback.grade} ?: 'Pending'">A</span>
+                </div>
+
+                <div class="feedback-content" th:if="${submission.feedback.content != null and !#strings.isEmpty(submission.feedback.content)}">
+                    <strong>Feedback from lecturer:</strong>
+                    <p class="feedback-text" th:text="${submission.feedback.content}">Good job!</p>
+                </div>
+
+                <div class="text-muted small" th:if="${submission.feedback.content == null or #strings.isEmpty(submission.feedback.content)}">
+                    <i class="fas fa-comment-slash"></i> No feedback provided.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Comments Section -->
     <div class="panel">
         <h3><i class="fas fa-comments"></i> Comments (<span th:text="${assignment.getTotalComments()}"></span>)</h3>

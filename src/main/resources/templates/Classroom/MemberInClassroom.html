@@ -6,29 +6,68 @@
     <title th:text="${className} + ' - Members'">Class Members</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <style>
+        .win11-container { padding: 20px; background: #f3f4f6; min-height: 100vh; }
+        .search-toolbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+        }
+        .toolbar-left, .toolbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .toolbar-center h2 { margin: 0; font-size: 1.3rem; font-weight: 600; color: #1a1a1a; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.9rem;
+            cursor: pointer; text-decoration: none; transition: 0.2s;
+        }
+        .btn i { font-size: 0.9rem; }
+        .btn.primary { background: #0078d4; color: white; }
+        .btn.primary:hover { background: #106ebe; }
+        .btn.secondary { background: #f3f4f6; color: #444; border: 1px solid #ddd; }
+        .btn.secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .total { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: #555; }
+        .total i { color: #0078d4; }
+
+        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .win11-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .win11-table th {
+            background: #f8f9fa; text-align: left; padding: 12px 16px;
+            font-weight: 600; color: #1a1a1a; border-bottom: 1px solid #ddd;
+        }
+        .win11-table td { padding: 12px 16px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .win11-table tr:hover { background: #f8f9fa; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
+        .actions { display: flex; gap: 6px; }
+        .inline-form { display: inline; margin: 0; }
+
+        @media (max-width: 768px) {
+            .search-toolbar { flex-direction: column; align-items: stretch; }
+            .win11-table { font-size: 0.8rem; }
+            .win11-table th, .win11-table td { padding: 8px; }
+            .avatar { width: 32px; height: 32px; }
+        }
+    </style>
 </head>
 <body>
 <div class="win11-container">
 
+    <!-- Toolbar -->
     <div class="search-toolbar">
         <div class="toolbar-left">
-            <a th:href="@{${home}}" class="btn">
+            <a th:href="@{${home}}" class="btn secondary">
                 <i class="fas fa-home"></i> Home
             </a>
-
-            <!-- DÙNG FORM POST ĐỂ QUAY LẠI CLASSROOM -->
-            <form method="post" th:action="@{/classroom}" style="display:inline; margin:0;">
+            <form method="post" th:action="@{/classroom}" class="inline-form">
                 <input type="hidden" name="classId" th:value="${classId}" />
-                <button type="submit" class="btn">
+                <button type="submit" class="btn secondary">
                     <i class="fas fa-arrow-left"></i> Back to Classroom
                 </button>
             </form>
         </div>
-
         <div class="toolbar-center">
-            <h2  th:text="${className}"></h2>
+            <h2 th:text="${className}"></h2>
         </div>
-
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-user-graduate"></i>
@@ -63,7 +102,7 @@
                          th:src="@{'/persons/avatar/' + ${person.id}}"
                          class="avatar" th:alt="${person.fullName}" />
                     <img th:unless="${person.avatar != null}"
-                         th:src="${person.defaultAvatarPath}"
+                         th:src="@{/img/default-avatar.png}"
                          class="avatar" th:alt="${person.fullName}" />
                 </td>
                 <td th:text="${person.fullName}"></td>
@@ -72,25 +111,25 @@
                 <td th:text="${person.gender} ?: '—'"></td>
                 <td>
                     <div class="actions">
-                        <!-- Chỉ hiện nút nhắn tin nếu là sinh viên -->
-                        <form th:if="${person['class'].simpleName == 'Students'}"
-                              method="get" th:action="@{/classroom/message-student}" class="inline-form">
-                            <input type="hidden" name="classId" th:value="${classId}" />
-                            <input type="hidden" name="studentId" th:value="${person.id}" />
+                        <form th:if="${#strings.equals(person['class'].simpleName, 'Students')}"
+                              method="post" th:action="@{/messages/open-chat}" class="inline-form">
+                            <input type="hidden" name="otherUserId" th:value="${person.id}" />
                             <button type="submit" class="btn primary small">
                                 <i class="fas fa-envelope"></i> Message
                             </button>
                         </form>
-                        <button th:unless="${person['class'].simpleName == 'Students'}"
-                                class="btn secondary small" disabled>
+                        <button th:unless="${#strings.equals(person['class'].simpleName, 'Students')}"
+                                class="btn secondary small" disabled title="Only students can be messaged">
                             <i class="fas fa-ban"></i>
                         </button>
                     </div>
                 </td>
             </tr>
-            <tr th:if="${members == null or members.isEmpty()}">
-                <td colspan="9" style="text-align:center; color:#999;">
-                    <i class="fas fa-users-slash"></i> No members in this class.
+
+            <tr th:if="${#lists.isEmpty(members)}">
+                <td colspan="7" style="text-align:center; color:#999; padding: 40px;">
+                    <i class="fas fa-users-slash" style="font-size: 2rem; display: block; margin-bottom: 12px;"></i>
+                    No members in this class.
                 </td>
             </tr>
             </tbody>

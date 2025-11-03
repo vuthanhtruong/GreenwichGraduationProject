@@ -122,6 +122,29 @@
             The submission deadline has passed. You can no longer submit this assignment.
         </p>
     </div>
+    <!-- 4. HIỂN THỊ ĐIỂM & PHẢN HỒI (nếu có) -->
+    <div class="panel" th:if="${submission.feedback != null}">
+        <h3 class="grade-title">
+            <i class="fas fa-star"></i> Your Grade & Feedback
+        </h3>
+
+        <div class="grade-info">
+            <div class="grade-badge">
+                <i class="fas fa-trophy"></i>
+                <strong>Grade:</strong>
+                <span class="grade-value" th:text="${submission.feedback.grade} ?: 'Not graded yet'"></span>
+            </div>
+
+            <div class="feedback-content" th:if="${submission.feedback.content != null and !#strings.isEmpty(submission.feedback.content)}">
+                <strong>Feedback from lecturer:</strong>
+                <p class="feedback-text" th:text="${submission.feedback.content}"></p>
+            </div>
+
+            <div class="text-muted small" th:if="${submission.feedback.content == null or #strings.isEmpty(submission.feedback.content)}">
+                <i class="fas fa-comment-slash"></i> No feedback provided.
+            </div>
+        </div>
+    </div>
 
     <!-- Comments Section -->
     <div class="panel">
