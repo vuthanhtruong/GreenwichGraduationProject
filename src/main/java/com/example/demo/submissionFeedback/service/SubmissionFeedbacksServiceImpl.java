@@ -1,9 +1,11 @@
 // src/main/java/com/example/demo/submission/service/SubmissionFeedbacksServiceImpl.java
-package com.example.demo.submission.service;
+package com.example.demo.submissionFeedback.service;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.submission.dao.SubmissionFeedbacksDAO;
+import com.example.demo.submissionFeedback.dao.SubmissionFeedbacksDAO;
 import com.example.demo.submission.model.*;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacks;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacksId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

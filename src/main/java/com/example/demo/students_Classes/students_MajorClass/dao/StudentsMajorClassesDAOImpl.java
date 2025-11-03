@@ -91,6 +91,7 @@ public class StudentsMajorClassesDAOImpl implements StudentsMajorClassesDAO {
                 .getSingleResult();
         return count > 0;
     }
+
     @Override
     public List<Students_MajorClasses> getStudentsInClassByStudent(String studentId) {
         return entityManager.createQuery(

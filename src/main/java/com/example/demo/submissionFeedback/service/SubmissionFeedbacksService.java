@@ -1,13 +1,14 @@
-package com.example.demo.submission.dao;
+// src/main/java/com/example/demo/submission/service/SubmissionFeedbacksService.java
+package com.example.demo.submissionFeedback.service;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.submission.model.SubmissionFeedbacks;
-import com.example.demo.submission.model.SubmissionFeedbacksId;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacks;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacksId;
 import com.example.demo.submission.model.Submissions;
 
 import java.util.List;
 
-public interface SubmissionFeedbacksDAO {
+public interface SubmissionFeedbacksService {
     void save(SubmissionFeedbacks feedback);
     SubmissionFeedbacks findById(SubmissionFeedbacksId id);
     SubmissionFeedbacks findBySubmission(String submittedBy, String assignmentSlotId);

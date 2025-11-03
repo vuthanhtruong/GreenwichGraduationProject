@@ -117,4 +117,47 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
 
         save(submission);
     }
+    @Override
+    public SpecializedSubmissions findById(SpecializedSubmissionsId id) {
+        return em.find(SpecializedSubmissions.class, id);
+    }
+
+    @Override
+    public List<SpecializedSubmissions> getSubmissionsByAssignment(String assignmentId) {
+        try {
+            return em.createQuery(
+                            "SELECT s FROM SpecializedSubmissions s " +
+                                    "WHERE s.id.assignmentSubmitSlotId = :assignmentId " +
+                                    "ORDER BY s.createdAt DESC", SpecializedSubmissions.class)
+                    .setParameter("assignmentId", assignmentId)
+                    .getResultList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Students> getStudentsNotSubmitted(String classId, String assignmentId) {
+        try {
+            return em.createQuery("""
+                SELECT s FROM Students s
+                WHERE EXISTS (
+                    SELECT 1 FROM Students_SpecializedClasses sc 
+                    WHERE sc.student = s 
+                      AND sc.classEntity.classId = :classId
+                )
+                AND s.id NOT IN (
+                    SELECT sub.id.submittedBy 
+                    FROM SpecializedSubmissions sub 
+                    WHERE sub.id.assignmentSubmitSlotId = :assignmentId
+                )
+                ORDER BY s.firstName, s.lastName
+                """, Students.class)
+                    .setParameter("classId", classId)
+                    .setParameter("assignmentId", assignmentId)
+                    .getResultList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }

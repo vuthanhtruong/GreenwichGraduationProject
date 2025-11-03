@@ -1,10 +1,11 @@
-// com.example.demo.submission.dao.SubmissionFeedbacksDAOImpl.java
-package com.example.demo.submission.dao;
+// com.example.demo.submissionFeedback.dao.SubmissionFeedbacksDAOImpl.java
+package com.example.demo.submissionFeedback.dao;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
 import com.example.demo.submission.model.*;
 import com.example.demo.submission.service.SubmissionsService;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacks;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacksId;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import jakarta.persistence.EntityManager;

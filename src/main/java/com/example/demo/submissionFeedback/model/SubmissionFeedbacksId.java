@@ -1,4 +1,4 @@
-package com.example.demo.submission.model;
+package com.example.demo.submissionFeedback.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

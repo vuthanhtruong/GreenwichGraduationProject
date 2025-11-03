@@ -15,11 +15,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class DeleteMajorsController {
     private static final Logger logger = LoggerFactory.getLogger(DeleteMajorsController.class);
     private final MajorsService majorsService;
-    private final AdminsService adminsService;
 
-    public DeleteMajorsController(MajorsService majorsService, AdminsService adminsService) {
+    public DeleteMajorsController(MajorsService majorsService) {
         this.majorsService = majorsService;
-        this.adminsService = adminsService;
     }
 
     @PostMapping("/delete-major")

@@ -2,6 +2,7 @@ package com.example.demo.submission.service;
 
 import com.example.demo.submission.dao.SpecializedSubmissionsDAO;
 import com.example.demo.submission.model.SpecializedSubmissions;
+import com.example.demo.submission.model.SpecializedSubmissionsId;
 import com.example.demo.user.student.model.Students;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,21 @@ import java.util.List;
 
 @Service
 public class SpecializedSubmissionsServiceImpl implements SpecializedSubmissionsService {
+    @Override
+    public List<SpecializedSubmissions> getSubmissionsByAssignment(String assignmentId) {
+        return specializedSubmissionsDAO.getSubmissionsByAssignment(assignmentId);
+    }
+
+    @Override
+    public List<Students> getStudentsNotSubmitted(String classId, String assignmentId) {
+        return specializedSubmissionsDAO.getStudentsNotSubmitted(classId, assignmentId);
+    }
+
+    @Override
+    public SpecializedSubmissions findById(SpecializedSubmissionsId id) {
+        return specializedSubmissionsDAO.findById(id);
+    }
+
     @Override
     public void submit(Students student, String postId, List<MultipartFile> files) {
         specializedSubmissionsDAO.submit(student, postId, files);

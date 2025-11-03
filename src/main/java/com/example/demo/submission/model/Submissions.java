@@ -3,6 +3,7 @@ package com.example.demo.submission.model;
 
 import com.example.demo.document.model.SubmissionDocuments;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
+import com.example.demo.submissionFeedback.model.SubmissionFeedbacks;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;

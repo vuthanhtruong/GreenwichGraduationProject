@@ -71,11 +71,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
-        if (!(person instanceof MajorLecturers majorLecturers)) {
-            throw new IllegalStateException("Authenticated user is not a major lecturer");
-        }
-
-        return entityManager.find(MajorLecturers.class, majorLecturers.getId());
+        return entityManager.find(MajorLecturers.class, person.getId());
     }
 
     @Override

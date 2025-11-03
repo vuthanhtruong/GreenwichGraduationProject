@@ -1,5 +1,7 @@
 package com.example.demo.submission.controller;
 
+import com.example.demo.entity.Enums.Grades;
+import com.example.demo.submissionFeedback.service.SubmissionFeedbacksService;
 import com.example.demo.submission.service.SubmissionsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
@@ -15,11 +17,11 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/classroom")
-public class SubmitAssignmentController {
+public class MajorSubmissionsController {
     private final StudentsService studentsService;
     private final SubmissionsService submissionsService;
 
-    public SubmitAssignmentController( StudentsService studentsService, SubmissionsService submissionsService) {
+    public MajorSubmissionsController(StudentsService studentsService, SubmissionsService submissionsService) {
         this.studentsService = studentsService;
         this.submissionsService = submissionsService;
     }

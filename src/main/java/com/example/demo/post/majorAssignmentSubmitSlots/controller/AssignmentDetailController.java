@@ -5,7 +5,7 @@ import com.example.demo.entity.Enums.Grades;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.submission.model.Submissions;
-import com.example.demo.submission.service.SubmissionFeedbacksService;
+import com.example.demo.submissionFeedback.service.SubmissionFeedbacksService;
 import com.example.demo.submission.service.SubmissionsService;
 import com.example.demo.user.employe.service.EmployesService;
 import com.example.demo.user.student.model.Students;
@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -103,26 +102,5 @@ public class AssignmentDetailController {
 
         return isStudent ? "StudentAssignmentDetail" : "AssignmentDetail";
     }
-    // com.example.demo.post.majorAssignmentSubmitSlots.controller.AssignmentDetailController
-    @PostMapping("/save-feedback")
-    public String saveFeedback(
-            @RequestParam String postId,
-            @RequestParam String classId,
-            @RequestParam String submittedBy,
-            @RequestParam String assignmentSlotId,
-            @RequestParam String announcerId,
-            @RequestParam(required = false) Grades grade,
-            @RequestParam(required = false) String content,
-            RedirectAttributes redirectAttrs) {
 
-        try {
-            submissionFeedbacksService.saveFeedback(
-                    submittedBy, assignmentSlotId, announcerId, content, grade);
-            redirectAttrs.addFlashAttribute("success", "Chấm điểm thành công!");
-        } catch (Exception e) {
-            redirectAttrs.addFlashAttribute("error", "Lỗi: " + e.getMessage());
-        }
-
-        return "redirect:/classroom/assignment-detail?postId=" + postId + "&classId=" + classId;
-    }
 }
