@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit News</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home/news-list}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <h2 class="page-title"><i class="fas fa-edit"></i> Edit News</h2>
+        </div>
+    </div>
+
+    <!-- Flash Message -->
+    <div th:if="${message}" th:class="'alert ' + ${alertClass}" style="margin:1rem;padding:1rem;border-radius:8px;">
+        <span th:text="${message}"></span>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="form-container" style="max-width: 900px; margin: 2rem auto;">
+        <form method="post" th:action="@{/staff-home/news-list/edit-news}"
+              th:object="${editNews}" enctype="multipart/form-data">
+            <input type="hidden" name="postId" th:value="${editNews.getPostId()}"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <!-- General Errors -->
+            <div th:if="${errors?.containsKey('general')}" class="win11-alert error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${errors.get('general')}"></span>
+            </div>
+
+            <!-- Title & Content -->
+            <section class="win11-panel">
+                <h2 class="panel-header"><i class="fas fa-edit"></i> News Details</h2>
+                <div class="form-group grid-2">
+                    <div class="form-row">
+                        <label for="title"><i class="fas fa-heading"></i> Title:</label>
+                        <input id="title" th:field="*{title}" required class="input" maxlength="255"/>
+                        <div th:if="${errors?.containsKey('title')}" class="text-danger"
+                             th:text="${errors.get('title')}"></div>
+                    </div>
+                    <div class="form-row">
+                        <label for="content"><i class="fas fa-paragraph"></i> Content:</label>
+                        <textarea id="content" th:field="*{content}" rows="6" class="input" maxlength="1000"></textarea>
+                        <div th:if="${errors?.containsKey('content')}" class="text-danger"
+                             th:text="${errors.get('content')}"></div>
+                    </div>
+                </div>
+
+                <!-- Add More Files -->
+                <div class="form-row">
+                    <label for="uploadFiles"><i class="fas fa-paperclip"></i> Add More Attachments:</label>
+                    <input id="uploadFiles" type="file" name="uploadFiles" multiple
+                           accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip,.jpg,.jpeg,.png,.gif" class="input"/>
+                    <small class="form-text">
+                        Existing files are kept. Hold <kbd>Ctrl</kbd> to select multiple.
+                    </small>
+                </div>
+            </section>
+
+            <!-- Current Files -->
+            <section class="win11-panel" th:if="${editNews.documents != null and !editNews.documents.isEmpty()}">
+                <h2 class="panel-header"><i class="fas fa-folder-open"></i> Current Attachments</h2>
+                <div class="document-list">
+                    <div th:each="doc : ${editNews.documents}" class="document-item">
+                        <i class="fas fa-file-alt"></i>
+                        <span th:text="${doc.documentTitle}"></span>
+                        <a th:href="@{'/staff-home/news-list/download/' + ${doc.documentId}}"
+                           class="btn small" download>
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div class="form-actions" style="margin-top: 2rem;">
+                <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a th:href="@{/staff-home/news-list}" class="btn danger"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

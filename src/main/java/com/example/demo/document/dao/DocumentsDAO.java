@@ -1,11 +1,16 @@
 package com.example.demo.document.dao;
 
 import com.example.demo.document.model.Documents;
-import com.example.demo.post.news.model.News;
+import com.example.demo.entity.AbstractClasses.PublicPosts;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface DocumentsDAO {
-    List<Documents> getDocumentsByNews(News news);
+    List<Documents> getDocumentsByPost(PublicPosts post);
+    List<Documents> getDocumentsByPostId(String postId);
+    Documents getDocumentById(String docId);
+    void saveDocument(Documents doc);
     void deleteDocuments(List<String> documentIds);
+    void addDocuments(PublicPosts post, MultipartFile[] files);
 }
