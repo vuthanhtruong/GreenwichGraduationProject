@@ -26,6 +26,66 @@ public class NewsDAOImpl implements NewsDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // === PUBLIC: Paginated ===
+    @Override
+    public List<News> getPublicNewsPaginated(int firstResult, int pageSize) {
+        return entityManager.createQuery(
+                        "SELECT n FROM News n LEFT JOIN FETCH n.creator LEFT JOIN FETCH n.documents ORDER BY n.createdAt DESC",
+                        News.class)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countAllPublicNews() {
+        return entityManager.createQuery("SELECT COUNT(n) FROM News n", Long.class)
+                .getSingleResult();
+    }
+
+    // === PUBLIC: Search ===
+    @Override
+    public List<News> searchPublicNews(String keyword, int firstResult, int pageSize) {
+        String jpql = "SELECT n FROM News n LEFT JOIN FETCH n.creator LEFT JOIN FETCH n.documents " +
+                "WHERE LOWER(n.title) LIKE LOWER(:keyword) OR LOWER(n.content) LIKE LOWER(:keyword) " +
+                "ORDER BY n.createdAt DESC";
+
+        return entityManager.createQuery(jpql, News.class)
+                .setParameter("keyword", "%" + keyword.toLowerCase() + "%")
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countPublicSearch(String keyword) {
+        String jpql = "SELECT COUNT(n) FROM News n " +
+                "WHERE LOWER(n.title) LIKE LOWER(:keyword) OR LOWER(n.content) LIKE LOWER(:keyword)";
+
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("keyword", "%" + keyword.toLowerCase() + "%")
+                .getSingleResult();
+    }
+
+    // === OPTIONAL: All / Latest ===
+    @Override
+    public List<News> getAllPublicNews() {
+        return entityManager.createQuery(
+                        "SELECT n FROM News n LEFT JOIN FETCH n.creator LEFT JOIN FETCH n.documents ORDER BY n.createdAt DESC",
+                        News.class)
+                .getResultList();
+    }
+
+    @Override
+    public List<News> getLatestPublicNews(int limit) {
+        return entityManager.createQuery(
+                        "SELECT n FROM News n LEFT JOIN FETCH n.creator LEFT JOIN FETCH n.documents ORDER BY n.createdAt DESC",
+                        News.class)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    // === STAFF: Existing (unchanged) ===
     @Override
     public List<News> getPaginatedNews(int firstResult, int pageSize, Staffs creator) {
         return entityManager.createQuery(
@@ -43,29 +103,6 @@ public class NewsDAOImpl implements NewsDAO {
                         "SELECT COUNT(n) FROM News n WHERE n.creator = :creator", Long.class)
                 .setParameter("creator", creator)
                 .getSingleResult();
-    }
-
-    @Override
-    public News getNewsById(String postId) {
-        return entityManager.find(News.class, postId);
-    }
-
-    @Override
-    public void addNews(News news) {
-        entityManager.persist(news);
-    }
-
-    @Override
-    public void updateNews(News news) {
-        entityManager.merge(news);
-    }
-
-    @Override
-    public void deleteNews(String postId) {
-        News news = getNewsById(postId);
-        if (news != null) {
-            entityManager.remove(news);
-        }
     }
 
     @Override
@@ -115,6 +152,30 @@ public class NewsDAOImpl implements NewsDAO {
         return query.getSingleResult();
     }
 
+    // === COMMON ===
+    @Override
+    public News getNewsById(String postId) {
+        return entityManager.find(News.class, postId);
+    }
+
+    @Override
+    public void addNews(News news) {
+        entityManager.persist(news);
+    }
+
+    @Override
+    public void updateNews(News news) {
+        entityManager.merge(news);
+    }
+
+    @Override
+    public void deleteNews(String postId) {
+        News news = getNewsById(postId);
+        if (news != null) {
+            entityManager.remove(news);
+        }
+    }
+
     @Override
     public String generateUniqueNewsId(Staffs creator) {
         String prefix = creator.getMajorManagement() != null ? creator.getMajorManagement().getMajorId() : "NEWS";
@@ -140,5 +201,33 @@ public class NewsDAOImpl implements NewsDAO {
             errors.put("content", "Content no more than 1000 characters");
         }
         return errors;
+    }
+
+    @Override
+    public News getNewsByIdWithDocuments(String postId) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT n FROM News n LEFT JOIN FETCH n.documents LEFT JOIN FETCH n.creator WHERE n.postId = :postId",
+                            News.class)
+                    .setParameter("postId", postId)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    @Override
+    public News getNewsByIdWithComments(String postId) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT n FROM News n " +
+                                    "LEFT JOIN FETCH n.comments c " +
+                                    "LEFT JOIN FETCH c.commenter " +
+                                    "WHERE n.postId = :postId",
+                            News.class)
+                    .setParameter("postId", postId)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

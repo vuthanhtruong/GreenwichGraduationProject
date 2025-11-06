@@ -11,6 +11,45 @@ import java.util.Map;
 
 @Service
 public class NewsServiceImpl implements NewsService {
+    @Override
+    public News getNewsByIdWithComments(String postId) {
+        return newsDAO.getNewsByIdWithComments(postId);
+    }
+
+    @Override
+    public News getNewsByIdWithDocuments(String postId) {
+        return newsDAO.getNewsByIdWithDocuments(postId);
+    }
+
+    @Override
+    public List<News> getPublicNewsPaginated(int firstResult, int pageSize) {
+        return newsDAO.getPublicNewsPaginated(firstResult, pageSize);
+    }
+
+    @Override
+    public long countAllPublicNews() {
+        return newsDAO.countAllPublicNews();
+    }
+
+    @Override
+    public List<News> searchPublicNews(String keyword, int firstResult, int pageSize) {
+        return newsDAO.searchPublicNews(keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public long countPublicSearch(String keyword) {
+        return newsDAO.countPublicSearch(keyword);
+    }
+
+    @Override
+    public List<News> getAllPublicNews() {
+        return newsDAO.getAllPublicNews();
+    }
+
+    @Override
+    public List<News> getLatestPublicNews(int limit) {
+        return newsDAO.getLatestPublicNews(limit);
+    }
 
     private final NewsDAO newsDAO;
     private final DocumentsService documentsService;

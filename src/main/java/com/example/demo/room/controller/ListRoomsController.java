@@ -22,11 +22,9 @@ import java.util.List;
 public class ListRoomsController {
     private static final Logger logger = LoggerFactory.getLogger(ListRoomsController.class);
     private final RoomsService roomsService;
-    private final AdminsService adminsService;
 
-    public ListRoomsController(RoomsService roomsService, AdminsService adminsService) {
+    public ListRoomsController(RoomsService roomsService) {
         this.roomsService = roomsService;
-        this.adminsService = adminsService;
     }
 
     @GetMapping("")
