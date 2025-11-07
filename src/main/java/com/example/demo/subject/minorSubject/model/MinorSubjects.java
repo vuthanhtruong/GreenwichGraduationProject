@@ -9,7 +9,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@DiscriminatorValue("MINOR")
+@Table(name = "MinorSubjects")
+@PrimaryKeyJoinColumn(name = "SubjectID")
 @Getter
 @Setter
 public class MinorSubjects extends Subjects {
@@ -26,5 +27,20 @@ public class MinorSubjects extends Subjects {
         setSubjectName(subjectName);
         setSemester(semester);
         this.creator = creator;
+    }
+
+    @Override
+    public String getSubjectType() {
+        return "Minor Subject";
+    }
+
+    @Override
+    public String getSubjectMajor() {
+        return "General Education";
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown Deputy";
     }
 }

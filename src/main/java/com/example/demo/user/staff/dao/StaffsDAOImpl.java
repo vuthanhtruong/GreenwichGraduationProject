@@ -175,11 +175,7 @@ public class StaffsDAOImpl implements StaffsDAO {
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
-        if (!(person instanceof Staffs staff)) {
-            throw new IllegalStateException("Authenticated user is not a staff");
-        }
-
-        return staff;
+        return getStaffById(person.getId());
     }
 
     @Override

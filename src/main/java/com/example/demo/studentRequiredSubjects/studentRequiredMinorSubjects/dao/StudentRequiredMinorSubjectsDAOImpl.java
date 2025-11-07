@@ -36,7 +36,7 @@ public class StudentRequiredMinorSubjectsDAOImpl implements StudentRequiredMinor
 
         return entityManager.createQuery(
                         "SELECT srm FROM StudentRequiredMinorSubjects srm " +
-                                "WHERE srm.subject = :subject AND srm.student.campus = :campus",
+                                "WHERE srm.subject = :subject AND srm.student.campus.campusId = :campus",
                         StudentRequiredMinorSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("campus", campus)
@@ -51,7 +51,7 @@ public class StudentRequiredMinorSubjectsDAOImpl implements StudentRequiredMinor
 
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.campus = :campus " +
+                                "WHERE s.campus.campusId = :campus " +
                                 "AND s.id NOT IN (" +
                                 "    SELECT srm.student.id FROM StudentRequiredMinorSubjects srm " +
                                 "    WHERE srm.subject = :subject" +

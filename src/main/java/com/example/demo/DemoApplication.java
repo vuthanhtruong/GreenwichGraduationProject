@@ -124,17 +124,6 @@ public class DemoApplication {
             rollback(em);
             e.printStackTrace();
         }
-
-        // Seed MinorSubjects
-        try {
-            em.getTransaction().begin();
-            addDefaultMinorSubjects(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-
         // Seed SpecializedSubjects
         try {
             em.getTransaction().begin();
@@ -508,7 +497,6 @@ public class DemoApplication {
                 subj.setSubjectName(buildMajorSubjectName(majorId, i));
                 subj.setSemester(((i - 1) % 6) + 1);
                 subj.setCreator(creator);
-                subj.setRequirementType(SubjectTypes.MAJOR_PREPARATION);
                 subj.setMajor(major);
                 subj.setCurriculum(btecCurriculum);
                 em.persist(subj);
@@ -536,32 +524,6 @@ public class DemoApplication {
             default: return "Major Subject " + idx;
         }
     }
-
-    // ===================== 5 MinorSubjects =====================
-    private static void addDefaultMinorSubjects(EntityManager em) {
-        DeputyStaffs deputy = findDeputyStaff(em, "deputy001");
-        if (deputy == null) {
-            System.err.println("DeputyStaff not found, cannot create minor subjects.");
-            return;
-        }
-
-        for (int i = 1; i <= 5; i++) {
-            String subjectId = String.format("MIN%03d", i);
-            if (existsSubject(em, subjectId)) {
-                System.out.println("MinorSubject already exists: " + subjectId);
-                continue;
-            }
-            MinorSubjects subj = new MinorSubjects();
-            subj.setSubjectId(subjectId);
-            subj.setSubjectName("Minor Subject " + i);
-            subj.setSemester(((i - 1) % 6) + 1);
-            subj.setCreator(deputy);
-            subj.setRequirementType(SubjectTypes.TOPUP_PREPARATION);
-            em.persist(subj);
-            System.out.println("Added MinorSubject: " + subjectId);
-        }
-    }
-
     // ===================== SPECIALIZED SUBJECTS =====================
     private static void addDefaultSpecializedSubjects(EntityManager em) {
         Staffs creator = findStaff(em, "vuthanhtruong");
@@ -872,7 +834,6 @@ public class DemoApplication {
             subj.setSubjectName(seed.name);
             subj.setSemester(seed.credits != null && seed.credits > 0 ? Math.max(1, ((seed.credits / 5) % 6)) : 1);
             subj.setCreator(defaultCreator);
-            subj.setRequirementType(SubjectTypes.MAJOR_PREPARATION);
             subj.setMajor(guessMajor(majors, seed));
             subj.setCurriculum(btecCurriculum);
             em.persist(subj);

@@ -19,17 +19,14 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class ListSpecializedSubjectsForStudyPlanController {
 
-    private final SpecializedSubjectsService subjectsService;
     private final StaffsService staffsService;
     private final CurriculumService curriculumService;
     private final TuitionByYearService tuitionByYearService;
 
     public ListSpecializedSubjectsForStudyPlanController(
-            SpecializedSubjectsService subjectsService,
             StaffsService staffsService,
             CurriculumService curriculumService,
             TuitionByYearService tuitionByYearService) {
-        this.subjectsService = subjectsService;
         this.staffsService = staffsService;
         this.curriculumService = curriculumService;
         this.tuitionByYearService = tuitionByYearService;
@@ -126,7 +123,7 @@ public class ListSpecializedSubjectsForStudyPlanController {
         }
 
         if (subjects.isEmpty() && selectedCurriculum != null) {
-            model.addAttribute("errorMessage", "Không tìm thấy môn chuyên ngành nào có học phí cho chương trình và năm đã chọn.");
+            model.addAttribute("errorMessage", "No majors were found with free tuition for the selected program and year.");
         }
 
         // === 5. TRẢ KẾT QUẢ ===

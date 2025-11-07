@@ -3,6 +3,7 @@ package com.example.demo.tuitionByYear.service;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.model.TuitionByYearId;
@@ -39,4 +40,9 @@ public interface TuitionByYearService {
     List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus);
 
     List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId);
+
+    List<MinorSubjects> getMinorSubjectsWithTuitionByYear(Integer admissionYear, Campuses campus);
+
+
+    List<Integer> findAllAdmissionYearsWithMinorTuition(Campuses campus);
 }

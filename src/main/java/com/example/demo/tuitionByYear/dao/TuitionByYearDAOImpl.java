@@ -3,6 +3,7 @@ package com.example.demo.tuitionByYear.dao;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
+import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.subject.specializedSubject.service.SpecializedSubjectsService;
@@ -21,6 +22,7 @@ import java.util.List;
 @Repository
 @Transactional
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
+
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -80,8 +82,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.campus = :campus " +
                                 "AND t.tuition IS NOT NULL " +
-                                "AND t.tuition > 0 " +
-                                "ORDER BY t.subject.requirementType",
+                                "AND t.tuition > 0 " ,
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
@@ -102,6 +103,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
         }
         return majorSubjects;
     }
+
     @Override
     public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
 
@@ -162,8 +164,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                         "SELECT t FROM TuitionByYear t " +
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.campus = :campus " +
-                                "AND (t.tuition IS NULL OR t.tuition <= 0) " +
-                                "ORDER BY t.subject.requirementType",
+                                "AND (t.tuition IS NULL OR t.tuition <= 0) ",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
@@ -181,8 +182,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.campus = :campus " +
                                 "AND t.reStudyTuition IS NOT NULL " +
-                                "AND t.reStudyTuition > 0 " +
-                                "ORDER BY t.subject.requirementType",
+                                "AND t.reStudyTuition > 0 ",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
@@ -199,8 +199,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                         "SELECT t FROM TuitionByYear t " +
                                 "WHERE t.id.admissionYear = :admissionYear " +
                                 "AND t.campus = :campus " +
-                                "AND (t.reStudyTuition IS NULL OR t.reStudyTuition <= 0) " +
-                                "ORDER BY t.subject.requirementType",
+                                "AND (t.reStudyTuition IS NULL OR t.reStudyTuition <= 0) ",
                         TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
@@ -258,5 +257,48 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
                 .executeUpdate();
+    }
+    @Override
+    public List<Integer> findAllAdmissionYearsWithMinorTuition(Campuses campus) {
+        if (campus == null) {
+            throw new IllegalArgumentException("Campus cannot be null");
+        }
+
+        List<TuitionByYear> tuitions = entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "WHERE t.campus = :campus " +
+                                "AND t.tuition IS NOT NULL " +
+                                "AND t.tuition > 0",
+                        TuitionByYear.class)
+                .setParameter("campus", campus)
+                .getResultList();
+
+        List<Integer> years = new ArrayList<>();
+        for (TuitionByYear t : tuitions) {
+            MinorSubjects subject = minorSubjectsService.getSubjectById(t.getSubject().getSubjectId());
+            if (subject != null && !years.contains(t.getId().getAdmissionYear())) {
+                years.add(t.getId().getAdmissionYear());
+            }
+        }
+        years.sort((a, b) -> Integer.compare(b, a)); // DESC
+        return years;
+    }
+
+    @Override
+    public List<MinorSubjects> getMinorSubjectsWithTuitionByYear(Integer admissionYear, Campuses campus) {
+        if (admissionYear == null || campus == null) {
+            throw new IllegalArgumentException("Admission year and campus cannot be null");
+        }
+
+        List<TuitionByYear> tuitions = getTuitionsWithFeeByYearAndCampus(admissionYear, campus);
+        List<MinorSubjects> minorSubjects = new ArrayList<>();
+
+        for (TuitionByYear tuition : tuitions) {
+            MinorSubjects subject = minorSubjectsService.getSubjectById(tuition.getSubject().getSubjectId());
+            if (subject != null) {
+                minorSubjects.add(subject);
+            }
+        }
+        return minorSubjects;
     }
 }

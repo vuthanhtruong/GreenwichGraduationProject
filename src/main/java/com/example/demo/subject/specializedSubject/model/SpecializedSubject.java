@@ -11,7 +11,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@DiscriminatorValue("SPECIALIZED")
+@Table(name = "SpecializedSubjects")
+@PrimaryKeyJoinColumn(name = "SubjectID")
 @Getter
 @Setter
 public class SpecializedSubject extends Subjects {
@@ -22,7 +23,7 @@ public class SpecializedSubject extends Subjects {
     private Staffs creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CurriculumID", nullable = true)
+    @JoinColumn(name = "CurriculumID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Curriculum curriculum;
 
@@ -39,5 +40,20 @@ public class SpecializedSubject extends Subjects {
         setSemester(semester);
         this.creator = creator;
         this.specialization = specialization;
+    }
+
+    @Override
+    public String getSubjectType() {
+        return "Specialized Subject";
+    }
+
+    @Override
+    public String getSubjectMajor() {
+        return specialization != null ? specialization.getSpecializationName() : "Unknown Specialization";
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown Staff";
     }
 }

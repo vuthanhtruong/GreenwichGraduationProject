@@ -65,7 +65,7 @@
                 <td th:text="${subject.subjectId}"></td>
                 <td th:text="${subject.subjectName}"></td>
                 <td th:text="${subject.semester ?: 'N/A'}"></td>
-                <td th:text="${subject.creator != null ? subject.creator.firstName + ' ' + subject.creator.lastName : 'N/A'}"></td>
+                <td th:text="${subject.getAcceptor() != null ? subject.getAcceptor().firstName + ' ' + subject.getAcceptor().lastName : 'N/A'}"></td>
                 <td>
                     <input type="checkbox" name="subjectIds" th:value="${subject.subjectId}">
                 </td>
