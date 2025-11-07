@@ -34,6 +34,61 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class MajorLecturersDAOImpl implements MajorLecturersDAO {
+    // === THÊM: countSearchMajorLecturersByCampus ===
+    @Override
+    public long countSearchMajorLecturersByCampus(String campusId, String searchType, String keyword) {
+        if (campusId == null || campusId.trim().isEmpty() || keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+
+        if ("name".equalsIgnoreCase(searchType)) {
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder nameCondition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) nameCondition.append(" AND ");
+                nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i)
+                        .append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+            }
+            queryString += " AND (" + nameCondition + ")";
+        } else if ("id".equalsIgnoreCase(searchType)) {
+            queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+        } else {
+            return 0L;
+        }
+
+        TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                .setParameter("campusId", campusId);
+
+        if ("name".equalsIgnoreCase(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equalsIgnoreCase(searchType)) {
+            query.setParameter("keyword", keyword.trim());
+        }
+
+        return query.getSingleResult();
+    }
+
+    // === THÊM: getColleaguesByMajor ===
+    @Override
+    public List<MajorLecturers> getColleaguesByMajor(String majorId) {
+        if (majorId == null || majorId.trim().isEmpty()) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT l FROM MajorLecturers l " +
+                                "JOIN FETCH l.majorManagement m " +
+                                "WHERE m.majorId = :majorId " +
+                                "AND l.id != :currentId", MajorLecturers.class)
+                .setParameter("majorId", majorId)
+                .setParameter("currentId", getMajorLecturer().getId())
+                .getResultList();
+    }
+
     @Override
     public List<MajorLecturers> colleagueBycampusId(String campusId) {
         return entityManager.createQuery("from MajorLecturers s where s.campus.id=:campusId And s.id!=:id", MajorLecturers.class).setParameter("campusId", campusId).
@@ -76,7 +131,13 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
-        return entityManager.find(MajorLecturers.class, person.getId());
+        return entityManager.createQuery(
+                        "SELECT l FROM MajorLecturers l " +
+                                "JOIN FETCH l.majorManagement m " +
+                                "JOIN FETCH l.campus c " +
+                                "WHERE l.id = :id", MajorLecturers.class)
+                .setParameter("id", person.getId())
+                .getSingleResult();
     }
 
     @Override

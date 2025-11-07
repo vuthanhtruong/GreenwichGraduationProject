@@ -2,7 +2,6 @@ package com.example.demo.user.majorLecturer.dao;
 
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
-import com.example.demo.user.staff.model.Staffs;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -10,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface MajorLecturersDAO {
+    long countSearchMajorLecturersByCampus(String campusId, String searchType, String keyword);
+    List<MajorLecturers> getColleaguesByMajor(String majorId);
     List<MajorLecturers> colleagueBycampusId(String campusId);
     MajorLecturers getMajorLecturer();
     long minorLecturersCountByCampus(String campusId);

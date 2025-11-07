@@ -3,6 +3,7 @@ package com.example.demo.user.staff.controller;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,59 +22,65 @@ public class ColleaguesListController {
         this.staffsService = staffsService;
     }
 
-    @GetMapping
+    /* ====================== LIST + SEARCH + PAGE SIZE ====================== */
+    @GetMapping("")
     public String listColleagues(
             Model model,
             HttpSession session,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) Integer pageSize) {
+
+        // ---- PAGE SIZE ----
+        if (pageSize == null || pageSize <= 0) {
+            pageSize = (Integer) session.getAttribute("colleaguePageSize");
+            if (pageSize == null || pageSize <= 0) pageSize = 10;
+        }
+        pageSize = Math.min(pageSize, 100); // giới hạn tối đa
+        session.setAttribute("colleaguePageSize", pageSize);
+
+        // ---- LẤY DỮ LIỆU TÌM KIẾM TỪ SESSION (do POST) ----
+        String keyword = (String) session.getAttribute("colleagueKeyword");
+        String searchType = (String) session.getAttribute("colleagueSearchType");
 
         String campusId = staffsService.getCampusOfStaff().getCampusId();
 
-        // === XỬ LÝ PAGE SIZE ===
-        if (pageSize == null) {
-            pageSize = (Integer) session.getAttribute("colleaguePageSize");
-            if (pageSize == null) pageSize = 10;
-        }
-        session.setAttribute("colleaguePageSize", pageSize);
-
-        // === TÌM KIẾM HOẶC LẤY TẤT CẢ ===
         List<Staffs> colleagues;
         long totalColleagues;
         int totalPages;
 
+        int firstResult = (page - 1) * pageSize;
+
         if (keyword != null && !keyword.trim().isEmpty() && searchType != null) {
-            int firstResult = (page - 1) * pageSize;
+            // Tìm kiếm
             colleagues = staffsService.searchStaffsByCampus(campusId, searchType, keyword.trim(), firstResult, pageSize);
             totalColleagues = staffsService.countSearchResultsByCampus(campusId, searchType, keyword.trim());
         } else {
-            int firstResult = (page - 1) * pageSize;
-            colleagues = staffsService.colleagueBycampusId(campusId)
-                    .stream()
+            // Danh sách thường
+            List<Staffs> all = staffsService.colleagueBycampusId(campusId);
+            totalColleagues = all.size();
+            colleagues = all.stream()
                     .skip(firstResult)
                     .limit(pageSize)
                     .toList();
-            totalColleagues = staffsService.colleagueBycampusId(campusId).size();
         }
 
         totalPages = Math.max(1, (int) Math.ceil((double) totalColleagues / pageSize));
         page = Math.max(1, Math.min(page, totalPages));
 
+        // Lưu page hiện tại
         session.setAttribute("colleaguePage", page);
         session.setAttribute("colleagueTotalPages", totalPages);
 
-        // === TRUYỀN DỮ LIỆU ===
+        // ---- MODEL ----
         model.addAttribute("colleagues", colleagues);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("totalColleagues", totalColleagues);
-        model.addAttribute("searchType", searchType);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("defaultAvatar", "/images/default-avatar.jpg"); // nếu cần
 
-        // Empty state
         if (totalColleagues == 0) {
             model.addAttribute("colleagues", new ArrayList<>());
         }
@@ -81,14 +88,53 @@ public class ColleaguesListController {
         return "StaffColleaguesList";
     }
 
-    // === AVATAR ENDPOINT ===
+    /* ====================== SEARCH (POST) ====================== */
+    @PostMapping("/search")
+    public String searchColleagues(
+            @RequestParam String searchType,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "10") int pageSize,
+            HttpSession session,
+            Model model) {
+
+        // Lưu vào session
+        session.setAttribute("colleagueKeyword", keyword.trim().isEmpty() ? null : keyword.trim());
+        session.setAttribute("colleagueSearchType", searchType);
+        session.setAttribute("colleaguePageSize", pageSize);
+        session.setAttribute("colleaguePage", 1); // reset về trang 1
+
+        // Redirect để tránh submit lại form
+        return "redirect:/staff-home/colleagues-list";
+    }
+
+    /* ====================== CLEAR SEARCH ====================== */
+    @GetMapping("/clear-search")
+    public String clearSearch(HttpSession session) {
+        session.removeAttribute("colleagueKeyword");
+        session.removeAttribute("colleagueSearchType");
+        session.setAttribute("colleaguePage", 1);
+        return "redirect:/staff-home/colleagues-list";
+    }
+
+    /* ====================== CHANGE PAGE SIZE ====================== */
+    @PostMapping("/change-page-size")
+    public String changePageSize(
+            @RequestParam int pageSize,
+            HttpSession session) {
+        pageSize = Math.max(1, Math.min(pageSize, 100));
+        session.setAttribute("colleaguePageSize", pageSize);
+        session.setAttribute("colleaguePage", 1);
+        return "redirect:/staff-home/colleagues-list";
+    }
+
+    /* ====================== AVATAR ====================== */
     @GetMapping("/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getStaffAvatar(@PathVariable String id) {
         Staffs staff = staffsService.getStaffById(id);
         if (staff != null && staff.getAvatar() != null) {
             return ResponseEntity.ok()
-                    .contentType(org.springframework.http.MediaType.IMAGE_JPEG)
+                   .contentType(MediaType.IMAGE_JPEG)
                     .body(staff.getAvatar());
         }
         return ResponseEntity.notFound().build();

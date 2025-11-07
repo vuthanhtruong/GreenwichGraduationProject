@@ -1,42 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Support Ticket</title>
-    <link rel="stylesheet" th:href="@{/EditSupportTicket.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
-    <header class="win11-title-bar">
-        <h1>Edit Support Ticket</h1>
-    </header>
-
-    <form method="post" th:action="@{/admin-home/support-tickets/edit-ticket-form}" th:object="${ticket}">
-        <input type="hidden" name="_method" value="put">
-        <input type="hidden" th:field="*{supportTicketId}">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
-        <div class="win11-panel">
-            <div class="form-group">
-                <label>Ticket Name *</label>
-                <input th:field="*{ticketName}" required class="input" />
-                <div th:if="${errors?.containsKey('ticketName')}" class="text-danger" th:text="${errors.get('ticketName')}"></div>
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea th:field="*{description}" class="input" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Cost *</label>
-                <input type="number" step="0.01" th:field="*{cost}" required class="input" />
-                <div th:if="${errors?.containsKey('cost')}" class="text-danger" th:text="${errors.get('cost')}"></div>
-            </div>
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn home-btn"><i class="fas fa-home"></i> Home</a>
+            <form method="post" th:action="@{/admin-home/support-tickets/back}" class="inline-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn"><i class="fas fa-arrow-left"></i> Back</button>
+            </form>
+            <h2 class="page-title"><i class="fas fa-edit"></i> Edit: <span th:text="${ticket.ticketName}"></span></h2>
         </div>
+    </div>
+
+    <form method="post" th:action="@{/admin-home/support-tickets/update}" th:object="${ticket}" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <section class="win11-panel">
+            <h2 class="panel-header">Ticket Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label>Ticket Name *</label>
+                    <input th:field="*{ticketName}" required class="input"/>
+                </div>
+                <div class="form-row">
+                    <label>Cost *</label>
+                    <input type="number" step="0.01" th:field="*{cost}" required class="input"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Description</label>
+                <textarea th:field="*{description}" rows="5" class="input"></textarea>
+            </div>
+        </section>
+
+        <section class="win11-panel">
+            <h2 class="panel-header">Add More Files</h2>
+            <input type="file" name="newFiles" multiple class="input"/>
+        </section>
 
         <div class="form-actions">
-            <button type="submit" class="btn primary">Save Changes</button>
-            <a th:href="@{/admin-home/support-tickets}" class="btn">Back</a>
+            <button type="submit" class="btn primary"><i class="fas fa-save"></i> Update Ticket</button>
+            <form method="post" th:action="@{/admin-home/support-tickets/back}" class="inline-form">
+                <button type="submit" class="btn danger"><i class="fas fa-times"></i> Cancel</button>
+            </form>
         </div>
     </form>
 </div>

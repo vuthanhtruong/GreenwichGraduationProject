@@ -1,62 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Support Tickets</title>
-    <link rel="stylesheet" th:href="@{/SupportTicketsList.css}">
+    <meta name="viewport" content="width=device-width, initial initial-scale=1.0">
+    <title>Admin - Support Tickets</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
-    <!-- Unified Toolbar -->
+
     <div class="search-toolbar unified-bar">
-        <!-- Left: Navigation -->
         <div class="toolbar-left">
-            <a th:href="@{/admin-home}" class="btn home-btn">
-                <i class="fas fa-home"></i> Home
-            </a>
+            <a th:href="@{/admin-home}" class="btn home-btn"><i class="fas fa-home"></i> Home</a>
+            <h2 class="page-title"><i class="fas fa-ticket"></i> Support Tickets</h2>
         </div>
 
-        <!-- Center: Search -->
-        <div class="toolbar-center">
-            <form method="get" th:action="@{/admin-home/support-tickets}" class="search-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <select name="searchType" class="input">
-                    <option value="name" th:selected="${searchType == 'name'}">Name</option>
-                    <option value="id" th:selected="${searchType == 'id'}">ID</option>
-                </select>
-                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search tickets..." class="input" />
-                <button type="submit" class="btn small">
-                    <i class="fas fa-search"></i> Search
-                </button>
-                <a th:if="${keyword != null}" th:href="@{/admin-home/support-tickets}" class="btn danger small">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            </form>
-        </div>
+        <form method="get" th:action="@{/admin-home/support-tickets}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <select name="searchType" class="input small">
+                <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                <option value="id" th:selected="${searchType == 'id'}">ID</option>
+            </select>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input search-input"/>
+            <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
+            <a th:if="${keyword}" th:href="@{/admin-home/support-tickets}" class="btn small danger"><i class="fas fa-times"></i></a>
+        </form>
 
-        <!-- Right: Actions + Stats -->
         <div class="toolbar-right">
-            <form method="post" th:action="@{/admin-home/support-tickets}" class="page-size-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <label for="pageSizeInput">Show:</label>
-                <input type="number" id="pageSizeInput" name="pageSize" min="1" max="100"
-                       th:value="${pageSize}" class="input small" />
+            <form method="get" class="page-size-form">
+                <label>Show:</label>
+                <input type="number" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small"/>
                 <button type="submit" class="btn small">Apply</button>
             </form>
-
-            <div class="total">
-                <i class="fas fa-ticket-alt"></i>
-                <strong>Total:</strong>
-                <span th:text="${totalTickets}"></span>
-            </div>
-
-            <button type="button" class="btn primary" onclick="openOverlay()">
-                <i class="fas fa-plus-circle"></i> Add Ticket
-            </button>
+            <div class="total"><i class="fas fa-list"></i> Total: <span th:text="${totalTickets}"></span></div>
+            <button type="button" class="btn primary small" onclick="openOverlay()"><i class="fas fa-plus"></i> Add Ticket</button>
         </div>
     </div>
 
+    <div th:if="${message}" class="alert success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert danger" th:text="${error}"></div>
 
     <div class="table-container">
         <table class="win11-table">
@@ -67,7 +50,8 @@
                 <th>Description</th>
                 <th>Cost</th>
                 <th>Creator</th>
-                <th>Created At</th>
+                <th>Created</th>
+                <th>Documents</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -76,94 +60,88 @@
                 <td th:text="${t.supportTicketId}"></td>
                 <td th:text="${t.ticketName}"></td>
                 <td th:text="${#strings.abbreviate(t.description, 50)}"></td>
-                <td th:text="${t.cost}"></td>
-                <td th:text="${t.creator?.fullName}"></td>
+                <td th:text="${#numbers.formatCurrency(t.cost)}"></td>
+                <td th:text="${t.creator?.fullName ?: 'System'}"></td>
                 <td th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
                 <td>
-                    <form method="post" th:action="@{/admin-home/support-tickets/edit-ticket-form}" class="inline-form">
-                        <input type="hidden" name="id" th:value="${t.supportTicketId}" />
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn small">Edit</button>
+                    <form method="post" th:action="@{/admin-home/support-tickets/documents/view}" class="inline-form">
+                        <input type="hidden" name="ticketId" th:value="${t.supportTicketId}"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn small">
+                            <i class="fas fa-eye"></i> View (<span th:text="${docService.countDocumentsByTicketId(t.supportTicketId)}">0</span>)
+                        </button>
                     </form>
-                    <form method="post" th:action="@{/admin-home/support-tickets/delete-ticket/{id}(id=${t.supportTicketId})}" class="inline-form">
-                        <input type="hidden" name="_method" value="delete" />
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn small danger" onclick="return confirm('Delete this ticket?');">Delete</button>
-                    </form>
+                </td>
+                <td>
+                    <div class="actions">
+                        <form method="post" th:action="@{/admin-home/support-tickets/edit}" class="inline-form">
+                            <input type="hidden" name="id" th:value="${t.supportTicketId}"/>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn small"><i class="fas fa-edit"></i></button>
+                        </form>
+                        <form method="post" th:action="@{/admin-home/support-tickets/delete}" class="inline-form"
+                              onclick="return confirm('Delete ticket?');">
+                            <input type="hidden" name="id" th:value="${t.supportTicketId}"/>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn small danger"><i class="fas fa-trash-alt"></i></button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- === PASTE PAGINATION TỪ LECTURERS Ở ĐÂY === -->
+    <!-- THAY TOÀN BỘ PHẦN PAGINATION BẰNG ĐOẠN NÀY -->
     <div class="pagination">
         <a th:href="@{/admin-home/support-tickets(page=1, pageSize=${pageSize})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
         <a th:href="@{/admin-home/support-tickets(page=${currentPage - 1}, pageSize=${pageSize})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
 
-        <span th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 3}"
-               th:href="@{/admin-home/support-tickets(page=1, pageSize=${pageSize})}"
-               class="page-btn number">1</a>
-            <span th:if="${currentPage > 4}" class="page-btn">...</span>
-
-            <a th:each="i : ${#numbers.sequence(
-                (currentPage - 2 > 1 ? currentPage - 2 : 1),
-                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
-            )}"
-               th:if="${i >= 1 and i <= totalPages}"
-               th:href="@{/admin-home/support-tickets(page=${i}, pageSize=${pageSize})}"
+        <!-- DÙNG pageNumbers ĐÃ TÍNH SẴN TRONG CONTROLLER -->
+        <th:block th:each="i : ${pageNumbers}">
+            <a th:href="@{/admin-home/support-tickets(page=${i}, pageSize=${pageSize})}"
                th:classappend="${i == currentPage} ? 'active'"
-               class="page-btn number"
-               th:text="${i}"></a>
+               class="page-btn number" th:text="${i}"></a>
+        </th:block>
 
-            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
-            <a th:if="${currentPage < totalPages - 2}"
-               th:href="@{/admin-home/support-tickets(page=${totalPages}, pageSize=${pageSize})}"
-               class="page-btn number" th:text="${totalPages}"></a>
-        </span>
+        <!-- Hiển thị ... nếu cần -->
+        <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
+        <a th:if="${currentPage < totalPages - 2}"
+           th:href="@{/admin-home/support-tickets(page=${totalPages}, pageSize=${pageSize})}"
+           class="page-btn number" th:text="${totalPages}"></a>
 
         <a th:href="@{/admin-home/support-tickets(page=${currentPage + 1}, pageSize=${pageSize})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
         <a th:href="@{/admin-home/support-tickets(page=${totalPages}, pageSize=${pageSize})}"
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
-
-        <form method="get" th:action="@{/admin-home/support-tickets}" class="page-select-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <label for="pageSelect">Go to page:</label>
-            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
-                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
-                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
-            </select>
-            <input type="hidden" name="pageSize" th:value="${pageSize}" />
-        </form>
     </div>
 
-    <!-- Add Overlay -->
     <div id="addOverlay" class="overlay" th:classappend="${openAddOverlay} ? 'active'">
         <div class="overlay-content">
-            <h2>Add Support Ticket</h2>
-            <form method="post" th:action="@{/admin-home/support-tickets/add-ticket}" th:object="${ticket}">
+            <h2><i class="fas fa-plus"></i> Add New Support Ticket</h2>
+            <form method="post" th:action="@{/admin-home/support-tickets/add-ticket}" th:object="${ticket}" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <div class="form-group">
+                <div class="form-row">
                     <label>Ticket Name *</label>
-                    <input th:field="*{ticketName}" required class="input" />
-                    <div th:if="${errors?.containsKey('ticketName')}" class="text-danger" th:text="${errors.get('ticketName')}"></div>
+                    <input th:field="*{ticketName}" required class="input"/>
                 </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea th:field="*{description}" class="input" rows="3"></textarea>
-                    <div th:if="${errors?.containsKey('description')}" class="text-danger" th:text="${errors.get('description')}"></div>
-                </div>
-                <div class="form-group">
+                <div class="form-row">
                     <label>Cost *</label>
-                    <input type="number" step="0.01" th:field="*{cost}" required class="input" />
-                    <div th:if="${errors?.containsKey('cost')}" class="text-danger" th:text="${errors.get('cost')}"></div>
+                    <input type="number" step="0.01" th:field="*{cost}" required class="input"/>
+                </div>
+                <div class="form-row">
+                    <label>Description</label>
+                    <textarea th:field="*{description}" rows="4" class="input"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Attach Files</label>
+                    <input type="file" name="files" multiple class="input"/>
+                    <div id="filePreview"></div>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn primary">Save</button>
+                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save & Upload</button>
                     <button type="button" class="btn danger" onclick="closeOverlay()">Cancel</button>
                 </div>
             </form>
@@ -174,9 +152,6 @@
 <script>
     function openOverlay() { document.getElementById('addOverlay').classList.add('active'); }
     function closeOverlay() { document.getElementById('addOverlay').classList.remove('active'); }
-</script>
-<script th:if="${openAddOverlay}">
-    document.addEventListener("DOMContentLoaded", openOverlay);
 </script>
 </body>
 </html>

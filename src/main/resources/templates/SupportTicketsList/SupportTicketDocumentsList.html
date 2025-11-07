@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents - Support Ticket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+<body>
+<div class="win11-container">
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/admin-home}" class="btn home-btn"><i class="fas fa-home"></i> Home</a>
+            <form method="post" th:action="@{/admin-home/support-tickets/back}" class="inline-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn"><i class="fas fa-arrow-left"></i> Back</button>
+            </form>
+            <h2 class="page-title"><i class="fas fa-paperclip"></i> Documents: <span th:text="${ticket.ticketName}"></span></h2>
+        </div>
+        <div class="toolbar-right">
+            <div class="total"><i class="fas fa-list"></i> Total: <span th:text="${totalDocuments}"></span></div>
+            <button type="button" class="btn primary small" onclick="openOverlay()"><i class="fas fa-plus"></i> Upload</button>
+        </div>
+    </div>
+
+    <div th:if="${message}" class="alert success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert danger" th:text="${error}"></div>
+
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="doc : ${documents}">
+                <td th:text="${doc.fileName}"></td>
+                <td th:text="${#numbers.formatDecimal(doc.fileSize/1024, 1, 2) + ' KB'}"></td>
+                <td th:text="${#temporals.format(doc.uploadedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <a th:href="@{/admin-home/support-tickets/download-document(id=${doc.getDocumentId()})}" class="btn small"><i class="fas fa-download"></i></a>
+                    <form method="post" th:action="@{/admin-home/support-tickets/delete-document}" class="inline-form"
+                          onclick="return confirm('Delete this file?');">
+                        <input type="hidden" name="id" th:value="${doc.getDocumentId()}"/>
+                        <input type="hidden" name="ticketId" th:value="${ticket.supportTicketId}"/>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn small danger"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="addOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2><i class="fas fa-upload"></i> Upload New Document</h2>
+            <form method="post" th:action="@{/admin-home/support-tickets/documents/upload}" enctype="multipart/form-data">
+                <input type="hidden" name="ticketId" th:value="${ticket.supportTicketId}"/>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="file" name="files" multiple required class="input"/>
+                <div class="form-actions">
+                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Upload</button>
+                    <button type="button" class="btn danger" onclick="closeOverlay()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openOverlay() { document.getElementById('addOverlay').classList.add('active'); }
+    function closeOverlay() { document.getElementById('addOverlay').classList.remove('active'); }
+</script>
+</body>
+</html>

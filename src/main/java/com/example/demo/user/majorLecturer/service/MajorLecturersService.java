@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface MajorLecturersService {
+    long countSearchMajorLecturersByCampus(String campusId, String searchType, String keyword);
+    List<MajorLecturers> getColleaguesByMajor(String majorId);
     List<MajorLecturers> colleagueBycampusId(String campusId);
     MajorLecturers getMajorLecturer();
     long minorLecturersCountByCampus(String campusId);
