@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -33,7 +34,7 @@ public class ListSpecializedMemberDesignationsController {
     public ListSpecializedMemberDesignationsController(
             SpecializedSubjectsService subjectsService,
             StaffsService staffsService,
-            StudentRequiredSpecializedSubjectsService  studentRequiredSubjectsService,
+            StudentRequiredSpecializedSubjectsService studentRequiredSubjectsService,
             StudentsService studentsService) {
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
@@ -45,18 +46,24 @@ public class ListSpecializedMemberDesignationsController {
     public String assignMembersPost(
             @RequestParam("id") String subjectId,
             @RequestParam(required = false) String curriculumId,
+            @RequestParam(required = false) LocalDate admissionYear,
             HttpSession session) {
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
         return "redirect:/staff-home/specialized-study-plan/assign-members";
     }
 
     @GetMapping("/specialized-study-plan/assign-members")
     public String assignMembersGet(
             HttpSession session,
-            Model model) {
+            Model model,
+            @RequestParam(required = false) LocalDate admissionYear) {
+
         String subjectId = (String) session.getAttribute("currentSubjectId");
         String curriculumId = (String) session.getAttribute("currentCurriculumId");
+        LocalDate sessionAdmissionYear = (LocalDate) session.getAttribute("currentAdmissionYear");
+        LocalDate finalAdmissionYear = admissionYear != null ? admissionYear : sessionAdmissionYear;
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
@@ -71,9 +78,13 @@ public class ListSpecializedMemberDesignationsController {
         }
 
         model.addAttribute("subject", subject);
-        model.addAttribute("studentsNotRequired", studentRequiredSubjectsService.getStudentNotRequiredSpecializedSubjects(subject));
-        model.addAttribute("studentRequiredSubjects", studentRequiredSubjectsService.getStudentRequiredSpecializedSubjects(subject));
+        model.addAttribute("studentsNotRequired",
+                studentRequiredSubjectsService.getStudentNotRequiredSpecializedSubjects(subject, finalAdmissionYear));
+        model.addAttribute("studentRequiredSubjects",
+                studentRequiredSubjectsService.getStudentRequiredSpecializedSubjects(subject));
         model.addAttribute("curriculumId", curriculumId);
+        model.addAttribute("admissionYear", finalAdmissionYear);
+
         return "AssignSpecializedMembers";
     }
 
@@ -81,9 +92,11 @@ public class ListSpecializedMemberDesignationsController {
     public String addSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         SpecializedSubject subject = subjectsService.getSubjectById(subjectId);
         if (subject == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Subject not found.");
@@ -98,6 +111,7 @@ public class ListSpecializedMemberDesignationsController {
 
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
 
         if (studentIds == null || studentIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No students selected to assign.");
@@ -135,11 +149,14 @@ public class ListSpecializedMemberDesignationsController {
     public String removeSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
 
         if (studentIds == null || studentIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No students selected to remove.");

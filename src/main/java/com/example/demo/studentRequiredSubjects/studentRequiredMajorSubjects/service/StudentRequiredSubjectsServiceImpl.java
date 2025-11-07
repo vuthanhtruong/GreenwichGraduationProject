@@ -7,9 +7,15 @@ import com.example.demo.user.student.model.Students;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 @Service
 public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
+    @Override
+    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear) {
+        return studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subjects, admissionYear);
+    }
+
     @Override
     public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
         return studentRequiredSubjectsDAO.getSubjectsByCurriculumId(curriculumId);
@@ -52,8 +58,4 @@ public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjec
         return studentRequiredSubjectsDAO.getStudentRequiredMajorSubjects(subjects);
     }
 
-    @Override
-    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects) {
-        return studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subjects);
-    }
 }

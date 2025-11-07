@@ -1,9 +1,7 @@
 package com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.controller;
 
-import com.example.demo.campus.model.Campuses;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
-import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.model.StudentRequiredMinorSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.service.StudentRequiredMinorSubjectsService;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
@@ -17,78 +15,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.Year;
 import java.util.List;
 
 @Controller
 @RequestMapping("/deputy-staff-home")
 @PreAuthorize("hasRole('DEPUTY_STAFF')")
-public class DeputyMinorStudyPlanController {
+public class MinorAssignMembersController {
 
-    private final TuitionByYearService tuitionByYearService;
     private final MinorSubjectsService minorSubjectsService;
     private final StudentRequiredMinorSubjectsService minorRequiredService;
     private final DeputyStaffsService deputyStaffsService;
     private final StudentsService studentsService;
 
-    public DeputyMinorStudyPlanController(
-            TuitionByYearService tuitionByYearService,
+    public MinorAssignMembersController(
             MinorSubjectsService minorSubjectsService,
             StudentRequiredMinorSubjectsService minorRequiredService,
             DeputyStaffsService deputyStaffsService,
             StudentsService studentsService) {
-        this.tuitionByYearService = tuitionByYearService;
         this.minorSubjectsService = minorSubjectsService;
         this.minorRequiredService = minorRequiredService;
         this.deputyStaffsService = deputyStaffsService;
         this.studentsService = studentsService;
     }
 
-    // Main page: List all Minor subjects with tuition
-    @GetMapping("/minor-study-plan")
-    public String minorStudyPlan(
-            @RequestParam(required = false) Integer admissionYear,
-            HttpSession session,
-            Model model) {
-
-        Campuses campus = deputyStaffsService.getCampus();
-        if (campus == null) {
-            model.addAttribute("errorMessage", "Unable to determine your campus.");
-            return "DeputyMinorStudyPlan";
-        }
-
-        if (admissionYear == null) {
-            admissionYear = Year.now().getValue();
-        }
-
-        List<Integer> availableYears = tuitionByYearService.findAllAdmissionYearsWithMinorTuition(campus);
-        List<MinorSubjects> subjects = tuitionByYearService.getMinorSubjectsWithTuitionByYear(admissionYear, campus);
-
-        model.addAttribute("subjects", subjects);
-        model.addAttribute("availableYears", availableYears);
-        model.addAttribute("selectedYear", admissionYear);
-        model.addAttribute("totalSubjects", subjects.size());
-
-        session.setAttribute("minorAdmissionYear", admissionYear);
-
-        return "DeputyMinorStudyPlan";
-    }
-
-    // Filter by admission year
-    @PostMapping("/minor-study-plan/filter")
-    public String filterByYear(@RequestParam Integer admissionYear, HttpSession session) {
-        session.setAttribute("minorAdmissionYear", admissionYear);
-        return "redirect:/deputy-staff-home/minor-study-plan?admissionYear=" + admissionYear;
-    }
-
-    // Go to assignment page
-    @PostMapping("/minor-study-plan/go-to-assign")
-    public String goToAssign(@RequestParam String subjectId, HttpSession session) {
-        session.setAttribute("currentMinorSubjectId", subjectId);
-        return "redirect:/deputy-staff-home/minor-study-plan/assign-members";
-    }
-
-    // Assignment page
     @GetMapping("/minor-study-plan/assign-members")
     public String assignMembers(HttpSession session, Model model, RedirectAttributes ra) {
         String subjectId = (String) session.getAttribute("currentMinorSubjectId");
@@ -111,7 +60,6 @@ public class DeputyMinorStudyPlanController {
         return "DeputyMinorAssignMembers";
     }
 
-    // Add selected students
     @PostMapping("/minor-study-plan/assign/add")
     public String addStudents(
             @RequestParam String subjectId,
@@ -126,8 +74,12 @@ public class DeputyMinorStudyPlanController {
         }
 
         DeputyStaffs staff = deputyStaffsService.getDeputyStaff();
-        int addedCount = 0;
+        if (staff == null) {
+            ra.addFlashAttribute("errorMessage", "Deputy staff not found.");
+            return "redirect:/deputy-staff-home/minor-study-plan/assign-members";
+        }
 
+        int addedCount = 0;
         for (String studentId : studentIds) {
             if (minorRequiredService.isStudentAlreadyRequiredForSubject(studentId, subjectId)) {
                 continue;
@@ -150,7 +102,6 @@ public class DeputyMinorStudyPlanController {
         return "redirect:/deputy-staff-home/minor-study-plan/assign-members";
     }
 
-    // Remove selected students
     @PostMapping("/minor-study-plan/assign/remove")
     public String removeStudents(
             @RequestParam String subjectId,

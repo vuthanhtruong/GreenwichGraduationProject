@@ -1,5 +1,6 @@
 package com.example.demo.academicTranscript.dao;
 
+import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.academicTranscript.model.MajorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
@@ -22,6 +23,17 @@ import java.util.List;
 @Repository
 @Transactional
 public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
+    @Override
+    public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
+        return entityManager.createQuery(
+                        "SELECT a FROM AcademicTranscripts a " +
+                                "WHERE a.student = :student AND a.grade = :failGrade",
+                        AcademicTranscripts.class)
+                .setParameter("student", student)
+                .setParameter("failGrade", Grades.REFER)
+                .getResultList();
+    }
+
     @Override
     public List<MajorAcademicTranscripts> getAcademicTranscriptsByMajorClass(Students student, MajorClasses majorClass) {
         return entityManager.createQuery("from MajorAcademicTranscripts m where m.student=:student and m.majorClass=:majorClass").

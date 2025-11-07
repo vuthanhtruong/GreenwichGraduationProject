@@ -6,4 +6,5 @@ public interface AccountBalancesService {
     void createAccountBalances(AccountBalances accountBalances);
     AccountBalances findByStudentId(String studentId);
     void DepositMoneyIntoAccount(AccountBalances accountBalances);
+    boolean hasSufficientBalance(String studentId, double requiredAmount);
 }

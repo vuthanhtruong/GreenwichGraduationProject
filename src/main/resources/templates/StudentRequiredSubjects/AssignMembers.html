@@ -16,7 +16,7 @@
             <a th:href="@{/staff-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a th:href="@{/staff-home/study-plan(curriculumId=${curriculumId})}" class="btn small">
+            <a th:href="@{/staff-home/study-plan(curriculumId=${curriculumId}, admissionYear=${admissionYear})}" class="btn small">
                 <i class="fas fa-list"></i> Back to Subjects
             </a>
         </div>
@@ -31,13 +31,13 @@
         </div>
     </div>
 
-
     <!-- Assigned Students -->
     <div class="table-container">
         <h2><i class="fas fa-user-check"></i> Assigned Students</h2>
         <form th:action="@{/staff-home/study-plan/assign-members/remove}" method="post">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
             <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+            <input type="hidden" name="admissionYear" th:value="${admissionYear}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
@@ -55,7 +55,7 @@
                     <td th:text="${srs.student.id}"></td>
                     <td th:text="${srs.student.firstName + ' ' + srs.student.lastName}"></td>
                     <td th:text="${srs.requiredReason ?: 'N/A'}"></td>
-                    <td th:text="${srs.assignedBy != null} ? ${srs.assignedBy.fullName} : 'N/A'"></td>
+                    <td th:text="${srs.assignedBy != null ? srs.assignedBy.fullName : 'N/A'}"></td>
                 </tr>
                 <tr th:if="${studentRequiredSubjects == null or #lists.isEmpty(studentRequiredSubjects)}">
                     <td colspan="5" class="text-center">No students assigned.</td>
@@ -74,6 +74,7 @@
         <form th:action="@{/staff-home/study-plan/assign-members/add}" method="post">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
             <input type="hidden" name="curriculumId" th:value="${curriculumId}">
+            <input type="hidden" name="admissionYear" th:value="${admissionYear}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
@@ -87,7 +88,7 @@
                 <tr th:each="student : ${studentsNotRequired}">
                     <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
                     <td th:text="${student.id}"></td>
-                    <td th:text="${student.firstName + ' ' + student.lastName}"></td>
+                    <td th:text="${student.firstName + ' ' + srs.student.lastName}"></td>
                 </tr>
                 <tr th:if="${studentsNotRequired == null or #lists.isEmpty(studentsNotRequired)}">
                     <td colspan="3" class="text-center">No students available to assign.</td>
@@ -102,10 +103,8 @@
 
     <script>
         function toggleCheckboxes(master, group) {
-            const checkboxes = document.getElementsByName(group === 'assignedStudents' ? 'studentIds' : 'studentIds');
-            for (let checkbox of checkboxes) {
-                checkbox.checked = master.checked;
-            }
+            const checkboxes = document.querySelectorAll('input[name="studentIds"]');
+            checkboxes.forEach(cb => cb.checked = master.checked);
         }
     </script>
 

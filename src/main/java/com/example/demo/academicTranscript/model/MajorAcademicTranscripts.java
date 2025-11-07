@@ -28,9 +28,24 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Override
+    public String getSubjectName() {
+        return majorClass != null && majorClass.getSubject() != null
+                ? majorClass.getSubject().getSubjectName()
+                : "N/A";
+    }
+
+    @Override
+    public String getSubjectId() {
+        return majorClass != null && majorClass.getSubject() != null
+                ? majorClass.getSubject().getSubjectId()
+                : "N/A";
+    }
+
     public MajorAcademicTranscripts() {}
 
-    public MajorAcademicTranscripts(String transcriptId, Students student, MajorClasses majorClass, Grades grade, LocalDateTime createdAt, Staffs creator) {
+    public MajorAcademicTranscripts(String transcriptId, Students student, MajorClasses majorClass,
+                                    Grades grade, LocalDateTime createdAt, Staffs creator) {
         super(transcriptId, student, grade, createdAt);
         this.majorClass = majorClass;
         if (creator == null) {

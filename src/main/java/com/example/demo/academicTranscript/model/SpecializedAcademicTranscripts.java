@@ -28,10 +28,22 @@ public class SpecializedAcademicTranscripts extends AcademicTranscripts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Override
+    public String getSubjectName() {
+        return specializedClass != null ? specializedClass.getSpecializedSubject().getSubjectName() : "N/A";
+    }
+
+    @Override
+    public String getSubjectId() {
+        return specializedClass != null && specializedClass.getSpecializedSubject() != null
+                ? specializedClass.getSpecializedSubject().getSubjectId()
+                : "N/A";
+    }
+
     public SpecializedAcademicTranscripts() {}
 
-    public SpecializedAcademicTranscripts(String transcriptId, Students student, SpecializedClasses specializedClass, Grades grade,
-                                          LocalDateTime createdAt, Staffs creator) {
+    public SpecializedAcademicTranscripts(String transcriptId, Students student, SpecializedClasses specializedClass,
+                                          Grades grade, LocalDateTime createdAt, Staffs creator) {
         super(transcriptId, student, grade, createdAt);
         this.specializedClass = specializedClass;
         if (creator == null) {

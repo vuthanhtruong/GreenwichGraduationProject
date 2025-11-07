@@ -41,6 +41,10 @@ public abstract class AcademicTranscripts {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
+    // ABSTRACT METHOD: Returns subject name as String
+    public abstract String getSubjectName();
+    public abstract String getSubjectId();
+
     public AcademicTranscripts() {}
 
     public AcademicTranscripts(String transcriptId, Students student, Grades grade, LocalDateTime createdAt) {

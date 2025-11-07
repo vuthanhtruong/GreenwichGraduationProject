@@ -6,39 +6,56 @@
     <title>Assign Members to Specialized Class</title>
     <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .text-center { text-align: center; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn.primary { background: #007bff; color: white; }
+        .btn.danger { background: #dc3545; color: white; }
+        .btn:disabled { background: #6c757d; cursor: not-allowed; }
+        .table-container { margin-bottom: 30px; padding: 15px; border: 1px solid #dee2e6; border-radius: 8px; background: #fff; }
+        .win11-table { width: 100%; border-collapse: collapse; }
+        .win11-table th, .win11-table td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        .win11-table th { background: #e9ecef; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+        .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Unified Toolbar -->
+    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn home-btn">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <a th:href="@{/staff-home/specialized-classes-list}" class="btn">
-                <i class="fas fa-list"></i> Classes
-            </a>
+            <a th:href="@{/staff-home}" class="btn home-btn">Home</a>
+            <a th:href="@{/staff-home/specialized-classes-list}" class="btn">Classes</a>
             <h2 class="page-title">
-                <i class="fas fa-user-gear"></i>
-                Assign Members – <span th:text="${class.nameClass}"></span>
+                Assign Members – <span th:text="${class.nameClass}">N/A</span>
             </h2>
         </div>
     </div>
 
+    <!-- Flash Messages -->
+    <div class="alert error" th:if="${errorMessage != null}">
+        <span th:text="${errorMessage}"></span>
+    </div>
+    <div class="alert success" th:if="${successMessage != null}">
+        <span th:text="${successMessage}"></span>
+    </div>
 
     <!-- Assigned Lecturers -->
     <div class="table-container">
-        <h2><i class="fas fa-user-check"></i> Assigned Lecturers</h2>
+        <h2>Assigned Lecturers</h2>
         <form th:action="@{/staff-home/specialized-classes-list/remove-lecturer-from-class}" method="post">
             <input type="hidden" name="classId" th:value="${class.classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th><input type="checkbox" id="selectAllAssignedLecturers" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
-                    <th><i class="fas fa-id-card"></i> Lecturer ID</th>
-                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><input type="checkbox" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
+                    <th>ID</th>
+                    <th>Name</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -47,29 +64,29 @@
                     <td th:text="${lecturer.id}"></td>
                     <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
                 </tr>
-                <tr th:if="${lecturersInClass == null or #lists.isEmpty(lecturersInClass)}">
+                <tr th:if="${#lists.isEmpty(lecturersInClass)}">
                     <td colspan="3" class="text-center">No lecturers assigned.</td>
                 </tr>
                 </tbody>
             </table>
             <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(lecturersInClass)}">
-                <i class="fas fa-trash"></i> Remove Selected
+                Remove Selected
             </button>
         </form>
     </div>
 
     <!-- Not Assigned Lecturers -->
     <div class="table-container">
-        <h2><i class="fas fa-user-times"></i> Lecturers Not Assigned</h2>
+        <h2>Lecturers Not Assigned</h2>
         <form th:action="@{/staff-home/specialized-classes-list/add-lecturer-to-class}" method="post">
             <input type="hidden" name="classId" th:value="${class.classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th><input type="checkbox" id="selectAllNotAssignedLecturers" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
-                    <th><i class="fas fa-id-card"></i> Lecturer ID</th>
-                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><input type="checkbox" onclick="toggleCheckboxes(this, 'lecturerIds')"></th>
+                    <th>ID</th>
+                    <th>Name</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -78,30 +95,30 @@
                     <td th:text="${lecturer.id}"></td>
                     <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
                 </tr>
-                <tr th:if="${lecturersNotInClass == null or #lists.isEmpty(lecturersNotInClass)}">
-                    <td colspan="3" class="text-center">No lecturers available to assign.</td>
+                <tr th:if="${#lists.isEmpty(lecturersNotInClass)}">
+                    <td colspan="3" class="text-center">No lecturers available.</td>
                 </tr>
                 </tbody>
             </table>
             <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(lecturersNotInClass)}">
-                <i class="fas fa-plus"></i> Assign Selected
+                Assign Selected
             </button>
         </form>
     </div>
 
     <!-- Assigned Students -->
     <div class="table-container">
-        <h2><i class="fas fa-user-check"></i> Assigned Students</h2>
+        <h2>Assigned Students</h2>
         <form th:action="@{/staff-home/specialized-classes-list/remove-student-from-class}" method="post">
             <input type="hidden" name="classId" th:value="${class.classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th><input type="checkbox" id="selectAllAssignedStudents" onclick="toggleCheckboxes(this, 'studentIds')"></th>
-                    <th><i class="fas fa-id-card"></i> Student ID</th>
-                    <th><i class="fas fa-user"></i> Name</th>
-                    <th><i class="fas fa-user-shield"></i> Assigned By</th>
+                    <th><input type="checkbox" onclick="toggleCheckboxes(this, 'studentIds')"></th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Assigned By</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -109,31 +126,31 @@
                     <td><input type="checkbox" name="studentIds" th:value="${ssc.student.id}"></td>
                     <td th:text="${ssc.student.id}"></td>
                     <td th:text="${ssc.student.firstName + ' ' + ssc.student.lastName}"></td>
-                    <td th:text="${ssc.addedBy != null} ? ${ssc.addedBy.fullName} : 'N/A'"></td>
+                    <td th:text="${ssc.addedBy != null ? ssc.addedBy.fullName : 'N/A'}">N/A</td>
                 </tr>
-                <tr th:if="${studentsInClass == null or #lists.isEmpty(studentsInClass)}">
+                <tr th:if="${#lists.isEmpty(studentsInClass)}">
                     <td colspan="4" class="text-center">No students assigned.</td>
                 </tr>
                 </tbody>
             </table>
             <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(studentsInClass)}">
-                <i class="fas fa-trash"></i> Remove Selected
+                Remove Selected
             </button>
         </form>
     </div>
 
     <!-- Not Assigned Students -->
     <div class="table-container">
-        <h2><i class="fas fa-user-times"></i> Students Not Assigned</h2>
+        <h2>Students Not Assigned</h2>
         <form th:action="@{/staff-home/specialized-classes-list/add-student-to-class}" method="post">
             <input type="hidden" name="classId" th:value="${class.classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th><input type="checkbox" id="selectAllNotAssignedStudents" onclick="toggleCheckboxes(this, 'studentIds')"></th>
-                    <th><i class="fas fa-id-card"></i> Student ID</th>
-                    <th><i class="fas fa-user"></i> Name</th>
+                    <th><input type="checkbox" onclick="toggleCheckboxes(this, 'studentIds')"></th>
+                    <th>ID</th>
+                    <th>Name</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -142,13 +159,47 @@
                     <td th:text="${student.id}"></td>
                     <td th:text="${student.firstName + ' ' + student.lastName}"></td>
                 </tr>
-                <tr th:if="${studentsNotInClass == null or #lists.isEmpty(studentsNotInClass)}">
-                    <td colspan="3" class="text-center">No students available to assign.</td>
+                <tr th:if="${#lists.isEmpty(studentsNotInClass)}">
+                    <td colspan="3" class="text-center">No students available.</td>
                 </tr>
                 </tbody>
             </table>
             <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsNotInClass)}">
-                <i class="fas fa-plus"></i> Assign Selected
+                Assign Selected
+            </button>
+        </form>
+    </div>
+
+    <!-- Students Failed and Paid (Re-study) -->
+    <div class="table-container">
+        <h2>Students Failed and Paid (Re-study)</h2>
+        <form th:action="@{/staff-home/specialized-classes-list/add-student-to-class}" method="post">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" onclick="toggleCheckboxes(this, 'studentIds')"></th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Registered At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${studentsFailedAndPaid}"
+                    th:with="retakeEntry=${#lists.find(retakeList, 'student.id', student.id)}">
+                    <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
+                    <td th:text="${student.id}"></td>
+                    <td th:text="${student.firstName + ' ' + student.lastName}">N/A</td>
+                    <td th:text="${retakeEntry != null ? #temporals.format(retakeEntry.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">N/A</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(studentsFailedAndPaid)}">
+                    <td colspan="4" class="text-center">No students have registered for re-study.</td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsFailedAndPaid)}">
+                Add Selected Students
             </button>
         </form>
     </div>

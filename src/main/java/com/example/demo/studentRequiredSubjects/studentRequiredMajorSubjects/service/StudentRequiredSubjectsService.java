@@ -5,11 +5,12 @@ import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.mod
 import com.example.demo.user.student.model.Students;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface StudentRequiredSubjectsService {
     List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
-    List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects);
+    List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear);
     List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
     List<MajorSubjects> studentMajorRoadmap(Students student);
     List<MinorSubjects> studentMinorRoadmap(Students student);

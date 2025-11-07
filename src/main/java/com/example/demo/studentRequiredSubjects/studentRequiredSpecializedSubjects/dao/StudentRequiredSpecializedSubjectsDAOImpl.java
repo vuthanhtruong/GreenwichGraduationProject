@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -69,7 +70,7 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
     }
 
     @Override
-    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject) {
+    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, LocalDate admissionYear) {
         if (subject == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
@@ -81,13 +82,14 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
                                 "AND NOT EXISTS (" +
                                 "   SELECT 1 FROM StudentRequiredSpecializedSubjects srs " +
                                 "   WHERE srs.student = s " +
-                                "   AND srs.specializedSubject = :subject" +
+                                "   AND srs.specializedSubject = :subject and s.admissionYear=:admissionYear" +
                                 ")",
                         Students.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
                 .setParameter("curriculum",subject.getCurriculum())
                 .setParameter("campus", staffsService.getCampusOfStaff())
+                .setParameter("admissionYear",admissionYear)
                 .getResultList();
     }
 

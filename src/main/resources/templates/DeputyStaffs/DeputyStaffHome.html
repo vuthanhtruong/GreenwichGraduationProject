@@ -49,6 +49,14 @@
             </span>
         </a>
 
+        <a class="dashboard-card warning" th:href="@{/deputy-staff-home/minor-subjects-list}">
+            <span class="icon"><i class="fas fa-book-open"></i></span>
+            <span class="meta">
+                <strong>Minor Subjects</strong>
+                <small>View & manage subjects</small>
+            </span>
+        </a>
+
         <a class="dashboard-card success" th:href="@{/deputy-staff-home/minor-classes-list}">
             <span class="icon"><i class="fas fa-calendar-check"></i></span>
             <span class="meta">
@@ -57,13 +65,9 @@
             </span>
         </a>
 
-        <!-- ===== ACADEMIC CONTENT ===== -->
-        <a class="dashboard-card warning" th:href="@{/deputy-staff-home/minor-subjects-list}">
-            <span class="icon"><i class="fas fa-book-open"></i></span>
-            <span class="meta">
-                <strong>Minor Subjects</strong>
-                <small>View & manage subjects</small>
-            </span>
+        <a class="dashboard-card" th:href="@{/deputy-staff-home/minor-study-plan}">
+            <span class="icon"><i class="fas fa-diagram-project"></i></span>
+            <span class="meta"><strong>Study Plan</strong><small>study management</small></span>
         </a>
 
         <a class="dashboard-card neutral" th:href="@{/deputy-staff-home/blogs}">
@@ -91,9 +95,9 @@
             </span>
         </a>
 
-        <a class="dashboard-card" th:href="@{/deputy-staff-home/minor-study-plan}">
-            <span class="icon"><i class="fas fa-diagram-project"></i></span>
-            <span class="meta"><strong>Study Plan</strong><small>study management</small></span>
+        <a class="dashboard-card" th:href="@{/check-news}">
+            <span class="icon"><i class="fas fa-newspaper"></i></span>
+            <span class="meta"><strong>News</strong><small>Latest announcements & events</small></span>
         </a>
 
     </section>

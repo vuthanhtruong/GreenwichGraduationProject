@@ -10,6 +10,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -63,7 +64,7 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
-    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects) {
+    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear) {
         if (subjects == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
@@ -71,11 +72,12 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
         return entityManager.createQuery(
                         "SELECT s FROM Students s LEFT JOIN StudentRequiredMajorSubjects srs " +
                                 "ON s.id = srs.student.id AND srs.subject = :subjects " +
-                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND s.curriculum=:curriculum",
+                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND s.curriculum=:curriculum and s.admissionYear=:admissionYear",
                         Students.class)
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
                 .setParameter("curriculum", subjects.getCurriculum())
+                .setParameter("admissionYear",admissionYear)
                 .getResultList();
     }
 

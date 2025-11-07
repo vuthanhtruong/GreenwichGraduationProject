@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -45,18 +46,25 @@ public class ListMemberDesignationsController {
     public String assignMembersPost(
             @RequestParam("id") String subjectId,
             @RequestParam(required = false) String curriculumId,
+            @RequestParam(required = false) LocalDate admissionYear,
             HttpSession session) {
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
         return "redirect:/staff-home/study-plan/assign-members";
     }
 
     @GetMapping("/study-plan/assign-members")
     public String assignMembersGet(
             HttpSession session,
-            Model model) {
+            Model model,
+            @RequestParam(required = false) LocalDate admissionYear) {
+
         String subjectId = (String) session.getAttribute("currentSubjectId");
         String curriculumId = (String) session.getAttribute("currentCurriculumId");
+        LocalDate sessionAdmissionYear = (LocalDate) session.getAttribute("currentAdmissionYear");
+
+        LocalDate finalAdmissionYear = admissionYear != null ? admissionYear : sessionAdmissionYear;
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
@@ -71,9 +79,13 @@ public class ListMemberDesignationsController {
         }
 
         model.addAttribute("subject", subject);
-        model.addAttribute("studentsNotRequired", studentRequiredSubjectsService.getStudentNotRequiredMajorSubjects(subject));
-        model.addAttribute("studentRequiredSubjects", studentRequiredSubjectsService.getStudentRequiredMajorSubjects(subject));
+        model.addAttribute("studentsNotRequired",
+                studentRequiredSubjectsService.getStudentNotRequiredMajorSubjects(subject, finalAdmissionYear));
+        model.addAttribute("studentRequiredSubjects",
+                studentRequiredSubjectsService.getStudentRequiredMajorSubjects(subject));
         model.addAttribute("curriculumId", curriculumId);
+        model.addAttribute("admissionYear", finalAdmissionYear);
+
         return "AssignMembers";
     }
 
@@ -81,9 +93,11 @@ public class ListMemberDesignationsController {
     public String addSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         MajorSubjects subject = majorSubjectsService.getSubjectById(subjectId);
         if (subject == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Subject not found.");
@@ -98,6 +112,7 @@ public class ListMemberDesignationsController {
 
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
 
         if (studentIds == null || studentIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No students selected to assign.");
@@ -135,11 +150,14 @@ public class ListMemberDesignationsController {
     public String removeSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
+            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
+        session.setAttribute("currentAdmissionYear", admissionYear);
 
         if (studentIds == null || studentIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "No students selected to remove.");

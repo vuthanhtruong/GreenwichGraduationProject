@@ -3,15 +3,17 @@ package com.example.demo.students_Classes.students_MajorClass.controller;
 import com.example.demo.classes.abstractClasses.model.Classes;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
-import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.service.MajorLecturers_MajorClassesService;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.students_Classes.abstractStudents_Class.model.StudentsClassesId;
 import com.example.demo.students_Classes.students_MajorClass.model.Students_MajorClasses;
 import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.staff.service.StaffsService;
+import com.example.demo.RetakeSubjects.model.RetakeSubjects;
+import com.example.demo.RetakeSubjects.service.ReStudyPaymentService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/staff-home/classes-list")
@@ -34,6 +37,7 @@ public class MemberArrangementController {
     private final MajorLecturers_MajorClassesService lecturersClassesService;
     private final StaffsService staffsService;
     private final StudentsService studentsService;
+    private final ReStudyPaymentService reStudyPaymentService; // ← MỚI
 
     @Autowired
     public MemberArrangementController(
@@ -41,18 +45,18 @@ public class MemberArrangementController {
             MajorClassesService classesService,
             MajorLecturers_MajorClassesService lecturersClassesService,
             StaffsService staffsService,
-            StudentsService studentsService) {
+            StudentsService studentsService,
+            ReStudyPaymentService reStudyPaymentService) { // ← THÊM SERVICE
         this.studentsMajorClassesService = studentsMajorClassesService;
         this.classesService = classesService;
         this.lecturersClassesService = lecturersClassesService;
         this.staffsService = staffsService;
         this.studentsService = studentsService;
+        this.reStudyPaymentService = reStudyPaymentService;
     }
 
     @GetMapping("/member-arrangement")
-    public String showMemberArrangement(
-            Model model,
-            HttpSession session) {
+    public String showMemberArrangement(Model model, HttpSession session) {
         String classId = (String) session.getAttribute("currentClassId");
         if (classId == null) {
             model.addAttribute("errorMessage", "No class selected");
@@ -61,6 +65,8 @@ public class MemberArrangementController {
             model.addAttribute("studentsNotInClass", new ArrayList<Students>());
             model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+            model.addAttribute("studentsFailedAndPaid", new ArrayList<Students>());
+            model.addAttribute("retakeList", new ArrayList<RetakeSubjects>());
             return "MemberArrangement";
         }
 
@@ -72,20 +78,36 @@ public class MemberArrangementController {
             model.addAttribute("studentsNotInClass", new ArrayList<Students>());
             model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
             model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+            model.addAttribute("studentsFailedAndPaid", new ArrayList<Students>());
+            model.addAttribute("retakeList", new ArrayList<RetakeSubjects>());
             return "MemberArrangement";
         }
 
+        // === DANH SÁCH CŨ ===
         List<Students> studentsInClass = studentsMajorClassesService.getStudentsByClass(classEntity);
         List<Students> studentsNotInClass = studentsMajorClassesService.getStudentsNotInClassAndSubject(
                 classId, classEntity.getSubject().getSubjectId());
         List<MajorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(classEntity);
         List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(classEntity);
 
+        // === MỚI: SINH VIÊN ĐÃ ĐĂNG KÝ HỌC LẠI (RETAKE) ===
+        String subjectId = classEntity.getSubject().getSubjectId();
+        List<RetakeSubjects> retakeList = reStudyPaymentService.getRetakeSubjectsBySubjectId(subjectId);
+
+        List<Students> studentsFailedAndPaid = retakeList.stream()
+                .map(RetakeSubjects::getStudent)
+                .filter(Objects::nonNull)
+                .toList();
+
+        // === GỬI DỮ LIỆU ===
         model.addAttribute("class", classEntity);
         model.addAttribute("studentsInClass", studentsInClass);
         model.addAttribute("studentsNotInClass", studentsNotInClass);
         model.addAttribute("lecturersInClass", lecturersInClass);
         model.addAttribute("lecturersNotInClass", lecturersNotInClass);
+        model.addAttribute("studentsFailedAndPaid", studentsFailedAndPaid);
+        model.addAttribute("retakeList", retakeList); // ← CẦN ĐỂ HIỂN THỊ createdAt
+
         return "MemberArrangement";
     }
 
@@ -117,24 +139,13 @@ public class MemberArrangementController {
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
             if (classEntity == null) {
                 errors.add("Class not found");
-                model.addAttribute("errorMessage", "Class not found");
-                model.addAttribute("class", new MajorClasses());
-                model.addAttribute("studentsInClass", new ArrayList<Students>());
-                model.addAttribute("studentsNotInClass", new ArrayList<Students>());
-                model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
-                model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
             if (studentIds == null || studentIds.isEmpty()) {
                 errors.add("No students selected for removal");
-                model.addAttribute("errorMessage", "No students selected for removal");
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -147,13 +158,7 @@ public class MemberArrangementController {
             }
 
             if (!errors.isEmpty()) {
-                model.addAttribute("errorMessage", String.join("; ", errors));
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -161,15 +166,9 @@ public class MemberArrangementController {
             session.setAttribute("currentClassId", classId);
             return "redirect:/staff-home/classes-list/member-arrangement";
         } catch (Exception e) {
-            errors.add("An error occurred while removing students: " + e.getMessage());
+            errors.add("An error occurred: " + e.getMessage());
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
-            model.addAttribute("errorMessage", String.join("; ", errors));
-            model.addAttribute("class", classEntity != null ? classEntity : new MajorClasses());
-            model.addAttribute("studentsInClass", classEntity != null ? studentsMajorClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            model.addAttribute("studentsNotInClass", classEntity != null ? studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                    classId, classEntity.getSubject().getSubjectId()) : new ArrayList<Students>());
-            model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
-            model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
+            populateErrorModel(model, classEntity, errors);
             return "MemberArrangement";
         }
     }
@@ -185,40 +184,22 @@ public class MemberArrangementController {
 
         try {
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
-            Classes currentClass = (Classes) classesService.getClassById(classId);
             if (classEntity == null) {
                 errors.add("Class not found");
-                model.addAttribute("errorMessage", "Class not found");
-                model.addAttribute("class", new MajorClasses());
-                model.addAttribute("studentsInClass", new ArrayList<Students>());
-                model.addAttribute("studentsNotInClass", new ArrayList<Students>());
-                model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
-                model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
             Staffs currentStaff = staffsService.getStaff();
             if (currentStaff == null) {
                 errors.add("Staff information not found");
-                model.addAttribute("errorMessage", "Staff information not found");
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
             if (studentIds == null || studentIds.isEmpty()) {
                 errors.add("No students selected for assignment");
-                model.addAttribute("errorMessage", "No students selected for assignment");
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -234,7 +215,6 @@ public class MemberArrangementController {
                         smc.setId(sId);
                         smc.setStudent(student);
                         smc.setMajorClass(classEntity);
-                        smc.setClassEntity(currentClass);
                         smc.setAddedBy(currentStaff);
                         smc.setCreatedAt(LocalDateTime.now());
                         studentsMajorClassesService.addStudentToClass(smc);
@@ -248,13 +228,7 @@ public class MemberArrangementController {
             }
 
             if (!errors.isEmpty()) {
-                model.addAttribute("errorMessage", String.join("; ", errors));
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -262,15 +236,9 @@ public class MemberArrangementController {
             session.setAttribute("currentClassId", classId);
             return "redirect:/staff-home/classes-list/member-arrangement";
         } catch (Exception e) {
-            errors.add("An error occurred while adding students: " + e.getMessage());
+            errors.add("An error occurred: " + e.getMessage());
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
-            model.addAttribute("errorMessage", String.join("; ", errors));
-            model.addAttribute("class", classEntity != null ? classEntity : new MajorClasses());
-            model.addAttribute("studentsInClass", classEntity != null ? studentsMajorClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            model.addAttribute("studentsNotInClass", classEntity != null ? studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                    classId, classEntity.getSubject().getSubjectId()) : new ArrayList<Students>());
-            model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
-            model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
+            populateErrorModel(model, classEntity, errors);
             return "MemberArrangement";
         }
     }
@@ -285,27 +253,16 @@ public class MemberArrangementController {
         List<String> errors = new ArrayList<>();
 
         try {
-            MajorClasses classEntity = classesService.getClassById(classId);
+            MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
             if (classEntity == null) {
                 errors.add("Class not found");
-                model.addAttribute("errorMessage", "Class not found");
-                model.addAttribute("class", new MajorClasses());
-                model.addAttribute("studentsInClass", new ArrayList<Students>());
-                model.addAttribute("studentsNotInClass", new ArrayList<Students>());
-                model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
-                model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
             if (lecturerIds == null || lecturerIds.isEmpty()) {
                 errors.add("No lecturers selected for assignment");
-                model.addAttribute("errorMessage", "No lecturers selected for assignment");
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -315,15 +272,9 @@ public class MemberArrangementController {
             session.setAttribute("currentClassId", classId);
             return "redirect:/staff-home/classes-list/member-arrangement";
         } catch (Exception e) {
-            errors.add("An error occurred while adding lecturers: " + e.getMessage());
+            errors.add("An error occurred: " + e.getMessage());
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
-            model.addAttribute("errorMessage", String.join("; ", errors));
-            model.addAttribute("class", classEntity != null ? classEntity : new MajorClasses());
-            model.addAttribute("studentsInClass", classEntity != null ? studentsMajorClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            model.addAttribute("studentsNotInClass", classEntity != null ? studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                    classId, classEntity.getSubject().getSubjectId()) : new ArrayList<Students>());
-            model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
-            model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
+            populateErrorModel(model, classEntity, errors);
             return "MemberArrangement";
         }
     }
@@ -341,24 +292,13 @@ public class MemberArrangementController {
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
             if (classEntity == null) {
                 errors.add("Class not found");
-                model.addAttribute("errorMessage", "Class not found");
-                model.addAttribute("class", new MajorClasses());
-                model.addAttribute("studentsInClass", new ArrayList<Students>());
-                model.addAttribute("studentsNotInClass", new ArrayList<Students>());
-                model.addAttribute("lecturersInClass", new ArrayList<MajorLecturers>());
-                model.addAttribute("lecturersNotInClass", new ArrayList<MajorLecturers>());
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
             if (lecturerIds == null || lecturerIds.isEmpty()) {
                 errors.add("No lecturers selected for removal");
-                model.addAttribute("errorMessage", "No lecturers selected for removal");
-                model.addAttribute("class", classEntity);
-                model.addAttribute("studentsInClass", studentsMajorClassesService.getStudentsByClass(classEntity));
-                model.addAttribute("studentsNotInClass", studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                        classId, classEntity.getSubject().getSubjectId()));
-                model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(classEntity));
-                model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(classEntity));
+                populateErrorModel(model, classEntity, errors);
                 return "MemberArrangement";
             }
 
@@ -368,16 +308,23 @@ public class MemberArrangementController {
             session.setAttribute("currentClassId", classId);
             return "redirect:/staff-home/classes-list/member-arrangement";
         } catch (Exception e) {
-            errors.add("An error occurred while removing lecturers: " + e.getMessage());
+            errors.add("An error occurred: " + e.getMessage());
             MajorClasses classEntity = (MajorClasses) classesService.getClassById(classId);
-            model.addAttribute("errorMessage", String.join("; ", errors));
-            model.addAttribute("class", classEntity != null ? classEntity : new MajorClasses());
-            model.addAttribute("studentsInClass", classEntity != null ? studentsMajorClassesService.getStudentsByClass(classEntity) : new ArrayList<Students>());
-            model.addAttribute("studentsNotInClass", classEntity != null ? studentsMajorClassesService.getStudentsNotInClassAndSubject(
-                    classId, classEntity.getSubject().getSubjectId()) : new ArrayList<Students>());
-            model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<MajorLecturers>());
-            model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<MajorLecturers>());
+            populateErrorModel(model, classEntity, errors);
             return "MemberArrangement";
         }
+    }
+
+    // === HÀM HỖ TRỢ ===
+    private void populateErrorModel(Model model, MajorClasses classEntity, List<String> errors) {
+        model.addAttribute("errorMessage", String.join("; ", errors));
+        model.addAttribute("class", classEntity != null ? classEntity : new MajorClasses());
+        model.addAttribute("studentsInClass", classEntity != null ? studentsMajorClassesService.getStudentsByClass(classEntity) : new ArrayList<>());
+        model.addAttribute("studentsNotInClass", classEntity != null ? studentsMajorClassesService.getStudentsNotInClassAndSubject(
+                classEntity.getClassId(), classEntity.getSubject().getSubjectId()) : new ArrayList<>());
+        model.addAttribute("lecturersInClass", classEntity != null ? lecturersClassesService.listLecturersInClass(classEntity) : new ArrayList<>());
+        model.addAttribute("lecturersNotInClass", classEntity != null ? lecturersClassesService.listLecturersNotInClass(classEntity) : new ArrayList<>());
+        model.addAttribute("studentsFailedAndPaid", new ArrayList<Students>());
+        model.addAttribute("retakeList", new ArrayList<RetakeSubjects>());
     }
 }

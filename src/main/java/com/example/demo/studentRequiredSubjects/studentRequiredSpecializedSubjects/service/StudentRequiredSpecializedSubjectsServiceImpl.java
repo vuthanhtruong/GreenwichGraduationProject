@@ -5,10 +5,16 @@ import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjec
 import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.model.StudentRequiredSpecializedSubjects;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class StudentRequiredSpecializedSubjectsServiceImpl implements StudentRequiredSpecializedSubjectsService{
+    @Override
+    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, LocalDate admissionYear) {
+        return studentRequiredSpecializedSubjectsDAO.getStudentNotRequiredSpecializedSubjects(subject,admissionYear);
+    }
+
     @Override
     public boolean isStudentAlreadyRequiredForSpecializedSubject(String studentId, String subjectId) {
         return studentRequiredSpecializedSubjectsDAO.isStudentAlreadyRequiredForSpecializedSubject(studentId, subjectId);
@@ -22,11 +28,6 @@ public class StudentRequiredSpecializedSubjectsServiceImpl implements StudentReq
     @Override
     public List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject) {
         return studentRequiredSpecializedSubjectsDAO.getStudentRequiredSpecializedSubjects(subject);
-    }
-
-    @Override
-    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject) {
-        return studentRequiredSpecializedSubjectsDAO.getStudentNotRequiredSpecializedSubjects(subject);
     }
 
     @Override

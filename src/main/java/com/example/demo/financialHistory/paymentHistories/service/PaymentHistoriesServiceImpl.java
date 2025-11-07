@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class PaymentHistoriesServiceImpl implements PaymentHistoriesService {
+    @Override
+    public void save(PaymentHistories payment) {
+        historiesPaymentDAO.save(payment);
+    }
+
     private final PaymentHistoriesDAO historiesPaymentDAO;
 
     public PaymentHistoriesServiceImpl(PaymentHistoriesDAO historiesPaymentDAO) {

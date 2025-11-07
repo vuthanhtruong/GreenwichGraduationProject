@@ -1,5 +1,6 @@
 package com.example.demo.academicTranscript.dao;
 
+import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.academicTranscript.model.MajorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
@@ -19,4 +20,5 @@ public interface AcademicTranscriptsDAO {
     List<MajorAcademicTranscripts> getAcademicTranscriptsByMajorClass(Students student, MajorClasses majorClass);
     List<MinorAcademicTranscripts> getAcademicTranscriptsByMinorClass(Students student, MinorClasses classes);
     List<SpecializedAcademicTranscripts> getAcademicTranscriptsBySpecializedClass(Students student, SpecializedClasses classes);
+    List<AcademicTranscripts> getFailSubjectsByStudent(Students student);
 }

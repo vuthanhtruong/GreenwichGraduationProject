@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-study Request</title>
+    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .fail-badge { background: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+        .subject-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #fff; }
+        .subject-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .subject-name { font-weight: bold; color: #d32f2f; font-size: 1.1em; }
+        .tuition { font-weight: bold; color: #0d6efd; }
+        .info-box { padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .info-box.success { border-left-color: #28a745; background: #d4edda; color: #155724; }
+        .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+        .alert.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .pay-btn { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .pay-btn:disabled { background: #6c757d; cursor: not-allowed; }
+        .total-cost { font-weight: bold; color: #d32f2f; font-size: 1.1em; }
+        .checkbox-label { display: flex; align-items: center; cursor: pointer; }
+        .checkbox-label input { margin-right: 10px; }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Header -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-redo"></i> Re-study Request
+            </h2>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <div class="alert error" th:if="${errorMessage != null}">
+        <i class="fas fa-times-circle"></i> <span th:text="${errorMessage}"></span>
+    </div>
+    <div class="alert success" th:if="${successMessage != null}">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+
+    <!-- Student Info -->
+    <div class="info-box" th:if="${student != null}">
+        <p><strong>Full Name:</strong> <span th:text="${student.firstName + ' ' + student.lastName}"></span></p>
+        <p><strong>Student ID:</strong> <span th:text="${student.id}"></span></p>
+        <p><strong>Account Balance:</strong>
+            <span th:text="${#numbers.formatCurrency(currentBalance)}">$0.00</span>
+        </p>
+    </div>
+
+    <!-- Form -->
+    <form th:action="@{/student-home/re-study-request/pay}" method="post"
+          th:if="${failTranscripts != null and not #lists.isEmpty(failTranscripts)}"
+          onsubmit="return validateSelection()">
+
+        <div class="table-container">
+            <h3><i class="fas fa-list-alt"></i> Select Subjects to Re-study</h3>
+
+            <div th:each="transcript : ${failTranscripts}">
+                <div class="subject-card">
+                    <label class="checkbox-label">
+                        <input type="checkbox"
+                               th:name="selectedSubjects"
+                               th:value="${transcript.getSubjectId()}"
+                               th:onclick="updateTotal()"
+                               class="subject-checkbox">
+                        <div style="flex: 1;">
+                            <div class="subject-header">
+                                <div>
+                                    <span class="subject-name" th:text="${transcript.getSubjectName()}">N/A</span>
+                                    <span class="fail-badge">FAILED</span>
+                                </div>
+                            </div>
+                            <p><strong>Subject ID:</strong> <span th:text="${transcript.getSubjectId()}">N/A</span></p>
+                            <p><strong>Re-study Fee:</strong>
+                                <span class="tuition"
+                                      th:text="${#numbers.formatCurrency(feeMap[transcript.getSubjectId()])}">
+                                    $0.00
+                                </span>
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Total & Pay Button -->
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <p class="total-cost">
+                    Total Cost: <span id="totalCost">$0.00</span>
+                </p>
+                <button type="submit" class="pay-btn" id="payBtn" disabled>
+                    <i class="fas fa-credit-card"></i> Confirm & Pay
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- No Failed Subjects -->
+    <div class="info-box success" th:if="${failTranscripts == null or #lists.isEmpty(failTranscripts)}">
+        <i class="fas fa-check-circle"></i>
+        <strong>Congratulations!</strong> You have no failed subjects.
+    </div>
+
+</div>
+
+<!-- JavaScript -->
+<script th:inline="javascript">
+    const feeMap = /*[[${feeMap}]]*/ {};
+    const currentBalance = /*[[${currentBalance}]]*/ 0;
+
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.subject-checkbox:checked').forEach(cb => {
+            const fee = feeMap[cb.value];
+            if (fee) total += parseFloat(fee);
+        });
+        const totalEl = document.getElementById('totalCost');
+        totalEl.textContent = '$' + total.toFixed(2);
+
+        const payBtn = document.getElementById('payBtn');
+        payBtn.disabled = total === 0 || total > currentBalance;
+    }
+
+    function validateSelection() {
+        const checked = document.querySelectorAll('.subject-checkbox:checked').length;
+        if (checked === 0) {
+            alert('Please select at least one subject.');
+            return false;
+        }
+        const total = parseFloat(document.getElementById('totalCost').textContent.replace('$', ''));
+        if (total > currentBalance) {
+            alert('Insufficient balance! You need $' + total.toFixed(2));
+            return false;
+        }
+        return true;
+    }
+
+    // Init
+    updateTotal();
+</script>
+</body>
+</html>

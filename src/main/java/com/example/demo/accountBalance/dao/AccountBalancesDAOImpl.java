@@ -26,4 +26,12 @@ public class AccountBalancesDAOImpl implements AccountBalancesDAO {
     public AccountBalances findByStudentId(String studentId) {
         return entityManager.find(AccountBalances.class, studentId);
     }
+    @Override
+    public boolean hasSufficientBalance(String studentId, double requiredAmount) {
+        AccountBalances account = findByStudentId(studentId);
+        if (account == null) {
+            return false;
+        }
+        return account.getBalance() >= requiredAmount;
+    }
 }

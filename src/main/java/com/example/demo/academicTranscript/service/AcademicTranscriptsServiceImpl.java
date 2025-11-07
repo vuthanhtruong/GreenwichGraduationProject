@@ -1,6 +1,7 @@
 package com.example.demo.academicTranscript.service;
 
 import com.example.demo.academicTranscript.dao.AcademicTranscriptsDAO;
+import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.academicTranscript.model.MajorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
@@ -15,6 +16,11 @@ import java.util.List;
 
 @Service
 public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsService {
+    @Override
+    public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
+        return academicTranscriptsDAO.getFailSubjectsByStudent(student);
+    }
+
     @Override
     public List<MajorAcademicTranscripts> getAcademicTranscriptsByMajorClass(Students student, MajorClasses majorClass) {
         return academicTranscriptsDAO.getAcademicTranscriptsByMajorClass(student, majorClass);

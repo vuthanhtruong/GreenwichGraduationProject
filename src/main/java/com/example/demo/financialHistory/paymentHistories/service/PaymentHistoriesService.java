@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PaymentHistoriesService {
     List<PaymentHistories> getStudentHistoriesPaymentDAO(Students student);
+    void save(PaymentHistories payment);
 }

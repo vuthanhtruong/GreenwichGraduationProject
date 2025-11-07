@@ -17,4 +17,8 @@ public class PaymentHistoriesDAOImpl implements PaymentHistoriesDAO {
     public List<PaymentHistories> getStudentHistoriesPaymentDAO(Students student) {
         return entityManager.createQuery("from PaymentHistories d where d.student=:student", PaymentHistories.class).setParameter("student", student).getResultList();
     }
+    @Override
+    public void save(PaymentHistories payment) {
+        entityManager.persist(payment);
+    }
 }

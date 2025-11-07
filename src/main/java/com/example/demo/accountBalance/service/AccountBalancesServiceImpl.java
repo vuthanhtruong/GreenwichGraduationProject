@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountBalancesServiceImpl implements AccountBalancesService {
     @Override
+    public boolean hasSufficientBalance(String studentId, double requiredAmount) {
+        return accountBalancesDAO.hasSufficientBalance(studentId, requiredAmount);
+    }
+
+    @Override
     public void DepositMoneyIntoAccount(AccountBalances accountBalances) {
         accountBalancesDAO.DepositMoneyIntoAccount(accountBalances);
     }
