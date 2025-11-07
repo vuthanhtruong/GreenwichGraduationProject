@@ -24,4 +24,5 @@ public interface DeputyStaffsService {
     long countSearchResults(String searchType, String keyword);
     DeputyStaffs getDeputyStaff();
     Campuses getCampus();
+    List<DeputyStaffs> colleagueBycampusId(String campusId);
 }

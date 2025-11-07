@@ -24,4 +24,5 @@ public interface MinorLecturersService {
     String generateRandomPassword(int length);
     String generateUniqueMinorLectureId(LocalDate createdDate);
     MinorLecturers getMinorLecturer();
+    List<MinorLecturers> colleagueBycampusId(String campusId);
 }

@@ -10,6 +10,7 @@ import com.example.demo.campus.service.CampusesService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
+import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -30,6 +31,12 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
+    @Override
+    public List<DeputyStaffs> colleagueBycampusId(String campusId) {
+        return entityManager.createQuery("from DeputyStaffs s where s.campus.id=:campusId And s.id!=:id", DeputyStaffs.class).setParameter("campusId", campusId).
+                setParameter("id", getDeputyStaff().getId()).getResultList();
+    }
+
     @Override
     public Campuses getCampus() {
         return getDeputyStaff().getCampus();

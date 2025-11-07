@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
 @Transactional
 public class MinorLecturersDAOImpl implements MinorLecturersDAO {
     @Override
+    public List<MinorLecturers> colleagueBycampusId(String campusId) {
+        return entityManager.createQuery("from MinorLecturers s where s.campus.id=:campusId And s.id!=:id", MinorLecturers.class).setParameter("campusId", campusId).
+                setParameter("id", getMinorLecturer().getId()).getResultList();
+    }
+
+    @Override
     public MinorLecturers getMinorLecturer() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {

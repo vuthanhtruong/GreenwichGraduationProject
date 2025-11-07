@@ -18,6 +18,11 @@ import java.util.Map;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
+    public List<Staffs> colleagueBycampusId(String campusId) {
+        return staffsDAO.colleagueBycampusId(campusId);
+    }
+
+    @Override
     public Campuses getCampusOfStaff() {
         return staffsDAO.getCampusOfStaff();
     }

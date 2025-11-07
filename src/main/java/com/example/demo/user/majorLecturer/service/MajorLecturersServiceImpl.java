@@ -12,6 +12,10 @@ import java.util.Map;
 
 @Service
 public class MajorLecturersServiceImpl implements MajorLecturersService {
+    @Override
+    public List<MajorLecturers> colleagueBycampusId(String campusId) {
+        return lecturesDAO.colleagueBycampusId(campusId);
+    }
 
     private final MajorLecturersDAO lecturesDAO;
 

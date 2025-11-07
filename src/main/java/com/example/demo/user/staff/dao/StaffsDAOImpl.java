@@ -34,6 +34,12 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+    @Override
+    public List<Staffs> colleagueBycampusId(String campusId) {
+        return entityManager.createQuery("from Staffs s where s.campus.id=:campusId And s.id!=:id", Staffs.class).setParameter("campusId", campusId).
+        setParameter("id", getStaff().getId()).getResultList();
+    }
+
     private final EmailServiceForStaffService emailServiceForStaffService;
     @Override
     public Campuses getCampusOfStaff() {

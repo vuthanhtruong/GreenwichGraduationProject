@@ -14,6 +14,11 @@ import java.util.Map;
 @Service
 public class DeputyStaffsServiceImpl implements DeputyStaffsService {
     @Override
+    public List<DeputyStaffs> colleagueBycampusId(String campusId) {
+        return deputyStaffsDAO.colleagueBycampusId(campusId);
+    }
+
+    @Override
     public Campuses getCampus() {
         return deputyStaffsDAO.getCampus();
     }

@@ -1,5 +1,6 @@
 package com.example.demo.user.minorLecturer.dao;
 
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import jakarta.mail.MessagingException;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,4 +25,5 @@ public interface MinorLecturersDAO {
     String generateRandomPassword(int length);
     String generateUniqueMinorLectureId(LocalDate createdDate);
     MinorLecturers getMinorLecturer();
+    List<MinorLecturers> colleagueBycampusId(String campusId);
 }

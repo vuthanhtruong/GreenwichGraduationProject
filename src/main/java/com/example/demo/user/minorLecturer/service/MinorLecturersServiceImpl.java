@@ -12,6 +12,11 @@ import java.util.Map;
 @Service
 public class MinorLecturersServiceImpl implements MinorLecturersService {
     @Override
+    public List<MinorLecturers> colleagueBycampusId(String campusId) {
+        return minorLecturersDAO.colleagueBycampusId(campusId);
+    }
+
+    @Override
     public MinorLecturers getMinorLecturer() {
         return minorLecturersDAO.getMinorLecturer();
     }

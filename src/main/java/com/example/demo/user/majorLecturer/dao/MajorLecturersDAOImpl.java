@@ -34,6 +34,11 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class MajorLecturersDAOImpl implements MajorLecturersDAO {
+    @Override
+    public List<MajorLecturers> colleagueBycampusId(String campusId) {
+        return entityManager.createQuery("from MajorLecturers s where s.campus.id=:campusId And s.id!=:id", MajorLecturers.class).setParameter("campusId", campusId).
+                setParameter("id", getMajorLecturer().getId()).getResultList();
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(MajorLecturersDAOImpl.class);
 
