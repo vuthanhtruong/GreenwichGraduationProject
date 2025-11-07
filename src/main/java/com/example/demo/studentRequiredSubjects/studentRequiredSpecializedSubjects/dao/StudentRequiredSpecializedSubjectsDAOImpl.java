@@ -70,7 +70,7 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
     }
 
     @Override
-    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, LocalDate admissionYear) {
+    public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear) {
         if (subject == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }

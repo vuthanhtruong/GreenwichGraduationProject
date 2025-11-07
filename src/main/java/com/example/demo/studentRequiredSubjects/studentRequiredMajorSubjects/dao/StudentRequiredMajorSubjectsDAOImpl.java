@@ -64,20 +64,27 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
-    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear) {
-        if (subjects == null || staffsService.getStaffMajor() == null) {
+    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subject, Integer admissionYear) {
+        if (subject == null || staffsService.getStaffMajor() == null || admissionYear == null) {
             return List.of();
         }
 
         return entityManager.createQuery(
-                        "SELECT s FROM Students s LEFT JOIN StudentRequiredMajorSubjects srs " +
-                                "ON s.id = srs.student.id AND srs.subject = :subjects " +
-                                "WHERE s.specialization.major = :major AND srs.student.id IS NULL AND s.curriculum=:curriculum and s.admissionYear=:admissionYear",
-                        Students.class)
-                .setParameter("subjects", subjects)
+                        """
+                        SELECT s FROM Students s
+                        WHERE s.specialization.major = :major
+                          AND s.curriculum = :curriculum
+                          AND s.admissionYear = :admissionYear
+                          AND NOT EXISTS (
+                            SELECT 1 FROM StudentRequiredMajorSubjects srs
+                            WHERE srs.student = s
+                              AND srs.subject = :subject
+                          )
+                        """, Students.class)
                 .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("curriculum", subjects.getCurriculum())
-                .setParameter("admissionYear",admissionYear)
+                .setParameter("curriculum", subject.getCurriculum())
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("subject", subject)
                 .getResultList();
     }
 

@@ -215,6 +215,7 @@ public class MemberArrangementController {
                         smc.setId(sId);
                         smc.setStudent(student);
                         smc.setMajorClass(classEntity);
+                        smc.setClassEntity(classEntity);
                         smc.setAddedBy(currentStaff);
                         smc.setCreatedAt(LocalDateTime.now());
                         studentsMajorClassesService.addStudentToClass(smc);

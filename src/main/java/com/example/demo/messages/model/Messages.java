@@ -28,12 +28,10 @@ public class Messages {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", nullable = false)
-    @JsonIgnoreProperties({"creator", "password", "classes", "hibernateLazyInitializer"})
     private Persons sender;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recipient_id", nullable = false)
-    @JsonIgnoreProperties({"creator", "password", "classes", "hibernateLazyInitializer"})
     private Persons recipient;
 
     @Column(name = "Datetime", nullable = false)

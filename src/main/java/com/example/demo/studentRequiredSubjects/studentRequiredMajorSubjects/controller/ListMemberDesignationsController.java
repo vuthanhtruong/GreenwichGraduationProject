@@ -46,11 +46,20 @@ public class ListMemberDesignationsController {
     public String assignMembersPost(
             @RequestParam("id") String subjectId,
             @RequestParam(required = false) String curriculumId,
-            @RequestParam(required = false) LocalDate admissionYear,
+            @RequestParam(required = false) Integer admissionYear,
             HttpSession session) {
+
+        // ✅ FIX: Nếu null thì lấy năm hiện tại
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
+        }
+
+        System.out.println("✅ Setting session - admissionYear: " + admissionYear);
+
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
         session.setAttribute("currentAdmissionYear", admissionYear);
+
         return "redirect:/staff-home/study-plan/assign-members";
     }
 
@@ -58,13 +67,22 @@ public class ListMemberDesignationsController {
     public String assignMembersGet(
             HttpSession session,
             Model model,
-            @RequestParam(required = false) LocalDate admissionYear) {
+            @RequestParam(required = false) Integer admissionYear) {
 
         String subjectId = (String) session.getAttribute("currentSubjectId");
         String curriculumId = (String) session.getAttribute("currentCurriculumId");
-        LocalDate sessionAdmissionYear = (LocalDate) session.getAttribute("currentAdmissionYear");
+        Integer sessionAdmissionYear = (Integer) session.getAttribute("currentAdmissionYear");
 
-        LocalDate finalAdmissionYear = admissionYear != null ? admissionYear : sessionAdmissionYear;
+        // ✅ FIX: Ưu tiên param -> session -> default năm hiện tại
+        Integer finalAdmissionYear = admissionYear;
+        if (finalAdmissionYear == null) {
+            finalAdmissionYear = sessionAdmissionYear;
+        }
+        if (finalAdmissionYear == null) {
+            finalAdmissionYear = java.time.Year.now().getValue();
+        }
+
+        System.out.println("✅ Final admissionYear: " + finalAdmissionYear);
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
@@ -93,7 +111,7 @@ public class ListMemberDesignationsController {
     public String addSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
-            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
+            @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
@@ -150,7 +168,7 @@ public class ListMemberDesignationsController {
     public String removeSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
-            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
+            @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {

@@ -1,99 +1,98 @@
+// src/main/java/com/example/demo/messages/dao/MessagesDAOImpl.java
 package com.example.demo.messages.dao;
 
 import com.example.demo.messages.model.Messages;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-@Transactional
 public class MessagesDAOImpl implements MessagesDAO {
 
     @PersistenceContext
     private EntityManager em;
 
     @Override
-    public List<Persons> getRecentChatUsers(String currentUserId, int limit) {
+    public List<Persons> getConversationPartners(String currentUserId) {
         String jpql = """
-        SELECT p 
-        FROM Messages m 
-        JOIN m.sender p 
-        WHERE m.recipient.id = :currentUserId 
-           OR (m.sender.id = :currentUserId AND m.recipient.id <> :currentUserId)
-        GROUP BY p.id 
-        ORDER BY MAX(m.datetime) DESC
-        """;
+            SELECT DISTINCT p FROM Persons p
+            WHERE p.id IN (
+                SELECT m.sender.id FROM Messages m WHERE m.recipient.id = :currentUserId
+                UNION
+                SELECT m.recipient.id FROM Messages m WHERE m.sender.id = :currentUserId
+            )
+            AND p.id != :currentUserId
+            ORDER BY p.firstName, p.lastName
+            """;
 
         return em.createQuery(jpql, Persons.class)
                 .setParameter("currentUserId", currentUserId)
-                .setMaxResults(limit)
                 .getResultList();
     }
 
     @Override
-    public List<Messages> getMessagesBetweenUsers(String user1Id, String user2Id, int page, int size) {
+    public List<Messages> getMessagesWith(String currentUserId, String partnerId, int page, int size) {
         String jpql = """
-            SELECT m FROM Messages m 
-            WHERE (m.sender.id = :user1Id AND m.recipient.id = :user2Id) 
-            OR (m.sender.id = :user2Id AND m.recipient.id = :user1Id) 
+            FROM Messages m
+            WHERE (m.sender.id = :userId1 AND m.recipient.id = :userId2)
+               OR (m.sender.id = :userId2 AND m.recipient.id = :userId1)
             ORDER BY m.datetime ASC
             """;
-        TypedQuery<Messages> query = em.createQuery(jpql, Messages.class)
-                .setParameter("user1Id", user1Id)
-                .setParameter("user2Id", user2Id)
+
+        return em.createQuery(jpql, Messages.class)
+                .setParameter("userId1", currentUserId)
+                .setParameter("userId2", partnerId)
                 .setFirstResult(page * size)
-                .setMaxResults(size);
-        return query.getResultList();
+                .setMaxResults(size)
+                .getResultList();
     }
 
     @Override
-    public Messages save(Messages message) {
-        if (message.getMessageId() == null) {
-            em.persist(message);
-        } else {
-            em.merge(message);
-        }
-        return message;
-    }
+    public long countMessagesWith(String currentUserId, String partnerId) {
+        String jpql = """
+            SELECT COUNT(m) FROM Messages m
+            WHERE (m.sender.id = :userId1 AND m.recipient.id = :userId2)
+               OR (m.sender.id = :userId2 AND m.recipient.id = :userId1)
+            """;
 
-    @Override
-    public Long countUnreadMessages(String recipientId) {
-        String jpql = "SELECT COUNT(m) FROM Messages m WHERE m.recipient.id = :recipientId AND m.notification = 'NOTIFICATION_002'";
         return em.createQuery(jpql, Long.class)
-                .setParameter("recipientId", recipientId)
+                .setParameter("userId1", currentUserId)
+                .setParameter("userId2", partnerId)
                 .getSingleResult();
     }
 
     @Override
-    public void markAsRead(String currentUserId, String senderId) {
-        // Cập nhật notification cho tin nhắn từ sender này
-        em.createQuery("""
-            UPDATE Messages m SET m.notification = null 
-            WHERE m.recipient.id = :currentUserId AND m.sender.id = :senderId
-            """)
-                .setParameter("currentUserId", currentUserId)
-                .setParameter("senderId", senderId)
-                .executeUpdate();
+    @Transactional
+    public Messages sendMessage(String senderId, String recipientId, String text) {
+        Persons sender = em.find(Persons.class, senderId);
+        Persons recipient = em.find(Persons.class, recipientId);
+
+        if (sender == null || recipient == null) {
+            throw new IllegalArgumentException("Sender or recipient not found");
+        }
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message text cannot be empty");
+        }
+
+        Messages message = new Messages();
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setSender(sender);
+        message.setRecipient(recipient);
+        message.setText(text.trim());
+        message.setDatetime(LocalDateTime.now());
+
+        em.persist(message);
+        return message;
     }
 
     @Override
-    public Messages getLatestMessage(String user1Id, String user2Id) {
-        String jpql = """
-            SELECT m FROM Messages m 
-            WHERE (m.sender.id = :user1Id AND m.recipient.id = :user2Id) 
-            OR (m.sender.id = :user2Id AND m.recipient.id = :user1Id) 
-            ORDER BY m.datetime DESC
-            """;
-        TypedQuery<Messages> query = em.createQuery(jpql, Messages.class)
-                .setParameter("user1Id", user1Id)
-                .setParameter("user2Id", user2Id)
-                .setMaxResults(1);
-        return query.getResultList().stream().findFirst().orElse(null);
+    public Persons getPersonById(String personId) {
+        return em.find(Persons.class, personId);
     }
 }

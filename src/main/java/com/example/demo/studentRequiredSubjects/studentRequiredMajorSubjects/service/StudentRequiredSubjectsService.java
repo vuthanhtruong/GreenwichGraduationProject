@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface StudentRequiredSubjectsService {
     List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
-    List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear);
+    List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear);
     List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
     List<MajorSubjects> studentMajorRoadmap(Students student);
     List<MinorSubjects> studentMinorRoadmap(Students student);

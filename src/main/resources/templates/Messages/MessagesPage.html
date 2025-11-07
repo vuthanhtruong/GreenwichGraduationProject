@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="stylesheet" th:href="@{/MessagesPage.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- ===== Toolbar ===== -->
+    <div class="search-toolbar unified-bar">
+        <a th:href="@{/staff-home}" class="btn home-btn">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <h2 class="page-title"><i class="fas fa-comments"></i> Messages</h2>
+    </div>
+
+    <!-- ===== Main Chat Layout ===== -->
+    <div class="messages-container">
+
+        <!-- Sidebar (Danh sách hội thoại) -->
+        <aside class="sidebar" th:if="${partners != null and !partners.isEmpty()}">
+            <div class="sidebar-header">
+                <i class="fas fa-users"></i> Conversations
+            </div>
+
+            <div class="partners-list">
+                <a th:each="p : ${partners}"
+                   th:href="@{/messages(partner=${p.id})}"
+                   th:classappend="${selectedPartner != null and selectedPartner.id == p.id} ? 'partner-item active' : 'partner-item'">
+
+                    <img th:src="@{'/persons/avatar/' + ${p.id}}"
+                         class="partner-avatar"
+                         onerror="this.src='/images/default-avatar.png'">
+
+                    <div class="partner-info">
+                        <div class="partner-name" th:text="${p.firstName + ' ' + p.lastName}">Name</div>
+                    </div>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Chat Area -->
+        <section class="chat-area" th:if="${selectedPartner != null}">
+            <div class="chat-header">
+                <img th:src="@{'/persons/avatar/' + ${selectedPartner.id}}"
+                     class="partner-avatar"
+                     onerror="this.src='/images/default-avatar.png'">
+                <div class="partner-name" th:text="${selectedPartner.firstName + ' ' + selectedPartner.lastName}">Chat</div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <div th:each="msg : ${messages}"
+                     th:class="${msg.sender.id == currentUserId} ? 'message outgoing' : 'message incoming'">
+
+                    <div class="message-avatar">
+                        <img th:src="@{'/persons/avatar/' + ${msg.sender.id}}"
+                             onerror="this.src='/images/default-avatar.png'">
+                    </div>
+
+                    <div class="message-content">
+                        <div class="message-bubble" th:text="${msg.text}">Message text</div>
+                        <div class="message-time" th:text="${#temporals.format(msg.datetime, 'HH:mm dd/MM/yyyy')}">12:45</div>
+                    </div>
+                </div>
+
+                <div th:if="${messages == null or messages.isEmpty()}" class="no-chat-messages">
+                    <i class="fas fa-comment-dots"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <form th:action="@{/messages/send}" method="post" class="chat-input">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="recipientId" th:value="${selectedPartner.id}">
+                <input type="text" name="text" placeholder="Type your message..." required autocomplete="off">
+                <button type="submit" class="btn primary">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </form>
+        </section>
+
+        <!-- Empty Chat -->
+        <section class="chat-area empty" th:if="${selectedPartner == null}">
+            <div class="no-chat">
+                <i class="fas fa-comments"></i> Select a conversation to start messaging
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Auto-scroll -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chat = document.getElementById("chatMessages");
+        if (chat) chat.scrollTop = chat.scrollHeight;
+    });
+</script>
+
+</body>
+</html>

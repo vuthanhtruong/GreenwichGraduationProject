@@ -26,7 +26,7 @@ public class Students extends Persons implements StudentsInterface {
     private LocalDate createdDate = LocalDate.now();
 
     @Column(name = "Admission_Year", nullable = false)
-    private LocalDate admissionYear;
+    private Integer admissionYear;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID", nullable = true)

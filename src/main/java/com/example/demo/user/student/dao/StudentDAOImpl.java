@@ -187,8 +187,6 @@ public class StudentDAOImpl implements StudentsDAO {
         student.setSpecialization(specialization);
         student.setCreator(staff);
         student.setCurriculum(curriculum);
-        LocalDate admissionDate = LocalDate.of(Year.now().getValue(), 1, 1);
-        student.setAdmissionYear(admissionDate);
         student.setCreatedDate(LocalDate.now());
         Students savedStudent = entityManager.merge(student);
 
@@ -203,7 +201,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 savedStudent.getCampus() != null ? savedStudent.getCampus().getCampusName() : null,
                 savedStudent.getSpecialization().getMajor() != null ? savedStudent.getSpecialization().getMajor().getMajorName() : null,
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
-                savedStudent.getAdmissionYear(),
+                2025,
                 savedStudent.getCreatedDate(),
                 savedStudent.getCurriculum() != null ? savedStudent.getCurriculum().getName() : null
         );
@@ -287,7 +285,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 existingStudent.getCampus() != null ? existingStudent.getCampus().getCampusName() : null,
                 existingStudent.getSpecialization().getMajor() != null ? existingStudent.getSpecialization().getMajor().getMajorName() : null,
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
-                existingStudent.getAdmissionYear(),
+                2025,
                 existingStudent.getCreatedDate(),
                 existingStudent.getCurriculum() != null ? existingStudent.getCurriculum().getName() : null
         );

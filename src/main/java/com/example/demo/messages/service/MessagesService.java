@@ -6,9 +6,9 @@ import com.example.demo.user.person.model.Persons;
 import java.util.List;
 
 public interface MessagesService {
-    List<Persons> getRecentChatUsers(String currentUserId); // Limit 20 mặc định
-    List<Messages> getMessagesBetween(String currentUserId, String otherUserId, int page, int size);
+    List<Persons> getConversationPartners(String currentUserId);
+    List<Messages> getMessagesWith(String currentUserId, String partnerId, int page, int size);
+    long countMessagesWith(String currentUserId, String partnerId);
     Messages sendMessage(String senderId, String recipientId, String text);
-    Long getUnreadCount(String currentUserId);
-    void markAsRead(String currentUserId, String senderId);
+    Persons getPersonById(String personId);
 }

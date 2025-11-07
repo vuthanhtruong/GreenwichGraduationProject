@@ -60,7 +60,7 @@ public class ReStudyPaymentDAOImpl implements ReStudyPaymentDAO {
             return result;
         }
 
-        Integer admissionYear = student.getAdmissionYear() != null ? student.getAdmissionYear().getYear() : null;
+        Integer admissionYear = student.getAdmissionYear() != null ? student.getAdmissionYear() : null;
         String campusId = student.getCampus() != null ? student.getCampus().getCampusId() : null;
         if (admissionYear == null || campusId == null) {
             result.put("valid", false);
@@ -96,7 +96,7 @@ public class ReStudyPaymentDAOImpl implements ReStudyPaymentDAO {
 
     @Override
     public void processReStudyPayment(Students student, List<String> selectedSubjectIds) {
-        Integer admissionYear = student.getAdmissionYear().getYear();
+        Integer admissionYear = student.getAdmissionYear();
         String campusId = student.getCampus().getCampusId();
 
         // 1. Lấy phí

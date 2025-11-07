@@ -1,948 +1,525 @@
 package com.example.demo;
 
-import com.example.demo.curriculum.model.Curriculum;
-import com.example.demo.specialization.model.Specialization;
-import com.example.demo.user.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
-import com.example.demo.entity.*;
+import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.major.model.Majors;
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.person.model.Persons;
+import com.example.demo.specialization.model.Specialization;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
-import com.example.demo.subject.abstractSubject.model.Subjects;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.NoResultException;
+import com.example.demo.user.admin.model.Admins;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
+import com.example.demo.user.person.model.Persons;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.student.model.Students;
+import jakarta.persistence.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
 
 @SpringBootApplication
 public class DemoApplication {
+
+    private static final String DEFAULT_PASSWORD = "Anhnam123";
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
         EntityManagerFactory emf = context.getBean(EntityManagerFactory.class);
         EntityManager em = emf.createEntityManager();
 
-        // Seed Admin first
         try {
             em.getTransaction().begin();
-            ensureDefaultAdmin(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
 
-        // Seed Campuses
-        try {
-            em.getTransaction().begin();
-            addDefaultCampuses(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
+            // 1. Seed Campuses
+            seedCampuses(em);
 
-        // Seed Slots
-        try {
-            em.getTransaction().begin();
-            addDefaultSlots(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
+            // 2. Seed admin001 (tự tạo, có campus + creator = chính nó)
+            seedAdmin001(em);
 
-        // Seed Majors
-        try {
-            em.getTransaction().begin();
-            addDefaultMajors(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
+            // 3. Seed các admin còn lại
+            seedRemainingAdmins(em);
 
-        // Seed Specializations
-        try {
-            em.getTransaction().begin();
-            addDefaultSpecializations(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
+            // 4. Các seed khác
+            seedMajors(em);
+            seedSpecializations(em);
+            seedCurriculums(em);
+            seedStaffs(em);
+            seedDeputyStaffs(em);
+            seedMajorLecturers(em);
+            seedMinorLecturers(em);
+            seedStudents(em); // admissionYear từ 2025 trở lên
+            seedMajorSubjects(em);
+            seedMinorSubjects(em);
+            seedSpecializedSubjects(em);
 
-        // Seed Curriculums
-        try {
-            em.getTransaction().begin();
-            addDefaultCurriculums(em);
             em.getTransaction().commit();
         } catch (Exception e) {
-            rollback(em);
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             e.printStackTrace();
+        } finally {
+            em.close();
         }
-
-        // Seed Staffs
-        try {
-            em.getTransaction().begin();
-            addDefaultStaffs(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-
-        // Seed DeputyStaff
-        try {
-            em.getTransaction().begin();
-            addDefaultDeputyStaff(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-
-        // Seed MajorSubjects
-        try {
-            em.getTransaction().begin();
-            addDefaultMajorSubjects(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-        // Seed SpecializedSubjects
-        try {
-            em.getTransaction().begin();
-            addDefaultSpecializedSubjects(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-
-        // Seed Subjects from bulk list
-        try {
-            em.getTransaction().begin();
-            bulkSeedSubjects(em);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            rollback(em);
-            e.printStackTrace();
-        }
-
-        em.close();
     }
 
-    private static void rollback(EntityManager em) {
-        if (em.getTransaction().isActive()) em.getTransaction().rollback();
+    // ===================== SEED METHODS =====================
+
+    private static void seedCampuses(EntityManager em) {
+        String[] ids = {"CAMP01", "CAMP02", "CAMP03", "CAMP04", "CAMP05", "CAMP06", "CAMP07", "CAMP08", "CAMP09", "CAMP10"};
+        String[] names = {"Hà Nội", "TP.HCM", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Huế", "Quy Nhơn", "Nha Trang", "Vũng Tàu", "Thanh Hóa"};
+        LocalDate[] opens = {LocalDate.of(2010, 1, 1), LocalDate.of(2012, 5, 15), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 9, 10),
+                LocalDate.of(2018, 11, 25), LocalDate.of(2019, 4, 5), LocalDate.of(2020, 2, 14), LocalDate.of(2021, 7, 1),
+                LocalDate.of(2022, 8, 30), LocalDate.of(2023, 10, 12)};
+
+        for (int i = 0; i < 10; i++) {
+            if (exists(em, Campuses.class, "campusId", ids[i])) continue;
+            Campuses c = new Campuses();
+            c.setCampusId(ids[i]);
+            c.setCampusName(names[i] + " Campus");
+            c.setOpeningDay(opens[i]);
+            c.setDescription("Campus chính tại " + names[i]);
+            em.persist(c);
+        }
     }
 
-    // ===================== ENSURE DEFAULT ADMIN =====================
-    private static void ensureDefaultAdmin(EntityManager em) {
-        Admins admin = findAdmin(em, "Admin");
-        if (admin == null) {
-            admin = new Admins();
-            admin.setId("Admin");
-            admin.setFirstName("Admin");
-            admin.setLastName("User");
-            admin.setEmail("admin@example.com");
-            admin.setPhoneNumber("0390000000");
-            admin.setBirthDate(LocalDate.of(1980, 1, 1));
-            admin.setGender(Gender.OTHER);
+    private static void seedAdmin001(EntityManager em) {
+        String id = "admin001";
+        if (exists(em, Admins.class, "id", id)) return;
+
+        Admins admin = new Admins();
+        admin.setId(id);
+        admin.setFirstName("Nguyễn");
+        admin.setLastName("Văn A");
+        admin.setEmail("admin1@example.com");
+        admin.setPhoneNumber("+84912345678");
+        admin.setBirthDate(LocalDate.of(1980, 1, 15));
+        admin.setGender(Gender.MALE);
+        admin.setCountry("Vietnam");
+        admin.setProvince("Hà Nội");
+        admin.setCity("Hà Nội");
+        admin.setDistrict("Cầu Giấy");
+        admin.setWard("Dịch Vọng");
+        admin.setStreet("123 Trần Duy Hưng");
+        admin.setPostalCode("100000");
+        admin.setCreatedDate(LocalDateTime.now());
+
+        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        admin.setCampus(campus);
+        admin.setCreator(admin); // tự tạo
+
+        em.persist(admin);
+        createAuth(em, id, admin);
+
+        // Cập nhật creator cho tất cả campus
+        for (int i = 0; i < 10; i++) {
+            Campuses c = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", i + 1));
+            if (c != null && c.getCreator() == null) {
+                c.setCreator(admin);
+                em.merge(c);
+            }
+        }
+    }
+
+    private static void seedRemainingAdmins(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        if (creator == null) throw new IllegalStateException("admin001 must exist!");
+
+        String[] ids = {"admin002", "admin003", "admin004", "admin005", "admin006", "admin007", "admin008", "admin009", "admin010"};
+        String[] firstNames = {"Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương"};
+        String[] lastNames = {"Thị B", "Văn C", "Thị D", "Văn E", "Thị F", "Văn G", "Thị H", "Văn I", "Thị K"};
+        String[] emails = {"admin2@example.com", "admin3@example.com", "admin4@example.com", "admin5@example.com", "admin6@example.com",
+                "admin7@example.com", "admin8@example.com", "admin9@example.com", "admin10@example.com"};
+        String[] phones = {"+84987654321", "+84911223344", "+84955667788", "+84933445566",
+                "+84977889900", "+84922334455", "+84966778899", "+84944556677", "+84988990011"};
+        LocalDate[] births = {LocalDate.of(1982, 3, 22), LocalDate.of(1978, 7, 10), LocalDate.of(1985, 11, 30),
+                LocalDate.of(1981, 5, 18), LocalDate.of(1987, 9, 25), LocalDate.of(1979, 12, 12), LocalDate.of(1983, 4, 8),
+                LocalDate.of(1986, 6, 20), LocalDate.of(1984, 8, 14)};
+
+        for (int i = 0; i < 9; i++) {
+            if (exists(em, Admins.class, "id", ids[i])) continue;
+
+            Admins admin = new Admins();
+            admin.setId(ids[i]);
+            admin.setFirstName(firstNames[i]);
+            admin.setLastName(lastNames[i]);
+            admin.setEmail(emails[i]);
+            admin.setPhoneNumber(phones[i]);
+            admin.setBirthDate(births[i]);
+            admin.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
             admin.setCountry("Vietnam");
-            admin.setProvince("Hanoi");
-            admin.setCity("Hanoi");
-            admin.setDistrict("Ba Dinh");
-            admin.setWard("Ngoc Ha");
-            admin.setStreet("10 Ngoc Ha");
-            admin.setPostalCode("100000");
+            admin.setProvince(i < 4 ? "Hà Nội" : "TP.HCM");
+            admin.setCity(i < 4 ? "Hà Nội" : "TP.HCM");
+            admin.setDistrict(i % 2 == 0 ? "Cầu Giấy" : "Quận 1");
+            admin.setWard(i % 2 == 0 ? "Dịch Vọng" : "Bến Nghé");
+            admin.setStreet(i % 2 == 0 ? "123 Trần Duy Hưng" : "45 Lê Lợi");
+            admin.setPostalCode(i < 4 ? "100000" : "700000");
+            admin.setCreatedDate(LocalDateTime.now().minusDays(300 - i * 10));
+
+            String campusId = "CAMP0" + ((i % 5) + 2);
+            Campuses campus = find(em, Campuses.class, "campusId", campusId);
+            admin.setCampus(campus);
+            admin.setCreator(creator);
+
             em.persist(admin);
-
-            Authenticators auth = new Authenticators();
-            auth.setPersonId(admin.getId());
-            auth.setPerson(admin);
-            auth.setPassword("Admin123");
-            em.persist(auth);
-            System.out.println("Added Admin: " + admin.getId());
-        } else {
-            System.out.println("Admin already exists: " + admin.getId());
+            createAuth(em, ids[i], admin);
         }
     }
 
-    // ===================== CAMPUSES =====================
-    private static void addDefaultCampuses(EntityManager em) {
-        Admins creator = findAdmin(em, "Admin");
-        if (creator == null) {
-            System.err.println("Admin not found, cannot create campuses.");
-            return;
-        }
+    private static void seedMajors(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        String[] ids = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
+        String[] names = {"Quản trị Kinh doanh", "Công nghệ Thông tin", "Thiết kế Đồ họa", "Marketing",
+                "Kế toán", "Khoa học Dữ liệu", "Trí tuệ Nhân tạo", "An ninh Mạng", "Tài chính", "Quản trị Nhân sự"};
 
-        List<Campuses> campusesToAdd = new ArrayList<>();
-        campusesToAdd.add(new Campuses("CAMP01", "Hanoi Campus", LocalDate.of(2010, 1, 1), "Main campus in Hanoi", creator));
-        campusesToAdd.add(new Campuses("CAMP02", "Ho Chi Minh Campus", LocalDate.of(2012, 5, 15), "Main campus in HCMC", creator));
-        campusesToAdd.add(new Campuses("CAMP03", "Da Nang Campus", LocalDate.of(2015, 3, 20), "Central region campus", creator));
-        campusesToAdd.add(new Campuses("CAMP04", "Hai Phong Campus", LocalDate.of(2016, 9, 10), "Northern coastal city campus", creator));
-        campusesToAdd.add(new Campuses("CAMP05", "Can Tho Campus", LocalDate.of(2018, 11, 25), "Mekong Delta campus", creator));
-        campusesToAdd.add(new Campuses("CAMP06", "Hue Campus", LocalDate.of(2019, 4, 5), "Central heritage city campus", creator));
-        campusesToAdd.add(new Campuses("CAMP07", "Quy Nhon Campus", LocalDate.of(2020, 2, 14), "Coastal city campus", creator));
-        campusesToAdd.add(new Campuses("CAMP08", "Nha Trang Campus", LocalDate.of(2021, 7, 1), "Tourism and marine economy campus", creator));
-        campusesToAdd.add(new Campuses("CAMP09", "Vung Tau Campus", LocalDate.of(2022, 8, 30), "Oil & Gas hub campus", creator));
-        campusesToAdd.add(new Campuses("CAMP10", "Thanh Hoa Campus", LocalDate.of(2023, 10, 12), "Gateway to northern central region", creator));
-
-        for (Campuses campus : campusesToAdd) {
-            try {
-                em.createQuery("SELECT c FROM Campuses c WHERE c.campusId = :id", Campuses.class)
-                        .setParameter("id", campus.getCampusId()).getSingleResult();
-                System.out.println("Campus already exists: " + campus.getCampusName());
-            } catch (NoResultException e) {
-                em.persist(campus);
-                System.out.println("Added Campus: " + campus.getCampusName());
-            }
+        for (int i = 0; i < 10; i++) {
+            if (exists(em, Majors.class, "majorId", ids[i])) continue;
+            Majors m = new Majors();
+            m.setMajorId(ids[i]);
+            m.setMajorName(names[i]);
+            m.setCreator(creator);
+            m.setCreatedDate(LocalDate.now().minusDays(300 - i * 10));
+            em.persist(m);
         }
     }
 
-    // ===================== SLOTS =====================
-    private static void addDefaultSlots(EntityManager em) {
-        List<Slots> slotsToAdd = new ArrayList<>();
+    private static void seedSpecializations(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        String[][] specs = {
+                {"SPEC_IT_SE", "Kỹ thuật Phần mềm", "GCH"},
+                {"SPEC_IT_AI", "Trí tuệ Nhân tạo", "GCH"},
+                {"SPEC_IT_CS", "An ninh Mạng", "GCH"},
+                {"SPEC_BUS_FIN", "Tài chính Ngân hàng", "GBH"},
+                {"SPEC_BUS_HR", "Quản trị Nhân sự", "GBH"},
+                {"SPEC_DES_UI", "Thiết kế UI/UX", "GDH"},
+                {"SPEC_DES_3D", "Hoạt hình 3D", "GDH"},
+                {"SPEC_MKT_DIG", "Marketing Kỹ thuật số", "GKH"},
+                {"SPEC_MKT_SM", "Social Media", "GKH"},
+                {"SPEC_ACC_TAX", "Kế toán Thuế", "GKT"}
+        };
 
-        Slots slot1 = new Slots();
-        slot1.setSlotId("slot001"); slot1.setSlotName("Slot 1");
-        slot1.setStartTime(LocalTime.of(7, 0)); slot1.setEndTime(LocalTime.of(8, 40));
-
-        Slots slot2 = new Slots();
-        slot2.setSlotId("slot002"); slot2.setSlotName("Slot 2");
-        slot2.setStartTime(LocalTime.of(8, 50)); slot2.setEndTime(LocalTime.of(10, 20));
-
-        Slots slot3 = new Slots();
-        slot3.setSlotId("slot003"); slot3.setSlotName("Slot 3");
-        slot3.setStartTime(LocalTime.of(10, 30)); slot3.setEndTime(LocalTime.of(12, 0));
-
-        Slots slot4 = new Slots();
-        slot4.setSlotId("slot004"); slot4.setSlotName("Slot 4");
-        slot4.setStartTime(LocalTime.of(12, 50)); slot4.setEndTime(LocalTime.of(14, 20));
-
-        Slots slot5 = new Slots();
-        slot5.setSlotId("slot005"); slot5.setSlotName("Slot 5");
-        slot5.setStartTime(LocalTime.of(14, 30)); slot5.setEndTime(LocalTime.of(16, 0));
-
-        Slots slot6 = new Slots();
-        slot6.setSlotId("slot006"); slot6.setSlotName("Slot 6");
-        slot6.setStartTime(LocalTime.of(16, 10)); slot6.setEndTime(LocalTime.of(17, 40));
-
-        slotsToAdd.addAll(List.of(slot1, slot2, slot3, slot4, slot5, slot6));
-
-        for (Slots slot : slotsToAdd) {
-            try {
-                em.createQuery("SELECT s FROM Slots s WHERE s.slotId = :id", Slots.class)
-                        .setParameter("id", slot.getSlotId()).getSingleResult();
-                System.out.println("Slot already exists: " + slot.getSlotName());
-            } catch (NoResultException e) {
-                em.persist(slot);
-                System.out.println("Added slot: " + slot.getSlotName());
-            }
+        for (String[] s : specs) {
+            if (exists(em, Specialization.class, "specializationId", s[0])) continue;
+            Specialization spec = new Specialization();
+            spec.setSpecializationId(s[0]);
+            spec.setSpecializationName(s[1]);
+            spec.setMajor(find(em, Majors.class, "majorId", s[2]));
+            spec.setCreator(creator);
+            em.persist(spec);
         }
     }
 
-    // ===================== MAJORS =====================
-    private static void addDefaultMajors(EntityManager em) {
-        List<Majors> majorsToAdd = new ArrayList<>();
-
-        Majors major1 = new Majors(); major1.setMajorId("GBH"); major1.setMajorName("Business Administration");
-        Majors major2 = new Majors(); major2.setMajorId("GCH"); major2.setMajorName("Information Technology");
-        Majors major3 = new Majors(); major3.setMajorId("GDH"); major3.setMajorName("Graphic Design");
-        Majors major4 = new Majors(); major4.setMajorId("GKH"); major4.setMajorName("Marketing");
-
-        majorsToAdd.addAll(List.of(major1, major2, major3, major4));
-
-        for (Majors major : majorsToAdd) {
-            try {
-                em.createQuery("SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                        .setParameter("id", major.getMajorId()).getSingleResult();
-                System.out.println("Major already exists: " + major.getMajorName());
-            } catch (NoResultException e) {
-                em.persist(major);
-                System.out.println("Added Major: " + major.getMajorName());
-            }
+    private static void seedCurriculums(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        if (!exists(em, Curriculum.class, "curriculumId", "CURR01")) {
+            Curriculum c = new Curriculum();
+            c.setCurriculumId("CURR01"); c.setName("BTEC"); c.setDescription("Chương trình BTEC");
+            c.setCreator(creator); c.setCreatedAt(LocalDateTime.now());
+            em.persist(c);
+        }
+        if (!exists(em, Curriculum.class, "curriculumId", "CURR02")) {
+            Curriculum c = new Curriculum();
+            c.setCurriculumId("CURR02"); c.setName("3+0"); c.setDescription("Chương trình 3+0");
+            c.setCreator(creator); c.setCreatedAt(LocalDateTime.now());
+            em.persist(c);
         }
     }
 
-    // ===================== SPECIALIZATIONS =====================
-    private static void addDefaultSpecializations(EntityManager em) {
-        Admins creator = findAdmin(em, "Admin");
-        if (creator == null) {
-            System.err.println("Admin not found, cannot create specializations.");
-            return;
-        }
+    private static void seedStaffs(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        Majors[] majors = {
+                find(em, Majors.class, "majorId", "GBH"), find(em, Majors.class, "majorId", "GCH"),
+                find(em, Majors.class, "majorId", "GDH"), find(em, Majors.class, "majorId", "GKH"),
+                find(em, Majors.class, "majorId", "GKT"), find(em, Majors.class, "majorId", "GDT"),
+                find(em, Majors.class, "majorId", "GAT"), find(em, Majors.class, "majorId", "GNT"),
+                find(em, Majors.class, "majorId", "GFT"), find(em, Majors.class, "majorId", "GHT")
+        };
+        Campuses[] campuses = new Campuses[10];
+        for (int i = 0; i < 10; i++) campuses[i] = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", i + 1));
 
-        Majors gch = findMajor(em, "GCH");
-        Majors gbh = findMajor(em, "GBH");
-        Majors gdh = findMajor(em, "GDH");
-        Majors gkh = findMajor(em, "GKH");
+        String[] firstNames = {"Minh", "Lan", "Hùng", "Mai", "Tuấn", "Hương", "Khoa", "Ngọc", "Đức", "Thảo"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương"};
 
-        if (gch == null || gbh == null || gdh == null || gkh == null) {
-            System.err.println("One or more majors not found, cannot create specializations.");
-            return;
-        }
-
-        List<Specialization> specializationsToAdd = new ArrayList<>();
-
-        // IT Specializations
-        specializationsToAdd.add(new Specialization("SPEC_IT_SE", "Software Engineering", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_AI", "Artificial Intelligence", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_CS", "Cyber Security", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_DS", "Data Science", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_CC", "Cloud Computing", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_IOT", "Internet of Things", gch, creator));
-        specializationsToAdd.add(new Specialization("SPEC_IT_BC", "Blockchain Technology", gch, creator));
-
-        // Business Specializations
-        specializationsToAdd.add(new Specialization("SPEC_BUS_FIN", "Finance & Banking", gbh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_BUS_HR", "Human Resource Management", gbh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_BUS_ENT", "Entrepreneurship", gbh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_BUS_IB", "International Business", gbh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_BUS_OM", "Operations Management", gbh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_BUS_SCM", "Supply Chain Management", gbh, creator));
-
-        // Design Specializations
-        specializationsToAdd.add(new Specialization("SPEC_DES_UI", "UI/UX Design", gdh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_DES_3D", "3D Design & Animation", gdh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_DES_GAME", "Game Design", gdh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_DES_VFX", "Visual Effects", gdh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_DES_MOT", "Motion Graphics", gdh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_DES_BRAND", "Brand Identity Design", gdh, creator));
-
-        // Marketing Specializations
-        specializationsToAdd.add(new Specialization("SPEC_MKT_DIG", "Digital Marketing", gkh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_MKT_SM", "Social Media Marketing", gkh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_MKT_SEO", "SEO & Content Marketing", gkh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_MKT_ECP", "E-commerce & Performance Marketing", gkh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_MKT_BRAND", "Brand Management", gkh, creator));
-        specializationsToAdd.add(new Specialization("SPEC_MKT_MR", "Market Research & Analytics", gkh, creator));
-
-        for (Specialization spec : specializationsToAdd) {
-            try {
-                em.createQuery("SELECT s FROM Specialization s WHERE s.specializationId = :id", Specialization.class)
-                        .setParameter("id", spec.getSpecializationId()).getSingleResult();
-                System.out.println("Specialization already exists: " + spec.getSpecializationName());
-            } catch (NoResultException e) {
-                em.persist(spec);
-                System.out.println("Added Specialization: " + spec.getSpecializationName());
-            }
+        for (int i = 0; i < 10; i++) {
+            String id = "staff" + String.format("%03d", i + 1);
+            if (exists(em, Staffs.class, "id", id)) continue;
+            Staffs s = new Staffs();
+            s.setId(id);
+            s.setFirstName(firstNames[i]);
+            s.setLastName(lastNames[i]);
+            s.setEmail(id + "@staff.com");
+            s.setPhoneNumber("+8491" + String.format("%08d", 1000000 + i * 12345));
+            s.setBirthDate(LocalDate.of(1985 + i % 5, 1 + i % 12, 1 + i % 28));
+            s.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+            s.setCountry("Vietnam");
+            s.setProvince("Hà Nội");
+            s.setCity("Hà Nội");
+            s.setDistrict("Cầu Giấy");
+            s.setWard("Dịch Vọng");
+            s.setStreet("123 Trần Duy Hưng");
+            s.setPostalCode("100000");
+            s.setMajorManagement(majors[i]);
+            s.setCampus(campuses[i]);
+            s.setCreator(creator);
+            em.persist(s);
+            createAuth(em, id, s);
         }
     }
 
-    // ===================== CURRICULUMS =====================
-    private static void addDefaultCurriculums(EntityManager em) {
-        Admins creator = findAdmin(em, "Admin");
-        if (creator == null) {
-            System.err.println("Admin not found, cannot create curriculums.");
-            return;
-        }
+    private static void seedDeputyStaffs(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        String[] firstNames = {"Anh", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi"};
+        String[] lastNames = {"Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn"};
 
-        List<Curriculum> curriculumsToAdd = new ArrayList<>();
-        curriculumsToAdd.add(new Curriculum("CURR01", "BTEC", "BTEC curriculum program", creator, LocalDateTime.now()));
-        curriculumsToAdd.add(new Curriculum("CURR02", "3+0", "3+0 curriculum program", creator, LocalDateTime.now()));
-
-        for (Curriculum curriculum : curriculumsToAdd) {
-            try {
-                em.createQuery("SELECT c FROM Curriculum c WHERE c.curriculumId = :id", Curriculum.class)
-                        .setParameter("id", curriculum.getCurriculumId()).getSingleResult();
-                System.out.println("Curriculum already exists: " + curriculum.getName());
-            } catch (NoResultException e) {
-                em.persist(curriculum);
-                System.out.println("Added Curriculum: " + curriculum.getName());
-            }
-        }
-    }
-
-    // ===================== STAFFS + ADMIN =====================
-    private static void addDefaultStaffs(EntityManager em) {
-        List<Persons> toAdd = new ArrayList<>();
-        Majors gbh = findMajor(em, "GBH");
-        Majors gch = findMajor(em, "GCH");
-        if (gbh == null || gch == null) {
-            System.err.println("Error: Required major not found. Ensure majors are added before staffs.");
-            return;
-        }
-
-        Campuses hanoiCampus = findCampus(em, "CAMP01");
-        if (hanoiCampus == null) {
-            System.err.println("Error: Hanoi Campus not found. Ensure campuses are added before staffs.");
-            return;
-        }
-
-        Staffs staff1 = new Staffs();
-        staff1.setId("vuthanhtruong");
-        staff1.setFirstName("John"); staff1.setLastName("Doe");
-        staff1.setEmail("vuthanhtruong1280@gmail.com"); staff1.setPhoneNumber("0391234567");
-        staff1.setBirthDate(LocalDate.of(1985, 5, 15)); staff1.setGender(Gender.MALE);
-        staff1.setCountry("Vietnam"); staff1.setProvince("Hanoi"); staff1.setCity("Hanoi");
-        staff1.setDistrict("Cau Giay"); staff1.setWard("Dich Vong"); staff1.setStreet("123 Tran Duy Hung");
-        staff1.setPostalCode("100000"); staff1.setCreatedDate(LocalDate.now());
-        staff1.setMajorManagement(gbh);
-
-        Staffs staff2 = new Staffs();
-        staff2.setId("staff002");
-        staff2.setFirstName("Jane"); staff2.setLastName("Smith");
-        staff2.setEmail("jane.smith@example.com"); staff2.setPhoneNumber("0397654321");
-        staff2.setBirthDate(LocalDate.of(1990, 8, 20)); staff2.setGender(Gender.FEMALE);
-        staff2.setCountry("Vietnam"); staff2.setProvince("Ho Chi Minh"); staff2.setCity("Ho Chi Minh");
-        staff2.setDistrict("District 1"); staff2.setWard("Ben Nghe"); staff2.setStreet("45 Le Loi");
-        staff2.setPostalCode("700000"); staff2.setCreatedDate(LocalDate.now());
-        staff2.setMajorManagement(gch);
-
-        Admins admin = findAdmin(em, "Admin");
-        if (admin != null && admin.getCampus() == null) {
-            admin.setCampus(hanoiCampus);
-            em.merge(admin);
-        }
-
-        toAdd.addAll(List.of(staff1, staff2));
-
-        for (Persons p : toAdd) {
-            boolean exists;
-            try {
-                em.createQuery("SELECT p FROM Persons p WHERE p.id = :id", Persons.class)
-                        .setParameter("id", p.getId()).getSingleResult();
-                exists = true;
-            } catch (NoResultException e) {
-                exists = false;
-            }
-
-            if (!exists) {
-                em.persist(p);
-                Authenticators auth = new Authenticators();
-                auth.setPersonId(p.getId());
-                auth.setPerson(p);
-                auth.setPassword("Anhnam123");
-                em.persist(auth);
-                System.out.println("Added " + p.getRoleType() + ": " + p.getId());
-            } else {
-                System.out.println("Person already exists: " + p.getId());
-            }
+        for (int i = 0; i < 10; i++) {
+            String id = "deputy" + String.format("%03d", i + 1);
+            if (exists(em, DeputyStaffs.class, "id", id)) continue;
+            DeputyStaffs d = new DeputyStaffs();
+            d.setId(id);
+            d.setFirstName(firstNames[i]);
+            d.setLastName(lastNames[i]);
+            d.setEmail(id + "@deputy.com");
+            d.setPhoneNumber("+8492" + String.format("%08d", 2000000 + i * 54321));
+            d.setBirthDate(LocalDate.of(1990 + i % 5, 1 + i % 12, 1 + i % 28));
+            d.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+            d.setCountry("Vietnam");
+            d.setProvince("TP.HCM");
+            d.setCity("TP.HCM");
+            d.setDistrict("Quận 1");
+            d.setWard("Bến Nghé");
+            d.setStreet("45 Lê Lợi");
+            d.setPostalCode("700000");
+            d.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
+            d.setCreator(creator);
+            em.persist(d);
+            createAuth(em, id, d);
         }
     }
 
-    // ===================== DEPUTY STAFF =====================
-    private static void addDefaultDeputyStaff(EntityManager em) {
-        Admins admin = findAdmin(em, "Admin");
-        if (admin == null) {
-            System.err.println("Admin not found, cannot create deputy staff.");
-            return;
-        }
+    private static void seedMajorLecturers(EntityManager em) {
+        Staffs creator = find(em, Staffs.class, "id", "staff001");
+        String[] firstNames = {"Hải", "Yến", "Phong", "Thư", "Kiên", "Tâm", "Long", "Huyền", "Quân", "Mai"};
+        String[] lastNames = {"Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn", "Trần"};
 
+        for (int i = 0; i < 10; i++) {
+            String id = "lect" + String.format("%03d", i + 1);
+            if (exists(em, MajorLecturers.class, "id", id)) continue;
+            MajorLecturers l = new MajorLecturers();
+            l.setId(id);
+            l.setFirstName(firstNames[i]);
+            l.setLastName(lastNames[i]);
+            l.setEmail(id + "@lecturer.com");
+            l.setPhoneNumber("+8493" + String.format("%08d", 3000000 + i * 11111));
+            l.setBirthDate(LocalDate.of(1975 + i % 10, 1 + i % 12, 1 + i % 28));
+            l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+            l.setCountry("Vietnam");
+            l.setProvince("Đà Nẵng");
+            l.setCity("Đà Nẵng");
+            l.setDistrict("Hải Châu");
+            l.setWard("Hòa Cường");
+            l.setStreet("78 Nguyễn Văn Linh");
+            l.setPostalCode("550000");
+            l.setMajorManagement(find(em, Majors.class, "majorId", i < 5 ? "GCH" : "GBH"));
+            l.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
+            l.setEmploymentTypes(EmploymentTypes.FULL_TIME);
+            l.setCreator(creator);
+            em.persist(l);
+            createAuth(em, id, l);
+        }
+    }
+
+    private static void seedMinorLecturers(EntityManager em) {
+        DeputyStaffs creator = find(em, DeputyStaffs.class, "id", "deputy001");
+        String[] firstNames = {"Tùng", "Hương", "Khoa", "Ngọc", "Đức", "Thảo", "Minh", "Lan", "Hùng", "Mai"};
+        String[] lastNames = {"Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn", "Trần", "Lê"};
+
+        for (int i = 0; i < 10; i++) {
+            String id = "minlect" + String.format("%03d", i + 1);
+            if (exists(em, MinorLecturers.class, "id", id)) continue;
+            MinorLecturers l = new MinorLecturers();
+            l.setId(id);
+            l.setFirstName(firstNames[i]);
+            l.setLastName(lastNames[i]);
+            l.setEmail(id + "@minor.com");
+            l.setPhoneNumber("+8494" + String.format("%08d", 4000000 + i * 22222));
+            l.setBirthDate(LocalDate.of(1980 + i % 8, 1 + i % 12, 1 + i % 28));
+            l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+            l.setCountry("Vietnam");
+            l.setProvince("Hải Phòng");
+            l.setCity("Hải Phòng");
+            l.setDistrict("Hồng Bàng");
+            l.setWard("Hùng Vương");
+            l.setStreet("56 Trần Phú");
+            l.setPostalCode("180000");
+            l.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
+            l.setEmploymentTypes(EmploymentTypes.PART_TIME);
+            l.setCreator(creator);
+            em.persist(l);
+            createAuth(em, id, l);
+        }
+    }
+
+    private static void seedStudents(EntityManager em) {
+        Staffs creator = find(em, Staffs.class, "id", "staff001");
+        Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
+        String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương"};
+
+        for (int i = 0; i < 10; i++) {
+            String id = "stu" + String.format("%03d", i + 1);
+            if (exists(em, Students.class, "id", id)) continue;
+            Students s = new Students();
+            s.setId(id);
+            s.setFirstName(firstNames[i]);
+            s.setLastName(lastNames[i]);
+            s.setEmail(id + "@student.com");
+            s.setPhoneNumber("+8495" + String.format("%08d", 5000000 + i * 33333));
+            s.setBirthDate(LocalDate.of(2000 + i % 5, 1 + i % 12, 1 + i % 28));
+            s.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+            s.setCountry("Vietnam");
+            s.setProvince("Cần Thơ");
+            s.setCity("Cần Thơ");
+            s.setDistrict("Ninh Kiều");
+            s.setWard("Cái Khế");
+            s.setStreet("89 Ninh Kiều");
+            s.setPostalCode("900000");
+
+            // admissionYear từ 2025 trở lên
+            s.setAdmissionYear(2025 + (i % 3)); // 2025, 2026, 2027
+
+            s.setCreator(creator);
+            s.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
+            s.setSpecialization(find(em, Specialization.class, "specializationId", "SPEC_IT_SE"));
+            s.setCurriculum(curr);
+            em.persist(s);
+            createAuth(em, id, s);
+        }
+    }
+
+    // ===================== SUBJECTS SEED =====================
+
+    private static void seedMajorSubjects(EntityManager em) {
+        Staffs[] creators = new Staffs[10];
+        for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
+        Majors[] majors = {
+                find(em, Majors.class, "majorId", "GBH"), find(em, Majors.class, "majorId", "GCH"),
+                find(em, Majors.class, "majorId", "GDH"), find(em, Majors.class, "majorId", "GKH"),
+                find(em, Majors.class, "majorId", "GKT"), find(em, Majors.class, "majorId", "GDT"),
+                find(em, Majors.class, "majorId", "GAT"), find(em, Majors.class, "majorId", "GNT"),
+                find(em, Majors.class, "majorId", "GFT"), find(em, Majors.class, "majorId", "GHT")
+        };
+        Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
+        Admins acceptor = find(em, Admins.class, "id", "admin001");
+
+        String[] names = {"Nhập môn Quản trị", "Lập trình Java", "Thiết kế Cơ bản", "Marketing Căn bản",
+                "Kế toán Tài chính", "Phân tích Dữ liệu", "AI Cơ bản", "Mạng Máy tính", "Tài chính Doanh nghiệp", "Quản lý Nhân sự"};
+
+        for (int i = 0; i < 10; i++) {
+            String id = "SUB_MAJ_" + String.format("%03d", i + 1);
+            if (exists(em, MajorSubjects.class, "subjectId", id)) continue;
+            MajorSubjects s = new MajorSubjects();
+            s.setSubjectId(id);
+            s.setSubjectName(names[i]);
+            s.setSemester(i % 8 + 1);
+            s.setIsAccepted(i % 3 == 0);
+            s.setAcceptor(acceptor);
+            s.setCreator(creators[i]);
+            s.setMajor(majors[i]);
+            s.setCurriculum(curr);
+            em.persist(s);
+        }
+    }
+
+    private static void seedMinorSubjects(EntityManager em) {
+        DeputyStaffs[] creators = new DeputyStaffs[10];
+        for (int i = 0; i < 10; i++) creators[i] = find(em, DeputyStaffs.class, "id", "deputy" + String.format("%03d", i + 1));
+        Admins acceptor = find(em, Admins.class, "id", "admin001");
+
+        String[] names = {"Tiếng Anh Giao tiếp", "Kỹ năng Mềm", "Tư duy Phản biện", "Quản lý Thời gian",
+                "Làm việc Nhóm", "Kỹ năng Thuyết trình", "Viết CV", "Phỏng vấn", "Tinh thần Khởi nghiệp", "Sức khỏe Tinh thần"};
+
+        for (int i = 0; i < 10; i++) {
+            String id = "SUB_MIN_" + String.format("%03d", i + 1);
+            if (exists(em, MinorSubjects.class, "subjectId", id)) continue;
+            MinorSubjects s = new MinorSubjects();
+            s.setSubjectId(id);
+            s.setSubjectName(names[i]);
+            s.setSemester(i % 4 + 1);
+            s.setIsAccepted(i % 4 == 0);
+            s.setAcceptor(acceptor);
+            s.setCreator(creators[i]);
+            em.persist(s);
+        }
+    }
+
+    private static void seedSpecializedSubjects(EntityManager em) {
+        Staffs[] creators = new Staffs[10];
+        for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
+        Specialization[] specs = {
+                find(em, Specialization.class, "specializationId", "SPEC_IT_SE"),
+                find(em, Specialization.class, "specializationId", "SPEC_IT_AI"),
+                find(em, Specialization.class, "specializationId", "SPEC_IT_CS"),
+                find(em, Specialization.class, "specializationId", "SPEC_BUS_FIN"),
+                find(em, Specialization.class, "specializationId", "SPEC_BUS_HR"),
+                find(em, Specialization.class, "specializationId", "SPEC_DES_UI"),
+                find(em, Specialization.class, "specializationId", "SPEC_DES_3D"),
+                find(em, Specialization.class, "specializationId", "SPEC_MKT_DIG"),
+                find(em, Specialization.class, "specializationId", "SPEC_MKT_SM"),
+                find(em, Specialization.class, "specializationId", "SPEC_ACC_TAX")
+        };
+        Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
+        Admins acceptor = find(em, Admins.class, "id", "admin001");
+
+        String[] names = {"Phát triển Web", "Machine Learning", "Penetration Testing", "Ngân hàng Số",
+                "Tuyển dụng", "Figma Design", "Blender 3D", "SEO & SEM", "TikTok Marketing", "Kiểm toán"};
+
+        for (int i = 0; i < 10; i++) {
+            String id = "SUB_SPEC_" + String.format("%03d", i + 1);
+            if (exists(em, SpecializedSubject.class, "subjectId", id)) continue;
+            SpecializedSubject s = new SpecializedSubject();
+            s.setSubjectId(id);
+            s.setSubjectName(names[i]);
+            s.setSemester(i % 6 + 3);
+            s.setIsAccepted(i % 5 == 0);
+            s.setAcceptor(acceptor);
+            s.setCreator(creators[i]);
+            s.setSpecialization(specs[i]);
+            s.setCurriculum(curr);
+            em.persist(s);
+        }
+    }
+
+    // ===================== AUTH & HELPER =====================
+    private static void createAuth(EntityManager em, String personId, Persons person) {
+        if (exists(em, Authenticators.class, "personId", personId)) return;
+        Authenticators auth = new Authenticators();
+        auth.setPersonId(personId);
+        auth.setPerson(person);
+        auth.setPassword(DEFAULT_PASSWORD);
+        em.persist(auth);
+    }
+
+    private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
         try {
-            em.createQuery("SELECT d FROM DeputyStaffs d WHERE d.id = :id", DeputyStaffs.class)
-                    .setParameter("id", "deputy001").getSingleResult();
-            System.out.println("DeputyStaff already exists: deputy001");
-        } catch (NoResultException e) {
-            DeputyStaffs deputy = new DeputyStaffs();
-            deputy.setId("deputy001");
-            deputy.setFirstName("Trang"); deputy.setLastName("Le");
-            deputy.setEmail("deputy001@example.com"); deputy.setPhoneNumber("0380000001");
-            deputy.setBirthDate(LocalDate.of(1992, 3, 10)); deputy.setGender(Gender.FEMALE);
-            deputy.setCreator(admin);
-            em.persist(deputy);
-
-            Authenticators auth = new Authenticators();
-            auth.setPersonId(deputy.getId()); auth.setPerson(deputy);
-            auth.setPassword("Anhnam123");
-            em.persist(auth);
-
-            System.out.println("Added DeputyStaff: deputy001");
-        }
-    }
-
-    // ===================== 20 MajorSubjects/major =====================
-    private static void addDefaultMajorSubjects(EntityManager em) {
-        Staffs creator = findStaff(em, "vuthanhtruong");
-        if (creator == null) {
-            System.err.println("Staff not found, cannot create major subjects.");
-            return;
-        }
-
-        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
-
-        List<String> majorIds = Arrays.asList("GBH", "GCH", "GDH", "GKH");
-        for (String majorId : majorIds) {
-            Majors major = findMajor(em, majorId);
-            if (major == null) {
-                System.err.println("Major not found: " + majorId + " (skip subjects)");
-                continue;
-            }
-
-            for (int i = 1; i <= 20; i++) {
-                String suffix = String.format("%03d", i);
-                String subjectId = majorId + suffix;
-                if (existsSubject(em, subjectId)) {
-                    System.out.println("MajorSubject already exists: " + subjectId);
-                    continue;
-                }
-                MajorSubjects subj = new MajorSubjects();
-                subj.setSubjectId(subjectId);
-                subj.setSubjectName(buildMajorSubjectName(majorId, i));
-                subj.setSemester(((i - 1) % 6) + 1);
-                subj.setCreator(creator);
-                subj.setMajor(major);
-                subj.setCurriculum(btecCurriculum);
-                em.persist(subj);
-                System.out.println("Added MajorSubject: " + subjectId);
-            }
-        }
-    }
-
-    private static boolean existsSubject(EntityManager em, String subjectId) {
-        try {
-            em.createQuery("SELECT s FROM Subjects s WHERE s.subjectId = :id", Subjects.class)
-                    .setParameter("id", subjectId).getSingleResult();
+            String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+            em.createQuery(jpql, Integer.class).setParameter("id", idValue).getSingleResult();
             return true;
         } catch (NoResultException e) {
             return false;
         }
     }
 
-    private static String buildMajorSubjectName(String majorId, int idx) {
-        switch (majorId) {
-            case "GCH": return "IT Core " + idx;
-            case "GBH": return "Business Core " + idx;
-            case "GDH": return "Design Core " + idx;
-            case "GKH": return "Marketing Core " + idx;
-            default: return "Major Subject " + idx;
-        }
-    }
-    // ===================== SPECIALIZED SUBJECTS =====================
-    private static void addDefaultSpecializedSubjects(EntityManager em) {
-        Staffs creator = findStaff(em, "vuthanhtruong");
-        if (creator == null) {
-            System.err.println("Staff not found, cannot create specialized subjects.");
-            return;
-        }
-
-        // IT Specialization Subjects
-        addSpecializedSubjectsForSpec(em, "SPEC_IT_SE", "Software Engineering", creator, new String[]{
-                "Advanced Software Architecture", "Design Patterns", "Microservices Architecture",
-                "Software Testing & QA", "DevOps Practices", "Agile Development",
-                "Software Project Management", "Code Quality & Review"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_IT_AI", "Artificial Intelligence", creator, new String[]{
-                "Machine Learning Fundamentals", "Deep Learning", "Natural Language Processing",
-                "Computer Vision", "Neural Networks", "AI Ethics",
-                "Reinforcement Learning", "AI Applications"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_IT_CS", "Cyber Security", creator, new String[]{
-                "Network Security", "Ethical Hacking", "Cryptography",
-                "Security Operations", "Incident Response", "Penetration Testing",
-                "Security Compliance", "Digital Forensics"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_IT_DS", "Data Science", creator, new String[]{
-                "Big Data Analytics", "Data Mining", "Statistical Analysis",
-                "Data Visualization", "Predictive Modeling", "Business Intelligence",
-                "Data Engineering", "Advanced SQL"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_IT_CC", "Cloud Computing", creator, new String[]{
-                "AWS Fundamentals", "Azure Cloud Services", "Cloud Architecture",
-                "Cloud Security", "Container Orchestration", "Serverless Computing",
-                "Cloud DevOps", "Multi-Cloud Strategy"
-        });
-
-        // Business Specialization Subjects
-        addSpecializedSubjectsForSpec(em, "SPEC_BUS_FIN", "Finance & Banking", creator, new String[]{
-                "Corporate Finance", "Investment Analysis", "Financial Markets",
-                "Banking Operations", "Risk Management", "Financial Modeling",
-                "Portfolio Management", "Financial Regulations"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_BUS_HR", "Human Resource Management", creator, new String[]{
-                "Talent Acquisition", "Performance Management", "Organizational Behavior",
-                "HR Analytics", "Compensation & Benefits", "Training & Development",
-                "Labor Relations", "Strategic HRM"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_BUS_ENT", "Entrepreneurship", creator, new String[]{
-                "Startup Fundamentals", "Business Model Canvas", "Venture Capital",
-                "Innovation Management", "Lean Startup", "Entrepreneurial Finance",
-                "Growth Hacking", "Social Entrepreneurship"
-        });
-
-        // Design Specialization Subjects
-        addSpecializedSubjectsForSpec(em, "SPEC_DES_UI", "UI/UX Design", creator, new String[]{
-                "User Research Methods", "Interaction Design", "Prototyping & Wireframing",
-                "Usability Testing", "Information Architecture", "Design Systems",
-                "Mobile UX Design", "Accessibility Design"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_DES_3D", "3D Design & Animation", creator, new String[]{
-                "3D Modeling Fundamentals", "Character Animation", "Lighting & Rendering",
-                "Texturing & Materials", "Rigging & Skinning", "Motion Capture",
-                "VFX Compositing", "3D Printing Design"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_DES_GAME", "Game Design", creator, new String[]{
-                "Game Mechanics Design", "Level Design", "Game Art & Assets",
-                "Game Programming", "Player Psychology", "Game Monetization",
-                "Multiplayer Design", "Game Testing & Balancing"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_DES_VFX", "Visual Effects", creator, new String[]{
-                "Particle Systems", "Fluid Simulation", "Destruction Effects",
-                "Green Screen Compositing", "Color Grading", "Motion Tracking",
-                "VFX Pipeline", "Real-time VFX"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_DES_MOT", "Motion Graphics", creator, new String[]{
-                "After Effects Advanced", "Typography Animation", "Kinetic Typography",
-                "2D Motion Design", "Broadcast Design", "Motion Graphics Principles",
-                "Visual Storytelling", "Motion Graphics Workflow"
-        });
-
-        // Marketing Specialization Subjects
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_DIG", "Digital Marketing", creator, new String[]{
-                "Digital Marketing Strategy", "Google Ads Mastery", "Facebook Advertising",
-                "Email Marketing", "Marketing Automation", "Conversion Optimization",
-                "Analytics & Reporting", "Digital Campaign Management"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_SM", "Social Media Marketing", creator, new String[]{
-                "Social Media Strategy", "Content Creation for Social", "Influencer Marketing",
-                "Community Management", "Social Media Analytics", "Platform-Specific Marketing",
-                "Social Commerce", "Crisis Management"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_SEO", "SEO & Content Marketing", creator, new String[]{
-                "SEO Fundamentals", "Content Strategy", "Keyword Research",
-                "On-Page Optimization", "Link Building", "Technical SEO",
-                "Content Writing", "SEO Analytics"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_ECP", "E-commerce & Performance Marketing", creator, new String[]{
-                "E-commerce Platforms", "Performance Marketing", "Shopping Ads",
-                "Marketplace Marketing", "Retargeting Strategies", "Attribution Modeling",
-                "E-commerce Analytics", "Conversion Rate Optimization"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_BRAND", "Brand Management", creator, new String[]{
-                "Brand Strategy", "Brand Identity", "Brand Positioning",
-                "Brand Communication", "Brand Equity", "Brand Experience",
-                "Rebranding Strategies", "Brand Portfolio Management"
-        });
-
-        addSpecializedSubjectsForSpec(em, "SPEC_MKT_MR", "Market Research & Analytics", creator, new String[]{
-                "Research Methodology", "Consumer Behavior Analysis", "Survey Design",
-                "Data Analysis Tools", "Market Segmentation", "Predictive Analytics",
-                "Insights & Reporting", "Marketing Metrics"
-        });
-    }
-
-    private static void addSpecializedSubjectsForSpec(EntityManager em, String specId, String specName,
-                                                      Staffs creator, String[] subjectNames) {
-        Specialization spec = findSpecialization(em, specId);
-        if (spec == null) {
-            System.err.println("Specialization not found: " + specId);
-            return;
-        }
-
-        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
-
-        for (int i = 0; i < subjectNames.length; i++) {
-            String subjectId = specId + "_SUB" + String.format("%02d", i + 1);
-            if (existsSubject(em, subjectId)) {
-                System.out.println("SpecializedSubject already exists: " + subjectId);
-                continue;
-            }
-
-            SpecializedSubject subj = new SpecializedSubject();
-            subj.setSubjectId(subjectId);
-            subj.setSubjectName(subjectNames[i]);
-            subj.setSemester(((i / 2) % 6) + 1); // 2 subjects per semester
-            subj.setCreator(creator);
-            subj.setSpecialization(spec);
-            subj.setCurriculum(btecCurriculum);
-            em.persist(subj);
-            System.out.println("Added SpecializedSubject: " + subjectId + " - " + subjectNames[i]);
-        }
-    }
-
-    // ===================== BULK SEED from provided list =====================
-    private static void bulkSeedSubjects(EntityManager em) {
-        // Cache majors and curriculums
-        Map<String, Majors> majors = new HashMap<>();
-        majors.put("GBH", findMajor(em, "GBH"));
-        majors.put("GCH", findMajor(em, "GCH"));
-        majors.put("GDH", findMajor(em, "GDH"));
-        majors.put("GKH", findMajor(em, "GKH"));
-
-        Curriculum btecCurriculum = findCurriculum(em, "CURR01");
-        Curriculum threePlusZeroCurriculum = findCurriculum(em, "CURR02");
-
-        Staffs defaultCreator = findStaff(em, "vuthanhtruong");
-        DeputyStaffs deputyCreator = findDeputyStaff(em, "deputy001");
-
-        if (defaultCreator == null || deputyCreator == null) {
-            System.err.println("Required creators not found, cannot seed subjects.");
-            return;
-        }
-
-        // Build seed list (id, name, credits, tuition)
-        List<SubjectSeed> seeds = new ArrayList<>();
-        seeds.add(new SubjectSeed("1244", "Business Skills for E-commerce", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1251", "Employability and Professional Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1286", "Website Design", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1293", "Procedural Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1295", "Object Oriented Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1456", "Data Structures and Algorithms", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1510", "Web Application Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1525", "Distributed Software Applications", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1528", "Java Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1537", "Programming in .net", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1618", "Programming", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1619", "Networking", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1619A", "Networking", 0, 4905000.0));
-        seeds.add(new SubjectSeed("1620", "Professional Practice", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1622", "Database Design & Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1623", "Security", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1625", "Managing a Successful Computing Project", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1631", "Software Development Life Cycles", 15, 6540000.0));
-        seeds.add(new SubjectSeed("1633", "Website Design & Development", 15, 6540000.0));
-        seeds.add(new SubjectSeed("ENT002", "English 1 - Topnotch Fundamental", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT101", "English 2 - Topnotch 1", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT102", "English 2 - Topnotch 1", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT201", "English 3 - Top Notch 2", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT202", "English 3 - Top Notch 2", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT301", "English 4 - Top Notch 3", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT302", "English 4 - Top Notch 3", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT401", "English 5 - Summit 1", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT402", "English 5 - Summit 1", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT501", "English 6 - Summit 2", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT502", "English 6 - Summit 2", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT502-PTE", "English 6 - Summit 2 - PTE", 0, 11300000.0));
-        seeds.add(new SubjectSeed("ENT503-PTE", "English 6 - Summit 2 - PTE", 0, 11300000.0));
-        seeds.add(new SubjectSeed("EVNG201", "Events Management", 0, 6540000.0));
-        seeds.add(new SubjectSeed("Exam", "Examination", 0, null));
-        seeds.add(new SubjectSeed("FINA1149", "Finance for non-Finance Managers", 15, null));
-        seeds.add(new SubjectSeed("FINA1161", "Introduction to Finance for Business", 15, null));
-        seeds.add(new SubjectSeed("FINA1163", "Financial Resource Management", 15, null));
-        seeds.add(new SubjectSeed("GAIM101", "AI for leaders", 15, null));
-        seeds.add(new SubjectSeed("GDPG201", "Applied Practice Project", 0, 3270000.0));
-        seeds.add(new SubjectSeed("GDQPAN", "Military & Security Education", 0, 1860000.0));
-        seeds.add(new SubjectSeed("GUIDE", "Guide", 0, null));
-        seeds.add(new SubjectSeed("IBG201", "International Business", 0, 6540000.0));
-        seeds.add(new SubjectSeed("INDU1106", "Management Practice 1", 15, null));
-        seeds.add(new SubjectSeed("INDU1107", "Teams in Organisations", 15, null));
-        seeds.add(new SubjectSeed("INDU1130", "International Human Resource Management", 30, 0.0));
-        seeds.add(new SubjectSeed("INDU1166", "Future Paths", 15, null));
-        seeds.add(new SubjectSeed("LIB", "Library Guide", 0, null));
-        seeds.add(new SubjectSeed("LS01", "Live lecture", 0, null));
-        seeds.add(new SubjectSeed("LS02", "Live lecture", 0, null));
-        seeds.add(new SubjectSeed("MACG101", "Advanced math for Computer Science", 0, null));
-        seeds.add(new SubjectSeed("MARK 1051", "Contemporary Issues in Marketing", 30, 0.0));
-        seeds.add(new SubjectSeed("MARK1051", "Contemporary Issues in Marketing", 30, null));
-        seeds.add(new SubjectSeed("MARK1107", "Principles and Practice of Marketing", 30, null));
-        seeds.add(new SubjectSeed("MARK1234", "Social Media and Analytics and Critical", 15, null));
-        seeds.add(new SubjectSeed("MARK1249", "Critical Approaches to Advertising", 15, null));
-        seeds.add(new SubjectSeed("MARK1266", "Principles of Marketing in a Global Context", 15, null));
-        seeds.add(new SubjectSeed("MARK1286", "Marketing and Sales in the Future Economy", 15, null));
-        seeds.add(new SubjectSeed("MARK1289", "Creative Toolbox", 15, null));
-        seeds.add(new SubjectSeed("MARK1290", "Digital Marketing 101", 15, null));
-        seeds.add(new SubjectSeed("MARK1295", "Fundamentals of Marketing", 15, null));
-        seeds.add(new SubjectSeed("MATH1179", "Mathematics for Computer Science", 15, null));
-        seeds.add(new SubjectSeed("MEDS1159", "Corporate Communications", 15, null));
-        seeds.add(new SubjectSeed("MESD1249", "Corporate Communications", 30, null));
-        seeds.add(new SubjectSeed("MKTG209", "Content Marketing", 0, 6540000.0));
-        seeds.add(new SubjectSeed("MKTG301", "MarTech", 0, 6540000.0));
-        seeds.add(new SubjectSeed("OC", "Opening Ceremony", 0, null));
-        seeds.add(new SubjectSeed("OJT", "On the job training", 0, 18000000.0));
-        seeds.add(new SubjectSeed("OR", "Orientation", 0, null));
-        seeds.add(new SubjectSeed("PDP", "Personal development plan", 0, null));
-        seeds.add(new SubjectSeed("PRCG201", "Public Relations & Communication", 0, 6540000.0));
-        seeds.add(new SubjectSeed("PRO101", "Procedural Programming", 0, 4905000.0));
-        seeds.add(new SubjectSeed("PROG102", "Procedural Programming", 0, 6540000.0));
-        seeds.add(new SubjectSeed("PROG191", "Java Programming", 0, 6540000.0));
-        seeds.add(new SubjectSeed("RESE1170", "Business Research Methods", 15, null));
-        seeds.add(new SubjectSeed("RV101", "VSTEP Training", 0, null));
-        seeds.add(new SubjectSeed("SALG301", "Selling and sales management", 0, 6540000.0));
-        seeds.add(new SubjectSeed("SCMG201", "Operations and Supply Chain Management", 0, 6540000.0));
-        seeds.add(new SubjectSeed("SIT1", "Advanced Algorithm", 0, null));
-        seeds.add(new SubjectSeed("SIT2", "Machine Learning", 0, null));
-        seeds.add(new SubjectSeed("SS101", "Seminar", 0, null));
-        seeds.add(new SubjectSeed("SSC101", "Business Communication", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSD101", "Basic Drawing - Sketching", 0, 4905000.0));
-        seeds.add(new SubjectSeed("SSDG101", "Basic Drawing and Sketching", 0, 4905000.0));
-        seeds.add(new SubjectSeed("SSDG102", "Basic Drawing and Sketching", 0, 6540000.0));
-        seeds.add(new SubjectSeed("SSDG102.1", "Basic Drawing and Sketching Part 1", 0, null));
-        seeds.add(new SubjectSeed("SSDG102.2", "Basic Drawing and Sketching Part 2", 0, null));
-        seeds.add(new SubjectSeed("SSG101", "Working in Groups", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSGG101", "Working in group", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSGG102", "Working in group", 0, 1890000.0));
-        seeds.add(new SubjectSeed("SSGG103", "Teamwork in Global Environment", 0, 1890000.0));
-        seeds.add(new SubjectSeed("SSLG102", "Study skills for University success", 0, 3270000.0));
-        seeds.add(new SubjectSeed("SSM201", "Management Skills", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSMG201", "Management Skills", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSN301", "Negotiation Skills", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSNG301", "Negotiation Skill", 0, 2452500.0));
-        seeds.add(new SubjectSeed("SSNG302", "Negotiation Skill", 0, 1890000.0));
-        seeds.add(new SubjectSeed("TB", "Teambuilding", 0, null));
-        seeds.add(new SubjectSeed("TE", "Training EOS", 0, null));
-        seeds.add(new SubjectSeed("VIE 1014", "Politics", 0, 1308000.0));
-        seeds.add(new SubjectSeed("VIE 1024", "Law", 0, 1308000.0));
-        seeds.add(new SubjectSeed("VIE 1053", "Fundamental in IT", 0, 1308000.0));
-        seeds.add(new SubjectSeed("VIE1054", "IT fundamentals", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG111", "Vovinam 1", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG112", "Vovinam 1", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG121", "Vovinam 2", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG122", "Vovinam 2", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG131", "Vovinam 3", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOG132", "Vovinam 3", 0, 3270000.0));
-        seeds.add(new SubjectSeed("VOV111", "Vovinam 1", 0, 3815000.0));
-        seeds.add(new SubjectSeed("VOV121", "Vovinam 2", 0, 3815000.0));
-        seeds.add(new SubjectSeed("VOV131", "Vovinam 3", 0, 3815000.0));
-        seeds.add(new SubjectSeed("WEBG301", "Project Web", 0, 6540000.0));
-        seeds.add(new SubjectSeed("WS", "Workshop", 0, null));
-
-        // Deduplicate by subjectId (keep first occurrence)
-        Map<String, SubjectSeed> byId = new LinkedHashMap<>();
-        for (SubjectSeed s : seeds) {
-            byId.putIfAbsent(s.id, s);
-        }
-        List<SubjectSeed> uniqueSeeds = new ArrayList<>(byId.values());
-
-        for (SubjectSeed seed : uniqueSeeds) {
-            if (existsSubject(em, seed.id)) {
-                System.out.println("Subject already exists: " + seed.id);
-                continue;
-            }
-
-            MajorSubjects subj = new MajorSubjects();
-            subj.setSubjectId(seed.id);
-            subj.setSubjectName(seed.name);
-            subj.setSemester(seed.credits != null && seed.credits > 0 ? Math.max(1, ((seed.credits / 5) % 6)) : 1);
-            subj.setCreator(defaultCreator);
-            subj.setMajor(guessMajor(majors, seed));
-            subj.setCurriculum(btecCurriculum);
-            em.persist(subj);
-            System.out.println("Added Subject: " + seed.id + " - " + seed.name);
-        }
-    }
-
-    // ===================== HELPER METHODS =====================
-    private static Majors findMajor(EntityManager em, String id) {
+    private static <T> T find(EntityManager em, Class<T> clazz, String idField, String idValue) {
         try {
-            return em.createQuery("SELECT m FROM Majors m WHERE m.majorId = :id", Majors.class)
-                    .setParameter("id", id).getSingleResult();
+            String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+            return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
         } catch (NoResultException e) {
             return null;
-        }
-    }
-
-    private static Specialization findSpecialization(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT s FROM Specialization s WHERE s.specializationId = :id", Specialization.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static Curriculum findCurriculum(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT c FROM Curriculum c WHERE c.curriculumId = :id", Curriculum.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static Staffs findStaff(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT s FROM Staffs s WHERE s.id = :id", Staffs.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static Admins findAdmin(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT a FROM Admins a WHERE a.id = :id", Admins.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static DeputyStaffs findDeputyStaff(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT d FROM DeputyStaffs d WHERE d.id = :id", DeputyStaffs.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static Campuses findCampus(EntityManager em, String id) {
-        try {
-            return em.createQuery("SELECT c FROM Campuses c WHERE c.campusId = :id", Campuses.class)
-                    .setParameter("id", id).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
-
-    private static Majors guessMajor(Map<String, Majors> majors, SubjectSeed s) {
-        String n = (s.name == null ? "" : s.name.toLowerCase(Locale.ROOT));
-        if (n.contains("design") || n.contains("typograph") || n.contains("animation")
-                || n.contains("visual") || n.contains("art") || n.contains("drawing")
-                || n.contains("sketch") || n.contains("3d")) {
-            return majors.get("GDH");
-        }
-        if (n.contains("marketing") || n.contains("advertis") || n.contains("sales")
-                || n.contains("brand") || n.contains("communication") || n.contains("martech")
-                || n.contains("content") || n.contains("social media")) {
-            return majors.get("GKH");
-        }
-        if (n.contains("business") || n.contains("entrepreneur") || n.contains("management")
-                || n.contains("account") || n.contains("finance") || n.contains("organiz")
-                || n.contains("negotiation") || n.contains("international")) {
-            return majors.get("GBH");
-        }
-        if (n.contains("program") || n.contains("java") || n.contains(".net") || n.contains("web")
-                || n.contains("software") || n.contains("comput") || n.contains("network")
-                || n.contains("database") || n.contains("security") || n.contains("cloud")
-                || n.contains("machine learning") || n.contains("ai") || n.contains("algorithm")) {
-            return majors.get("GCH");
-        }
-        return null;
-    }
-
-    // Simple holder for subject seed data
-    private static class SubjectSeed {
-        final String id;
-        final String name;
-        final Integer credits;
-        final Double tuition;
-
-        SubjectSeed(String id, String name, Integer credits, Double tuition) {
-            this.id = id;
-            this.name = name;
-            this.credits = credits;
-            this.tuition = tuition;
         }
     }
 }

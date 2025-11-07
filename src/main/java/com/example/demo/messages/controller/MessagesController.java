@@ -1,87 +1,81 @@
-// src/main/java/com/example/demo/messages/controller/MessagesController.java
 package com.example.demo.messages.controller;
 
-import com.example.demo.messages.dto.MessageDTO;
-import com.example.demo.messages.model.Messages;
 import com.example.demo.messages.service.MessagesService;
-import com.example.demo.user.person.dao.PersonsDAO;
 import com.example.demo.user.person.model.Persons;
-import org.springframework.http.HttpStatus;
+import com.example.demo.user.person.service.PersonsService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.*;
 
 @Controller
 @RequestMapping("/messages")
 public class MessagesController {
 
     private final MessagesService messagesService;
-    private final PersonsDAO personsDAO;
+    private final PersonsService personsService;
 
-    public MessagesController(MessagesService messagesService, PersonsDAO personsDAO) {
+    public MessagesController(MessagesService messagesService, PersonsService personsService) {
         this.messagesService = messagesService;
-        this.personsDAO = personsDAO;
+        this.personsService = personsService;
     }
 
     @GetMapping
-    public String getMessagesPage(Model model, @ModelAttribute("openChatWith") String openChatWith) {
-        Persons currentUser = personsDAO.getPerson();
-        if (currentUser == null) return "redirect:/login";
+    public String showMessages(
+            @RequestParam(required = false) String partner,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            Model model,
+            Authentication auth,
+            HttpSession session) {
 
-        String currentUserId = currentUser.getId(); // ← LẤY ID
+        String currentUserId = personsService.getPerson().getId();
 
-        List<Persons> recentUsers = messagesService.getRecentChatUsers(currentUserId);
-        Long unreadCount = messagesService.getUnreadCount(currentUserId);
+        model.addAttribute("partners", messagesService.getConversationPartners(currentUserId));
 
-        model.addAttribute("recentUsers", recentUsers);
-        model.addAttribute("unreadCount", unreadCount);
-        model.addAttribute("openChatWith", openChatWith);
-        model.addAttribute("currentUserId", currentUserId); // ← THÊM DÒNG NÀY
+        String partnerId = partner;
+        if (partnerId == null || partnerId.isBlank()) {
+            partnerId = (String) session.getAttribute("selectedPartnerId");
+        }
 
-        return "messages";
+        if (partnerId != null && !partnerId.isBlank()) {
+            Persons partnerPerson = messagesService.getPersonById(partnerId);
+
+            if (partnerPerson != null) {
+                model.addAttribute("selectedPartner", partnerPerson);
+
+                model.addAttribute("messages", messagesService.getMessagesWith(currentUserId, partnerId, page, size));
+                model.addAttribute("totalMessages", messagesService.countMessagesWith(currentUserId, partnerId));
+                model.addAttribute("currentPage", page);
+                model.addAttribute("pageSize", size);
+            } else {
+                model.addAttribute("errorMessage", "User not found");
+            }
+        }
+
+        model.addAttribute("currentUserId", currentUserId);
+        return "MessagesPage";
     }
 
-    // MỞ CHAT TỪ CLASS
-    @PostMapping("/open-chat")
-    public String openChatFromClass(@RequestParam String otherUserId, RedirectAttributes ra) {
-        ra.addFlashAttribute("openChatWith", otherUserId);
-        return "redirect:/messages";
+    @PostMapping("/select-partner")
+    public String selectPartner(@RequestParam String partnerId) {
+        return "redirect:/messages?partner=" + partnerId;
     }
 
-    @PostMapping("/load-chat")
-    @ResponseBody
-    public Map<String, Object> loadChat(@RequestBody Map<String, Object> req) {
-        String otherUserId = (String) req.get("otherUserId");
-        int page = req.containsKey("page") ? (Integer) req.get("page") : 0;
+    @PostMapping("/send")
+    public String sendMessage(
+            @RequestParam String recipientId,
+            @RequestParam String text,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
 
-        Persons currentUser = personsDAO.getPerson();
-        List<Messages> messages = messagesService.getMessagesBetween(currentUser.getId(), otherUserId, page, 50);
-        messagesService.markAsRead(currentUser.getId(), otherUserId);
+        String senderId = personsService.getPerson().getId();
 
-        // Chuyển sang DTO
-        List<MessageDTO> dtoList = messages.stream()
-                .map(MessageDTO::new)
-                .toList();
+        if (text != null && !text.trim().isEmpty()) {
+            messagesService.sendMessage(senderId, recipientId, text);
+        }
 
-        Map<String, Object> res = new HashMap<>();
-        res.put("messages", dtoList);
-        return res;
-    }
-
-    @GetMapping("/user-info")
-    @ResponseBody
-    public Map<String, Object> getUserInfo(@RequestParam String userId) {
-        Persons person = personsDAO.getPersonById(userId);
-        if (person == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-        Map<String, Object> info = new HashMap<>();
-        info.put("id", person.getId());
-        info.put("fullName", person.getFullName());
-        info.put("avatar", person.getAvatar() != null ? "/persons/avatar/" + person.getId() : null);
-        return info;
+        return "redirect:/messages?partner=" + recipientId + "&page=" + page + "&size=" + size;
     }
 }

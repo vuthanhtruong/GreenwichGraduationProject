@@ -1,9 +1,7 @@
 package com.example.demo.academicTranscript.controller;
 
-import com.example.demo.RetakeSubjects.service.ReStudyPaymentService;
 import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.user.student.model.Students;
@@ -12,10 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,16 +24,14 @@ public class ReStudyRequestController {
     private final StudentsService studentsService;
     private final AcademicTranscriptsService academicTranscriptsService;
     private final TuitionByYearService tuitionByYearService;
-    private final ReStudyPaymentService reStudyPaymentService;
 
     public ReStudyRequestController(
             StudentsService studentsService,
             AcademicTranscriptsService academicTranscriptsService,
-            TuitionByYearService tuitionByYearService, ReStudyPaymentService reStudyPaymentService) {
+            TuitionByYearService tuitionByYearService) {
         this.studentsService = studentsService;
         this.academicTranscriptsService = academicTranscriptsService;
         this.tuitionByYearService = tuitionByYearService;
-        this.reStudyPaymentService = reStudyPaymentService;
     }
 
     @GetMapping("/re-study-request")
@@ -51,7 +44,7 @@ public class ReStudyRequestController {
         }
 
         Integer admissionYear = student.getAdmissionYear() != null
-                ? student.getAdmissionYear().getYear()
+                ? student.getAdmissionYear()
                 : null;
         String campusId = student.getCampus() != null ? student.getCampus().getCampusId() : null;
 

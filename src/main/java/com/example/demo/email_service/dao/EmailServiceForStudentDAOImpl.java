@@ -154,7 +154,7 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
                 .append("</tr>")
                 .append("<tr>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;font-family:sans-serif;'>Admission Year</td>")
-                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;font-family:sans-serif;'>").append(safeDate.apply(context.admissionYear())).append("</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;font-family:sans-serif;'>").append((context.admissionYear())).append("</td>")
                 .append("</tr>")
                 .append("<tr style='background:#f8fafc;'>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;font-family:sans-serif;'>Created Date</td>")

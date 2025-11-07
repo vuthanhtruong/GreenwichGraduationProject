@@ -73,7 +73,7 @@
             </thead>
             <tbody>
             <tr th:each="subject : ${subjects}">
-                <td th:text="${subject.subjectId}"></td>
+                <td th:text="${subject.getSubjectId()}"></td>
                 <td th:text="${subject.subjectName}"></td>
                 <td th:text="${subject.semester ?: 'N/A'}"></td>
                 <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>

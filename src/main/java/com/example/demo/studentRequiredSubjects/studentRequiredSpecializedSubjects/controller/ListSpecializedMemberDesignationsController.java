@@ -46,11 +46,17 @@ public class ListSpecializedMemberDesignationsController {
     public String assignMembersPost(
             @RequestParam("id") String subjectId,
             @RequestParam(required = false) String curriculumId,
-            @RequestParam(required = false) LocalDate admissionYear,
+            @RequestParam(required = false) Integer admissionYear,
             HttpSession session) {
+
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
+        }
+
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);
         session.setAttribute("currentAdmissionYear", admissionYear);
+
         return "redirect:/staff-home/specialized-study-plan/assign-members";
     }
 
@@ -58,12 +64,19 @@ public class ListSpecializedMemberDesignationsController {
     public String assignMembersGet(
             HttpSession session,
             Model model,
-            @RequestParam(required = false) LocalDate admissionYear) {
+            @RequestParam(required = false) Integer admissionYear) {
 
         String subjectId = (String) session.getAttribute("currentSubjectId");
         String curriculumId = (String) session.getAttribute("currentCurriculumId");
-        LocalDate sessionAdmissionYear = (LocalDate) session.getAttribute("currentAdmissionYear");
-        LocalDate finalAdmissionYear = admissionYear != null ? admissionYear : sessionAdmissionYear;
+        Integer sessionAdmissionYear = (Integer) session.getAttribute("currentAdmissionYear");
+
+        Integer finalAdmissionYear = admissionYear;
+        if (finalAdmissionYear == null) {
+            finalAdmissionYear = sessionAdmissionYear;
+        }
+        if (finalAdmissionYear == null) {
+            finalAdmissionYear = java.time.Year.now().getValue();
+        }
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
@@ -92,10 +105,15 @@ public class ListSpecializedMemberDesignationsController {
     public String addSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
-            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
+            @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
+        // ✅ FIX: Đảm bảo admissionYear có giá trị
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
+        }
 
         SpecializedSubject subject = subjectsService.getSubjectById(subjectId);
         if (subject == null) {
@@ -149,10 +167,14 @@ public class ListSpecializedMemberDesignationsController {
     public String removeSelectedStudents(
             @RequestParam("subjectId") String subjectId,
             @RequestParam(value = "curriculumId", required = false) String curriculumId,
-            @RequestParam(value = "admissionYear", required = false) LocalDate admissionYear,
+            @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
+        if (admissionYear == null) {
+            admissionYear = java.time.Year.now().getValue();
+        }
 
         session.setAttribute("currentSubjectId", subjectId);
         session.setAttribute("currentCurriculumId", curriculumId);

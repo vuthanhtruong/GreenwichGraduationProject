@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
     @Override
-    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, LocalDate admissionYear) {
+    public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear) {
         return studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subjects, admissionYear);
     }
 

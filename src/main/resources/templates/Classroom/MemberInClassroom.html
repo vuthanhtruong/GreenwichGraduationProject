@@ -7,45 +7,54 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
     <style>
-        .win11-container { padding: 20px; background: #f3f4f6; min-height: 100vh; }
-        .search-toolbar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+        /* CSS cho nút Message */
+        .btn-msg {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
         }
-        .toolbar-left, .toolbar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .toolbar-center h2 { margin: 0; font-size: 1.3rem; font-weight: 600; color: #1a1a1a; }
-        .btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 12px; border: none; border-radius: 6px; font-size: 0.9rem;
-            cursor: pointer; text-decoration: none; transition: 0.2s;
+
+        .btn-msg:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
-        .btn i { font-size: 0.9rem; }
-        .btn.primary { background: #0078d4; color: white; }
-        .btn.primary:hover { background: #106ebe; }
-        .btn.secondary { background: #f3f4f6; color: #444; border: 1px solid #ddd; }
-        .btn.secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .total { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: #555; }
-        .total i { color: #0078d4; }
-
-        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .win11-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .win11-table th {
-            background: #f8f9fa; text-align: left; padding: 12px 16px;
-            font-weight: 600; color: #1a1a1a; border-bottom: 1px solid #ddd;
+        .btn-msg:active {
+            transform: translateY(0);
         }
-        .win11-table td { padding: 12px 16px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .win11-table tr:hover { background: #f8f9fa; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; }
-        .actions { display: flex; gap: 6px; }
-        .inline-form { display: inline; margin: 0; }
 
-        @media (max-width: 768px) {
-            .search-toolbar { flex-direction: column; align-items: stretch; }
-            .win11-table { font-size: 0.8rem; }
-            .win11-table th, .win11-table td { padding: 8px; }
-            .avatar { width: 32px; height: 32px; }
+        .btn-msg i {
+            font-size: 14px;
+        }
+
+        .inline-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .actions {
+            text-align: center;
+        }
+
+        /* Avatar styling */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
         }
     </style>
 </head>
@@ -59,6 +68,7 @@
                 <i class="fas fa-home"></i> Home
             </a>
             <form method="post" th:action="@{/classroom}" class="inline-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <input type="hidden" name="classId" th:value="${classId}" />
                 <button type="submit" class="btn secondary">
                     <i class="fas fa-arrow-left"></i> Back to Classroom
@@ -109,20 +119,22 @@
                 <td th:text="${person.email} ?: '—'"></td>
                 <td th:text="${person.phoneNumber} ?: '—'"></td>
                 <td th:text="${person.gender} ?: '—'"></td>
-                <td>
-                    <div class="actions">
-                        <form th:if="${#strings.equals(person['class'].simpleName, 'Students')}"
-                              method="post" th:action="@{/messages/open-chat}" class="inline-form">
-                            <input type="hidden" name="otherUserId" th:value="${person.id}" />
-                            <button type="submit" class="btn primary small">
-                                <i class="fas fa-envelope"></i> Message
-                            </button>
-                        </form>
-                        <button th:unless="${#strings.equals(person['class'].simpleName, 'Students')}"
-                                class="btn secondary small" disabled title="Only students can be messaged">
-                            <i class="fas fa-ban"></i>
+                <td class="actions">
+                    <!-- ✅ OPTION 1: Dùng link trực tiếp (Recommended) -->
+                    <a th:href="@{/messages(partner=${person.id})}" class="btn-msg" title="Send message">
+                        <i class="fas fa-comment"></i> Message
+                    </a>
+
+                    <!-- ✅ OPTION 2: Dùng form POST (nếu bạn muốn) -->
+                    <!--
+                    <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="partnerId" th:value="${person.id}" />
+                        <button type="submit" class="btn-msg" title="Send message">
+                            <i class="fas fa-comment"></i> Message
                         </button>
-                    </div>
+                    </form>
+                    -->
                 </td>
             </tr>
 
