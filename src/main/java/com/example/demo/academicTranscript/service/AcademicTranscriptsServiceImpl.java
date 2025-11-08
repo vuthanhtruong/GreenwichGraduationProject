@@ -8,6 +8,8 @@ import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,51 @@ import java.util.List;
 
 @Service
 public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsService {
+    @Override
+    public List<SpecializedAcademicTranscripts> getTranscriptsByClass(SpecializedClasses specializedClass) {
+        return academicTranscriptsDAO.getTranscriptsByClass(specializedClass);
+    }
+
+    @Override
+    public SpecializedAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, SpecializedClasses specializedClass, Staffs creator) {
+        return academicTranscriptsDAO.findOrCreateTranscript(transcriptId, student, specializedClass, creator);
+    }
+
+    @Override
+    public void saveOrUpdateTranscript(SpecializedAcademicTranscripts transcript) {
+        academicTranscriptsDAO.saveOrUpdateTranscript(transcript);
+    }
+
+    @Override
+    public List<MinorAcademicTranscripts> getTranscriptsByClass(MinorClasses minorClass) {
+        return academicTranscriptsDAO.getTranscriptsByClass(minorClass);
+    }
+
+    @Override
+    public MinorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MinorClasses minorClass, DeputyStaffs creator) {
+        return null;
+    }
+
+    @Override
+    public void saveOrUpdateTranscript(MinorAcademicTranscripts transcript) {
+
+    }
+
+    @Override
+    public List<MajorAcademicTranscripts> getTranscriptsByClass(MajorClasses majorClass) {
+        return academicTranscriptsDAO.getTranscriptsByClass(majorClass);
+    }
+
+    @Override
+    public void saveOrUpdateTranscript(MajorAcademicTranscripts transcript) {
+        academicTranscriptsDAO.saveOrUpdateTranscript(transcript);
+    }
+
+    @Override
+    public MajorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MajorClasses majorClass, Staffs creator) {
+        return academicTranscriptsDAO.findOrCreateTranscript(transcriptId, student, majorClass, creator);
+    }
+
     @Override
     public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
         return academicTranscriptsDAO.getFailSubjectsByStudent(student);

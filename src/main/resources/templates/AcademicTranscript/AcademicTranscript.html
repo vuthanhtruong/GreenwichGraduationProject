@@ -49,7 +49,6 @@
                     <th><i class="fas fa-book-open"></i> Subject Name</th>
                     <th><i class="fas fa-tags"></i> Type</th>
                     <th><i class="fas fa-calendar"></i> Semester</th>
-                    <th><i class="fas fa-info-circle"></i> Requirement</th>
                     <th><i class="fas fa-star"></i> Grade</th>
                 </tr>
                 </thead>
@@ -59,7 +58,6 @@
                     <td th:text="${transcript.subject.subjectName}"></td>
                     <td>Major</td>
                     <td th:text="${transcript.subject.semester}"></td>
-                    <td th:text="${transcript.subject.requirementType}"></td>
                     <td th:text="${transcript.grade}"></td>
                 </tr>
                 <tr th:each="subject : ${majorSubjects}"
@@ -68,7 +66,6 @@
                     <td th:text="${subject.subjectName}"></td>
                     <td>Major</td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
                     <td>Not Started</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(majorAcademicTranscripts) and #lists.isEmpty(majorSubjects)}">
@@ -89,7 +86,6 @@
                     <th>Subject Name</th>
                     <th>Type</th>
                     <th>Semester</th>
-                    <th>Requirement</th>
                     <th>Grade</th>
                 </tr>
                 </thead>
@@ -99,7 +95,6 @@
                     <td th:text="${transcript.subject.subjectName}"></td>
                     <td>Minor</td>
                     <td th:text="${transcript.subject.semester}"></td>
-                    <td th:text="${transcript.subject.requirementType}"></td>
                     <td th:text="${transcript.grade}"></td>
                 </tr>
                 <tr th:each="subject : ${minorSubjects}"
@@ -108,7 +103,6 @@
                     <td th:text="${subject.subjectName}"></td>
                     <td>Minor</td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
                     <td>Not Started</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(minorAcademicTranscripts) and #lists.isEmpty(minorSubjects)}">
@@ -129,7 +123,7 @@
                     <th>Subject Name</th>
                     <th>Type</th>
                     <th>Semester</th>
-                    <th>Requirement</th>
+                    <th>Specialization</th>
                     <th>Grade</th>
                 </tr>
                 </thead>
@@ -139,7 +133,7 @@
                     <td th:text="${transcript.subject.subjectName}"></td>
                     <td>Specialized</td>
                     <td th:text="${transcript.subject.semester}"></td>
-                    <td th:text="${transcript.subject.requirementType}"></td>
+                    <td th:text="${transcript.subject.specialization.specializationName}"></td>
                     <td th:text="${transcript.grade}"></td>
                 </tr>
                 <tr th:each="subject : ${specializedSubjects}"
@@ -148,7 +142,7 @@
                     <td th:text="${subject.subjectName}"></td>
                     <td>Specialized</td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
+                    <td th:text="${subject.specialization.specializationName}"></td>
                     <td>Not Started</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(specializedAcademicTranscripts) and #lists.isEmpty(specializedSubjects)}">

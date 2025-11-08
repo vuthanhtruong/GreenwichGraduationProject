@@ -2,6 +2,7 @@ package com.example.demo.tuitionByYear.service;
 
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
@@ -16,6 +17,16 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus) {
+        return tuitionByYearDAO.getMajorSubjectsWithTuitionByYearAndCurriculum(admissionYear, curriculum, major, campus);
+    }
+
+    @Override
+    public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus) {
+        return tuitionByYearDAO.getSpecializedSubjectsWithTuitionByYearAndCurriculum(admissionYear, curriculum, major, campus);
+    }
+
+    @Override
     public List<MinorSubjects> getMinorSubjectsWithTuitionByYear(Integer admissionYear, Campuses campus) {
         return tuitionByYearDAO.getMinorSubjectsWithTuitionByYear(admissionYear, campus);
     }
@@ -26,14 +37,10 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
     }
 
     @Override
-    public List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId) {
-        return tuitionByYearDAO.findAllAdmissionYearsWithSpecializedTuition(campusId);
+    public List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId, Majors major) {
+        return tuitionByYearDAO.findAllAdmissionYearsWithSpecializedTuition(campusId, major);
     }
 
-    @Override
-    public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
-        return tuitionByYearDAO.getSpecializedSubjectsWithTuitionByYearAndCurriculum(admissionYear,curriculum,campus);
-    }
 
     private final TuitionByYearDAO tuitionByYearDAO;
 
@@ -67,13 +74,8 @@ public class TuitionByYearServiceImpl implements TuitionByYearService {
     }
 
     @Override
-    public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
-        return tuitionByYearDAO.getMajorSubjectsWithTuitionByYearAndCurriculum(admissionYear, curriculum, campus);
-    }
-
-    @Override
-    public List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus) {
-        return tuitionByYearDAO.findAllAdmissionYearsWithMajorTuition(campus);
+    public List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus, Majors major) {
+        return tuitionByYearDAO.findAllAdmissionYearsWithMajorTuition(campus, major);
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Year;
 import java.util.List;
@@ -50,7 +51,7 @@ public class ListSpecializedSubjectsForStudyPlanController {
         }
 
         // === 2. LẤY DANH SÁCH NĂM CÓ HỌC PHÍ CHUYÊN NGÀNH ===
-        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithSpecializedTuition(campusId);
+        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithSpecializedTuition(campusId, staffsService.getStaffMajor());
 
         // === 3. LẤY CURRICULUM MẶC ĐỊNH ===
         Curriculum selectedCurriculum;
@@ -67,6 +68,7 @@ public class ListSpecializedSubjectsForStudyPlanController {
             subjects = tuitionByYearService.getSpecializedSubjectsWithTuitionByYearAndCurriculum(
                     admissionYear,
                     selectedCurriculum,
+                    staffsService.getStaffMajor(),
                     staffsService.getCampusOfStaff()
             );
         }
@@ -88,9 +90,20 @@ public class ListSpecializedSubjectsForStudyPlanController {
             @RequestParam(required = false) String curriculumId,
             @RequestParam(required = false) Integer admissionYear,
             @RequestParam(required = false) String campusId,
+            RedirectAttributes redirectAttributes,
             Model model) {
 
-        // === 1. MẶC ĐỊNH ===
+        // === VALIDATION: Không cho phép cả curriculumId và admissionYear đều trống ===
+        boolean isCurriculumEmpty = curriculumId == null || curriculumId.isBlank();
+        boolean isAdmissionYearEmpty = admissionYear == null;
+
+        if (isCurriculumEmpty && isAdmissionYearEmpty) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Please select at least one filter: Curriculum or Admission Year.");
+            return "redirect:/staff-home/specialized-study-plan";
+        }
+
+        // === MẶC ĐỊNH ===
         if (admissionYear == null) {
             admissionYear = Year.now().getValue();
         }
@@ -98,35 +111,28 @@ public class ListSpecializedSubjectsForStudyPlanController {
             campusId = staffsService.getCampusOfStaff().getCampusId();
         }
 
-        // === 2. LẤY NĂM CÓ HỌC PHÍ ===
-        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithSpecializedTuition(campusId);
+        // === LẤY DỮ LIỆU ===
+        List<Integer> admissionYears = tuitionByYearService.findAllAdmissionYearsWithSpecializedTuition(campusId, staffsService.getStaffMajor());
 
-        // === 3. XỬ LÝ CURRICULUM ===
-        Curriculum selectedCurriculum = null;
-        if (curriculumId != null && !curriculumId.isBlank()) {
-            selectedCurriculum = curriculumService.getCurriculumById(curriculumId);
-        } else {
-            selectedCurriculum = curriculumService.getCurriculums().getFirst();
-            if (selectedCurriculum != null) {
-                curriculumId = selectedCurriculum.getCurriculumId();
-            }
+        Curriculum selectedCurriculum = isCurriculumEmpty
+                ? curriculumService.getCurriculums().getFirst()
+                : curriculumService.getCurriculumById(curriculumId);
+
+        if (selectedCurriculum != null && selectedCurriculum.getCurriculumId() != null) {
+            curriculumId = selectedCurriculum.getCurriculumId();
         }
 
-        // === 4. LẤY MÔN HỌC ===
-        List<SpecializedSubject> subjects = List.of();
-        if (selectedCurriculum != null) {
-            subjects = tuitionByYearService.getSpecializedSubjectsWithTuitionByYearAndCurriculum(
-                    admissionYear,
-                    selectedCurriculum,
-                    staffsService.getCampusOfStaff()
-            );
-        }
+        List<SpecializedSubject> subjects = selectedCurriculum != null
+                ? tuitionByYearService.getSpecializedSubjectsWithTuitionByYearAndCurriculum(
+                admissionYear, selectedCurriculum, staffsService.getStaffMajor(), staffsService.getCampusOfStaff())
+                : List.of();
 
+        // === THÔNG BÁO NẾU KHÔNG CÓ KẾT QUẢ ===
         if (subjects.isEmpty() && selectedCurriculum != null) {
-            model.addAttribute("errorMessage", "No majors were found with free tuition for the selected program and year.");
+            model.addAttribute("errorMessage", "No specialized subjects found with tuition for the selected criteria.");
         }
 
-        // === 5. TRẢ KẾT QUẢ ===
+        // === TRUYỀN DỮ LIỆU ===
         model.addAttribute("subjects", subjects);
         model.addAttribute("curriculums", curriculumService.getCurriculums());
         model.addAttribute("admissionYears", admissionYears);
@@ -135,6 +141,6 @@ public class ListSpecializedSubjectsForStudyPlanController {
         model.addAttribute("campusId", campusId);
         model.addAttribute("totalSubjects", subjects.size());
 
-        return "FilterSpecializedSubjects";
+        return "SpecializedStudyPlan"; // Dùng chung 1 view
     }
 }

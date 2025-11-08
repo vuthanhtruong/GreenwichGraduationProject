@@ -5,42 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages</title>
     <link rel="stylesheet" th:href="@{/MessagesPage.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <style>
+        .win11-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .search-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 8px 8px 0 0; }
+        .page-title { margin: 0; font-size: 1.4em; }
+        .home-btn { padding: 8px 16px; background: #007bff; color: white; border-radius: 6px; text-decoration: none; font-weight: bold; }
+        .messages-container { display: flex; height: calc(100vh - 100px); gap: 1px; }
+        .sidebar { width: 280px; background: #ffffff; border-right: 1px solid #dee2e6; overflow-y: auto; }
+        .sidebar-header { padding: 15px; font-weight: bold; background: #e9ecef; border-bottom: 1px solid #dee2e6; }
+        .partners-list .partner-item { display: flex; padding: 12px; text-decoration: none; color: #333; border-bottom: 1px solid #eee; align-items: center; gap: 10px; cursor: pointer; }
+        .partners-list .partner-item:hover, .partners-list .partner-item.active { background: #e3f2fd; }
+        .partner-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .partner-name { font-weight: 500; }
 
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; }
+        .chat-header { padding: 15px; background: #ffffff; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 12px; font-weight: bold; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; gap: 10px; max-width: 75%; }
+        .message.outgoing { align-self: flex-end; flex-direction: row-reverse; }
+        .message-avatar img { width: 32px; height: 32px; border-radius: 50%; }
+        .message-bubble { padding: 10px 14px; border-radius: 18px; background: #007bff; color: white; }
+        .message.incoming .message-bubble { background: #e0e0e0; color: #333; }
+        .message-time { font-size: 0.75em; color: #aaa; text-align: right; margin-top: 4px; }
+
+        .chat-input { display: flex; padding: 12px; background: white; border-top: 1px solid #dee2e6; gap: 10px; }
+        .chat-input input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 20px; }
+        .chat-input button { padding: 10px 16px; background: #007bff; color: white; border: none; border-radius: 20px; cursor: pointer; }
+
+        .no-chat, .no-chat-messages { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #777; font-size: 1.1em; }
+        .no-chat i, .no-chat-messages i { font-size: 3em; margin-bottom: 15px; color: #bbb; }
+
+        .alert { padding: 12px; margin: 15px 0; border-radius: 6px; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
 <body>
 <div class="win11-container">
 
-    <!-- ===== Toolbar ===== -->
+    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
-        <a th:href="@{/staff-home}" class="btn home-btn">
+        <a th:href="@{${home}}" class="home-btn">
             <i class="fas fa-home"></i> Home
         </a>
         <h2 class="page-title"><i class="fas fa-comments"></i> Messages</h2>
     </div>
 
-    <!-- ===== Main Chat Layout ===== -->
+    <!-- Error -->
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- Main Layout -->
     <div class="messages-container">
 
-        <!-- Sidebar (Danh sách hội thoại) -->
-        <aside class="sidebar" th:if="${partners != null and !partners.isEmpty()}">
+        <!-- Sidebar -->
+        <aside class="sidebar" th:if="${partners != null and !#lists.isEmpty(partners)}">
             <div class="sidebar-header">
                 <i class="fas fa-users"></i> Conversations
             </div>
-
             <div class="partners-list">
-                <a th:each="p : ${partners}"
-                   th:href="@{/messages(partner=${p.id})}"
-                   th:classappend="${selectedPartner != null and selectedPartner.id == p.id} ? 'partner-item active' : 'partner-item'">
-
+                <!-- DÙNG data-id + onclick(this) -->
+                <div th:each="p : ${partners}"
+                     th:data-id="${p.id}"
+                     th:classappend="${selectedPartner != null and selectedPartner.id == p.id} ? 'partner-item active' : 'partner-item'"
+                     onclick="selectPartner(this)">
                     <img th:src="@{'/persons/avatar/' + ${p.id}}"
                          class="partner-avatar"
                          onerror="this.src='/images/default-avatar.png'">
-
                     <div class="partner-info">
                         <div class="partner-name" th:text="${p.firstName + ' ' + p.lastName}">Name</div>
                     </div>
-                </a>
+                </div>
             </div>
         </aside>
 
@@ -57,51 +93,118 @@
             <div class="chat-messages" id="chatMessages">
                 <div th:each="msg : ${messages}"
                      th:class="${msg.sender.id == currentUserId} ? 'message outgoing' : 'message incoming'">
-
                     <div class="message-avatar">
                         <img th:src="@{'/persons/avatar/' + ${msg.sender.id}}"
                              onerror="this.src='/images/default-avatar.png'">
                     </div>
-
                     <div class="message-content">
-                        <div class="message-bubble" th:text="${msg.text}">Message text</div>
+                        <div class="message-bubble" th:text="${msg.text}">Message</div>
                         <div class="message-time" th:text="${#temporals.format(msg.datetime, 'HH:mm dd/MM/yyyy')}">12:45</div>
                     </div>
                 </div>
-
-                <div th:if="${messages == null or messages.isEmpty()}" class="no-chat-messages">
+                <div th:if="${messages == null or #lists.isEmpty(messages)}" class="no-chat-messages">
                     <i class="fas fa-comment-dots"></i>
                     <p>No messages yet. Start the conversation!</p>
                 </div>
             </div>
 
-            <!-- Input -->
-            <form th:action="@{/messages/send}" method="post" class="chat-input">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                <input type="hidden" name="recipientId" th:value="${selectedPartner.id}">
-                <input type="text" name="text" placeholder="Type your message..." required autocomplete="off">
-                <button type="submit" class="btn primary">
+            <!-- Input Form -->
+            <form id="sendForm" class="chat-input">
+                <input type="hidden" id="recipientId" th:value="${selectedPartner.id}">
+                <input type="text" id="messageText" placeholder="Type your message..." autocomplete="off" required>
+                <button type="submit">
                     <i class="fas fa-paper-plane"></i> Send
                 </button>
             </form>
         </section>
 
-        <!-- Empty Chat -->
+        <!-- Empty State -->
         <section class="chat-area empty" th:if="${selectedPartner == null}">
             <div class="no-chat">
-                <i class="fas fa-comments"></i> Select a conversation to start messaging
+                <i class="fas fa-comments"></i>
+                <p>Select a conversation to start messaging</p>
             </div>
         </section>
     </div>
 </div>
 
-<!-- Auto-scroll -->
+<!-- JavaScript: AJAX + Session + Auto-scroll + Polling -->
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const chat = document.getElementById("chatMessages");
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // Chọn người chat
+    function selectPartner(element) {
+        const partnerId = element.getAttribute('data-id');
+        if (!partnerId) return;
+
+        const formData = new FormData();
+        formData.append('partnerId', partnerId);
+
+        fetch('/messages/select-partner', {
+            method: 'POST',
+            headers: { [csrfHeader]: csrfToken },
+            body: formData
+        })
+            .then(() => location.reload()); // Reload 1 lần khi đổi người
+    }
+
+    // Gửi tin nhắn
+    document.getElementById('sendForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const text = document.getElementById('messageText').value.trim();
+        const recipientId = document.getElementById('recipientId').value;
+        if (!text) return;
+
+        const formData = new FormData();
+        formData.append('recipientId', recipientId);
+        formData.append('text', text);
+
+        fetch('/messages/send', {
+            method: 'POST',
+            headers: { [csrfHeader]: csrfToken },
+            body: formData
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('messageText').value = '';
+                    loadMessages(); // Cập nhật tin nhắn
+                }
+            });
+    });
+
+    // Tải lại tin nhắn (AJAX)
+    function loadMessages() {
+        const recipientId = document.getElementById('recipientId')?.value;
+        if (!recipientId) return;
+
+        fetch(`/messages?partner=${recipientId}&page=0&size=50`)
+            .then(r => r.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMessages = doc.querySelector('#chatMessages').innerHTML;
+                document.querySelector('#chatMessages').innerHTML = newMessages;
+                scrollToBottom();
+            });
+    }
+
+    // Cuộn xuống
+    function scrollToBottom() {
+        const chat = document.getElementById('chatMessages');
         if (chat) chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Tự động cuộn + Polling
+    document.addEventListener("DOMContentLoaded", () => {
+        scrollToBottom();
+        setInterval(() => {
+            if (document.getElementById('recipientId')?.value) {
+                loadMessages();
+            }
+        }, 5000);
     });
 </script>
-
 </body>
 </html>

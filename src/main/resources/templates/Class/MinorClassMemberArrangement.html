@@ -21,6 +21,7 @@
         .alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .form-actions { padding: 10px; text-align: right; }
     </style>
 </head>
 <body>
@@ -45,21 +46,25 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div class="table-container">
                 <table class="win11-table">
-                    <thead><tr><th>Select</th><th>ID</th><th>Name</th><th>Added By</th></tr></thead>
+                    <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
                     <tr th:each="smc : ${studentsInClass}">
                         <td><input type="checkbox" name="studentIds" th:value="${smc.student.id}"/></td>
+                        <td class="text-center">
+                            <img th:if="${smc.student.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${smc.student.id}}" class="avatar"/>
+                            <img th:unless="${smc.student.avatar}" th:src="${smc.student.defaultAvatarPath}" class="avatar"/>
+                        </td>
                         <td th:text="${smc.student.id}"></td>
                         <td th:text="${smc.student.fullName}"></td>
-                        <td th:text="${smc.addedBy != null ? smc.addedBy.fullName : 'N/A'}"></td>
+                        <td th:text="${smc.student.email}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(studentsInClass)}">
-                        <td colspan="4" class="text-center">No students in this class.</td>
+                        <td colspan="5" class="text-center">No students in this class.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 10px; text-align: right;">
+            <div class="form-actions">
                 <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(studentsInClass)}">
                     Remove Selected
                 </button>
@@ -75,20 +80,25 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div class="table-container">
                 <table class="win11-table">
-                    <thead><tr><th>Select</th><th>ID</th><th>Name</th></tr></thead>
+                    <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
                     <tr th:each="l : ${lecturersInClass}">
                         <td><input type="checkbox" name="lecturerIds" th:value="${l.id}"/></td>
+                        <td class="text-center">
+                            <img th:if="${l.avatar}" th:src="@{'/deputy-staff-home/lecturers-list/avatar/' + ${l.id}}" class="avatar"/>
+                            <img th:unless="${l.avatar}" th:src="${l.defaultAvatarPath}" class="avatar"/>
+                        </td>
                         <td th:text="${l.id}"></td>
                         <td th:text="${l.fullName}"></td>
+                        <td th:text="${l.email}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(lecturersInClass)}">
-                        <td colspan="3" class="text-center">No lecturers in this class.</td>
+                        <td colspan="5" class="text-center">No lecturers in this class.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 10px; text-align: right;">
+            <div class="form-actions">
                 <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(lecturersInClass)}">
                     Remove Selected
                 </button>
@@ -104,20 +114,25 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div class="table-container">
                 <table class="win11-table">
-                    <thead><tr><th>Select</th><th>ID</th><th>Name</th></tr></thead>
+                    <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
                     <tr th:each="l : ${lecturersNotInClass}">
                         <td><input type="checkbox" name="lecturerIds" th:value="${l.id}"/></td>
+                        <td class="text-center">
+                            <img th:if="${l.avatar}" th:src="@{'/deputy-staff-home/lecturers-list/avatar/' + ${l.id}}" class="avatar"/>
+                            <img th:unless="${l.avatar}" th:src="${l.defaultAvatarPath}" class="avatar"/>
+                        </td>
                         <td th:text="${l.id}"></td>
                         <td th:text="${l.fullName}"></td>
+                        <td th:text="${l.email}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(lecturersNotInClass)}">
-                        <td colspan="3" class="text-center">No lecturers available.</td>
+                        <td colspan="5" class="text-center">No lecturers available.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 10px; text-align: right;">
+            <div class="form-actions">
                 <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(lecturersNotInClass)}">
                     Add Selected
                 </button>
@@ -130,19 +145,19 @@
         <h2 class="panel-header">Students Do Not Have Enough Money</h2>
         <div class="table-container">
             <table class="win11-table">
-                <thead><tr><th>Avatar</th><th>Name</th><th>Email</th><th>Balance</th><th>Required</th></tr></thead>
+                <thead><tr><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                 <tbody>
                 <tr th:each="s : ${studentsDoNotHaveEnoughMoney}">
                     <td class="text-center">
                         <img th:if="${s.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${s.id}}" class="avatar"/>
                         <img th:unless="${s.avatar}" th:src="${s.defaultAvatarPath}" class="avatar"/>
                     </td>
+                    <td th:text="${s.id}"></td>
                     <td th:text="${s.fullName}"></td>
                     <td th:text="${s.email}"></td>
-                    <td th:text="${#numbers.formatCurrency(accountBalancesService.findByStudentId(s.id).balance)}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(studentsDoNotHaveEnoughMoney)}">
-                    <td colspan="5" class="text-center">All retake students have enough balance.</td>
+                    <td colspan="4" class="text-center">All retake students have enough balance.</td>
                 </tr>
                 </tbody>
             </table>
@@ -157,7 +172,7 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div class="table-container">
                 <table class="win11-table">
-                    <thead><tr><th>Select</th><th>Avatar</th><th>Name</th><th>Email</th><th>Balance</th></tr></thead>
+                    <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
                     <tr th:each="s : ${studentsWithEnoughMoney}">
                         <td><input type="checkbox" name="studentIds" th:value="${s.id}"/></td>
@@ -165,9 +180,9 @@
                             <img th:if="${s.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${s.id}}" class="avatar"/>
                             <img th:unless="${s.avatar}" th:src="${s.defaultAvatarPath}" class="avatar"/>
                         </td>
+                        <td th:text="${s.id}"></td>
                         <td th:text="${s.fullName}"></td>
                         <td th:text="${s.email}"></td>
-                        <td th:text="${#numbers.formatCurrency(accountBalancesService.findByStudentId(s.id).balance)}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(studentsWithEnoughMoney)}">
                         <td colspan="5" class="text-center">No students can afford retake.</td>
@@ -175,7 +190,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 10px; text-align: right;">
+            <div class="form-actions">
                 <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsWithEnoughMoney)}">
                     Add & Deduct Payment
                 </button>
@@ -191,18 +206,17 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <div class="table-container">
                 <table class="win11-table">
-                    <thead><tr><th>Select</th><th>Avatar</th><th>Name</th><th>Email</th><th>Registered At</th></tr></thead>
+                    <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
-                    <tr th:each="s : ${studentsFailedAndPaid}"
-                        th:with="entry=${#lists.find(retakeList, 'student.id', s.id)}">
+                    <tr th:each="s : ${studentsFailedAndPaid}">
                         <td><input type="checkbox" name="studentIds" th:value="${s.id}"/></td>
                         <td class="text-center">
                             <img th:if="${s.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${s.id}}" class="avatar"/>
-                            <img th:unless="${s.avatar}" th:src="${s.defaultAvatarPath}" class="avatar"/>
+                            <img th:unless="${s.avatargerà}" th:src="${s.defaultAvatarPath}" class="avatar"/>
                         </td>
+                        <td th:text="${s.id}"></td>
                         <td th:text="${s.fullName}"></td>
                         <td th:text="${s.email}"></td>
-                        <td th:text="${entry != null ? #temporals.format(entry.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(studentsFailedAndPaid)}">
                         <td colspan="5" class="text-center">No students in this list.</td>
@@ -210,7 +224,7 @@
                     </tbody>
                 </table>
             </div>
-            <div style="padding: 10px; text-align: right;">
+            <div class="form-actions">
                 <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsFailedAndPaid)}">
                     Add Selected
                 </button>

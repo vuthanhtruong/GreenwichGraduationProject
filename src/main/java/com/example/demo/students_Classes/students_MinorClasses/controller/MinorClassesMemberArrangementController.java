@@ -1,7 +1,10 @@
 package com.example.demo.students_Classes.students_MinorClasses.controller;
 
+import com.example.demo.retakeSubjects.model.RetakeSubjects;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.minorClasses.service.MinorClassesService;
+import com.example.demo.lecturers_Classes.minorLecturers_MinorClasses.service.MinorLecturers_MinorClassesService;
 import com.example.demo.students_Classes.abstractStudents_Class.model.StudentsClassesId;
 import com.example.demo.students_Classes.students_MinorClasses.model.Students_MinorClasses;
 import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
@@ -9,10 +12,9 @@ import com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.mod
 import com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.service.StudentRequiredMinorSubjectsService;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
-import com.example.demo.retakeSubjects.model.RetakeSubjects;
-import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
@@ -31,10 +33,11 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/deputy-staff-home/minor-classes-list")
 @PreAuthorize("hasRole('DEPUTY_STAFF')")
-public class MinorStudentMemberController {
+public class MinorClassesMemberArrangementController {
 
     private final StudentsMinorClassesService studentsMinorClassesService;
     private final MinorClassesService minorClassesService;
+    private final MinorLecturers_MinorClassesService lecturersClassesService;
     private final DeputyStaffsService deputyStaffsService;
     private final StudentsService studentsService;
     private final RetakeSubjectsService retakeSubjectsService;
@@ -43,9 +46,10 @@ public class MinorStudentMemberController {
     private final StudentRequiredMinorSubjectsService requiredSubjectsService;
 
     @Autowired
-    public MinorStudentMemberController(
+    public MinorClassesMemberArrangementController(
             StudentsMinorClassesService studentsMinorClassesService,
             MinorClassesService minorClassesService,
+            MinorLecturers_MinorClassesService lecturersClassesService,
             DeputyStaffsService deputyStaffsService,
             StudentsService studentsService,
             RetakeSubjectsService retakeSubjectsService,
@@ -54,6 +58,7 @@ public class MinorStudentMemberController {
             StudentRequiredMinorSubjectsService requiredSubjectsService) {
         this.studentsMinorClassesService = studentsMinorClassesService;
         this.minorClassesService = minorClassesService;
+        this.lecturersClassesService = lecturersClassesService;
         this.deputyStaffsService = deputyStaffsService;
         this.studentsService = studentsService;
         this.retakeSubjectsService = retakeSubjectsService;
@@ -62,7 +67,7 @@ public class MinorStudentMemberController {
         this.requiredSubjectsService = requiredSubjectsService;
     }
 
-    @PostMapping("/member-arrangement/select-class")
+    @PostMapping("/member-arrangement")
     public String selectClass(@RequestParam("classId") String classId,
                               HttpSession session,
                               RedirectAttributes ra) {
@@ -72,11 +77,11 @@ public class MinorStudentMemberController {
             return "redirect:/deputy-staff-home/minor-classes-list";
         }
         session.setAttribute("currentClassId", classId);
-        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement/students";
+        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement";
     }
 
-    @GetMapping("/member-arrangement/students")
-    public String showStudentArrangement(Model model, HttpSession session) {
+    @GetMapping("/member-arrangement")
+    public String showMemberArrangement(Model model, HttpSession session) {
         String classId = (String) session.getAttribute("currentClassId");
         if (classId == null) return handleNoClassSelected(model);
 
@@ -85,22 +90,27 @@ public class MinorStudentMemberController {
 
         String subjectId = clazz.getMinorSubject().getSubjectId();
 
-        // === 1. Tất cả sinh viên được yêu cầu học môn này ===
+        // === 1. LẤY TẤT CẢ SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY ===
         List<StudentRequiredMinorSubjects> requiredList = requiredSubjectsService
                 .getStudentRequiredMinorSubjects(clazz.getMinorSubject());
 
+        // === 2. Tất cả sinh viên được yêu cầu ===
         List<Students> requiredStudents = requiredList.stream()
                 .map(StudentRequiredMinorSubjects::getStudent)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        // === 2. Sinh viên đang trong lớp ===
+        // === 3. Sinh viên TRONG LỚP ===
         List<Students_MinorClasses> studentsInClassEntity = studentsMinorClassesService.getStudentsInClass(classId);
         Set<String> studentIdsInClass = studentsInClassEntity.stream()
                 .map(smc -> smc.getStudent().getId())
                 .collect(Collectors.toSet());
 
-        // === 3. Retake: chỉ từ sinh viên được yêu cầu + chưa trong lớp ===
+        // === 4. Giảng viên ===
+        List<MinorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(clazz);
+        List<MinorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(clazz);
+
+        // === 5. Retake: chỉ từ sinh viên được yêu cầu + chưa trong lớp ===
         List<Students> retakeCandidates = requiredStudents.stream()
                 .filter(s -> !studentIdsInClass.contains(s.getId()))
                 .collect(Collectors.toList());
@@ -113,15 +123,32 @@ public class MinorStudentMemberController {
 
         List<Students> studentsWithEnoughMoney = retakeSubjectsService.getStudentsWithSufficientBalance(subjectId, retakeStudents);
         List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService.getStudentsWithInsufficientBalance(subjectId, retakeStudents);
+
+        // === 6. Sinh viên đã nộp học phí học lại & chưa có lớp ===
         List<Students> studentsFailedAndPaid = retakeStudents;
 
         model.addAttribute("class", clazz);
         model.addAttribute("studentsInClass", studentsInClassEntity);
+        model.addAttribute("lecturersInClass", lecturersInClass);
+        model.addAttribute("lecturersNotInClass", lecturersNotInClass);
         model.addAttribute("studentsWithEnoughMoney", studentsWithEnoughMoney);
         model.addAttribute("studentsDoNotHaveEnoughMoney", studentsDoNotHaveEnoughMoney);
         model.addAttribute("studentsFailedAndPaid", studentsFailedAndPaid);
         model.addAttribute("retakeList", retakeList);
 
+        return "MinorClassMemberArrangement";
+    }
+
+    private String handleNoClassSelected(Model model) {
+        model.addAttribute("errorMessage", "No class selected");
+        model.addAttribute("class", new MinorClasses());
+        model.addAttribute("studentsInClass", new ArrayList<>());
+        model.addAttribute("lecturersInClass", new ArrayList<>());
+        model.addAttribute("lecturersNotInClass", new ArrayList<>());
+        model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
+        model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
+        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
+        model.addAttribute("retakeList", new ArrayList<>());
         return "MinorClassMemberArrangement";
     }
 
@@ -166,7 +193,7 @@ public class MinorStudentMemberController {
 
         ra.addFlashAttribute("successMessage", "Students removed and added to retake list.");
         session.setAttribute("currentClassId", classId);
-        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement/students";
+        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement";
     }
 
     // ——— ADD STUDENT ———
@@ -202,6 +229,7 @@ public class MinorStudentMemberController {
             Students s = studentsService.getStudentById(sid);
             if (s == null) continue;
 
+            // Kiểm tra: sinh viên có trong StudentRequiredMinorSubjects không?
             if (!requiredSubjectsService.isStudentAlreadyRequiredForSubject(sid, subjectId)) {
                 errors.add(s.getFullName() + " is not required to take this subject");
                 continue;
@@ -223,16 +251,19 @@ public class MinorStudentMemberController {
                 continue;
             }
 
+            // Add to class
             Students_MinorClasses smc = new Students_MinorClasses();
-            StudentsClassesId id = new StudentsClassesId(classId, sid);
+            StudentsClassesId id = new StudentsClassesId();
+            id.setStudentId(sid);
+            id.setClassId(classId);
             smc.setId(id);
             smc.setStudent(s);
-            smc.setClassEntity(clazz);
             smc.setAddedBy(staff);
             smc.setCreatedAt(LocalDateTime.now());
             studentsMinorClassesService.addStudentToClass(smc);
             added++;
 
+            // Deduct & log
             retakeSubjectsService.deductAndLogPayment(s, subjectId, fee);
         }
 
@@ -243,7 +274,38 @@ public class MinorStudentMemberController {
 
         ra.addFlashAttribute("successMessage", added + " student(s) added and payment deducted.");
         session.setAttribute("currentClassId", classId);
-        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement/students";
+        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement";
+    }
+
+    // ——— ADD/REMOVE LECTURERS ———
+    @PostMapping("/add-lecturer-to-class")
+    public String addLecturers(@RequestParam("classId") String classId,
+                               @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
+                               RedirectAttributes ra, HttpSession session) {
+        if (lecturerIds != null && !lecturerIds.isEmpty()) {
+            MinorClasses clazz = minorClassesService.getClassById(classId);
+            if (clazz != null) {
+                lecturersClassesService.addLecturersToClass(clazz, lecturerIds);
+                ra.addFlashAttribute("successMessage", lecturerIds.size() + " lecturer(s) added.");
+            }
+        }
+        session.setAttribute("currentClassId", classId);
+        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement";
+    }
+
+    @PostMapping("/remove-lecturer-from-class")
+    public String removeLecturers(@RequestParam("classId") String classId,
+                                  @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
+                                  RedirectAttributes ra, HttpSession session) {
+        if (lecturerIds != null && !lecturerIds.isEmpty()) {
+            MinorClasses clazz = minorClassesService.getClassById(classId);
+            if (clazz != null) {
+                lecturersClassesService.removeLecturerFromClass(clazz, lecturerIds);
+                ra.addFlashAttribute("successMessage", lecturerIds.size() + " lecturer(s) removed.");
+            }
+        }
+        session.setAttribute("currentClassId", classId);
+        return "redirect:/deputy-staff-home/minor-classes-list/member-arrangement";
     }
 
     // ——— HELPERS ———
@@ -252,8 +314,12 @@ public class MinorStudentMemberController {
         model.addAttribute("class", clazz != null ? clazz : new MinorClasses());
         if (clazz != null) {
             model.addAttribute("studentsInClass", studentsMinorClassesService.getStudentsInClass(clazz.getClassId()));
+            model.addAttribute("lecturersInClass", lecturersClassesService.listLecturersInClass(clazz));
+            model.addAttribute("lecturersNotInClass", lecturersClassesService.listLecturersNotInClass(clazz));
         } else {
             model.addAttribute("studentsInClass", new ArrayList<>());
+            model.addAttribute("lecturersInClass", new ArrayList<>());
+            model.addAttribute("lecturersNotInClass", new ArrayList<>());
         }
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
@@ -268,15 +334,5 @@ public class MinorStudentMemberController {
                 .map(t -> t.getReStudyTuition())
                 .findFirst()
                 .orElse(null);
-    }
-
-    private String handleNoClassSelected(Model model) {
-        model.addAttribute("errorMessage", "No class selected");
-        model.addAttribute("class", new MinorClasses());
-        model.addAttribute("studentsInClass", new ArrayList<>());
-        model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
-        return "MinorClassMemberArrangement";
     }
 }

@@ -72,7 +72,6 @@
                     <th><i class="fas fa-id-card"></i> Subject ID</th>
                     <th><i class="fas fa-book-open"></i> Subject Name</th>
                     <th><i class="fas fa-calendar"></i> Semester</th>
-                    <th><i class="fas fa-info-circle"></i> Requirement Type</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -80,7 +79,6 @@
                     <td th:text="${subject.subjectId}"></td>
                     <td th:text="${subject.subjectName}"></td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(majorSubjects)}">
                     <td colspan="4" class="text-center">No major subjects assigned.</td>
@@ -100,7 +98,6 @@
                     <th><i class="fas fa-id-card"></i> Subject ID</th>
                     <th><i class="fas fa-book-open"></i> Subject Name</th>
                     <th><i class="fas fa-calendar"></i> Semester</th>
-                    <th><i class="fas fa-info-circle"></i> Requirement Type</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -108,7 +105,6 @@
                     <td th:text="${subject.subjectId}"></td>
                     <td th:text="${subject.subjectName}"></td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(minorSubjects)}">
                     <td colspan="4" class="text-center">No minor subjects assigned.</td>
@@ -128,7 +124,7 @@
                     <th><i class="fas fa-id-card"></i> Subject ID</th>
                     <th><i class="fas fa-book-open"></i> Subject Name</th>
                     <th><i class="fas fa-calendar"></i> Semester</th>
-                    <th><i class="fas fa-info-circle"></i> Requirement Type</th>
+                    <th><i class="fas fa-info-circle"></i> Specialization</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -136,7 +132,7 @@
                     <td th:text="${subject.subjectId}"></td>
                     <td th:text="${subject.subjectName}"></td>
                     <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.requirementType}"></td>
+                    <td th:text="${subject.getSpecialization()}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(specializedSubjects)}">
                     <td colspan="4" class="text-center">No specialized subjects assigned.</td>

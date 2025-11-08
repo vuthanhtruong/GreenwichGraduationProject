@@ -1,5 +1,6 @@
 package com.example.demo.user.student.model;
 
+import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.campus.model.Campuses;
@@ -13,6 +14,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "Students")
@@ -47,6 +49,9 @@ public class Students extends Persons implements StudentsInterface {
     @JoinColumn(name = "CurriculumID", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Curriculum curriculum;
+
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AcademicTranscripts> academicTranscripts;
 
     @Override
     public String getDefaultAvatarPath() {

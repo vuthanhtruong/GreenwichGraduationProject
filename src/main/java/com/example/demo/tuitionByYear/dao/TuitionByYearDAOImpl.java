@@ -1,6 +1,7 @@
 package com.example.demo.tuitionByYear.dao;
 
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
@@ -90,67 +91,73 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
     }
 
     @Override
-    public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
+    public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus) {
 
         List<TuitionByYear> tuitions = getTuitionsWithFeeByYearAndCampus(admissionYear, campus);
         List<MajorSubjects> majorSubjects = new ArrayList<>();
 
         for (TuitionByYear tuition : tuitions) {
-            MajorSubjects subjet =majorSubjectsService.getSubjectById(tuition.getSubject().getSubjectId());
-            if(subjet != null && (subjet.getCurriculum().getCurriculumId() == curriculum.getCurriculumId())) {
-                majorSubjects.add(subjet);
+            MajorSubjects subject =majorSubjectsService.getSubjectById(tuition.getSubject().getSubjectId());
+            if(subject!=null && subject.getMajor().equals(major) && (subject.getCurriculum().getCurriculumId() == curriculum.getCurriculumId())) {
+                majorSubjects.add(subject);
             }
         }
         return majorSubjects;
     }
 
     @Override
-    public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus) {
+    public List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus) {
 
         List<TuitionByYear> tuitions = getTuitionsWithFeeByYearAndCampus(admissionYear, campus);
         List<SpecializedSubject> SpecializedSubjects = new ArrayList<>();
 
         for (TuitionByYear tuition : tuitions) {
             SpecializedSubject subject=specializedSubjectsService.getSubjectById(tuition.getSubject().getSubjectId());
-            if(subject != null && (subject.getCurriculum().getCurriculumId() == curriculum.getCurriculumId())) {
+            if(subject!=null && subject.getSpecialization().getMajor().equals(major) && (subject.getCurriculum().getCurriculumId() == curriculum.getCurriculumId())) {
                 SpecializedSubjects.add(subject);
             }
         }
         return SpecializedSubjects;
     }
     @Override
-    public List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId) {
-        if (campusId == null || campusId.isBlank()) return List.of();
+    public List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId, Majors major) {
+        if (campusId == null || campusId.isBlank() || major == null) {
+            return List.of();
+        }
 
         return entityManager.createQuery("""
         SELECT DISTINCT t.id.admissionYear
         FROM TuitionByYear t
         WHERE t.campus.campusId = :campusId
-          AND TYPE(t.subject) = SpecializedSubject
+          AND TREAT(t.subject AS SpecializedSubject).specialization.major = :major
           AND t.tuition IS NOT NULL
           AND t.tuition > 0
         ORDER BY t.id.admissionYear DESC
         """, Integer.class)
                 .setParameter("campusId", campusId)
+                .setParameter("major", major)
                 .getResultList();
     }
 
     @Override
-    public List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus) {
+    public List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus, Majors major) {
         if (campus == null) {
             throw new IllegalArgumentException("Campus cannot be null");
         }
 
-        return entityManager.createQuery(
-                        "SELECT DISTINCT t.id.admissionYear " +
-                                "FROM TuitionByYear t " +
-                                "WHERE t.campus = :campus " +
-                                "AND TYPE(t.subject) = MajorSubjects " +
-                                "AND t.tuition IS NOT NULL " +
-                                "AND t.tuition > 0 " +
-                                "ORDER BY t.id.admissionYear DESC",
-                        Integer.class)
+        String jpql = """
+        SELECT DISTINCT t.id.admissionYear
+        FROM TuitionByYear t
+        WHERE t.campus = :campus
+          AND TREAT(t.subject AS MajorSubjects).major = :major
+          AND t.tuition IS NOT NULL
+          AND t.tuition > 0
+        ORDER BY t.id.admissionYear DESC
+        """;
+
+        return entityManager.createQuery(jpql, Integer.class)
                 .setParameter("campus", campus)
+                .setParameter("major", major)
                 .getResultList();
     }
 

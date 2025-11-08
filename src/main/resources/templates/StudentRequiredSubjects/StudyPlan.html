@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Plan - Subjects List</title>
-    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
+    <link rel="stylesheet" th:href="@{/StudyPlan.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
 
+    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
         <!-- Left: Navigation -->
         <div class="toolbar-left">
@@ -50,13 +51,18 @@
             <div class="total">
                 <i class="fas fa-book-open"></i>
                 <span>
-                <strong>Total Subjects:</strong>
-                <span th:text="${totalSubjects}"></span>
-            </span>
+                    <strong>Total Subjects:</strong>
+                    <span th:text="${totalSubjects}">0</span>
+                </span>
             </div>
         </div>
     </div>
 
+    <!-- Error Message (Flash Attribute) -->
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- Success Message (nếu cần) -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
     <!-- Subjects Table -->
     <div class="table-container">
@@ -76,15 +82,16 @@
                 <td th:text="${subject.getSubjectId()}"></td>
                 <td th:text="${subject.subjectName}"></td>
                 <td th:text="${subject.semester ?: 'N/A'}"></td>
-                <td th:text="${subject.creator.firstName + ' ' + subject.creator.lastName}"></td>
+                <td th:text="${subject.creator != null ? subject.creator.firstName + ' ' + subject.creator.lastName : 'N/A'}"></td>
                 <td th:text="${subject.major?.majorName ?: 'N/A'}"></td>
                 <td>
-                    <form th:action="@{/staff-home/study-plan/assign-members}" method="post" class="inline-form">
+                    <form th:action="@{/staff-home/study-plan/assign-members}"
+                          method="post" class="inline-form">
                         <input type="hidden" name="id" th:value="${subject.subjectId}">
                         <input type="hidden" name="curriculumId" th:value="${curriculumId}">
                         <input type="hidden" name="admissionYear" th:value="${admissionYear}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                        <button class="btn small primary">
+                        <button type="submit" class="btn small primary">
                             Assign Members
                         </button>
                     </form>

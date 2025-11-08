@@ -2,6 +2,7 @@ package com.example.demo.tuitionByYear.service;
 
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
@@ -21,9 +22,9 @@ public interface TuitionByYearService {
 
     List<TuitionByYear> getTuitionsWithFeeByYearAndCampus(Integer admissionYear, Campuses campus);
 
-    List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus);
+    List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus);
 
-    List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus);
+    List<Integer> findAllAdmissionYearsWithMajorTuition(Campuses campus, Majors major);
 
     List<TuitionByYear> getTuitionsWithoutFeeByYear(Integer admissionYear, Campuses campus);
 
@@ -37,9 +38,9 @@ public interface TuitionByYearService {
 
     void finalizeContracts(Integer admissionYear, Campuses campus);
 
-    List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Campuses campus);
+    List<SpecializedSubject> getSpecializedSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus);
 
-    List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId);
+    List<Integer> findAllAdmissionYearsWithSpecializedTuition(String campusId, Majors major);
 
     List<MinorSubjects> getMinorSubjectsWithTuitionByYear(Integer admissionYear, Campuses campus);
 

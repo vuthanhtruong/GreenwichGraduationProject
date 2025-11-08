@@ -48,7 +48,6 @@ public class ListMemberDesignationsController {
             @RequestParam(required = false) Integer admissionYear,
             HttpSession session) {
 
-        // ✅ FIX: Nếu null thì lấy năm hiện tại
         if (admissionYear == null) {
             admissionYear = java.time.Year.now().getValue();
         }
@@ -72,7 +71,6 @@ public class ListMemberDesignationsController {
         String curriculumId = (String) session.getAttribute("currentCurriculumId");
         Integer sessionAdmissionYear = (Integer) session.getAttribute("currentAdmissionYear");
 
-        // ✅ FIX: Ưu tiên param -> session -> default năm hiện tại
         Integer finalAdmissionYear = admissionYear;
         if (finalAdmissionYear == null) {
             finalAdmissionYear = sessionAdmissionYear;
@@ -80,8 +78,6 @@ public class ListMemberDesignationsController {
         if (finalAdmissionYear == null) {
             finalAdmissionYear = java.time.Year.now().getValue();
         }
-
-        System.out.println("✅ Final admissionYear: " + finalAdmissionYear);
 
         if (subjectId == null) {
             model.addAttribute("errorMessage", "Subject ID is required. Please select a subject first.");
