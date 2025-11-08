@@ -7,10 +7,9 @@ import com.example.demo.user.student.model.Students;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 @Service
-public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjectsService {
+public class StudentRequiredMajorSubjectsServiceImpl implements StudentRequiredMajorSubjectsService {
     @Override
     public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear) {
         return studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subjects, admissionYear);
@@ -48,7 +47,7 @@ public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjec
 
     private final StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO;
 
-    public StudentRequiredSubjectsServiceImpl(StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO) {
+    public StudentRequiredMajorSubjectsServiceImpl(StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO) {
         this.studentRequiredSubjectsDAO = studentRequiredSubjectsDAO;
     }
 

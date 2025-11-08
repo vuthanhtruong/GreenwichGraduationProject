@@ -4,7 +4,7 @@ import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.model.StudentRequiredMajorSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.model.StudentRequiredSubjectsId;
-import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredSubjectsService;
+import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredMajorSubjectsService;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
 import com.example.demo.user.staff.model.Staffs;
@@ -17,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -27,14 +26,14 @@ public class ListMemberDesignationsController {
 
     private final MajorSubjectsService majorSubjectsService;
     private final StaffsService staffsService;
-    private final StudentRequiredSubjectsService studentRequiredSubjectsService;
+    private final StudentRequiredMajorSubjectsService studentRequiredSubjectsService;
     private final StudentsService studentsService;
 
     @Autowired
     public ListMemberDesignationsController(
             MajorSubjectsService majorSubjectsService,
             StaffsService staffsService,
-            StudentRequiredSubjectsService studentRequiredSubjectsService,
+            StudentRequiredMajorSubjectsService studentRequiredSubjectsService,
             StudentsService studentsService) {
         this.majorSubjectsService = majorSubjectsService;
         this.staffsService = staffsService;

@@ -49,19 +49,28 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
-    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects,Integer admissionYear) {
-        if (subjects == null || staffsService.getStaffMajor() == null) {
+    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subject, Integer admissionYear) {
+        if (subject == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
 
-        return entityManager.createQuery(
-                        "SELECT srs FROM StudentRequiredMajorSubjects srs " +
-                                "WHERE srs.subject = :subjects AND srs.student.specialization.major = :major And srs.student.admissionYear=:admissionYear",
-                        StudentRequiredMajorSubjects.class)
-                .setParameter("subjects", subjects)
-                .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("admissionYear", admissionYear)
-                .getResultList();
+        String jpql = "SELECT srs FROM StudentRequiredMajorSubjects srs " +
+                "WHERE srs.subject = :subjects " +
+                "AND srs.student.specialization.major = :major";
+
+        var query = entityManager.createQuery(jpql, StudentRequiredMajorSubjects.class)
+                .setParameter("subjects", subject)
+                .setParameter("major", staffsService.getStaffMajor());
+
+        if (admissionYear != null) {
+            jpql += " AND srs.student.admissionYear = :admissionYear";
+            query = entityManager.createQuery(jpql, StudentRequiredMajorSubjects.class)
+                    .setParameter("subjects", subject)
+                    .setParameter("major", staffsService.getStaffMajor())
+                    .setParameter("admissionYear", admissionYear);
+        }
+
+        return query.getResultList();
     }
 
     @Override

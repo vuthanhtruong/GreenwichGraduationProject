@@ -59,15 +59,26 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
             return List.of();
         }
 
-        return entityManager.createQuery(
-                        "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus AND srs.admissionYear = :admissionYear",
-                        StudentRequiredSpecializedSubjects.class)
+        String jpql = "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
+                "WHERE srs.specializedSubject = :subject " +
+                "AND srs.student.specialization.major = :major " +
+                "AND srs.student.campus = :campus";
+
+        // Chỉ thêm điều kiện admissionYear nếu không null
+        if (admissionYear != null) {
+            jpql += " AND srs.student.admissionYear = :admissionYear";
+        }
+
+        var query = entityManager.createQuery(jpql, StudentRequiredSpecializedSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
-                .setParameter("campus",staffsService.getCampusOfStaff())
-                .setParameter("admissionYear", admissionYear)
-                .getResultList();
+                .setParameter("campus", staffsService.getCampusOfStaff());
+
+        if (admissionYear != null) {
+            query.setParameter("admissionYear", admissionYear);
+        }
+
+        return query.getResultList();
     }
 
     @Override

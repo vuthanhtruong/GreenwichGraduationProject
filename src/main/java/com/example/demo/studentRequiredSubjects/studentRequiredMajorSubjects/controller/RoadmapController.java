@@ -5,7 +5,7 @@ import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.service.StudentRequiredSpecializedSubjectsService;
-import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredSubjectsService;
+import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.service.StudentRequiredMajorSubjectsService;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -21,10 +21,10 @@ import java.util.List;
 public class RoadmapController {
 
     private final StudentsService StudentService;
-    private final StudentRequiredSubjectsService studentRequiredMajorSubjectsService;
+    private final StudentRequiredMajorSubjectsService studentRequiredMajorSubjectsService;
     private final StudentRequiredSpecializedSubjectsService studentRequiredSubjectsService;
 
-    public RoadmapController(StudentsService StudentService, StudentRequiredSubjectsService studentRequiredMajorSubjectsService, StudentRequiredSpecializedSubjectsService studentRequiredSubjectsService) {
+    public RoadmapController(StudentsService StudentService, StudentRequiredMajorSubjectsService studentRequiredMajorSubjectsService, StudentRequiredSpecializedSubjectsService studentRequiredSubjectsService) {
         this.StudentService = StudentService;
         this.studentRequiredMajorSubjectsService = studentRequiredMajorSubjectsService;
         this.studentRequiredSubjectsService = studentRequiredSubjectsService;

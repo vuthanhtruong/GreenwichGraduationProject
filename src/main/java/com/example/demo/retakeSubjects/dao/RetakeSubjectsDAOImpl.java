@@ -1,13 +1,12 @@
 // src/main/java/com/example/demo/RetakeSubjects/dao/RetakeSubjectsDAOImpl.java
-package com.example.demo.RetakeSubjects.dao;
+package com.example.demo.retakeSubjects.dao;
 
-import com.example.demo.RetakeSubjects.model.RetakeSubjects;
+import com.example.demo.retakeSubjects.model.RetakeSubjects;
 import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.financialHistory.paymentHistories.model.PaymentHistories;
 import com.example.demo.financialHistory.paymentHistories.service.PaymentHistoriesService;
-import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;

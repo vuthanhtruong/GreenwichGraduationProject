@@ -1,4 +1,4 @@
-package com.example.demo.RetakeSubjects.model;
+package com.example.demo.retakeSubjects.model;
 
 import com.example.demo.user.student.model.Students;
 import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;

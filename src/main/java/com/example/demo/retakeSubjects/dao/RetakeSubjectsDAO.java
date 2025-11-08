@@ -1,7 +1,7 @@
 // src/main/java/com/example/demo/RetakeSubjects/dao/RetakeSubjectsDAO.java
-package com.example.demo.RetakeSubjects.dao;
+package com.example.demo.retakeSubjects.dao;
 
-import com.example.demo.RetakeSubjects.model.RetakeSubjects;
+import com.example.demo.retakeSubjects.model.RetakeSubjects;
 import com.example.demo.user.student.model.Students;
 import java.util.List;
 import java.util.Map;

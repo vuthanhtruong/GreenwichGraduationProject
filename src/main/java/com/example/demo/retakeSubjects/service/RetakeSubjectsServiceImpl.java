@@ -1,8 +1,8 @@
 // src/main/java/com/example/demo/RetakeSubjects/service/RetakeSubjectsServiceImpl.java
-package com.example.demo.RetakeSubjects.service;
+package com.example.demo.retakeSubjects.service;
 
-import com.example.demo.RetakeSubjects.dao.RetakeSubjectsDAO;
-import com.example.demo.RetakeSubjects.model.RetakeSubjects;
+import com.example.demo.retakeSubjects.dao.RetakeSubjectsDAO;
+import com.example.demo.retakeSubjects.model.RetakeSubjects;
 import com.example.demo.user.student.model.Students;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

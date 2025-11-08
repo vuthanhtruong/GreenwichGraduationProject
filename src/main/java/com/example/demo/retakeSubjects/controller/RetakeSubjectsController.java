@@ -1,6 +1,6 @@
-package com.example.demo.RetakeSubjects.controller;
+package com.example.demo.retakeSubjects.controller;
 
-import com.example.demo.RetakeSubjects.service.RetakeSubjectsService;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import org.springframework.security.access.prepost.PreAuthorize;

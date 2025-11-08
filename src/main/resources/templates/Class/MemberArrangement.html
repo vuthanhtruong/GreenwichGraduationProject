@@ -150,7 +150,6 @@
                     </td>
                     <td th:text="${s.fullName}"></td>
                     <td th:text="${s.email}"></td>
-                    <td th:text="${#numbers.formatCurrency(accountBalancesService.findByStudentId(s.id).balance)}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(studentsDoNotHaveEnoughMoney)}">
                     <td colspan="5" class="text-center">All retake students have enough balance.</td>
