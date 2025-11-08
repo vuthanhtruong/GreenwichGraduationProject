@@ -46,7 +46,6 @@ public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjec
         return studentRequiredSubjectsDAO.studentMinorRoadmap(student);
     }
 
-
     private final StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO;
 
     public StudentRequiredSubjectsServiceImpl(StudentRequiredMajorSubjectsDAO studentRequiredSubjectsDAO) {
@@ -54,8 +53,8 @@ public class StudentRequiredSubjectsServiceImpl implements StudentRequiredSubjec
     }
 
     @Override
-    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects) {
-        return studentRequiredSubjectsDAO.getStudentRequiredMajorSubjects(subjects);
+    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects,Integer admissionYear) {
+        return studentRequiredSubjectsDAO.getStudentRequiredMajorSubjects(subjects, admissionYear);
     }
 
 }

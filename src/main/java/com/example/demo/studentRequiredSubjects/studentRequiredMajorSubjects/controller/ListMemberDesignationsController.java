@@ -100,7 +100,7 @@ public class ListMemberDesignationsController {
         model.addAttribute("studentsNotRequired",
                 studentRequiredSubjectsService.getStudentNotRequiredMajorSubjects(subject, finalAdmissionYear));
         model.addAttribute("studentRequiredSubjects",
-                studentRequiredSubjectsService.getStudentRequiredMajorSubjects(subject));
+                studentRequiredSubjectsService.getStudentRequiredMajorSubjects(subject, finalAdmissionYear));
         model.addAttribute("curriculumId", curriculumId);
         model.addAttribute("admissionYear", finalAdmissionYear);
 

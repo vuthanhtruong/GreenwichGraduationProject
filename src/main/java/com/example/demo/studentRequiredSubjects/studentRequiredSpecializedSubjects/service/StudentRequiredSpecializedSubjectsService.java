@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface StudentRequiredSpecializedSubjectsService {
     List<SpecializedSubject> studentSpecializedRoadmap(Students student);
-    List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject);
+    List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear);
     List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear);
     List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId);
     boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId);

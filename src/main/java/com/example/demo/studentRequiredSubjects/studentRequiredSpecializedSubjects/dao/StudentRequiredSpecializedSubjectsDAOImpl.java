@@ -54,18 +54,19 @@ public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequire
     }
 
     @Override
-    public List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject) {
+    public List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear) {
         if (subject == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredSpecializedSubjects srs " +
-                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus",
+                                "WHERE srs.specializedSubject = :subject AND srs.student.specialization.major = :major AND srs.student.campus=:campus AND srs.admissionYear = :admissionYear",
                         StudentRequiredSpecializedSubjects.class)
                 .setParameter("subject", subject)
                 .setParameter("major", staffsService.getStaffMajor())
                 .setParameter("campus",staffsService.getCampusOfStaff())
+                .setParameter("admissionYear", admissionYear)
                 .getResultList();
     }
 

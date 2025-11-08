@@ -6,6 +6,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 @Repository
 @Transactional
 public class AccountBalancesDAOImpl implements AccountBalancesDAO {
@@ -33,5 +35,17 @@ public class AccountBalancesDAOImpl implements AccountBalancesDAO {
             return false;
         }
         return account.getBalance() >= requiredAmount;
+    }
+
+    @Override
+    public boolean deductBalance(String studentId, double amount) {
+        AccountBalances account = findByStudentId(studentId);
+        if (account == null || account.getBalance() < amount) {
+            return false;
+        }
+        account.setBalance(account.getBalance() - amount);
+        account.setLastUpdated(LocalDateTime.now());
+        entityManager.merge(account); // dùng merge
+        return true;
     }
 }

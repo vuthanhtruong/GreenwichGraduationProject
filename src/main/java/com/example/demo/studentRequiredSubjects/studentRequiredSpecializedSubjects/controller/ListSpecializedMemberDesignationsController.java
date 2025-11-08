@@ -94,7 +94,7 @@ public class ListSpecializedMemberDesignationsController {
         model.addAttribute("studentsNotRequired",
                 studentRequiredSubjectsService.getStudentNotRequiredSpecializedSubjects(subject, finalAdmissionYear));
         model.addAttribute("studentRequiredSubjects",
-                studentRequiredSubjectsService.getStudentRequiredSpecializedSubjects(subject));
+                studentRequiredSubjectsService.getStudentRequiredSpecializedSubjects(subject,finalAdmissionYear));
         model.addAttribute("curriculumId", curriculumId);
         model.addAttribute("admissionYear", finalAdmissionYear);
 

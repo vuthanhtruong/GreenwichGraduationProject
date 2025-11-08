@@ -1,8 +1,6 @@
 package com.example.demo.RetakeSubjects.controller;
 
-import com.example.demo.RetakeSubjects.service.ReStudyPaymentService;
-import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.tuitionByYear.service.TuitionByYearService;
+import com.example.demo.RetakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +18,9 @@ import java.util.Map;
 @PreAuthorize("hasRole('STUDENT')")
 public class RetakeSubjectsController {
     private final StudentsService studentsService;;
-    private final ReStudyPaymentService reStudyPaymentService;
+    private final RetakeSubjectsService reStudyPaymentService;
 
-    public RetakeSubjectsController(StudentsService studentsService, ReStudyPaymentService reStudyPaymentService) {
+    public RetakeSubjectsController(StudentsService studentsService, RetakeSubjectsService reStudyPaymentService) {
         this.studentsService = studentsService;
         this.reStudyPaymentService = reStudyPaymentService;
     }

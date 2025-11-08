@@ -7,4 +7,5 @@ public interface AccountBalancesDAO {
     AccountBalances findByStudentId(String studentId);
     void DepositMoneyIntoAccount(AccountBalances accountBalances);
     boolean hasSufficientBalance(String studentId, double requiredAmount);
+    boolean deductBalance(String studentId, double amount);
 }

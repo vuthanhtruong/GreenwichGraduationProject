@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface StudentRequiredMajorSubjectsDAO {
-    List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects);
+    List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear);
     List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear);
     List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
     List<MajorSubjects> studentMajorRoadmap(Students student);

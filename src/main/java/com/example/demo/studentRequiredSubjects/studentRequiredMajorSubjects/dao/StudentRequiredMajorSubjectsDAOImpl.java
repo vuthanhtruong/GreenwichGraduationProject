@@ -49,17 +49,18 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
     }
 
     @Override
-    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects) {
+    public List<StudentRequiredMajorSubjects> getStudentRequiredMajorSubjects(MajorSubjects subjects,Integer admissionYear) {
         if (subjects == null || staffsService.getStaffMajor() == null) {
             return List.of();
         }
 
         return entityManager.createQuery(
                         "SELECT srs FROM StudentRequiredMajorSubjects srs " +
-                                "WHERE srs.subject = :subjects AND srs.student.specialization.major = :major",
+                                "WHERE srs.subject = :subjects AND srs.student.specialization.major = :major And srs.student.admissionYear=:admissionYear",
                         StudentRequiredMajorSubjects.class)
                 .setParameter("subjects", subjects)
                 .setParameter("major", staffsService.getStaffMajor())
+                .setParameter("admissionYear", admissionYear)
                 .getResultList();
     }
 

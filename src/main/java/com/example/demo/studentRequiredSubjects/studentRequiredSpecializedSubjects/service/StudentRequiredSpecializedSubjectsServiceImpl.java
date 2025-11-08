@@ -26,8 +26,8 @@ public class StudentRequiredSpecializedSubjectsServiceImpl implements StudentReq
     }
 
     @Override
-    public List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject) {
-        return studentRequiredSpecializedSubjectsDAO.getStudentRequiredSpecializedSubjects(subject);
+    public List<StudentRequiredSpecializedSubjects> getStudentRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear) {
+        return studentRequiredSpecializedSubjectsDAO.getStudentRequiredSpecializedSubjects(subject, admissionYear);
     }
 
     @Override
