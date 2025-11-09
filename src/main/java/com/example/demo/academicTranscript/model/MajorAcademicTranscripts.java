@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class MajorAcademicTranscripts extends AcademicTranscripts {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
+    @JoinColumn(name = "ClassID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorClasses majorClass;
 

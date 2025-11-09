@@ -4,6 +4,7 @@ import com.example.demo.academicTranscript.model.SpecializedAcademicTranscripts;
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
+import com.example.demo.entity.Enums.Grades;
 import com.example.demo.students_Classes.students_SpecializedClasses.service.StudentsSpecializedClassesService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
@@ -34,22 +35,15 @@ public class SpecializedTranscriptEntryController {
             StudentsSpecializedClassesService studentsSpecializedService,
             AcademicTranscriptsService transcriptsService,
             StaffsService staffsService) {
-
         this.specializedClassesService = specializedClassesService;
         this.studentsSpecializedService = studentsSpecializedService;
         this.transcriptsService = transcriptsService;
         this.staffsService = staffsService;
     }
 
-    @PostMapping("/enter-transcript")
-    public String loadTranscriptPost(@RequestParam("classId") String classId,
-                                     Model model, RedirectAttributes ra, HttpSession session) {
-        return loadPage(classId, model, ra, session);
-    }
-
     @GetMapping("/enter-transcript")
-    public String loadTranscriptGet(@RequestParam(value = "classId", required = false) String classId,
-                                    Model model, HttpSession session, RedirectAttributes ra) {
+    public String show(@RequestParam(value = "classId", required = false) String classId,
+                       Model model, HttpSession session, RedirectAttributes ra) {
         if (classId == null || classId.isBlank()) {
             classId = (String) session.getAttribute("currentSpecializedClassId");
         }
@@ -57,44 +51,58 @@ public class SpecializedTranscriptEntryController {
             ra.addFlashAttribute("errorMessage", "Class ID is required.");
             return "redirect:/staff-home/specialized-classes-list";
         }
-        return loadPage(classId, model, ra, session);
+        return load(classId, model, ra, session);
     }
 
-    private String loadPage(String classId, Model model, RedirectAttributes ra, HttpSession session) {
+    @PostMapping("/enter-transcript")
+    public String loadPage(@RequestParam("classId") String classId,
+                           Model model, RedirectAttributes ra, HttpSession session) {
+        return load(classId, model, ra, session);
+    }
+
+    private String load(String classId, Model model, RedirectAttributes ra, HttpSession session) {
         SpecializedClasses clazz = specializedClassesService.getClassById(classId);
         if (clazz == null) {
             ra.addFlashAttribute("errorMessage", "Class not found!");
             return "redirect:/staff-home/specialized-classes-list";
         }
 
-        List<Students> students = studentsSpecializedService.getStudentsByClass(clazz);
-        if (students.isEmpty()) {
-            model.addAttribute("warningMessage", "No students enrolled in this class.");
-        }
-
+        List<Students> allStudents = studentsSpecializedService.getStudentsByClass(clazz);
         List<SpecializedAcademicTranscripts> transcripts = transcriptsService.getTranscriptsByClass(clazz);
 
-        Map<String, SpecializedAcademicTranscripts> transcriptMap = transcripts.stream()
-                .collect(Collectors.toMap(
-                        t -> t.getStudent().getId(),
-                        t -> t,
-                        (a, b) -> a
-                ));
+        Set<String> studentIdsWithScores = transcripts.stream()
+                .map(t -> t.getStudent().getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        List<Students> studentsWithScores = new ArrayList<>();
+        List<Students> studentsWithoutScores = new ArrayList<>();
+
+        for (Students s : allStudents) {
+            if (studentIdsWithScores.contains(s.getId())) {
+                studentsWithScores.add(s);
+            } else {
+                studentsWithoutScores.add(s);
+            }
+        }
+
+        // THÊM ENUM GRADES VÀO MODEL
+        model.addAttribute("grades", Grades.values());
 
         model.addAttribute("clazz", clazz);
-        model.addAttribute("students", students);
-        model.addAttribute("transcriptMap", transcriptMap);
+        model.addAttribute("transcripts", transcripts);
+        model.addAttribute("studentsWithScores", studentsWithScores);
+        model.addAttribute("studentsWithoutScores", studentsWithoutScores);
 
         session.setAttribute("currentSpecializedClassId", classId);
-
         return "SpecializedEnterTranscript";
     }
 
     @PostMapping("/save-transcript")
     @Transactional
-    public String saveTranscript(@RequestParam("classId") String classId,
-                                 @RequestParam Map<String, String> allParams,
-                                 RedirectAttributes ra) {
+    public String save(@RequestParam("classId") String classId,
+                       @RequestParam Map<String, String> allParams,
+                       RedirectAttributes ra) {
 
         SpecializedClasses clazz = specializedClassesService.getClassById(classId);
         if (clazz == null) {
@@ -108,74 +116,91 @@ public class SpecializedTranscriptEntryController {
             return "redirect:/staff-home/specialized-classes-list";
         }
 
-        List<Students> students = studentsSpecializedService.getStudentsByClass(clazz);
-        if (students.isEmpty()) {
+        List<Students> allStudents = studentsSpecializedService.getStudentsByClass(clazz);
+        if (allStudents.isEmpty()) {
             ra.addFlashAttribute("errorMessage", "No students to grade.");
-            return "redirect:/staff-home/specialized-classes-list/enter-transcript";
+            return "redirect:/staff-home/specialized-classes-list/enter-transcript?classId=" + classId;
+        }
+
+        Map<String, Students> studentMap = new HashMap<>();
+        for (Students s : allStudents) {
+            studentMap.put(s.getId(), s);
         }
 
         List<String> errors = new ArrayList<>();
         int saved = 0;
 
-        for (Students s : students) {
-            String sid = s.getId();
-            String p = sid + "_";
+        for (Map.Entry<String, String> entry : allParams.entrySet()) {
+            String key = entry.getKey();
+            if (!key.startsWith("c1_") && !key.startsWith("c2_") && !key.startsWith("c3_") && !key.startsWith("grade_")) {
+                continue;
+            }
 
-            String c1 = allParams.get("c1_" + p);
-            String c2 = allParams.get("c2_" + p);
-            String c3 = allParams.get("c3_" + p);
-            String total = allParams.get("total_" + p);
+            String sid = key.substring(key.indexOf("_") + 1);
+            if (sid.isBlank() || !studentMap.containsKey(sid)) continue;
 
-            if (allEmpty(c1, c2, c3, total)) continue;
+            Students student = studentMap.get(sid);
 
-            Double d1 = parse(c1, "Component 1", sid, errors);
-            Double d2 = parse(c2, "Component 2", sid, errors);
-            Double d3 = parse(c3, "Component 3", sid, errors);
-            Double tot = parse(total, "Total", sid, errors);
+            String c1Str = allParams.get("c1_" + sid);
+            String c2Str = allParams.get("c2_" + sid);
+            String c3Str = allParams.get("c3_" + sid);
+            String gradeStr = allParams.get("grade_" + sid);
 
-            if (d1 != null && !valid(d1)) errors.add("C1 of " + sid + " must be 0–10");
-            if (d2 != null && !valid(d2)) errors.add("C2 of " + sid + " must be 0–10");
-            if (d3 != null && !valid(d3)) errors.add("C3 of " + sid + " must be 0–10");
-            if (tot != null && !valid(tot)) errors.add("Total of " + sid + " must be 0–10");
+            if (isEmpty(c1Str) && isEmpty(c2Str) && isEmpty(c3Str) && isEmpty(gradeStr)) {
+                continue;
+            }
+
+            Double c1 = parseDouble(c1Str, "C1", sid, errors);
+            Double c2 = parseDouble(c2Str, "C2", sid, errors);
+            Double c3 = parseDouble(c3Str, "C3", sid, errors);
+
+            if (c1 != null && !valid(c1)) errors.add("C1 of " + sid + " must be 0–10");
+            if (c2 != null && !valid(c2)) errors.add("C2 of " + sid + " must be 0–10");
+            if (c3 != null && !valid(c3)) errors.add("C3 of " + sid + " must be 0–10");
+
+            Grades grade = null;
+            if (!isEmpty(gradeStr)) {
+                try {
+                    grade = Grades.valueOf(gradeStr);
+                } catch (IllegalArgumentException e) {
+                    errors.add("Invalid grade for " + sid);
+                }
+            } else if (c1 != null || c2 != null || c3 != null) {
+                errors.add("Grade is required for " + sid);
+            }
 
             if (!errors.isEmpty()) continue;
 
             String transcriptId = classId + "_" + sid;
 
             SpecializedAcademicTranscripts transcript = transcriptsService
-                    .findOrCreateTranscript(transcriptId, s, clazz, staff);
+                    .findOrCreateTranscript(transcriptId, student, clazz, staff);
 
-            transcript.setScoreComponent1(d1);
-            transcript.setScoreComponent2(d2);
-            transcript.setScoreComponent3(d3);
-            transcript.setScore(tot);
+            transcript.setScoreComponent1(c1);
+            transcript.setScoreComponent2(c2);
+            transcript.setScoreComponent3(c3);
+            transcript.setGrade(grade);
 
             transcriptsService.saveOrUpdateTranscript(transcript);
             saved++;
         }
 
         if (!errors.isEmpty()) {
-            ra.addFlashAttribute("errorMessage", "Saved " + saved + ". Errors: " + String.join("; ", errors));
+            ra.addFlashAttribute("errorMessage", "Saved " + saved + " records. Errors: " + String.join("; ", errors));
         } else if (saved > 0) {
             ra.addFlashAttribute("successMessage", "Saved scores for " + saved + " students.");
         } else {
-            ra.addFlashAttribute("warningMessage", "No data saved.");
+            ra.addFlashAttribute("warningMessage", "No data was saved.");
         }
 
-        return "redirect:/staff-home/specialized-classes-list/enter-transcript";
+        return "redirect:/staff-home/specialized-classes-list/enter-transcript?classId=" + classId;
     }
 
-    private boolean allEmpty(String... v) {
-        return Arrays.stream(v).allMatch(s -> s == null || s.trim().isEmpty());
+    private boolean isEmpty(String s) { return s == null || s.trim().isEmpty(); }
+    private Double parseDouble(String val, String field, String sid, List<String> err) {
+        if (isEmpty(val)) return null;
+        try { return Double.parseDouble(val); }
+        catch (NumberFormatException e) { err.add(field + " of " + sid + " is not a number"); return null; }
     }
-
-    private Double parse(String v, String field, String id, List<String> e) {
-        if (v == null || v.trim().isEmpty()) return null;
-        try { return Double.parseDouble(v); }
-        catch (NumberFormatException ex) { e.add(field + " of " + id + " invalid"); return null; }
-    }
-
-    private boolean valid(Double d) {
-        return d != null && d >= 0 && d <= 10;
-    }
+    private boolean valid(Double d) { return d != null && d >= 0 && d <= 10; }
 }

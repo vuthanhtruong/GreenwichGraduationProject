@@ -17,18 +17,14 @@ public interface AcademicTranscriptsDAO {
     List<MajorAcademicTranscripts> getTranscriptsByClass(MajorClasses majorClass);
     MajorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MajorClasses majorClass, Staffs creator);
     void saveOrUpdateTranscript(MajorAcademicTranscripts transcript);
-
-    // === SPECIALIZED ===
     List<SpecializedAcademicTranscripts> getTranscriptsByClass(SpecializedClasses specializedClass);
     SpecializedAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, SpecializedClasses specializedClass, Staffs creator);
     void saveOrUpdateTranscript(SpecializedAcademicTranscripts transcript);
-
-    // === MINOR ===
     List<MinorAcademicTranscripts> getTranscriptsByClass(MinorClasses minorClass);
     MinorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MinorClasses minorClass, DeputyStaffs creator);
     void saveOrUpdateTranscript(MinorAcademicTranscripts transcript);
-
-    // === CÁC PHƯƠNG THỨC CŨ ===
+    List<Students> getStudentsWithScoresByMajorClass(MajorClasses majorClass);
+    List<Students> getStudentsWithoutScoresByMajorClass(MajorClasses majorClass);
     List<MajorAcademicTranscripts> getMajorAcademicTranscripts(Students student);
     List<MinorAcademicTranscripts> getMinorAcademicTranscripts(Students student);
     List<SpecializedAcademicTranscripts> getSpecializedAcademicTranscripts(Students student);

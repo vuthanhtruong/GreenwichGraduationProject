@@ -29,8 +29,8 @@ public interface AcademicTranscriptsService {
     List<MinorAcademicTranscripts> getTranscriptsByClass(MinorClasses minorClass);
     MinorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MinorClasses minorClass, DeputyStaffs creator);
     void saveOrUpdateTranscript(MinorAcademicTranscripts transcript);
-
-    // === CÁC PHƯƠNG THỨC CŨ ===
+    List<Students> getStudentsWithScoresByMajorClass(MajorClasses majorClass);
+    List<Students> getStudentsWithoutScoresByMajorClass(MajorClasses majorClass);
     List<MajorAcademicTranscripts> getMajorAcademicTranscripts(Students student);
     List<MinorAcademicTranscripts> getMinorAcademicTranscripts(Students student);
     List<SpecializedAcademicTranscripts> getSpecializedAcademicTranscripts(Students student);

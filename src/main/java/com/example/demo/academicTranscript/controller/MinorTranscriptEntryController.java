@@ -1,13 +1,13 @@
 package com.example.demo.academicTranscript.controller;
 
-import com.example.demo.academicTranscript.model.MajorAcademicTranscripts;
+import com.example.demo.academicTranscript.model.MinorAcademicTranscripts;
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
-import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.staff.service.StaffsService;
+import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import com.example.demo.user.student.model.Students;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,34 +21,36 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/staff-home/classes-list")
-@PreAuthorize("hasRole('STAFF')")
-public class TranscriptEntryController {
+@RequestMapping("/deputy-staff-home/minor-classes-list")
+@PreAuthorize("hasRole('DEPUTY_STAFF')")
+public class MinorTranscriptEntryController {
 
-    private final MajorClassesService majorClassesService;
-    private final AcademicTranscriptsService academicTranscriptsService;
-    private final StaffsService staffsService;
-    private final StudentsMajorClassesService studentsMajorClassesService;
+    private final MinorClassesService minorClassesService;
+    private final StudentsMinorClassesService studentsMinorClassesService;
+    private final AcademicTranscriptsService transcriptsService;
+    private final DeputyStaffsService deputyStaffsService;
 
-    public TranscriptEntryController(MajorClassesService majorClassesService,
-                                     AcademicTranscriptsService academicTranscriptsService,
-                                     StaffsService staffsService,
-                                     StudentsMajorClassesService studentsMajorClassesService) {
-        this.majorClassesService = majorClassesService;
-        this.academicTranscriptsService = academicTranscriptsService;
-        this.staffsService = staffsService;
-        this.studentsMajorClassesService = studentsMajorClassesService;
+    public MinorTranscriptEntryController(
+            MinorClassesService minorClassesService,
+            StudentsMinorClassesService studentsMinorClassesService,
+            AcademicTranscriptsService transcriptsService,
+            DeputyStaffsService deputyStaffsService) {
+        this.minorClassesService = minorClassesService;
+        this.studentsMinorClassesService = studentsMinorClassesService;
+        this.transcriptsService = transcriptsService;
+        this.deputyStaffsService = deputyStaffsService;
     }
 
+    // === LOAD TRANG ===
     @GetMapping("/enter-transcript")
     public String show(@RequestParam(value = "classId", required = false) String classId,
                        Model model, HttpSession session, RedirectAttributes ra) {
         if (classId == null || classId.isBlank()) {
-            classId = (String) session.getAttribute("currentClassId");
+            classId = (String) session.getAttribute("currentMinorClassId");
         }
         if (classId == null || classId.isBlank()) {
             ra.addFlashAttribute("errorMessage", "Class ID is required.");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
         return load(classId, model, ra, session);
     }
@@ -60,14 +62,14 @@ public class TranscriptEntryController {
     }
 
     private String load(String classId, Model model, RedirectAttributes ra, HttpSession session) {
-        MajorClasses clazz = majorClassesService.getClassById(classId);
+        MinorClasses clazz = minorClassesService.getClassById(classId);
         if (clazz == null) {
             ra.addFlashAttribute("errorMessage", "Class not found!");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        List<Students> allStudents = studentsMajorClassesService.getStudentsByClass(clazz);
-        List<MajorAcademicTranscripts> transcripts = academicTranscriptsService.getTranscriptsByClass(clazz);
+        List<Students> allStudents = studentsMinorClassesService.getStudentsByClass(clazz);
+        List<MinorAcademicTranscripts> transcripts = transcriptsService.getTranscriptsByClass(clazz);
 
         Set<String> studentIdsWithScores = transcripts.stream()
                 .map(t -> t.getStudent().getId())
@@ -93,32 +95,33 @@ public class TranscriptEntryController {
         model.addAttribute("studentsWithScores", studentsWithScores);
         model.addAttribute("studentsWithoutScores", studentsWithoutScores);
 
-        session.setAttribute("currentClassId", classId);
-        return "EnterTranscript";
+        session.setAttribute("currentMinorClassId", classId);
+        return "MinorEnterTranscript";
     }
 
+    // === LƯU ĐIỂM ===
     @PostMapping("/save-transcript")
     @Transactional
     public String save(@RequestParam("classId") String classId,
                        @RequestParam Map<String, String> allParams,
                        RedirectAttributes ra) {
 
-        MajorClasses clazz = majorClassesService.getClassById(classId);
+        MinorClasses clazz = minorClassesService.getClassById(classId);
         if (clazz == null) {
             ra.addFlashAttribute("errorMessage", "Class not found!");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        Staffs staff = staffsService.getStaff();
-        if (staff == null) {
-            ra.addFlashAttribute("errorMessage", "Staff not found!");
-            return "redirect:/staff-home/classes-list";
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null) {
+            ra.addFlashAttribute("errorMessage", "Deputy Staff not found!");
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        List<Students> allStudents = studentsMajorClassesService.getStudentsByClass(clazz);
+        List<Students> allStudents = studentsMinorClassesService.getStudentsByClass(clazz);
         if (allStudents.isEmpty()) {
             ra.addFlashAttribute("errorMessage", "No students to grade.");
-            return "redirect:/staff-home/classes-list/enter-transcript?classId=" + classId;
+            return "redirect:/deputy-staff-home/minor-classes-list/enter-transcript?classId=" + classId;
         }
 
         Map<String, Students> studentMap = new HashMap<>();
@@ -172,15 +175,15 @@ public class TranscriptEntryController {
 
             String transcriptId = classId + "_" + sid;
 
-            MajorAcademicTranscripts transcript = academicTranscriptsService
-                    .findOrCreateTranscript(transcriptId, student, clazz, staff);
+            MinorAcademicTranscripts transcript = transcriptsService
+                    .findOrCreateTranscript(transcriptId, student, clazz, deputy);
 
             transcript.setScoreComponent1(c1);
             transcript.setScoreComponent2(c2);
             transcript.setScoreComponent3(c3);
             transcript.setGrade(grade);
 
-            academicTranscriptsService.saveOrUpdateTranscript(transcript);
+            transcriptsService.saveOrUpdateTranscript(transcript);
             saved++;
         }
 
@@ -192,7 +195,7 @@ public class TranscriptEntryController {
             ra.addFlashAttribute("warningMessage", "No data was saved.");
         }
 
-        return "redirect:/staff-home/classes-list/enter-transcript?classId=" + classId;
+        return "redirect:/deputy-staff-home/minor-classes-list/enter-transcript?classId=" + classId;
     }
 
     private boolean isEmpty(String s) { return s == null || s.trim().isEmpty(); }

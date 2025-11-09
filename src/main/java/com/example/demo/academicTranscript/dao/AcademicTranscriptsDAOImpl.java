@@ -308,4 +308,37 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
             return new ArrayList<>();
         }
     }
+    // === THÊM 2 HÀM MỚI ===
+    @Override
+    public List<Students> getStudentsWithScoresByMajorClass(MajorClasses majorClass) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT DISTINCT t.student FROM MajorAcademicTranscripts t WHERE t.majorClass = :majorClass",
+                            Students.class)
+                    .setParameter("majorClass", majorClass)
+                    .getResultList();
+        } catch (Exception e) {
+            log.error("Error fetching students with scores for Major class ID: {}", majorClass.getClassId(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Students> getStudentsWithoutScoresByMajorClass(MajorClasses majorClass) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT s FROM Students_MajorClasses sc " +
+                                    "JOIN sc.student s " +
+                                    "WHERE sc.majorClass = :majorClass " +
+                                    "AND s.id NOT IN (" +
+                                    "  SELECT t.student.id FROM MajorAcademicTranscripts t WHERE t.majorClass = :majorClass" +
+                                    ")",
+                            Students.class)
+                    .setParameter("majorClass", majorClass)
+                    .getResultList();
+        } catch (Exception e) {
+            log.error("Error fetching students without scores for Major class ID: {}", majorClass.getClassId(), e);
+            return new ArrayList<>();
+        }
+    }
 }
