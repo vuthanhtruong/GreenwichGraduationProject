@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Plan - Subjects List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudyPlan.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
@@ -23,6 +23,7 @@
         <form method="post" th:action="@{/staff-home/study-plan/filter-subjects}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
+            <!-- Admission Year -->
             <select name="admissionYear" class="input small">
                 <option value="" th:selected="${admissionYear == null}">All Admission Years</option>
                 <option th:each="year : ${admissionYears}"
@@ -32,6 +33,7 @@
                 </option>
             </select>
 
+            <!-- Curriculum -->
             <select name="curriculumId" class="input small">
                 <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
                 <option th:each="curriculum : ${curriculums}"
@@ -58,10 +60,10 @@
         </div>
     </div>
 
-    <!-- Error Message (Flash Attribute) -->
+    <!-- Error Message -->
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-    <!-- Success Message (nếu cần) -->
+    <!-- Success Message -->
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
     <!-- Subjects Table -->
@@ -69,21 +71,21 @@
         <table class="win11-table">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Subject Name</th>
-                <th>Semester</th>
-                <th>Creator</th>
-                <th>Major</th>
-                <th>Action</th>
+                <th><i class="fas fa-id-card"></i> ID</th>
+                <th><i class="fas fa-book"></i> Subject Name</th>
+                <th><i class="fas fa-calendar"></i> Semester</th>
+                <th><i class="fas fa-user"></i> Creator</th>
+                <th><i class="fas fa-graduation-cap"></i> Major</th>
+                <th><i class="fas fa-cogs"></i> Action</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="subject : ${subjects}">
-                <td th:text="${subject.getSubjectId()}"></td>
+                <td th:text="${subject.subjectId}"></td>
                 <td th:text="${subject.subjectName}"></td>
-                <td th:text="${subject.semester ?: 'N/A'}"></td>
+                <td th:text="${subject.semester != null ? subject.semester : 'N/A'}"></td>
                 <td th:text="${subject.creator != null ? subject.creator.firstName + ' ' + subject.creator.lastName : 'N/A'}"></td>
-                <td th:text="${subject.major?.majorName ?: 'N/A'}"></td>
+                <td th:text="${subject.major != null ? subject.major.majorName : 'N/A'}"></td>
                 <td>
                     <form th:action="@{/staff-home/study-plan/assign-members}"
                           method="post" class="inline-form">
@@ -92,13 +94,15 @@
                         <input type="hidden" name="admissionYear" th:value="${admissionYear}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button type="submit" class="btn small primary">
-                            Assign Members
+                            <i class="fas fa-users"></i> Assign Members
                         </button>
                     </form>
                 </td>
             </tr>
             <tr th:if="${subjects == null or #lists.isEmpty(subjects)}">
-                <td colspan="6" class="text-center">No subjects available.</td>
+                <td colspan="6" class="text-center">
+                    <i class="fas fa-folder-open"></i> No subjects available for the selected criteria.
+                </td>
             </tr>
             </tbody>
         </table>

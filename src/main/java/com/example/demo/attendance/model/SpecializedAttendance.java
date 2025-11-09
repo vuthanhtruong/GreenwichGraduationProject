@@ -1,6 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.attendance.model;
 
-import com.example.demo.entity.AbstractClasses.Attendance;
+import com.example.demo.timtable.model.SpecializedTimetable;
 import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;

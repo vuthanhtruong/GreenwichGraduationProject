@@ -1,7 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.attendance.model;
 
-import com.example.demo.entity.AbstractClasses.Attendance;
-import com.example.demo.user.employe.model.MinorEmployes;
+import com.example.demo.timtable.model.MajorTimetable;
+import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.entity.Enums.AttendanceStatus;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
@@ -13,25 +13,25 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MinorAttendance")
+@Table(name = "MajorAttendance")
 @PrimaryKeyJoinColumn(name = "AttendanceID")
 @Getter
 @Setter
-public class MinorAttendance extends Attendance {
+public class MajorAttendance extends Attendance {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TimetableID", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorTimetable timetable;
+    private MajorTimetable timetable;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MarkedByID", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorEmployes markedBy;
+    private MajorEmployes markedBy;
 
-    public MinorAttendance() {}
+    public MajorAttendance() {}
 
-    public MinorAttendance(String attendanceId, Students student, MinorEmployes markedBy, MinorTimetable timetable, AttendanceStatus status, String note, LocalDateTime createdAt) {
+    public MajorAttendance(String attendanceId, Students student, MajorEmployes markedBy, MajorTimetable timetable, AttendanceStatus status, String note, LocalDateTime createdAt) {
         super.setAttendanceId(attendanceId);
         super.setStudent(student);
         this.markedBy = markedBy;

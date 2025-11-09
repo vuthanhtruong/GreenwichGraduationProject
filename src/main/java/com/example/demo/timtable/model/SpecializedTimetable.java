@@ -1,7 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.timtable.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
-import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.user.staff.model.Staffs;

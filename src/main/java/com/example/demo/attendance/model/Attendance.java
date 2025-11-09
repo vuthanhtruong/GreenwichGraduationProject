@@ -1,4 +1,4 @@
-package com.example.demo.entity.AbstractClasses;
+package com.example.demo.attendance.model;
 
 import com.example.demo.entity.Enums.AttendanceStatus;
 import com.example.demo.user.student.model.Students;

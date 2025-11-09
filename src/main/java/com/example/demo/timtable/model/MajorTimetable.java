@@ -1,9 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.timtable.model;
 
-import com.example.demo.classes.minorClasses.model.MinorClasses;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.room.model.Rooms;
-import com.example.demo.entity.AbstractClasses.Timetable;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,27 +13,27 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "MinorTimetable")
+@Table(name = "MajorTimetable")
 @PrimaryKeyJoinColumn(name = "TimetableID")
 @Getter
 @Setter
-public class MinorTimetable extends Timetable {
+public class MajorTimetable extends Timetable {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MinorClassID", nullable = false)
+    @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorClasses minorClass;
+    private MajorClasses classEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private DeputyStaffs creator;
+    private Staffs creator;
 
-    public MinorTimetable() {}
+    public MajorTimetable() {}
 
-    public MinorTimetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date, MinorClasses minorClass, DeputyStaffs creator) {
+    public MajorTimetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date, MajorClasses classEntity, Staffs creator) {
         super(timetableId, room, slot, dayOfTheWeek, date);
-        this.minorClass = minorClass;
+        this.classEntity = classEntity;
         this.creator = creator;
     }
 }
