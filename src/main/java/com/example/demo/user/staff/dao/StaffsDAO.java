@@ -32,4 +32,5 @@ public interface StaffsDAO {
     long countSearchResultsByCampus(String campusId, String searchType, String keyword);
     Campuses getCampusOfStaff();
     List<Staffs> colleagueBycampusId(String campusId);
+    List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId);
 }

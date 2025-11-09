@@ -1,7 +1,7 @@
 package com.example.demo.user.deputyStaff.controller;
 
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.staff.service.StaffsService;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +16,12 @@ import java.util.List;
 @RequestMapping("/deputy-staff-home/colleagues-list")
 public class DeputyColleaguesListController {
 
-    private final StaffsService staffsService;
+    private final DeputyStaffsService deputyStaffsService;
 
-    public DeputyColleaguesListController(StaffsService staffsService) {
-        this.staffsService = staffsService;
+    public DeputyColleaguesListController(DeputyStaffsService deputyStaffsService) {
+        this.deputyStaffsService = deputyStaffsService;
     }
 
-    /* ====================== LIST + SEARCH + PAGE SIZE ====================== */
     @GetMapping("")
     public String listColleagues(
             Model model,
@@ -38,22 +37,27 @@ public class DeputyColleaguesListController {
         pageSize = Math.min(pageSize, 100);
         session.setAttribute("dsColleaguePageSize", pageSize);
 
-        // --- LẤY TỪ SESSION (do POST) ---
+        // --- LẤY THÔNG TIN DEPUTY STAFF HIỆN TẠI ---
+        DeputyStaffs currentDeputy = deputyStaffsService.getDeputyStaff();
+        if (currentDeputy == null || currentDeputy.getCampus() == null) {
+            return "redirect:/login";
+        }
+        String campusId = currentDeputy.getCampus().getCampusId();
+
+        // --- TÌM KIẾM TỪ SESSION ---
         String keyword = (String) session.getAttribute("dsColleagueKeyword");
         String searchType = (String) session.getAttribute("dsColleagueSearchType");
 
-        String campusId = staffsService.getCampusOfStaff().getCampusId();
-
-        List<Staffs> colleagues;
+        List<DeputyStaffs> colleagues;
         long totalColleagues;
         int totalPages;
         int firstResult = (page - 1) * pageSize;
 
         if (keyword != null && !keyword.trim().isEmpty() && searchType != null) {
-            colleagues = staffsService.searchStaffsByCampus(campusId, searchType, keyword.trim(), firstResult, pageSize);
-            totalColleagues = staffsService.countSearchResultsByCampus(campusId, searchType, keyword.trim());
+            colleagues = deputyStaffsService.searchStaffsByCampus(campusId, searchType, keyword.trim(), firstResult, pageSize);
+            totalColleagues = deputyStaffsService.countSearchResultsByCampus(campusId, searchType, keyword.trim());
         } else {
-            List<Staffs> all = staffsService.colleagueBycampusId(campusId);
+            List<DeputyStaffs> all = deputyStaffsService.colleagueBycampusId(campusId);
             totalColleagues = all.size();
             int from = Math.min(firstResult, all.size());
             int to = Math.min(from + pageSize, all.size());
@@ -73,11 +77,11 @@ public class DeputyColleaguesListController {
         model.addAttribute("totalColleagues", totalColleagues);
         model.addAttribute("keyword", keyword);
         model.addAttribute("searchType", searchType);
+        model.addAttribute("currentDeputy", currentDeputy);
 
         return "DeputyColleaguesList";
     }
 
-    /* ====================== SEARCH (POST) ====================== */
     @PostMapping("/search")
     public String searchColleagues(
             @RequestParam String searchType,
@@ -93,7 +97,6 @@ public class DeputyColleaguesListController {
         return "redirect:/deputy-staff-home/colleagues-list";
     }
 
-    /* ====================== CLEAR SEARCH ====================== */
     @GetMapping("/clear-search")
     public String clearSearch(HttpSession session) {
         session.removeAttribute("dsColleagueKeyword");
@@ -102,7 +105,6 @@ public class DeputyColleaguesListController {
         return "redirect:/deputy-staff-home/colleagues-list";
     }
 
-    /* ====================== CHANGE PAGE SIZE ====================== */
     @PostMapping("/change-page-size")
     public String changePageSize(@RequestParam int pageSize, HttpSession session) {
         pageSize = Math.max(1, Math.min(pageSize, 100));
@@ -111,11 +113,10 @@ public class DeputyColleaguesListController {
         return "redirect:/deputy-staff-home/colleagues-list";
     }
 
-    /* ====================== AVATAR ====================== */
     @GetMapping("/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getStaffAvatar(@PathVariable String id) {
-        Staffs staff = staffsService.getStaffById(id);
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaffById(id);
         if (staff != null && staff.getAvatar() != null) {
             return ResponseEntity.ok()
                     .contentType(MediaType.IMAGE_JPEG)

@@ -35,6 +35,12 @@ import java.util.stream.Collectors;
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
     @Override
+    public List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId) {
+        return entityManager.createQuery("from Staffs s where s.campus.id=:campusId And s.majorManagement.majorId=:majorId", Staffs.class).setParameter("campusId", campusId).
+                setParameter("majorId", majorId).getResultList();
+    }
+
+    @Override
     public List<Staffs> colleagueBycampusId(String campusId) {
         return entityManager.createQuery("from Staffs s where s.campus.id=:campusId And s.id!=:id", Staffs.class).setParameter("campusId", campusId).
         setParameter("id", getStaff().getId()).getResultList();

@@ -10,7 +10,6 @@ import com.example.demo.user.person.service.PersonsService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +31,6 @@ public class MessagesController {
 
     @GetMapping
     public String showMessages(
-            @RequestParam(required = false) String partner,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             Model model,
@@ -43,26 +41,19 @@ public class MessagesController {
         // === 1. Danh sách người chat ===
         model.addAttribute("partners", messagesService.getConversationPartners(currentUserId));
 
-        // === 2. Xác định home URL ===
+        // === 2. Home URL ===
         model.addAttribute("home", getHomeUrl(personsService.getPerson()));
 
-        // === 3. Xử lý partner: param → session → null ===
-        String partnerId = partner;
-        if (partnerId == null || partnerId.isBlank()) {
-            partnerId = (String) session.getAttribute("selectedPartnerId");
-        }
+        // === 3. Lấy partner từ session (KHÔNG từ URL) ===
+        String partnerId = (String) session.getAttribute("selectedPartnerId");
 
         if (partnerId != null && !partnerId.isBlank()) {
             Persons partnerPerson = messagesService.getPersonById(partnerId);
             if (partnerPerson != null) {
-                // Lưu vào session
-                session.setAttribute("selectedPartnerId", partnerId);
-
                 model.addAttribute("selectedPartner", partnerPerson);
                 model.addAttribute("messages", messagesService.getMessagesWith(currentUserId, partnerId, page, size));
                 model.addAttribute("totalMessages", messagesService.countMessagesWith(currentUserId, partnerId));
             } else {
-                model.addAttribute("errorMessage", "User not found");
                 session.removeAttribute("selectedPartnerId");
             }
         }
@@ -74,21 +65,17 @@ public class MessagesController {
         return "MessagesPage";
     }
 
+    // === CHỌN PARTNER → POST → KHÔNG LỘ ID ===
     @PostMapping("/select-partner")
-    @ResponseBody
-    public Map<String, Object> selectPartner(@RequestParam String partnerId, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
+    public String selectPartner(@RequestParam String partnerId, HttpSession session) {
         Persons partner = messagesService.getPersonById(partnerId);
         if (partner != null) {
             session.setAttribute("selectedPartnerId", partnerId);
-            response.put("success", true);
-        } else {
-            response.put("success", false);
-            response.put("message", "User not found");
         }
-        return response;
+        return "redirect:/messages"; // → URL luôn là /messages
     }
 
+    // === GỬI TIN NHẮN ===
     @PostMapping("/send")
     @ResponseBody
     public Map<String, Object> sendMessage(@RequestParam String recipientId, @RequestParam String text, HttpSession session) {
@@ -104,7 +91,7 @@ public class MessagesController {
         return response;
     }
 
-    // === Helper: Home URL ===
+    // === HOME URL ===
     private String getHomeUrl(Persons person) {
         if (person instanceof Students) return "/student-home";
         if (person instanceof Staffs) return "/staff-home";

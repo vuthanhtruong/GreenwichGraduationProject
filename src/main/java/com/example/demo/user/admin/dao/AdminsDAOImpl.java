@@ -28,6 +28,10 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class AdminsDAOImpl implements AdminsDAO {
+    @Override
+    public List<Admins> yourManagerByCampusId(String campusId) {
+        return entityManager.createQuery("from Admins a where a.campus.campusId=:campusId", Admins.class).setParameter("campusId", campusId).getResultList();
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(AdminsDAOImpl.class);
 

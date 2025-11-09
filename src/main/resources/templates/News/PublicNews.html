@@ -2,137 +2,93 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Latest News</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/StudentsList.css}">
-    <style>
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .news-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        .news-card:hover { transform: translateY(-4px); }
-        .news-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background: #eee;
-        }
-        .news-content {
-            padding: 1rem;
-        }
-        .news-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0 0 0.5rem;
-            color: #1a1a1a;
-        }
-        .news-meta {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-        .news-excerpt {
-            font-size: 0.9rem;
-            color: #444;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .search-bar {
-            max-width: 500px;
-            margin: 0 auto 2rem;
-        }
-        .no-news {
-            text-align: center;
-            padding: 3rem;
-            color: #777;
-            font-size: 1.1rem;
-        }
-    </style>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/PublicNews.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Header -->
-    <div class="search-toolbar unified-bar" style="border-bottom: 1px solid #ddd;">
+    <!-- ==== Toolbar ==== -->
+    <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
             <a th:href="@{${home}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-            <h2 class="page-title"><i class="fas fa-newspaper"></i> Latest News</h2>
+            <h2 class="page-title">
+                <i class="fas fa-newspaper"></i> Latest News
+            </h2>
         </div>
     </div>
 
-    <!-- Search -->
-    <div class="search-bar">
+    <!-- ==== Search Bar ==== -->
+    <section class="win11-panel search-section">
         <form method="get" th:action="@{/check-news}">
             <div class="input-group">
-                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search news..." class="input" />
-                <button type="submit" class="btn primary"><i class="fas fa-search"></i></button>
-                <a th:if="${keyword}" th:href="@{/check-news}" class="btn danger"><i class="fas fa-times"></i></a>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search news..." class="input"/>
+                <div class="search-buttons">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a th:if="${keyword}" th:href="@{/check-news}" class="btn danger">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
             </div>
         </form>
-    </div>
+    </section>
 
-    <!-- News Grid -->
-    <div th:if="${newsList != null and !newsList.isEmpty()}" class="news-grid">
-        <div th:each="news : ${newsList}" class="news-card">
+    <!-- ==== News List ==== -->
+    <section class="win11-panel">
+        <h2 class="panel-header"><i class="fas fa-bullhorn"></i> Announcements</h2>
 
-            <div class="news-content">
-                <h3 class="news-title" th:text="${news.title}">Title</h3>
-                <div class="news-meta">
-                    <span th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">Staff</span>
-                    <span th:text="${#temporals.format(news.createdAt, 'dd MMM yyyy')}">Date</span>
+        <div th:if="${newsList != null and !newsList.isEmpty()}" class="news-grid">
+            <div th:each="news : ${newsList}" class="news-card">
+                <div class="news-content">
+                    <h3 class="news-title" th:text="${news.title}">Title</h3>
+                    <div class="news-meta">
+                        <span class="author" th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">Staff</span>
+                        <span class="date" th:text="${#temporals.format(news.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </div>
+                    <p class="news-excerpt" th:text="${news.content}">Content...</p>
+
+                    <a th:href="@{/check-news/detail(postId=${news.postId})}" class="btn small primary">
+                        <i class="fas fa-book-open"></i> Read More
+                    </a>
                 </div>
-                <p class="news-excerpt" th:text="${news.content}">Content...</p>
-
-                <!-- Hidden postId via query param -->
-                <a th:href="@{/check-news/detail(postId=${news.postId})}" class="btn small primary" style="margin-top:0.5rem;">
-                    Read More
-                </a>
             </div>
         </div>
-    </div>
 
-    <!-- No News -->
-    <div th:if="${newsList == null or newsList.isEmpty()}" class="no-news">
-        <i class="fas fa-newspaper fa-3x" style="color:#ccc;margin-bottom:1rem;"></i>
-        <p th:text="${message}">No news available.</p>
-    </div>
+        <div th:if="${newsList == null or newsList.isEmpty()}" class="no-data">
+            <i class="fas fa-newspaper fa-3x"></i>
+            <p th:text="${message}">No news available.</p>
+        </div>
 
-    <!-- Pagination -->
-    <div class="pagination" th:if="${totalPages > 1}">
-        <a th:href="@{/check-news(page=1, pageSize=${pageSize}, keyword=${keyword})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+        <!-- ==== Pagination ==== -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <a th:href="@{/check-news(page=1, pageSize=${pageSize}, keyword=${keyword})}"
+               th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
 
-        <a th:href="@{/check-news(page=${currentPage - 1}, pageSize=${pageSize}, keyword=${keyword})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+            <a th:href="@{/check-news(page=${currentPage - 1}, pageSize=${pageSize}, keyword=${keyword})}"
+               th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
 
-        <a th:each="i : ${#numbers.sequence(
-                            (currentPage > 2 ? currentPage - 2 : 1),
-                            (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
-                        )}"
-           th:href="@{/check-news(page=${i}, pageSize=${pageSize}, keyword=${keyword})}"
-           th:classappend="${i == currentPage} ? 'active'"
-           class="page-btn number" th:text="${i}">1</a>
+            <a th:each="i : ${#numbers.sequence(
+                    (currentPage > 2 ? currentPage - 2 : 1),
+                    (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+                )}"
+               th:href="@{/check-news(page=${i}, pageSize=${pageSize}, keyword=${keyword})}"
+               th:classappend="${i == currentPage} ? 'active'" class="page-btn number"
+               th:text="${i}">1</a>
 
-        <a th:href="@{/check-news(page=${currentPage + 1}, pageSize=${pageSize}, keyword=${keyword})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
+            <a th:href="@{/check-news(page=${currentPage + 1}, pageSize=${pageSize}, keyword=${keyword})}"
+               th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
 
-        <a th:href="@{/check-news(page=${totalPages}, pageSize=${pageSize}, keyword=${keyword})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
-    </div>
+            <a th:href="@{/check-news(page=${totalPages}, pageSize=${pageSize}, keyword=${keyword})}"
+               th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+        </div>
+    </section>
 </div>
 </body>
 </html>

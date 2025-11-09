@@ -14,6 +14,11 @@ import java.util.Map;
 @Service
 public class AdminsServiceImpl implements AdminsService {
     @Override
+    public List<Admins> yourManagerByCampusId(String campusId) {
+        return adminsDAO.yourManagerByCampusId(campusId);
+    }
+
+    @Override
     public List<Admins> getPaginatedAdmins(int firstResult, int pageSize) {
         return adminsDAO.getPaginatedAdmins(firstResult, pageSize);
     }

@@ -32,6 +32,96 @@ import java.util.stream.Collectors;
 @Transactional
 public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
     @Override
+    public List<DeputyStaffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty() || keyword == null || keyword.trim().isEmpty()) {
+                return List.of();
+            }
+
+            String queryString = "SELECT s FROM DeputyStaffs s WHERE s.campus.id = :campusId";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) nameCondition.append(" AND ");
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i)
+                            .append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(s.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<DeputyStaffs> query = entityManager.createQuery(queryString, DeputyStaffs.class)
+                    .setParameter("campusId", campusId)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error searching deputy staff by campus: {}", e.getMessage());
+            throw new RuntimeException("Error searching deputy staff by campus", e);
+        }
+    }
+
+    @Override
+    public long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty() || keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
+
+            String queryString = "SELECT COUNT(s) FROM DeputyStaffs s WHERE s.campus.id = :campusId";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) nameCondition.append(" AND ");
+                    nameCondition.append("(LOWER(s.firstName) LIKE :word").append(i)
+                            .append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(s.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            return query.getSingleResult();
+        } catch (Exception e) {
+            logger.error("Error counting deputy staff by campus: {}", e.getMessage());
+            throw new RuntimeException("Error counting deputy staff by campus", e);
+        }
+    }
+
+    @Override
     public List<DeputyStaffs> colleagueBycampusId(String campusId) {
         return entityManager.createQuery("from DeputyStaffs s where s.campus.id=:campusId And s.id!=:id", DeputyStaffs.class).setParameter("campusId", campusId).
                 setParameter("id", getDeputyStaff().getId()).getResultList();

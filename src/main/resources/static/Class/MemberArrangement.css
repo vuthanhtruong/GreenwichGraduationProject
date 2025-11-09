@@ -1,0 +1,121 @@
+/* ===== Base ===== */
+body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: #f3f3f3;
+    margin: 0;
+    color: #1a1a1a;
+    font-size: 16px;
+    line-height: 1.5;
+}
+.win11-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* ===== Toolbar ===== */
+.search-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.page-title {
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== Alerts ===== */
+.win11-alert {
+    background: #e0f2fe;
+    border-left: 5px solid #2563eb;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.win11-alert.success { background: #dcfce7; border-left-color: #22c55e; color: #166534; }
+.win11-alert.danger { background: #fee2e2; border-left-color: #dc2626; color: #991b1b; }
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: 0.2s ease;
+    text-decoration: none;
+}
+.btn:hover { background: #f0f6ff; border-color: #2563eb; color: #2563eb; }
+.btn.primary { background: #2563eb; color: white; border: none; }
+.btn.primary:hover { background: #1e4fd6; }
+.btn.danger { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+.btn.danger:hover { background: #fee2e2; }
+
+/* ===== Panels ===== */
+.win11-panel {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+}
+.panel-header {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+/* ===== Tables ===== */
+.table-container {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.win11-table th, .win11-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+.win11-table tr:hover { background: #f0f6ff; }
+.text-center, .center { text-align: center; }
+
+/* ===== Avatar ===== */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* ===== Form Actions ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}

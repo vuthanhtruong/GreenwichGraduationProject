@@ -2,58 +2,95 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Payment Histories — Win11</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Histories</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/PaymentHistories.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Title Bar -->
-    <header class="win11-title-bar">
-        <h1><i class="fas fa-receipt"></i> Payment Histories</h1>
-        <p class="subtitle">Your transaction records</p>
-    </header>
+    <!-- ==== Toolbar ==== -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-receipt"></i> Payment Histories
+            </h2>
+        </div>
 
-    <!-- Table Card -->
-    <section class="win11-card">
-        <div class="table-wrapper">
+        <div class="toolbar-right">
+            <div class="toolbar-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Your transaction records</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==== Alerts ==== -->
+    <div th:if="${errorMessage}" class="win11-alert danger">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+    <div th:if="${successMessage}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <!-- ==== Payment Histories Table ==== -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            <i class="fas fa-money-check-dollar"></i> Transaction Details
+        </h2>
+
+        <div class="table-container">
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th>Payment ID</th>
-                    <th>Subject</th>
-                    <th>Amount (USD)</th>
-                    <th>Payment Time</th>
-                    <th>Status</th>
-                    <th>Created At</th>
+                    <th><i class="fas fa-hashtag"></i> Payment ID</th>
+                    <th><i class="fas fa-book"></i> Subject</th>
+                    <th><i class="fas fa-dollar-sign"></i> Amount (USD)</th>
+                    <th><i class="fas fa-clock"></i> Payment Time</th>
+                    <th><i class="fas fa-info-circle"></i> Status</th>
+                    <th><i class="fas fa-calendar-day"></i> Created At</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="payment : ${PaymentHistories}">
-                    <td th:text="${payment.paymentHistoryId}">N/A</td>
+                    <td th:text="${payment.historyId}">N/A</td>
                     <td th:text="${payment.subject.subjectName}">N/A</td>
-                    <td th:text="${#numbers.formatDecimal(payment.accountBalance.balance, 1, 'COMMA', 2, 'POINT')}">N/A</td>
+                    <td th:text="${#numbers.formatDecimal(payment.accountBalance.balance, 1, 'COMMA', 2, 'POINT')}">0.00</td>
                     <td th:text="${#temporals.format(payment.paymentTime, 'yyyy-MM-dd HH:mm:ss')}">N/A</td>
                     <td>
-                        <span th:text="${payment.status}"
-                              th:classappend="${payment.status == 'SUCCESS'} ? 'status success'
-                                             : (${payment.status == 'PENDING'} ? 'status warning' : 'status danger')">
+                        <span class="status"
+                              th:text="${payment.status}"
+                              th:classappend="${payment.status == 'SUCCESS'} ? ' success'
+                                               : (${payment.status == 'PENDING'} ? ' warning' : ' danger')">
                             N/A
                         </span>
                     </td>
                     <td th:text="${#temporals.format(payment.createdAt, 'yyyy-MM-dd HH:mm:ss')}">N/A</td>
                 </tr>
+
                 <tr th:if="${PaymentHistories.isEmpty()}">
-                    <td colspan="6" class="no-data">No payment histories found.</td>
+                    <td colspan="6" class="text-center no-data">
+                        <i class="fas fa-inbox"></i> No payment histories found.
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <div class="actions">
-            <a th:href="@{/student-home}" class="btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+        <div class="form-actions center">
+            <a th:href="@{/student-home}" class="btn primary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
         </div>
     </section>
+
 </div>
 </body>
 </html>

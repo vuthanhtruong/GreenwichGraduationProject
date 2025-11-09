@@ -5,59 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${className} + ' - Members'">Class Members</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
-    <style>
-        /* CSS cho nút Message */
-        .btn-msg {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-        }
-
-        .btn-msg:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-msg:active {
-            transform: translateY(0);
-        }
-
-        .btn-msg i {
-            font-size: 14px;
-        }
-
-        .inline-form {
-            display: inline;
-            margin: 0;
-        }
-
-        .actions {
-            text-align: center;
-        }
-
-        /* Avatar styling */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e5e7eb;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/MemberInClassroom.css}">
 </head>
+
 <body>
 <div class="win11-container">
 
@@ -75,9 +25,11 @@
                 </button>
             </form>
         </div>
+
         <div class="toolbar-center">
-            <h2 th:text="${className}"></h2>
+            <h2><i class="fas fa-users"></i> <span th:text="${className}"></span></h2>
         </div>
+
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-user-graduate"></i>
@@ -95,13 +47,13 @@
         <table class="win11-table">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Avatar</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Gender</th>
-                <th>Actions</th>
+                <th><i class="fas fa-id-card"></i> ID</th>
+                <th><i class="fas fa-image"></i> Avatar</th>
+                <th><i class="fas fa-user"></i> Name</th>
+                <th><i class="fas fa-envelope"></i> Email</th>
+                <th><i class="fas fa-phone"></i> Phone</th>
+                <th><i class="fas fa-venus-mars"></i> Gender</th>
+                <th><i class="fas fa-comments"></i> Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -120,21 +72,13 @@
                 <td th:text="${person.phoneNumber} ?: '—'"></td>
                 <td th:text="${person.gender} ?: '—'"></td>
                 <td class="actions">
-                    <!-- ✅ OPTION 1: Dùng link trực tiếp (Recommended) -->
-                    <a th:href="@{/messages(partner=${person.id})}" class="btn-msg" title="Send message">
-                        <i class="fas fa-comment"></i> Message
-                    </a>
-
-                    <!-- ✅ OPTION 2: Dùng form POST (nếu bạn muốn) -->
-                    <!--
                     <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input type="hidden" name="partnerId" th:value="${person.id}" />
                         <button type="submit" class="btn-msg" title="Send message">
                             <i class="fas fa-comment"></i> Message
                         </button>
                     </form>
-                    -->
                 </td>
             </tr>
 

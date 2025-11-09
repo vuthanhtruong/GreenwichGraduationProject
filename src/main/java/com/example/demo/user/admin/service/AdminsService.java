@@ -25,4 +25,5 @@ public interface AdminsService {
     void addAdmin(Admins admin, String password);
     void editAdmin(Admins admin, MultipartFile avatarFile) throws java.io.IOException;
     void deleteAdmin(String id);
+    List<Admins> yourManagerByCampusId(String campusId);
 }

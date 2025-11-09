@@ -25,4 +25,5 @@ public interface AdminsDAO {
     void addAdmin(Admins admin, String rawPassword);
     void editAdmin(Admins admin, MultipartFile avatarFile) throws java.io.IOException;
     void deleteAdmin(String id);
+    List<Admins> yourManagerByCampusId(String campusId);
 }

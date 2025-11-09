@@ -5,26 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Taught Classes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/MajorLecturerClassesList.css}">
+    <!-- Dùng chung CSS -->
+    <link rel="stylesheet" th:href="@{/StudentClassesList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- ===== Unified Toolbar ===== -->
+    <!-- ===== Toolbar ===== -->
     <div class="search-toolbar unified-bar">
+        <!-- Left: Home + Title -->
         <div class="toolbar-left">
             <a th:href="@{/major-lecturer-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-        </div>
-
-        <div class="toolbar-center">
-            <h1 class="page-title">
+            <h2 class="page-title">
                 <i class="fas fa-person-chalkboard"></i> Your Taught Classes
-            </h1>
-            <p class="subtitle">View and access the classes you’re teaching this term</p>
+            </h2>
         </div>
 
+        <!-- Right: Total -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-layer-group"></i>
@@ -39,15 +38,15 @@
         <table class="win11-table">
             <thead>
             <tr>
-                <th>Class ID</th>
-                <th>Class Name</th>
-                <th>Subject</th>
-                <th>Subject Code</th>
-                <th>Session</th>
-                <th>Slots</th>
-                <th>Created Date</th>
-                <th>Actions</th>
-                <th>Syllabus</th>
+                <th><i class="fas fa-id-card"></i> Class ID</th>
+                <th><i class="fas fa-book"></i> Class Name</th>
+                <th><i class="fas fa-graduation-cap"></i> Subject</th>
+                <th><i class="fas fa-code"></i> Subject Code</th>
+                <th><i class="fas fa-clock"></i> Session</th>
+                <th><i class="fas fa-users"></i> Slot Quantity</th>
+                <th><i class="fas fa-calendar-alt"></i> Created Date</th>
+                <th><i class="fas fa-door-open"></i> Action</th>
+                <th><i class="fas fa-file-alt"></i> Syllabus</th>
             </tr>
             </thead>
             <tbody>
@@ -64,8 +63,8 @@
                     <form th:action="@{/classroom}" method="post" class="inline-form">
                         <input type="hidden" name="classId" th:value="${lc.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn small">
-                            <i class="fa-solid fa-door-open"></i> Access
+                        <button type="submit" class="btn primary small">
+                            <i class="fas fa-door-open"></i> Access
                         </button>
                     </form>
                 </td>
@@ -75,7 +74,7 @@
                         <input type="hidden" name="classId" th:value="${lc.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn secondary small">
-                            <i class="fa-solid fa-book-open"></i> Syllabus
+                            <i class="fas fa-file-alt"></i> View Syllabus
                         </button>
                     </form>
                 </td>
@@ -88,6 +87,7 @@
             </tbody>
         </table>
     </div>
+
     <!-- ===== Pagination ===== -->
     <div class="pagination" th:if="${totalClasses > 0}">
         <a th:href="@{/major-lecturer-home/classes-list(page=1, pageSize=${pageSize})}"
