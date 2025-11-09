@@ -1,5 +1,6 @@
 package com.example.demo.students_Classes.students_MinorClasses.model;
 
+import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
@@ -26,6 +27,11 @@ public class Students_MinorClasses extends Students_Classes {
     @JoinColumn(name = "AddedBy")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private DeputyStaffs addedBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ClassID", insertable = false, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private MinorClasses minorClass;
 
     public Students_MinorClasses() {}
 

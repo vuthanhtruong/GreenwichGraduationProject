@@ -24,9 +24,6 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // KHÔNG DÙNG staffsService ĐỂ LỌC CAMPUS → chỉ dùng để gán creator
-    // Nếu cần gán creator → nên dùng SecurityContext (không bắt buộc ở DAO)
-
     @Override
     public List<SpecializedClasses> getClassesByMajorAndCampus(Majors major, String campusId) {
         if (major == null || campusId == null || campusId.isBlank()) {
@@ -262,8 +259,7 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         try {
             return entityManager.createQuery(
                             "SELECT c FROM SpecializedClasses c " +
-                                    "JOIN FETCH c.creator JOIN FETCH c.specializedSubject s " +
-                                    "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId",
+                                    "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
                             SpecializedClasses.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)
@@ -282,8 +278,8 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
         try {
             Long count = entityManager.createQuery(
-                            "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s " +
-                                    "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId",
+                            "SELECT COUNT(c) FROM SpecializedClasses c " +
+                                    "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
                             Long.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)

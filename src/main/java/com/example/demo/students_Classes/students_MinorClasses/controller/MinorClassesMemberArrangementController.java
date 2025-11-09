@@ -1,5 +1,6 @@
 package com.example.demo.students_Classes.students_MinorClasses.controller;
 
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.retakeSubjects.model.RetakeSubjects;
 import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
@@ -44,6 +45,7 @@ public class MinorClassesMemberArrangementController {
     private final AccountBalancesService accountBalancesService;
     private final TuitionByYearService tuitionByYearService;
     private final StudentRequiredMinorSubjectsService requiredSubjectsService;
+    private final ClassesService abstractClassesService;
 
     @Autowired
     public MinorClassesMemberArrangementController(
@@ -55,7 +57,8 @@ public class MinorClassesMemberArrangementController {
             RetakeSubjectsService retakeSubjectsService,
             AccountBalancesService accountBalancesService,
             TuitionByYearService tuitionByYearService,
-            StudentRequiredMinorSubjectsService requiredSubjectsService) {
+            StudentRequiredMinorSubjectsService requiredSubjectsService,
+            ClassesService abstractClassesService) {
         this.studentsMinorClassesService = studentsMinorClassesService;
         this.minorClassesService = minorClassesService;
         this.lecturersClassesService = lecturersClassesService;
@@ -65,6 +68,7 @@ public class MinorClassesMemberArrangementController {
         this.accountBalancesService = accountBalancesService;
         this.tuitionByYearService = tuitionByYearService;
         this.requiredSubjectsService = requiredSubjectsService;
+        this.abstractClassesService = abstractClassesService;
     }
 
     @PostMapping("/member-arrangement")
@@ -90,51 +94,49 @@ public class MinorClassesMemberArrangementController {
 
         String subjectId = clazz.getMinorSubject().getSubjectId();
 
-        // === 1. LẤY TẤT CẢ SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY ===
-        List<StudentRequiredMinorSubjects> requiredList = requiredSubjectsService
-                .getStudentRequiredMinorSubjects(clazz.getMinorSubject());
+        // 1. Students in Class
+        List<Students_MinorClasses> studentsInClass = studentsMinorClassesService.getStudentsInClass(classId);
 
-        // === 2. Tất cả sinh viên được yêu cầu ===
-        List<Students> requiredStudents = requiredList.stream()
-                .map(StudentRequiredMinorSubjects::getStudent)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        // === 3. Sinh viên TRONG LỚP ===
-        List<Students_MinorClasses> studentsInClassEntity = studentsMinorClassesService.getStudentsInClass(classId);
-        Set<String> studentIdsInClass = studentsInClassEntity.stream()
-                .map(smc -> smc.getStudent().getId())
-                .collect(Collectors.toSet());
-
-        // === 4. Giảng viên ===
+        // 2. Lecturers
         List<MinorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(clazz);
         List<MinorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(clazz);
 
-        // === 5. Retake: chỉ từ sinh viên được yêu cầu + chưa trong lớp ===
-        List<Students> retakeCandidates = requiredStudents.stream()
-                .filter(s -> !studentIdsInClass.contains(s.getId()))
-                .collect(Collectors.toList());
+        // 3. Required students
+        List<StudentRequiredMinorSubjects> requiredList = requiredSubjectsService
+                .getStudentRequiredMinorSubjects(clazz.getMinorSubject());
 
+        List<Students> requiredStudents = requiredList.stream()
+                .map(StudentRequiredMinorSubjects::getStudent)
+                .filter(Objects::nonNull)
+                .filter(s -> studentsInClass.stream().noneMatch(smc -> smc.getStudent().getId().equals(s.getId())))
+                .toList();
+
+        // 4. Retake list
         List<RetakeSubjects> retakeList = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId);
-        List<Students> retakeStudents = retakeList.stream()
-                .map(RetakeSubjects::getStudent)
-                .filter(retakeCandidates::contains)
-                .collect(Collectors.toList());
 
-        List<Students> studentsWithEnoughMoney = retakeSubjectsService.getStudentsWithSufficientBalance(subjectId, retakeStudents);
-        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService.getStudentsWithInsufficientBalance(subjectId, retakeStudents);
+        // Loại bỏ SV trong retakeList khỏi requiredStudents
+        Set<String> retakeStudentIds = retakeList.stream()
+                .map(r -> r.getStudent().getId())
+                .collect(Collectors.toSet());
 
-        // === 6. Sinh viên đã nộp học phí học lại & chưa có lớp ===
-        List<Students> studentsFailedAndPaid = retakeStudents;
+        List<Students> filteredRequiredStudents = requiredStudents.stream()
+                .filter(s -> !retakeStudentIds.contains(s.getId()))
+                .toList();
+
+        // 5. Split by balance
+        List<Students> studentsWithEnoughMoney = retakeSubjectsService
+                .getStudentsWithSufficientBalance(subjectId, filteredRequiredStudents);
+
+        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService
+                .getStudentsWithInsufficientBalance(subjectId, filteredRequiredStudents);
 
         model.addAttribute("class", clazz);
-        model.addAttribute("studentsInClass", studentsInClassEntity);
+        model.addAttribute("studentsInClass", studentsInClass);
         model.addAttribute("lecturersInClass", lecturersInClass);
         model.addAttribute("lecturersNotInClass", lecturersNotInClass);
         model.addAttribute("studentsWithEnoughMoney", studentsWithEnoughMoney);
         model.addAttribute("studentsDoNotHaveEnoughMoney", studentsDoNotHaveEnoughMoney);
-        model.addAttribute("studentsFailedAndPaid", studentsFailedAndPaid);
-        model.addAttribute("retakeList", retakeList);
+        model.addAttribute("retakeList", retakeList); // DÙNG TRỰC TIẾP TRONG HTML
 
         return "MinorClassMemberArrangement";
     }
@@ -147,7 +149,6 @@ public class MinorClassesMemberArrangementController {
         model.addAttribute("lecturersNotInClass", new ArrayList<>());
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
         model.addAttribute("retakeList", new ArrayList<>());
         return "MinorClassMemberArrangement";
     }
@@ -229,7 +230,6 @@ public class MinorClassesMemberArrangementController {
             Students s = studentsService.getStudentById(sid);
             if (s == null) continue;
 
-            // Kiểm tra: sinh viên có trong StudentRequiredMinorSubjects không?
             if (!requiredSubjectsService.isStudentAlreadyRequiredForSubject(sid, subjectId)) {
                 errors.add(s.getFullName() + " is not required to take this subject");
                 continue;
@@ -251,19 +251,19 @@ public class MinorClassesMemberArrangementController {
                 continue;
             }
 
-            // Add to class
             Students_MinorClasses smc = new Students_MinorClasses();
             StudentsClassesId id = new StudentsClassesId();
             id.setStudentId(sid);
             id.setClassId(classId);
             smc.setId(id);
             smc.setStudent(s);
+            smc.setMinorClass(clazz);
+            smc.setClassEntity(abstractClassesService.findClassById(classId));
             smc.setAddedBy(staff);
             smc.setCreatedAt(LocalDateTime.now());
             studentsMinorClassesService.addStudentToClass(smc);
             added++;
 
-            // Deduct & log
             retakeSubjectsService.deductAndLogPayment(s, subjectId, fee);
         }
 
@@ -323,7 +323,7 @@ public class MinorClassesMemberArrangementController {
         }
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
+        model.addAttribute("retakeList", new ArrayList<>());
     }
 
     private Double getReStudyFee(String subjectId, Students student) {

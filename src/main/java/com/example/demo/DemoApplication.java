@@ -1,9 +1,12 @@
 package com.example.demo;
 
+import com.example.demo.accountBalance.model.AccountBalances;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.entity.Enums.*;
+import com.example.demo.financialHistory.depositHistory.model.DepositHistories;
+import com.example.demo.financialHistory.financialHistories.model.FinancialHistories;
 import com.example.demo.major.model.Majors;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
@@ -21,13 +24,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @SpringBootApplication
 public class DemoApplication {
 
     private static final String DEFAULT_PASSWORD = "Anhnam123";
+    private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0; // 1000 USD
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
@@ -58,6 +64,9 @@ public class DemoApplication {
             seedMajorSubjects(em);
             seedMinorSubjects(em);
             seedSpecializedSubjects(em);
+
+            // 5. Thêm 1000 USD cho mỗi học sinh + lịch sử nạp tiền
+            seedStudentBalancesAndDepositHistory(em);
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -389,7 +398,6 @@ public class DemoApplication {
             s.setStreet("89 Ninh Kiều");
             s.setPostalCode("900000");
 
-            // admissionYear từ 2025 trở lên
             s.setAdmissionYear(2025 + (i % 3)); // 2025, 2026, 2027
 
             s.setCreator(creator);
@@ -494,7 +502,44 @@ public class DemoApplication {
         }
     }
 
+    // ===================== THÊM 1000 USD CHO HỌC SINH =====================
+
+    private static void seedStudentBalancesAndDepositHistory(EntityManager em) {
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 10; i++) {
+            String studentId = "stu" + String.format("%03d", i + 1);
+            Students student = find(em, Students.class, "id", studentId);
+            if (student == null) continue;
+
+            // Kiểm tra nếu đã có AccountBalances
+            if (exists(em, AccountBalances.class, "studentId", studentId)) continue;
+
+            // 1. Tạo AccountBalances
+            AccountBalances balance = new AccountBalances();
+            balance.setStudentId(studentId);
+            balance.setStudent(student);
+            balance.setBalance(INITIAL_DEPOSIT_AMOUNT);
+            balance.setLastUpdated(now);
+            em.persist(balance);
+
+            // 2. Tạo DepositHistories
+            String historyId = "DEP_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            DepositHistories deposit = new DepositHistories();
+            deposit.setHistoryId(historyId);
+            deposit.setStudent(student);
+            deposit.setAccountBalance(balance);
+            deposit.setAmount(INITIAL_DEPOSIT_AMOUNT);
+            deposit.setDepositTime(now);
+            deposit.setCurrentAmount(BigDecimal.valueOf(INITIAL_DEPOSIT_AMOUNT));
+            deposit.setCreatedAt(now);
+            deposit.setStatus(Status.COMPLETED);
+            deposit.setDescription("Initial deposit of 1000 USD for new student account.");
+            em.persist(deposit);
+        }
+    }
+
     // ===================== AUTH & HELPER =====================
+
     private static void createAuth(EntityManager em, String personId, Persons person) {
         if (exists(em, Authenticators.class, "personId", personId)) return;
         Authenticators auth = new Authenticators();

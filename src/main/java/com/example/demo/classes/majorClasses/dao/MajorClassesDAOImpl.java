@@ -20,9 +20,6 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // KHÔNG CẦN StaffsService NỮA TRONG FILTER
-    // Chỉ dùng để gán creator khi addClass
-
     @Override
     public void SetNullWhenDeletingSubject(MajorSubjects subject) {
         entityManager.createQuery("UPDATE MajorClasses c SET c.subject = NULL WHERE c.subject = :subject")

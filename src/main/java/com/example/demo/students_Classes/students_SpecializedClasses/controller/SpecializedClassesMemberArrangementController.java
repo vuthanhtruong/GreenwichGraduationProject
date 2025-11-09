@@ -31,6 +31,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/staff-home/specialized-classes-list")
@@ -58,7 +60,8 @@ public class SpecializedClassesMemberArrangementController {
             ClassesService classesService,
             RetakeSubjectsService retakeSubjectsService,
             AccountBalancesService accountBalancesService,
-            TuitionByYearService tuitionByYearService, StudentRequiredSpecializedSubjectsService studentRequiredSpecializedSubjectsService) {
+            TuitionByYearService tuitionByYearService,
+            StudentRequiredSpecializedSubjectsService studentRequiredSpecializedSubjectsService) {
         this.studentsSpecializedClassesService = studentsSpecializedClassesService;
         this.specializedClassesService = specializedClassesService;
         this.lecturersClassesService = lecturersClassesService;
@@ -109,17 +112,32 @@ public class SpecializedClassesMemberArrangementController {
         // 4. & 5. Retake students → split by balance
         List<RetakeSubjects> retakeList = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId);
 
-        // === 1. LẤY DANH SÁCH SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY ===
+        // LẤY DANH SÁCH SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY
         List<StudentRequiredSpecializedSubjects> requiredList = studentRequiredSpecializedSubjectsService
                 .getStudentRequiredSpecializedSubjects(clazz.getSpecializedSubject(), null);
 
         List<Students> requiredStudents = requiredList.stream()
                 .map(StudentRequiredSpecializedSubjects::getStudent)
                 .filter(Objects::nonNull)
+                .filter(s -> studentsInClass.stream().noneMatch(ssc -> ssc.getStudent().getId().equals(s.getId())))
                 .toList();
 
-        List<Students> studentsWithEnoughMoney = retakeSubjectsService.getStudentsWithSufficientBalance(subjectId, requiredStudents);
-        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService.getStudentsWithInsufficientBalance(subjectId, requiredStudents);
+        // === LOẠI BỎ SV ĐÃ CÓ TRONG RETAKE LIST ===
+        Set<String> retakeStudentIds = retakeList.stream()
+                .map(r -> r.getStudent().getId())
+                .collect(Collectors.toSet());
+
+        List<Students> studentsWithEnoughMoney = retakeSubjectsService
+                .getStudentsWithSufficientBalance(subjectId, requiredStudents)
+                .stream()
+                .filter(s -> !retakeStudentIds.contains(s.getId()))
+                .toList();
+
+        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService
+                .getStudentsWithInsufficientBalance(subjectId, requiredStudents)
+                .stream()
+                .filter(s -> !retakeStudentIds.contains(s.getId()))
+                .toList();
 
         model.addAttribute("class", clazz);
         model.addAttribute("studentsInClass", studentsInClass);
@@ -127,7 +145,7 @@ public class SpecializedClassesMemberArrangementController {
         model.addAttribute("lecturersNotInClass", lecturersNotInClass);
         model.addAttribute("studentsWithEnoughMoney", studentsWithEnoughMoney);
         model.addAttribute("studentsDoNotHaveEnoughMoney", studentsDoNotHaveEnoughMoney);
-        model.addAttribute("retakeList", retakeList);
+        model.addAttribute("retakeList", retakeList); // DÙNG TRỰC TIẾP TRONG HTML
 
         return "SpecializedClassMemberArrangement";
     }
@@ -140,7 +158,6 @@ public class SpecializedClassesMemberArrangementController {
         model.addAttribute("lecturersNotInClass", new ArrayList<>());
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
         model.addAttribute("retakeList", new ArrayList<>());
         return "SpecializedClassMemberArrangement";
     }
@@ -312,7 +329,7 @@ public class SpecializedClassesMemberArrangementController {
         }
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
+        model.addAttribute("retakeList", new ArrayList<>());
     }
 
     private Double getReStudyFee(String subjectId, Students student) {

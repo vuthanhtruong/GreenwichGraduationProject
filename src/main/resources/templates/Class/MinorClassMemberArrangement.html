@@ -208,24 +208,24 @@
                 <table class="win11-table">
                     <thead><tr><th>Select</th><th>Avatar</th><th>ID</th><th>Name</th><th>Email</th></tr></thead>
                     <tbody>
-                    <tr th:each="s : ${studentsFailedAndPaid}">
-                        <td><input type="checkbox" name="studentIds" th:value="${s.id}"/></td>
+                    <tr th:each="r : ${retakeList}">
+                        <td><input type="checkbox" name="studentIds" th:value="${r.student.id}"/></td>
                         <td class="text-center">
-                            <img th:if="${s.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${s.id}}" class="avatar"/>
-                            <img th:unless="${s.avatargerà}" th:src="${s.defaultAvatarPath}" class="avatar"/>
+                            <img th:if="${r.student.avatar}" th:src="@{'/deputy-staff-home/students-list/avatar/' + ${r.student.id}}" class="avatar"/>
+                            <img th:unless="${r.student.avatar}" th:src="${r.student.defaultAvatarPath}" class="avatar"/>
                         </td>
-                        <td th:text="${s.id}"></td>
-                        <td th:text="${s.fullName}"></td>
-                        <td th:text="${s.email}"></td>
+                        <td th:text="${r.student.id}"></td>
+                        <td th:text="${r.student.fullName}"></td>
+                        <td th:text="${r.student.email}"></td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(studentsFailedAndPaid)}">
+                    <tr th:if="${#lists.isEmpty(retakeList)}">
                         <td colspan="5" class="text-center">No students in this list.</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsFailedAndPaid)}">
+                <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(retakeList)}">
                     Add Selected
                 </button>
             </div>

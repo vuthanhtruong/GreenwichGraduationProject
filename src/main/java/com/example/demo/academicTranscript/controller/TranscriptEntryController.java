@@ -39,7 +39,6 @@ public class TranscriptEntryController {
         this.staffsService = staffsService;
     }
 
-    // === 1. POST: Nhận classId từ form ẩn (không lộ URL) ===
     @PostMapping("/enter-transcript")
     public String loadTranscriptPage(@RequestParam("classId") String classId,
                                      Model model,
@@ -49,7 +48,6 @@ public class TranscriptEntryController {
         return loadTranscript(classId, model, ra, session);
     }
 
-    // === 2. GET: Dùng khi quay lại trang (có classId trong session) ===
     @GetMapping("/enter-transcript")
     public String showTranscriptPage(@RequestParam(value = "classId", required = false) String classId,
                                      Model model,
@@ -69,7 +67,6 @@ public class TranscriptEntryController {
         return loadTranscript(classId, model, ra, session);
     }
 
-    // === Helper: Tái sử dụng logic hiển thị trang ===
     private String loadTranscript(String classId, Model model, RedirectAttributes ra, HttpSession session) {
         MajorClasses clazz = majorClassesService.getClassById(classId);
         if (clazz == null) {
@@ -100,7 +97,6 @@ public class TranscriptEntryController {
         return "EnterTranscript";
     }
 
-    // === 3. POST: Lưu điểm (giữ nguyên) ===
     @PostMapping("/save-transcript")
     @Transactional
     public String saveTranscript(@RequestParam("classId") String classId,
@@ -180,7 +176,6 @@ public class TranscriptEntryController {
         return "redirect:/staff-home/classes-list/enter-transcript";
     }
 
-    // === Helper methods ===
     private boolean isEmpty(String s) { return s == null || s.trim().isEmpty(); }
     private Double parseDouble(String val, String field, String sid, List<String> err) {
         if (isEmpty(val)) return null;

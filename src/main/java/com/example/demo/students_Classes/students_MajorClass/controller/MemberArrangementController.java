@@ -1,5 +1,6 @@
 package com.example.demo.students_Classes.students_MajorClass.controller;
 
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.service.MajorLecturers_MajorClassesService;
@@ -25,10 +26,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/staff-home/classes-list")
 @PreAuthorize("hasRole('STAFF')")
@@ -42,6 +47,7 @@ public class MemberArrangementController {
     private final AccountBalancesService accountBalancesService;
     private final TuitionByYearService tuitionByYearService;
     private final StudentRequiredMajorSubjectsService studentRequiredMajorSubjectsService;
+    private final ClassesService abtractClassesService;
 
     @Autowired
     public MemberArrangementController(
@@ -52,7 +58,9 @@ public class MemberArrangementController {
             StudentsService studentsService,
             RetakeSubjectsService retakeSubjectsService,
             AccountBalancesService accountBalancesService,
-            TuitionByYearService tuitionByYearService, StudentRequiredMajorSubjectsService studentRequiredMajorSubjectsService) {
+            TuitionByYearService tuitionByYearService,
+            StudentRequiredMajorSubjectsService studentRequiredMajorSubjectsService,
+            ClassesService abtractClassesService) {
         this.studentsMajorClassesService = studentsMajorClassesService;
         this.classesService = classesService;
         this.lecturersClassesService = lecturersClassesService;
@@ -62,7 +70,9 @@ public class MemberArrangementController {
         this.accountBalancesService = accountBalancesService;
         this.tuitionByYearService = tuitionByYearService;
         this.studentRequiredMajorSubjectsService = studentRequiredMajorSubjectsService;
+        this.abtractClassesService = abtractClassesService;
     }
+
     @GetMapping("/member-arrangement")
     public String showMemberArrangement(Model model, HttpSession session) {
         String classId = (String) session.getAttribute("currentClassId");
@@ -73,24 +83,46 @@ public class MemberArrangementController {
         if (clazz == null) {
             return handleNoClassSelected(model);
         }
+
         // 1. Students in Class
         List<Students> studentsInClass = studentsMajorClassesService.getStudentsByClass(clazz);
+
         // 2. Lecturers in Class
         List<MajorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(clazz);
+
         // 3. Lecturers Not in Class
         List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(clazz);
+
         // 4. & 5. Retake students → split by balance
         String subjectId = clazz.getSubject().getSubjectId();
         List<RetakeSubjects> retakeList = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId);
-        // === 1. LẤY DANH SÁCH SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY ===
+
+        // LẤY DANH SÁCH SINH VIÊN ĐƯỢC YÊU CẦU HỌC MÔN NÀY
         List<StudentRequiredMajorSubjects> requiredList = studentRequiredMajorSubjectsService
                 .getStudentRequiredMajorSubjects(clazz.getSubject(), null);
         List<Students> requiredStudents = requiredList.stream()
                 .map(StudentRequiredMajorSubjects::getStudent)
                 .filter(Objects::nonNull)
+                .filter(s -> !studentsInClass.contains(s)) // Loại bỏ SV đã có lớp
                 .toList();
-        List<Students> studentsWithEnoughMoney = retakeSubjectsService.getStudentsWithSufficientBalance(subjectId, requiredStudents);
-        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService.getStudentsWithInsufficientBalance(subjectId, requiredStudents);
+
+        // === LOẠI BỎ SV ĐÃ CÓ TRONG RETAKE LIST ===
+        Set<String> retakeStudentIds = retakeList.stream()
+                .map(r -> r.getStudent().getId())
+                .collect(Collectors.toSet());
+
+        List<Students> studentsWithEnoughMoney = retakeSubjectsService
+                .getStudentsWithSufficientBalance(subjectId, requiredStudents)
+                .stream()
+                .filter(s -> !retakeStudentIds.contains(s.getId())) // Không hiện nếu đã ở retakeList
+                .toList();
+
+        List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService
+                .getStudentsWithInsufficientBalance(subjectId, requiredStudents)
+                .stream()
+                .filter(s -> !retakeStudentIds.contains(s.getId())) // Cũng loại ở đây
+                .toList();
+
         model.addAttribute("class", clazz);
         model.addAttribute("studentsInClass", studentsInClass);
         model.addAttribute("lecturersInClass", lecturersInClass);
@@ -100,6 +132,7 @@ public class MemberArrangementController {
         model.addAttribute("retakeList", retakeList);
         return "MemberArrangement";
     }
+
     private String handleNoClassSelected(Model model) {
         model.addAttribute("errorMessage", "No class selected");
         model.addAttribute("class", new MajorClasses());
@@ -108,10 +141,10 @@ public class MemberArrangementController {
         model.addAttribute("lecturersNotInClass", new ArrayList<>());
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
         model.addAttribute("retakeList", new ArrayList<>());
         return "MemberArrangement";
     }
+
     @PostMapping("/member-arrangement")
     public String selectClass(@RequestParam("classId") String classId,
                               HttpSession session,
@@ -123,6 +156,7 @@ public class MemberArrangementController {
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/classes-list/member-arrangement";
     }
+
     // ——— REMOVE STUDENT ———
     @PostMapping("/remove-student-from-class")
     public String removeStudent(@RequestParam("classId") String classId,
@@ -162,6 +196,7 @@ public class MemberArrangementController {
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/classes-list/member-arrangement";
     }
+
     // ——— ADD STUDENT (from enough money list) ———
     @PostMapping("/add-students-to-class")
     public String addStudent(@RequestParam("classId") String classId,
@@ -208,6 +243,7 @@ public class MemberArrangementController {
             smc.setId(new StudentsClassesId(classId, sid));
             smc.setStudent(s);
             smc.setMajorClass(clazz);
+            smc.setClassEntity(abtractClassesService.findClassById(clazz.getClassId()));
             smc.setAddedBy(staff);
             smc.setCreatedAt(LocalDateTime.now());
             studentsMajorClassesService.addStudentToClass(smc);
@@ -223,6 +259,7 @@ public class MemberArrangementController {
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/classes-list/member-arrangement";
     }
+
     // ——— ADD/REMOVE LECTURERS ———
     @PostMapping("/add-lecturers-to-class")
     public String addLecturers(@RequestParam("classId") String classId,
@@ -238,6 +275,7 @@ public class MemberArrangementController {
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/classes-list/member-arrangement";
     }
+
     @PostMapping("/remove-lecturer-from-class")
     public String removeLecturers(@RequestParam("classId") String classId,
                                   @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
@@ -252,6 +290,7 @@ public class MemberArrangementController {
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/classes-list/member-arrangement";
     }
+
     // ——— HELPERS ———
     private void populateError(Model model, MajorClasses clazz, List<String> errors) {
         model.addAttribute("errorMessage", String.join("; ", errors));
@@ -267,8 +306,9 @@ public class MemberArrangementController {
         }
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
-        model.addAttribute("studentsFailedAndPaid", new ArrayList<>());
+        model.addAttribute("retakeList", new ArrayList<>());
     }
+
     private Double getReStudyFee(String subjectId, Students student) {
         Integer year = student.getAdmissionYear();
         if (year == null || student.getCampus() == null) return null;

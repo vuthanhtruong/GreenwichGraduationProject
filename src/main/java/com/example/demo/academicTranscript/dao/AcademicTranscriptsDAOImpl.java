@@ -29,10 +29,6 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // =================================================================
-    // === MAJOR TRANSCRIPTS ===
-    // =================================================================
-
     @Override
     public List<MajorAcademicTranscripts> getTranscriptsByClass(MajorClasses majorClass) {
         try {
@@ -79,10 +75,6 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
             log.error("Error saving Major transcript ID: {}", transcript.getTranscriptId(), e);
         }
     }
-
-    // =================================================================
-    // === SPECIALIZED TRANSCRIPTS ===
-    // =================================================================
 
     @Override
     public List<SpecializedAcademicTranscripts> getTranscriptsByClass(SpecializedClasses specializedClass) {
@@ -131,10 +123,6 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
         }
     }
 
-    // =================================================================
-    // === MINOR TRANSCRIPTS (nếu cần sau này) ===
-    // =================================================================
-
     @Override
     public List<MinorAcademicTranscripts> getTranscriptsByClass(MinorClasses minorClass) {
         try {
@@ -179,10 +167,6 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
             log.error("Error saving Minor transcript ID: {}", transcript.getTranscriptId(), e);
         }
     }
-
-    // =================================================================
-    // === CÁC PHƯƠNG THỨC CŨ (giữ nguyên, đã có trong code bạn gửi) ===
-    // =================================================================
 
     @Override
     public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
