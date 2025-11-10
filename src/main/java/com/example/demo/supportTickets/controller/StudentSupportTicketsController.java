@@ -1,6 +1,7 @@
 // File: StudentSupportTicketsController.java
 package com.example.demo.supportTickets.controller;
 
+import com.example.demo.entity.Enums.Status;
 import com.example.demo.supportTickets.model.SupportTicketRequests;
 import com.example.demo.supportTickets.model.SupportTickets;
 import com.example.demo.supportTickets.service.SupportTicketRequestsService;
@@ -8,10 +9,6 @@ import com.example.demo.supportTickets.service.SupportTicketsService;
 import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -93,7 +90,7 @@ public class StudentSupportTicketsController {
         SupportTickets ticket = (SupportTickets) session.getAttribute("currentTicket");
         if (ticket == null) {
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            redirectAttributes.addFlashAttribute("alertMessage", "Không tìm thấy gói hỗ trợ!");
+            redirectAttributes.addFlashAttribute("alertMessage", "Support package not found!");
             return "redirect:/student-home/support-tickets";
         }
 
@@ -105,22 +102,30 @@ public class StudentSupportTicketsController {
 
         try {
             var student = studentsService.getStudentById(studentId);
-            if (student == null) throw new IllegalArgumentException("Sinh viên không tồn tại");
+            if (student == null) throw new IllegalArgumentException("Student not found");
 
             request.setRequester(student);
             request.setSupportTicketId(ticket.getSupportTicketId());
+            request.setStatus(Status.PROCESSING);
 
             requestService.createRequest(request, files);
             session.removeAttribute("currentTicket");
 
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
-            redirectAttributes.addFlashAttribute("alertMessage", "Yêu cầu đã được gửi thành công!");
+            redirectAttributes.addFlashAttribute("alertMessage",
+                    "Request submitted! Deducted " + String.format("%,.0f", ticket.getCost()) + " VNĐ.");
+
+        } catch (IllegalStateException e) {
+            // TRƯỜNG HỢP KHÔNG ĐỦ TIỀN → HIỂN THỊ CẢNH BÁO
+            redirectAttributes.addFlashAttribute("alertClass", "alert-warning");
+            redirectAttributes.addFlashAttribute("alertMessage", e.getMessage());
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
-            redirectAttributes.addFlashAttribute("alertMessage", "Lỗi: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("alertMessage", "Error: " + e.getMessage());
         }
 
-        return "redirect:/student-home/support-tickets/view/current";
+        return "redirect:/student-home/support-tickets";
     }
 
 }

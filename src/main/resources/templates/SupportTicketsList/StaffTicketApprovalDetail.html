@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff - Approval Detail</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}" />
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ==== Unified Toolbar ==== -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-file-circle-check"></i> Approval Detail
+            </h2>
+        </div>
+
+        <div class="toolbar-right">
+            <a th:href="@{/staff-home/ticket-approvals}" class="btn small secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+
+    <!-- ==== Request Information ==== -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-clipboard-list"></i> Request Detail</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-col">
+                    <p><strong><i class="fas fa-hashtag"></i> ID:</strong>
+                        <span th:text="${#strings.substring(request.requestId, 0, 8)}"></span></p>
+                    <p><strong><i class="fas fa-user-graduate"></i> Student:</strong>
+                        <span th:text="${request.requester.fullName}"></span></p>
+                    <p><strong><i class="fas fa-heading"></i> Title:</strong>
+                        <span th:text="${request.title}"></span></p>
+                    <p><strong><i class="fas fa-box-open"></i> Package:</strong>
+                        <span th:text="${ticket.ticketName}"></span></p>
+                    <p><strong><i class="fas fa-money-bill-wave"></i> Cost:</strong>
+                        <span th:text="'₫' + ${#numbers.formatDecimal(ticket.cost, 0, 0, 'COMMA')}"></span></p>
+                </div>
+
+                <div class="info-col">
+                    <p><strong><i class="fas fa-calendar-plus"></i> Created:</strong>
+                        <span th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                    <p><strong><i class="fas fa-circle-info"></i> Status:</strong>
+                        <span class="badge warning" th:text="${request.status}"></span></p>
+                </div>
+            </div>
+
+            <hr/>
+
+            <h4><i class="fas fa-align-left"></i> Description</h4>
+            <p th:text="${request.description}" class="preserve-lines"></p>
+
+            <hr/>
+
+            <h4><i class="fas fa-paperclip"></i> Attached Files
+                <small th:text="'(' + ${#lists.size(documents)} + ')'"></small>
+            </h4>
+
+            <div th:each="doc : ${documents}" class="file-item">
+                <form th:action="@{/staff-home/ticket-approvals/download}" method="post" style="display:inline;">
+                    <input type="hidden" name="documentId" th:value="${doc.documentId}"/>
+                    <button type="submit" class="btn small link">
+                        <i class="fas fa-file"></i>
+                        <span th:text="${doc.fileName}"></span>
+                    </button>
+                </form>
+                <small class="text-muted">
+                    — <span th:text="${#numbers.formatInteger(doc.fileSize, 0, 'DEFAULT')} + ' bytes'"></span>
+                </small>
+            </div>
+
+            <hr/>
+
+            <div class="action-buttons">
+                <form th:action="@{/staff-home/ticket-approvals/approve}" method="post" style="display:inline;">
+                    <input type="hidden" name="requestId" th:value="${request.requestId}"/>
+                    <button type="submit" class="btn success"
+                            onclick="return confirm('Approve this request?')">
+                        <i class="fas fa-check-circle"></i> Approve
+                    </button>
+                </form>
+
+                <form th:action="@{/staff-home/ticket-approvals/reject}" method="post" style="display:inline; margin-left: 10px;">
+                    <input type="hidden" name="requestId" th:value="${request.requestId}"/>
+                    <button type="submit" class="btn danger"
+                            onclick="return confirm('Reject and refund?')">
+                        <i class="fas fa-times-circle"></i> Reject & Refund
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

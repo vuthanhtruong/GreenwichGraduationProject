@@ -28,7 +28,7 @@ public class SupportTickets {
     private String description;
 
     @Column(name = "Cost", nullable = false)
-    private Double cost = 0.0; // KHỞI TẠO MẶC ĐỊNH
+    private Double cost;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID", nullable = true)

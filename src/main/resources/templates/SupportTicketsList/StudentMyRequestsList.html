@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student - My Support Requests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}" />
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ==== Unified Toolbar ==== -->
+    <div class="search-toolbar unified-bar">
+        <!-- LEFT -->
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-envelope-open-text"></i> My Support Requests
+            </h2>
+        </div>
+
+        <!-- CENTER: Search -->
+        <form method="get"
+              th:action="@{/student-home/support-tickets/my-requests}"
+              class="toolbar-center">
+            <input type="text" name="search" th:value="${search}"
+                   placeholder="Search by title or description..."
+                   class="input small" />
+            <button type="submit" class="btn small">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a th:if="${search != null and search != ''}"
+               th:href="@{/student-home/support-tickets/my-requests}"
+               class="btn small danger">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+
+        <!-- RIGHT: Summary -->
+        <div class="toolbar-right" th:if="${totalItems != null}">
+            <div class="total">
+                <i class="fas fa-list"></i>
+                <strong>Showing:</strong>
+                <span th:text="${#lists.size(requests)}"></span> /
+                <span th:text="${totalItems}"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==== Table ==== -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> ID</th>
+                <th><i class="fas fa-heading"></i> Title</th>
+                <th><i class="fas fa-box-open"></i> Package</th>
+                <th><i class="fas fa-circle-info"></i> Status</th>
+                <th><i class="fas fa-calendar-plus"></i> Created</th>
+                <th><i class="fas fa-gear"></i> Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="req : ${requests}">
+                <td th:text="${#strings.substring(req.requestId, 0, 8)}"></td>
+                <td th:text="${req.title}"></td>
+                <td th:text="${req.supportTicketId}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${req.status == 'APPROVED'} ? 'success' :
+                                          (${req.status == 'REJECTED'} ? 'danger' : 'warning')"
+                          th:text="${req.status}"></span>
+                </td>
+                <td th:text="${#temporals.format(req.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td>
+                    <a th:href="@{/student-home/support-tickets/my-requests/view/{id}(id=${req.requestId})}"
+                       class="btn small info">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(requests)}">
+                <td colspan="6" class="no-data">No requests found</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- ==== Smart Pagination ==== -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:href="@{/student-home/support-tickets/my-requests(page=1, size=${pageSize}, search=${search})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">First</a>
+
+        <a th:href="@{/student-home/support-tickets/my-requests(page=${currentPage - 1}, size=${pageSize}, search=${search})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">Prev</a>
+
+        <span th:if="${totalPages > 1}">
+            <a th:each="i : ${#numbers.sequence(
+                (currentPage - 2 > 1 ? currentPage - 2 : 1),
+                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+            )}"
+               th:if="${i >= 1 and i <= totalPages}"
+               th:href="@{/student-home/support-tickets/my-requests(page=${i}, size=${pageSize}, search=${search})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
+               th:text="${i}"></a>
+        </span>
+
+        <a th:href="@{/student-home/support-tickets/my-requests(page=${currentPage + 1}, size=${pageSize}, search=${search})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Next</a>
+
+        <a th:href="@{/student-home/support-tickets/my-requests(page=${totalPages}, size=${pageSize}, search=${search})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Last</a>
+
+        <!-- Go to Page -->
+        <form method="get" th:action="@{/student-home/support-tickets/my-requests}" class="page-select-form">
+            <label for="pageSelect">Go to page:</label>
+            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="size" th:value="${pageSize}" />
+            <input type="hidden" name="search" th:value="${search}" />
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

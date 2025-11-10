@@ -1,6 +1,7 @@
 // com.example.demo.SupportTickets.dao.SupportTicketsDAO.java
 package com.example.demo.supportTickets.dao;
 
+import com.example.demo.supportTickets.model.SupportTicketRequests;
 import com.example.demo.supportTickets.model.SupportTickets;
 import java.util.List;
 import java.util.Map;
@@ -18,4 +19,9 @@ public interface SupportTicketsDAO {
     String generateUniqueTicketId();
     long countTickets(String searchType, String keyword);
     List<SupportTickets> getAllTickets();
+    void updateRequest(SupportTicketRequests request);
+
+    List<SupportTicketRequests> getPaginatedPendingRequests(int offset, int size, String search);
+
+    long countPendingRequests(String search);
 }

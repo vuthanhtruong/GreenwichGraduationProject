@@ -1,62 +1,109 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Details</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student - Ticket Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/StudentSupportTicketDetail.css}">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}" />
 </head>
 <body>
 <div class="win11-container">
-    <div class="win11-panel">
-        <h2 class="panel-header" th:text="${ticket.ticketName}">Ticket Name</h2>
 
-        <div class="detail-grid">
-            <div><strong>ID:</strong> <span th:text="${ticket.supportTicketId}">TICKET001</span></div>
-            <div>
-                <strong>Cost:</strong>
-                <span th:text="${ticket.cost != null && ticket.cost > 0} ? '$' + ${ticket.cost} : 'Free'">Free</span>
-            </div>
-            <div><strong>Created At:</strong> <span th:text="${ticket.createdAt}">2025-11-10</span></div>
+    <!-- ==== Unified Toolbar ==== -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-ticket-alt"></i> Ticket Details
+            </h2>
         </div>
 
-        <div class="detail-section">
-            <strong>Description:</strong>
-            <p th:text="${ticket.description}">No description.</p>
+        <div class="toolbar-right">
+            <a th:href="@{/student-home/support-tickets}" class="btn small secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
         </div>
     </div>
 
-    <!-- Form Upload Nhiều File -->
-    <div class="win11-panel">
-        <h2>Request This Support</h2>
-        <form method="post" th:action="@{/student-home/support-tickets/request}"
-              th:object="${request}" class="form-grid" enctype="multipart/form-data">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <input type="hidden" name="studentId" th:value="${student.getId()}" />
 
-            <div class="form-row">
-                <label>Title:</label>
-                <input type="text" th:field="*{title}" required class="input" />
+    <!-- ==== Ticket Information ==== -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-clipboard-list"></i> Ticket Information</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-col">
+                    <p><strong><i class="fas fa-id-card"></i> ID:</strong>
+                        <span th:text="${ticket.supportTicketId}">TICKET001</span></p>
+
+                    <p><strong><i class="fas fa-money-bill-wave"></i> Cost:</strong>
+                        <span th:text="${ticket.cost != null && ticket.cost > 0} ? '₫' + ${#numbers.formatDecimal(ticket.cost, 0, 0, 'COMMA')} : 'Free'">Free</span>
+                    </p>
+
+                    <p><strong><i class="fas fa-calendar-plus"></i> Created At:</strong>
+                        <span th:text="${#temporals.format(ticket.createdAt, 'dd/MM/yyyy HH:mm')}">2025-11-10</span></p>
+                </div>
             </div>
 
-            <div class="form-row">
-                <label>Description:</label>
-                <textarea th:field="*{description}" rows="4" class="input"></textarea>
-            </div>
+            <hr/>
 
-            <div class="form-row">
-                <label>Attachments:</label>
-                <input type="file" name="files" multiple class="input" accept=".pdf,.doc,.docx,.jpg,.png" />
-                <small>Chọn nhiều file</small>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn primary">Submit Request</button>
-                <a th:href="@{/student-home/support-tickets}" class="btn secondary">Cancel</a>
-            </div>
-        </form>
+            <h4><i class="fas fa-align-left"></i> Description</h4>
+            <p th:text="${ticket.description}" class="preserve-lines">No description provided.</p>
+        </div>
     </div>
+
+
+    <!-- ==== Request Form ==== -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-paper-plane"></i> Request This Support</h3>
+        </div>
+
+        <div class="card-body">
+            <form method="post"
+                  th:action="@{/student-home/support-tickets/request}"
+                  th:object="${request}"
+                  class="form-grid"
+                  enctype="multipart/form-data">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="studentId" th:value="${student.getId()}" />
+                <input type="hidden" name="ticketId" th:value="${ticket.supportTicketId}" />
+
+                <div class="form-row">
+                    <label><i class="fas fa-heading"></i> Title:</label>
+                    <input type="text" th:field="*{title}" required class="input" placeholder="Enter a request title..." />
+                </div>
+
+                <div class="form-row">
+                    <label><i class="fas fa-align-left"></i> Description:</label>
+                    <textarea th:field="*{description}" rows="4" class="input" placeholder="Describe your issue or request..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label><i class="fas fa-paperclip"></i> Attachments:</label>
+                    <input type="file" name="files" multiple class="input"
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+                    <small>You can select multiple files</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn success">
+                        <i class="fas fa-check-circle"></i> Submit Request
+                    </button>
+                    <a th:href="@{/student-home/support-tickets}" class="btn danger">
+                        <i class="fas fa-times-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>

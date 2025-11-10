@@ -6,9 +6,10 @@
     <title>Your Colleagues</title>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Dùng chung CSS với LecturersList -->
+    <!-- Shared CSS -->
     <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
@@ -22,41 +23,56 @@
                 <i class="fas fa-home"></i> Home
             </a>
 
-            <h2 class="page-title"><i class="fas fa-handshake"></i> Your Colleagues</h2>
+            <h2 class="page-title">
+                <i class="fas fa-handshake"></i> Your Colleagues
+            </h2>
         </div>
 
-        <!-- Center: Search (POST) -->
+        <!-- Center: Search -->
         <form method="post" th:action="@{/staff-home/colleagues-list/search}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
             <select name="searchType" class="input small">
                 <option value="name" th:selected="${searchType == 'name'}">Name</option>
                 <option value="id" th:selected="${searchType == 'id'}">Staff ID</option>
             </select>
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input search-input" />
-            <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
+
+            <input type="text" name="keyword" th:value="${keyword}"
+                   placeholder="Search colleagues..." class="input small" />
+
+            <button type="submit" class="btn small">
+                <i class="fas fa-search"></i> Search
+            </button>
+
             <a th:if="${keyword != null and keyword != ''}"
-               th:href="@{/staff-home/colleagues-list/clear-search}" class="btn small danger">
-                <i class="fas fa-times"></i>
+               th:href="@{/staff-home/colleagues-list/clear-search}"
+               class="btn small danger">
+                <i class="fas fa-times"></i> Clear
             </a>
         </form>
 
-        <!-- Right: Show + Total -->
+        <!-- Right: Page Size + Total -->
         <div class="toolbar-right">
-            <form method="post" th:action="@{/staff-home/colleagues-list/change-page-size}" class="page-size-form">
+            <form method="post"
+                  th:action="@{/staff-home/colleagues-list/change-page-size}"
+                  class="page-size-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <label>Show:</label>
-                <input type="number" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small" />
+                <input type="number" name="pageSize" min="1" max="100"
+                       th:value="${pageSize}" class="input small" />
                 <button type="submit" class="btn small">Apply</button>
             </form>
 
             <div class="total">
                 <i class="fas fa-users"></i>
-                <span><strong>Total Colleagues:</strong> <span th:text="${totalColleagues}"></span></span>
+                <strong>Total Colleagues:</strong>
+                <span th:text="${totalColleagues}"></span>
             </div>
         </div>
     </div>
 
-    <!-- ===== Colleagues Table ===== -->
+
+    <!-- ===== Table ===== -->
     <div class="table-container">
         <table class="win11-table">
             <thead>
@@ -67,10 +83,13 @@
                 <th><i class="fas fa-envelope"></i> Email</th>
                 <th><i class="fas fa-phone"></i> Phone</th>
                 <th><i class="fas fa-graduation-cap"></i> Major</th>
+                <th><i class="fas fa-comments"></i> Actions</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="colleague : ${colleagues}">
+                <!-- Avatar -->
                 <td class="avatar-cell">
                     <img th:if="${colleague.avatar != null}"
                          th:src="@{'/staff-home/colleagues-list/avatar/' + ${colleague.id}}"
@@ -79,20 +98,34 @@
                          th:src="@{${colleague.getDefaultAvatarPath()}}"
                          class="avatar" th:alt="${colleague.fullName}" />
                 </td>
+
+                <!-- Info -->
                 <td th:text="${colleague.id}"></td>
                 <td><strong th:text="${colleague.fullName}"></strong></td>
                 <td th:text="${colleague.email != null ? colleague.email : 'N/A'}"></td>
-                <td th:text="${colleague.phoneNumber != null ? colleague.phoneNumber : '-'}"></td>
+                <td th:text="${colleague.phoneNumber != null ? colleague.phoneNumber : '—'}"></td>
                 <td th:text="${colleague.majorManagement != null ? colleague.majorManagement.getMajorName() : 'N/A'}"></td>
+
+                <!-- Message Action -->
+                <td class="actions">
+                    <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="partnerId" th:value="${colleague.id}" />
+                        <button type="submit" class="btn small primary">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </form>
+                </td>
             </tr>
 
             <!-- Empty State -->
             <tr th:if="${#lists.isEmpty(colleagues)}">
-                <td colspan="6" class="text-center empty-state">
+                <td colspan="7" class="no-data">
                     <i class="fas fa-users-slash fa-2x"></i>
                     <p>No colleagues found in your campus.</p>
                     <small th:if="${keyword != null and keyword != ''}">
-                        Try adjusting your search or <a th:href="@{/staff-home/colleagues-list/clear-search}">clear filters</a>.
+                        Try adjusting your search or
+                        <a th:href="@{/staff-home/colleagues-list/clear-search}">clear filters</a>.
                     </small>
                 </td>
             </tr>
@@ -100,8 +133,9 @@
         </table>
     </div>
 
+
     <!-- ===== Pagination ===== -->
-    <div class="pagination" th:if="${totalColleagues > 0}">
+    <div class="pagination" th:if="${totalPages > 1}">
         <!-- First -->
         <a th:href="@{/staff-home/colleagues-list(page=1, pageSize=${pageSize})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
@@ -110,7 +144,7 @@
         <a th:href="@{/staff-home/colleagues-list(page=${currentPage - 1}, pageSize=${pageSize})}"
            th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
 
-        <!-- Page numbers (giống LecturersList) -->
+        <!-- Dynamic Page Numbers -->
         <span th:if="${totalPages > 1}">
             <a th:if="${currentPage > 3}"
                th:href="@{/staff-home/colleagues-list(page=1, pageSize=${pageSize})}"

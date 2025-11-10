@@ -1,6 +1,8 @@
 // com.example.demo.SupportTickets.dao.SupportTicketsDAOImpl.java
 package com.example.demo.supportTickets.dao;
 
+import com.example.demo.entity.Enums.Status;
+import com.example.demo.supportTickets.model.SupportTicketRequests;
 import com.example.demo.supportTickets.model.SupportTickets;
 import com.example.demo.user.admin.service.AdminsService;
 import jakarta.persistence.EntityManager;
@@ -17,6 +19,51 @@ import java.util.Map;
 @Repository
 @Transactional
 public class SupportTicketsDAOImpl implements SupportTicketsDAO {
+    // File: SupportTicketRequestsDAOImpl.java
+    @Override
+    public void updateRequest(SupportTicketRequests request) {
+        entityManager.merge(request);
+    }
+
+    @Override
+    public List<SupportTicketRequests> getPaginatedPendingRequests(int offset, int size, String search) {
+        String jpql = """
+        SELECT r FROM SupportTicketRequests r 
+        JOIN FETCH r.requester 
+        LEFT JOIN FETCH r.handler 
+        LEFT JOIN FETCH r.documents 
+        WHERE r.status = :status
+        """;
+
+        if (search != null && !search.trim().isEmpty()) {
+            jpql += " AND (LOWER(r.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(r.description) LIKE LOWER(CONCAT('%', :search, '%')))";
+        }
+
+        jpql += " ORDER BY r.createdAt DESC";
+
+        var query = entityManager.createQuery(jpql, SupportTicketRequests.class);
+        query.setParameter("status", Status.PROCESSING);
+        if (search != null && !search.trim().isEmpty()) {
+            query.setParameter("search", search.trim());
+        }
+        return query.setFirstResult(offset).setMaxResults(size).getResultList();
+    }
+
+    @Override
+    public long countPendingRequests(String search) {
+        String jpql = "SELECT COUNT(r) FROM SupportTicketRequests r WHERE r.status = :status";
+
+        if (search != null && !search.trim().isEmpty()) {
+            jpql += " AND (LOWER(r.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(r.description) LIKE LOWER(CONCAT('%', :search, '%')))";
+        }
+
+        var query = entityManager.createQuery(jpql, Long.class);
+        query.setParameter("status", Status.PROCESSING);
+        if (search != null && !search.trim().isEmpty()) {
+            query.setParameter("search", search.trim());
+        }
+        return query.getSingleResult();
+    }
     @Override
     public List<SupportTickets> getAllTickets() {
         return entityManager.createQuery("from SupportTickets", SupportTickets.class).getResultList();

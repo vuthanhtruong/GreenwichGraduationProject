@@ -1,0 +1,241 @@
+/* =============================
+   ✅ Clean, Valid Win11 Style
+   ============================= */
+:root {
+    --brand: #2563eb;
+    --brand-dark: #1e40af;
+    --bg: #f3f4f6;
+    --card: rgba(255, 255, 255, 0.75);
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --radius: 14px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --blur: 18px;
+    --transition: 0.2s ease-in-out;
+}
+
+/* ===== Base ===== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card);
+    backdrop-filter: blur(var(--blur));
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ===== Title ===== */
+h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--brand-dark);
+    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+/* ===== Search Form ===== */
+input.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    background: #fff;
+    transition: border-color var(--transition);
+}
+
+input.form-control:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    outline: none;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: var(--text);
+    text-decoration: none;
+    transition: background var(--transition), border var(--transition), color var(--transition);
+}
+
+/* Avoid Bootstrap conflicts */
+.btn.w11 {
+    border-color: #d1d5db;
+}
+
+.btn.w11:hover {
+    background: #f0f6ff;
+    border-color: var(--brand);
+    color: var(--brand);
+}
+
+.btn.w11-primary {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.btn.w11-primary:hover {
+    background: var(--brand-dark);
+}
+
+.btn.w11-small {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+/* ===== Table ===== */
+.table-responsive {
+    margin-top: 20px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 15px;
+}
+
+.table th,
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+
+.table tbody tr:hover td {
+    background: #f0f6ff;
+}
+
+/* ===== Status Labels ===== */
+.status {
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status.approved {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ===== Pagination ===== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    gap: 6px;
+    margin-top: 24px;
+}
+
+.page-item {
+    border-radius: 8px;
+}
+
+.page-link {
+    display: block;
+    padding: 8px 14px;
+    background: #fff;
+    color: var(--text);
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.page-link:hover {
+    background: #f0f6ff;
+    color: var(--brand);
+}
+
+.page-item.active .page-link {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+
+.page-item.disabled .page-link {
+    background: #f9fafb;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+/* ===== Misc ===== */
+small {
+    color: var(--muted);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 18px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .page-link {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+}

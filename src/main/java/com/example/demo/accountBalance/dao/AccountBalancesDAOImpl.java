@@ -11,6 +11,18 @@ import java.time.LocalDateTime;
 @Repository
 @Transactional
 public class AccountBalancesDAOImpl implements AccountBalancesDAO {
+    // File: AccountBalancesServiceImpl.java
+    @Override
+    public boolean refundBalance(String studentId, double amount) {
+        AccountBalances account = findByStudentId(studentId);
+        if (account == null) return false;
+
+        account.setBalance(account.getBalance() + amount);
+        account.setLastUpdated(LocalDateTime.now());
+        entityManager.merge(account);
+        return true;
+    }
+
     @Override
     public void DepositMoneyIntoAccount(AccountBalances accountBalances) {
         entityManager.persist(accountBalances);

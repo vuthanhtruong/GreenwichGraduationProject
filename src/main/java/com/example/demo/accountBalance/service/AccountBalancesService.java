@@ -8,4 +8,5 @@ public interface AccountBalancesService {
     void DepositMoneyIntoAccount(AccountBalances accountBalances);
     boolean hasSufficientBalance(String studentId, double requiredAmount);
     boolean deductBalance(String studentId, double amount);
+    boolean refundBalance(String studentId, double amount);
 }

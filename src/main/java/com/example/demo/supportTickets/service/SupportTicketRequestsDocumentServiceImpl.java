@@ -15,6 +15,10 @@ import java.util.List;
 
 @Service
 public class SupportTicketRequestsDocumentServiceImpl implements SupportTicketRequestsDocumentService {
+    @Override
+    public SupportTicketRequestsDocument getDocumentById(String documentId) {
+        return documentDAO.getDocumentById(documentId);
+    }
 
     private final SupportTicketRequestsDocumentDAO documentDAO;
     private final SupportTicketRequestsDAO requestDAO;

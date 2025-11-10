@@ -46,7 +46,7 @@ public class SupportTicketRequests {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false, length = 50)
-    private Status status = Status.PROCESSING;
+    private Status status;
 
     @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;

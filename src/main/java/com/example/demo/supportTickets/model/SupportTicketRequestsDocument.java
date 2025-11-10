@@ -47,4 +47,7 @@ public class SupportTicketRequestsDocument {
         this.fileData = fileData;
         this.supportTicketRequest = request;
     }
+    // === THÊM GETTER NẾU LOMBOK KHÔNG HOẠT ĐỘNG ===
+    public String getFileName() { return fileName; }
+    public String getFileType() { return fileType; }
 }

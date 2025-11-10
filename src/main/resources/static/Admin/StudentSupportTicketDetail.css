@@ -1,0 +1,217 @@
+/* =============================
+   🎨 StudentSupportTicketDetail.css
+   ============================= */
+:root {
+    --brand: #2563eb;
+    --brand-dark: #1e40af;
+    --bg: #f3f4f6;
+    --card: rgba(255, 255, 255, 0.75);
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --radius: 14px;
+    --shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+    --blur: 18px;
+    --transition: all 0.25s ease-in-out;
+}
+
+/* ===== Base ===== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.win11-container {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===== Panels ===== */
+.win11-panel {
+    background: var(--card);
+    backdrop-filter: blur(var(--blur));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    transition: var(--transition);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.win11-panel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Panel Header ===== */
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    color: var(--brand-dark);
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-weight: 600;
+}
+
+/* ===== Detail Info ===== */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 20px;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.detail-grid strong {
+    color: var(--brand);
+}
+
+.detail-section {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.detail-section p {
+    margin: 8px 0 0;
+    color: var(--text);
+}
+
+/* ===== Form ===== */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.input,
+textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    transition: var(--transition);
+    resize: vertical;
+}
+
+.input:focus,
+textarea:focus {
+    border-color: var(--brand);
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+small {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: var(--text);
+    text-decoration: none;
+    transition: var(--transition);
+    min-height: 42px;
+}
+
+.btn:hover {
+    background: #f0f6ff;
+    color: var(--brand);
+    border-color: var(--brand);
+}
+
+.btn.primary {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.btn.primary:hover {
+    background: var(--brand-dark);
+}
+
+.btn.secondary {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+
+.btn.secondary:hover {
+    background: #dbeafe;
+    color: var(--brand-dark);
+}
+
+/* ===== Form Actions ===== */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* ===== Accessibility & Animation ===== */
+*:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+}
+
+* {
+    transition: var(--transition);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+    .win11-panel {
+        padding: 18px;
+    }
+
+    .panel-header {
+        font-size: 18px;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

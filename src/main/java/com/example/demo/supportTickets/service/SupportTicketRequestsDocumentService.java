@@ -10,4 +10,5 @@ public interface SupportTicketRequestsDocumentService {
     List<SupportTicketRequestsDocument> getDocumentsByRequestId(String requestId);
     ByteArrayResource downloadDocument(String documentId); // Trả về file từ DB
     void deleteDocument(String documentId);
+    SupportTicketRequestsDocument getDocumentById(String documentId);
 }
