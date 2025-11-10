@@ -125,17 +125,11 @@ public class AdminsDAOImpl implements AdminsDAO {
             case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
-
         if (!(person instanceof Admins admin)) {
             logger.warn("Authenticated user is not an admin");
             throw new IllegalStateException("Authenticated user is not an admin");
         }
-
         Admins adminEntity = entityManager.find(Admins.class, admin.getId());
-        if (adminEntity == null) {
-            logger.warn("Admin with ID {} not found in database", admin.getId());
-            throw new IllegalStateException("Admin not found");
-        }
         return adminEntity;
     }
 

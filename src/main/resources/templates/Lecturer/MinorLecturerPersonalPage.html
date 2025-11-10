@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Lecturer - Profile</title>
+    <link rel="stylesheet" th:href="@{/AdminPersonal.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .win11-title-bar h1 { color: #4a90e2; }
+        .avatar-img { border: 3px solid #4a90e2; }
+        .btn.primary { background: #4a90e2; }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Title Bar -->
+    <header class="win11-title-bar">
+        <h1>User Profile</h1>
+        <a th:href="@{/minor-lecturer-home}" class="btn"><i class="fas fa-home"></i> Home</a>
+    </header>
+
+    <!-- Content -->
+    <div class="win11-content">
+
+        <!-- Avatar -->
+        <section class="win11-panel text-center">
+            <h2 class="panel-header">Avatar</h2>
+            <div class="avatar-container">
+                <img th:if="${lecturer.avatar != null}"
+                     th:src="@{'/minor-lecturer-home/personal-page/avatar/' + ${lecturer.id}}"
+                     class="avatar-img" alt="Lecturer Avatar">
+
+                <img th:if="${lecturer.avatar == null and lecturer.gender == 'MALE'}"
+                     th:src="@{/DefaultAvatar/Lecturer_Male.png}"
+                     class="avatar-img" alt="Default Male Avatar">
+
+                <img th:if="${lecturer.avatar == null and lecturer.gender != 'MALE'}"
+                     th:src="@{/DefaultAvatar/Lecturer_Female.png}"
+                     class="avatar-img" alt="Default Female Avatar">
+            </div>
+        </section>
+
+        <!-- Personal Info -->
+        <section class="win11-panel">
+            <h2 class="panel-header">Personal Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label>First Name:</label>
+                    <input th:value="${lecturer.firstName}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Last Name:</label>
+                    <input th:value="${lecturer.lastName}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Email:</label>
+                    <input th:value="${lecturer.email}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Phone:</label>
+                    <input th:value="${lecturer.phoneNumber}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Birth Date:</label>
+                    <input th:value="${#temporals.format(lecturer.birthDate, 'dd MMM yyyy')}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Gender:</label>
+                    <input th:value="${lecturer.gender}" readonly class="input readonly">
+                </div>
+            </div>
+        </section>
+
+        <!-- Address -->
+        <section class="win11-panel">
+            <h2 class="panel-header">Address Information</h2>
+            <div class="form-group grid-2">
+                <div class="form-row">
+                    <label>Country:</label>
+                    <input th:value="${lecturer.country}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Province:</label>
+                    <input th:value="${lecturer.province}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>City:</label>
+                    <input th:value="${lecturer.city}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>District:</label>
+                    <input th:value="${lecturer.district}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Ward:</label>
+                    <input th:value="${lecturer.ward}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Street/House:</label>
+                    <input th:value="${lecturer.street}" readonly class="input readonly">
+                </div>
+                <div class="form-row">
+                    <label>Postal Code:</label>
+                    <input th:value="${lecturer.postalCode}" readonly class="input readonly">
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn primary" onclick="openChangePasswordModal()">
+                Change Password
+            </button>
+            <a th:href="@{/minor-lecturer-home}" class="btn danger">Back</a>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Close" onclick="closeChangePasswordModal()">x</button>
+        <h3 class="modal-title">Change Password</h3>
+        <form th:action="@{/minor-lecturer-home/personal-page/change-password}" method="post" class="modal-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <div class="form-row">
+                <label for="currentPassword">Current Password:</label>
+                <input id="currentPassword" name="currentPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('currentPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-row">
+                <label for="newPassword">New Password:</label>
+                <input id="newPassword" name="newPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('newPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-row">
+                <label for="confirmNewPassword">Confirm Password:</label>
+                <input id="confirmNewPassword" name="confirmNewPassword" type="password" required class="input">
+                <div class="text-danger" th:each="error : ${passwordErrors}"
+                     th:if="${error.contains('confirmNewPassword')}" th:text="${error}"></div>
+            </div>
+            <div class="form-actions modal-actions">
+                <button type="submit" class="btn primary">Save</button>
+                <button type="button" class="btn danger" onclick="closeChangePasswordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Script -->
+<script>
+    function openChangePasswordModal() {
+        const modal = document.getElementById('changePasswordModal');
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeChangePasswordModal() {
+        const modal = document.getElementById('changePasswordModal');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    window.addEventListener('click', e => {
+        const modal = document.getElementById('changePasswordModal');
+        if (modal && e.target === modal) closeChangePasswordModal();
+    });
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeChangePasswordModal();
+    });
+</script>
+</body>
+</html>

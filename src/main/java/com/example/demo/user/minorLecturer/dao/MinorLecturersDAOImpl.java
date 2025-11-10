@@ -31,6 +31,114 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class MinorLecturersDAOImpl implements MinorLecturersDAO {
+
+    @Override
+    public List<MinorLecturers> colleaguesByCampusId(String campusId) { // ĐÃ SỬA
+        return entityManager.createQuery(
+                        "FROM MinorLecturers s WHERE s.campus.id = :campusId AND s.id != :id",
+                        MinorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setParameter("id", getMinorLecturer().getId())
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorLecturers> searchMinorLecturersByCampus(
+            String campusId, String searchType, String keyword, int firstResult, int pageSize) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty() ||
+                    keyword == null || keyword.trim().isEmpty() ||
+                    pageSize <= 0 || firstResult < 0) {
+                return List.of();
+            }
+
+            String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.id = :campusId";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) nameCondition.append(" AND ");
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i)
+                            .append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return List.of();
+            }
+
+            TypedQuery<MinorLecturers> query = entityManager.createQuery(queryString, MinorLecturers.class)
+                    .setParameter("campusId", campusId)
+                    .setFirstResult(firstResult)
+                    .setMaxResults(pageSize);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            List<MinorLecturers> result = query.getResultList();
+            logger.info("Found {} minor lecturers in campus {} for search: {}", result.size(), campusId, keyword);
+            return result;
+        } catch (Exception e) {
+            logger.error("Error searching minor lecturers by campus: {}", e.getMessage(), e);
+            throw new RuntimeException("Error searching minor lecturers by campus", e);
+        }
+    }
+
+    @Override
+    public long countSearchMinorLecturersByCampus(String campusId, String searchType, String keyword) {
+        try {
+            if (campusId == null || campusId.trim().isEmpty() ||
+                    keyword == null || keyword.trim().isEmpty()) {
+                return 0L;
+            }
+
+            String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                keyword = keyword.toLowerCase().trim();
+                String[] words = keyword.split("\\s+");
+                StringBuilder nameCondition = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i > 0) nameCondition.append(" AND ");
+                    nameCondition.append("(LOWER(l.firstName) LIKE :word").append(i)
+                            .append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+                }
+                queryString += " AND (" + nameCondition + ")";
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                queryString += " AND LOWER(l.id) = LOWER(:keyword)";
+            } else {
+                return 0L;
+            }
+
+            TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class)
+                    .setParameter("campusId", campusId);
+
+            if ("name".equalsIgnoreCase(searchType)) {
+                String[] words = keyword.split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.setParameter("word" + i, "%" + words[i] + "%");
+                }
+            } else if ("id".equalsIgnoreCase(searchType)) {
+                query.setParameter("keyword", keyword.trim());
+            }
+
+            long count = query.getSingleResult();
+            logger.info("Counted {} minor lecturers in campus {} for search: {}", count, campusId, keyword);
+            return count;
+        } catch (Exception e) {
+            logger.error("Error counting minor lecturers by campus: {}", e.getMessage(), e);
+            throw new RuntimeException("Error counting minor lecturers by campus", e);
+        }
+    }
     @Override
     public List<MinorLecturers> colleagueBycampusId(String campusId) {
         return entityManager.createQuery("from MinorLecturers s where s.campus.id=:campusId And s.id!=:id", MinorLecturers.class).setParameter("campusId", campusId).

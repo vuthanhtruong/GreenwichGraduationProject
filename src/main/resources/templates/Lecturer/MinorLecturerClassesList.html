@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Taught Classes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Dùng chung CSS -->
+    <link rel="stylesheet" th:href="@{/StudentClassesList.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ===== Toolbar ===== -->
+    <div class="search-toolbar unified-bar">
+        <!-- Left: Home + Title -->
+        <div class="toolbar-left">
+            <a th:href="@{/minor-lecturer-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-person-chalkboard"></i> Your Taught Classes
+            </h2>
+        </div>
+
+        <!-- Right: Total -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-layer-group"></i>
+                <strong>Total Classes:</strong>
+                <span th:text="${totalClasses}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Classes Table ===== -->
+    <div class="table-container" th:if="${totalClasses > 0}">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> Class ID</th>
+                <th><i class="fas fa-book"></i> Class Name</th>
+                <th><i class="fas fa-graduation-cap"></i> Subject</th>
+                <th><i class="fas fa-code"></i> Subject Code</th>
+                <th><i class="fas fa-clock"></i> Session</th>
+                <th><i class="fas fa-users"></i> Slot Quantity</th>
+                <th><i class="fas fa-calendar-alt"></i> Created Date</th>
+                <th><i class="fas fa-door-open"></i> Action</th>
+                <th><i class="fas fa-file-alt"></i> Syllabus</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="lc : ${lecturerClasses}">
+                <td th:text="${lc.minorClass.classId}"></td>
+                <td th:text="${lc.minorClass.className}"></td>
+                <td th:text="${lc.minorClass.subjectName != null ? lc.minorClass.subjectName : 'N/A'}"></td>
+                <td th:text="${lc.minorClass.subjectCode != null ? lc.minorClass.subjectCode : '-'}"></td>
+                <td th:text="${lc.minorClass.session != null ? lc.minorClass.session : 'N/A'}"></td>
+                <td th:text="${lc.minorClass.slotQuantity != null ? lc.minorClass.slotQuantity : '-'}"></td>
+                <td th:text="${#temporals.format(lc.createdAt, 'dd MMM yyyy')}"></td>
+
+                <!-- Access Class -->
+                <td>
+                    <form th:action="@{/classroom}" method="post" class="inline-form">
+                        <input type="hidden" name="classId" th:value="${lc.minorClass.classId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn primary small">
+                            <i class="fas fa-door-open"></i> Access
+                        </button>
+                    </form>
+                </td>
+
+                <!-- View Syllabus -->
+                <td>
+                    <form th:action="@{/minor-lecturer-home/classes-list/syllabus}" method="get" class="inline-form">
+                        <input type="hidden" name="classId" th:value="${lc.minorClass.classId}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn secondary small">
+                            <i class="fas fa-file-alt"></i> View Syllabus
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== Empty State ===== -->
+    <div class="no-data" th:if="${totalClasses == 0}">
+        <i class="fas fa-chalkboard-teacher fa-3x"></i>
+        <p>No classes assigned yet.</p>
+        <a th:href="@{/minor-lecturer-home}" class="btn secondary">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <!-- ===== Pagination ===== -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:href="@{/minor-lecturer-home/classes-list(page=1, pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">
+            <i class="fas fa-angle-double-left"></i> First
+        </a>
+        <a th:href="@{/minor-lecturer-home/classes-list(page=${currentPage - 1}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">
+            <i class="fas fa-chevron-left"></i> Prev
+        </a>
+
+        <span th:if="${totalPages > 1}">
+            <a th:each="i : ${#numbers.sequence(
+                (currentPage - 2 > 1 ? currentPage - 2 : 1),
+                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+            )}"
+               th:if="${i >= 1 and i <= totalPages}"
+               th:href="@{/minor-lecturer-home/classes-list(page=${i}, pageSize=${pageSize})}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
+               th:text="${i}"></a>
+        </span>
+
+        <a th:href="@{/minor-lecturer-home/classes-list(page=${currentPage + 1}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        <a th:href="@{/minor-lecturer-home/classes-list(page=${totalPages}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">
+            Last <i class="fas fa-angle-double-right"></i>
+        </a>
+
+        <form method="get" th:action="@{/minor-lecturer-home/classes-list}" class="page-select-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label><i class="fas fa-location-arrow"></i> Go to page:</label>
+            <select name="page" class="input small" onchange="this.form.submit()">
+                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
+                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+            </select>
+            <input type="hidden" name="pageSize" th:value="${pageSize}" />
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

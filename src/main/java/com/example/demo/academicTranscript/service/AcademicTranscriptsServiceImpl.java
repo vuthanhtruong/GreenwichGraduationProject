@@ -50,12 +50,12 @@ public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsServic
 
     @Override
     public MinorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MinorClasses minorClass, DeputyStaffs creator) {
-        return null;
+        return academicTranscriptsDAO.findOrCreateTranscript(transcriptId, student, minorClass, creator);
     }
 
     @Override
     public void saveOrUpdateTranscript(MinorAcademicTranscripts transcript) {
-
+        academicTranscriptsDAO.saveOrUpdateTranscript(transcript);
     }
 
     @Override

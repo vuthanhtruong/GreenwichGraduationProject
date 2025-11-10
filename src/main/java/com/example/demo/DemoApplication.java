@@ -6,12 +6,14 @@ import com.example.demo.campus.model.Campuses;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.financialHistory.depositHistory.model.DepositHistories;
-import com.example.demo.financialHistory.financialHistories.model.FinancialHistories;
 import com.example.demo.major.model.Majors;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
+import com.example.demo.subject.abstractSubject.model.Subjects;
+import com.example.demo.tuitionByYear.model.TuitionByYear;
+import com.example.demo.tuitionByYear.model.TuitionByYearId;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
@@ -27,13 +29,16 @@ import org.springframework.context.ApplicationContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @SpringBootApplication
 public class DemoApplication {
 
     private static final String DEFAULT_PASSWORD = "Anhnam123";
-    private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0; // 1000 USD
+    private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0;
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
@@ -43,16 +48,9 @@ public class DemoApplication {
         try {
             em.getTransaction().begin();
 
-            // 1. Seed Campuses
             seedCampuses(em);
-
-            // 2. Seed admin001 (tự tạo, có campus + creator = chính nó)
             seedAdmin001(em);
-
-            // 3. Seed các admin còn lại
             seedRemainingAdmins(em);
-
-            // 4. Các seed khác
             seedMajors(em);
             seedSpecializations(em);
             seedCurriculums(em);
@@ -60,13 +58,12 @@ public class DemoApplication {
             seedDeputyStaffs(em);
             seedMajorLecturers(em);
             seedMinorLecturers(em);
-            seedStudents(em); // admissionYear từ 2025 trở lên
+            seedStudents(em);
             seedMajorSubjects(em);
             seedMinorSubjects(em);
             seedSpecializedSubjects(em);
-
-            // 5. Thêm 1000 USD cho mỗi học sinh + lịch sử nạp tiền
             seedStudentBalancesAndDepositHistory(em);
+            seedTuitionByYear(em); // GIÁ 10–20 USD
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -120,12 +117,11 @@ public class DemoApplication {
 
         Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
         admin.setCampus(campus);
-        admin.setCreator(admin); // tự tạo
+        admin.setCreator(admin);
 
         em.persist(admin);
         createAuth(em, id, admin);
 
-        // Cập nhật creator cho tất cả campus
         for (int i = 0; i < 10; i++) {
             Campuses c = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", i + 1));
             if (c != null && c.getCreator() == null) {
@@ -397,9 +393,7 @@ public class DemoApplication {
             s.setWard("Cái Khế");
             s.setStreet("89 Ninh Kiều");
             s.setPostalCode("900000");
-
-            s.setAdmissionYear(2025 + (i % 3)); // 2025, 2026, 2027
-
+            s.setAdmissionYear(2025 + (i % 3));
             s.setCreator(creator);
             s.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
             s.setSpecialization(find(em, Specialization.class, "specializationId", "SPEC_IT_SE"));
@@ -408,8 +402,6 @@ public class DemoApplication {
             createAuth(em, id, s);
         }
     }
-
-    // ===================== SUBJECTS SEED =====================
 
     private static void seedMajorSubjects(EntityManager em) {
         Staffs[] creators = new Staffs[10];
@@ -502,19 +494,13 @@ public class DemoApplication {
         }
     }
 
-    // ===================== THÊM 1000 USD CHO HỌC SINH =====================
-
     private static void seedStudentBalancesAndDepositHistory(EntityManager em) {
         LocalDateTime now = LocalDateTime.now();
         for (int i = 0; i < 10; i++) {
             String studentId = "stu" + String.format("%03d", i + 1);
             Students student = find(em, Students.class, "id", studentId);
-            if (student == null) continue;
+            if (student == null || exists(em, AccountBalances.class, "studentId", studentId)) continue;
 
-            // Kiểm tra nếu đã có AccountBalances
-            if (exists(em, AccountBalances.class, "studentId", studentId)) continue;
-
-            // 1. Tạo AccountBalances
             AccountBalances balance = new AccountBalances();
             balance.setStudentId(studentId);
             balance.setStudent(student);
@@ -522,7 +508,6 @@ public class DemoApplication {
             balance.setLastUpdated(now);
             em.persist(balance);
 
-            // 2. Tạo DepositHistories
             String historyId = "DEP_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
             DepositHistories deposit = new DepositHistories();
             deposit.setHistoryId(historyId);
@@ -538,7 +523,50 @@ public class DemoApplication {
         }
     }
 
-    // ===================== AUTH & HELPER =====================
+    // ===================== TUITION BY YEAR - GIÁ 10–20 USD =====================
+    private static void seedTuitionByYear(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        if (creator == null) throw new IllegalStateException("admin001 must exist!");
+
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
+        List<Subjects> subjects = new ArrayList<>();
+        subjects.addAll(em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList());
+        subjects.addAll(em.createQuery("SELECT s FROM MinorSubjects s", MinorSubjects.class).getResultList());
+        subjects.addAll(em.createQuery("SELECT s FROM SpecializedSubject s", SpecializedSubject.class).getResultList());
+
+        Integer[] years = {2025, 2026, 2027};
+        Random rand = new Random();
+
+        for (Subjects subject : subjects) {
+            for (Integer year : years) {
+                for (Campuses campus : campuses) {
+                    TuitionByYearId id = new TuitionByYearId(subject.getSubjectId(), year, campus.getCampusId());
+                    if (existsTuitionByYear(em, id)) continue;
+
+                    TuitionByYear t = new TuitionByYear();
+                    t.setId(id);
+                    t.setSubject(subject);
+                    t.setCampus(campus);
+                    t.setAdmissionYear(year);
+
+                    double base = 10 + (rand.nextDouble() * 10); // 10.00 – 19.99
+                    t.setTuition(roundTo2Decimals(base));
+                    t.setReStudyTuition(roundTo2Decimals(base * 0.7));
+
+                    t.setContractStatus(ContractStatus.ACTIVE);
+                    t.setCreator(creator);
+
+                    em.persist(t);
+                }
+            }
+        }
+    }
+
+    private static double roundTo2Decimals(double val) {
+        return Math.round(val * 100.0) / 100.0;
+    }
+
+    // ===================== HELPER METHODS =====================
 
     private static void createAuth(EntityManager em, String personId, Persons person) {
         if (exists(em, Authenticators.class, "personId", personId)) return;
@@ -549,10 +577,29 @@ public class DemoApplication {
         em.persist(auth);
     }
 
+    // exists() cho ID kiểu String
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
         try {
             String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
             em.createQuery(jpql, Integer.class).setParameter("id", idValue).getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    // exists() riêng cho TuitionByYearId
+    private static boolean existsTuitionByYear(EntityManager em, TuitionByYearId id) {
+        try {
+            String jpql = "SELECT 1 FROM TuitionByYear t WHERE " +
+                    "t.id.subjectId = :subjectId AND " +
+                    "t.id.admissionYear = :admissionYear AND " +
+                    "t.id.campusId = :campusId";
+            em.createQuery(jpql, Integer.class)
+                    .setParameter("subjectId", id.getSubjectId())
+                    .setParameter("admissionYear", id.getAdmissionYear())
+                    .setParameter("campusId", id.getCampusId())
+                    .getSingleResult();
             return true;
         } catch (NoResultException e) {
             return false;

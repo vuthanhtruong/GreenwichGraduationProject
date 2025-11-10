@@ -10,19 +10,20 @@
 <body>
 <div class="win11-container">
 
-    <!-- Toolbar -->
+    <!-- ===== Toolbar ===== -->
     <div class="search-toolbar unified-bar">
+        <!-- Left -->
         <div class="toolbar-left">
             <a th:href="@{/deputy-staff-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
             <h2 class="page-title">
-                <i class="fas fa-user-tie"></i>
-                Your Managers at <span th:text="${currentDeputy.campus?.campusName}"></span>
+                <i class="fas fa-user-tie"></i> Your Managers at
+                <span th:text="${currentDeputy.campus?.campusName}">Campus</span>
             </h2>
         </div>
 
-        <!-- Search -->
+        <!-- Center: Search -->
         <div class="toolbar-center">
             <form method="post" th:action="@{/deputy-staff-home/your-manager/search}" class="inline-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -31,7 +32,9 @@
                     <option value="id" th:selected="${searchType == 'id'}">ID</option>
                 </select>
                 <input type="text" name="keyword" th:value="${keyword}" placeholder="Search manager..." class="input search-input" />
-                <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
+                <button type="submit" class="btn small">
+                    <i class="fas fa-search"></i>
+                </button>
                 <a th:if="${keyword != null and keyword != ''}"
                    th:href="@{/deputy-staff-home/your-manager/clear-search}"
                    class="btn small danger">
@@ -44,19 +47,21 @@
         <div class="toolbar-right">
             <form method="post" th:action="@{/deputy-staff-home/your-manager/change-page-size}" class="inline-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <label>Show:</label>
+                <label><i class="fas fa-list-ol"></i> Show:</label>
                 <input type="number" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small" />
-                <button type="submit" class="btn small">Apply</button>
+                <button type="submit" class="btn small">
+                    <i class="fas fa-check"></i> Apply
+                </button>
             </form>
 
             <div class="total">
                 <i class="fas fa-user-tie"></i>
-                <span><strong>Total:</strong> <span th:text="${totalManagers}"></span></span>
+                <strong>Total:</strong> <span th:text="${totalManagers}">0</span>
             </div>
         </div>
     </div>
 
-    <!-- Table -->
+    <!-- ===== Table ===== -->
     <div class="table-container" th:if="${totalManagers > 0}">
         <table class="win11-table">
             <thead>
@@ -67,7 +72,7 @@
                 <th><i class="fas fa-envelope"></i> Email</th>
                 <th><i class="fas fa-phone"></i> Phone</th>
                 <th><i class="fas fa-building"></i> Campus</th>
-                <th><i class="fas fa-cogs"></i> Actions</th>
+                <th><i class="fas fa-comments"></i> Message</th>
             </tr>
             </thead>
             <tbody>
@@ -83,31 +88,41 @@
                 </td>
                 <td th:text="${manager.firstName + ' ' + manager.lastName}"></td>
                 <td><a th:href="'mailto:' + ${manager.email}" th:text="${manager.email}"></a></td>
-                <td th:text="${manager.phoneNumber}"></td>
-                <td th:text="${manager.campus?.campusName}"></td>
-                <td>
-                    <a th:href="'mailto:' + ${manager.email}" class="btn small primary">
-                        <i class="fas fa-envelope"></i> Contact
-                    </a>
+                <td th:text="${manager.phoneNumber ?: '—'}"></td>
+                <td th:text="${manager.campus?.campusName ?: '—'}"></td>
+                <td class="actions">
+                    <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="partnerId" th:value="${manager.id}" />
+                        <button type="submit" class="btn small primary">
+                            <i class="fas fa-paper-plane"></i> Message
+                        </button>
+                    </form>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Empty State -->
+    <!-- ===== Empty State ===== -->
     <div class="empty-state" th:if="${totalManagers == 0}">
         <i class="fas fa-user-slash fa-3x"></i>
         <p>No managers found at your campus.</p>
-        <a th:href="@{/deputy-staff-home}" class="btn">Back to Home</a>
+        <a th:href="@{/deputy-staff-home}" class="btn secondary">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
     </div>
 
-    <!-- Pagination -->
+    <!-- ===== Pagination ===== -->
     <div class="pagination" th:if="${totalPages > 1}">
         <a th:href="@{/deputy-staff-home/your-manager(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">
+            <i class="fas fa-angle-double-left"></i> First
+        </a>
         <a th:href="@{/deputy-staff-home/your-manager(page=${currentPage - 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">
+            <i class="fas fa-chevron-left"></i> Prev
+        </a>
 
         <span th:each="i : ${#numbers.sequence(
             (currentPage - 2 > 1 ? currentPage - 2 : 1),
@@ -119,9 +134,13 @@
         </span>
 
         <a th:href="@{/deputy-staff-home/your-manager(page=${currentPage + 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
         <a th:href="@{/deputy-staff-home/your-manager(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">
+            Last <i class="fas fa-angle-double-right"></i>
+        </a>
     </div>
 
 </div>

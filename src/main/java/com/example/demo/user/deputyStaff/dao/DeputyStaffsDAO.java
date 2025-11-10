@@ -31,4 +31,5 @@ public interface DeputyStaffsDAO {
     // Thêm vào DeputyStaffsDAO interface
     List<DeputyStaffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResultsByCampus(String campusId, String searchType, String keyword);
+    List<DeputyStaffs> getDeputyStaffsByCampus(String campusId);
 }

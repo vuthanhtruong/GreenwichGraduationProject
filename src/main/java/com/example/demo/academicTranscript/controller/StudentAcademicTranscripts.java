@@ -21,9 +21,9 @@ public class StudentAcademicTranscripts {
     @GetMapping("")
     public String getStudentAcademicTranscripts(Model model) {
         model.addAttribute("student", studentsService.getStudent());
-        model.addAttribute("SpecializedAcademicTranscripts", academicTranscriptsService.getSpecializedAcademicTranscripts(studentsService.getStudent()));
-        model.addAttribute("MajorAcademicTranscripts", academicTranscriptsService.getMajorAcademicTranscripts(studentsService.getStudent()));
-        model.addAttribute("MinorAcademicTranscripts", academicTranscriptsService.getMinorAcademicTranscripts(studentsService.getStudent()));
+        model.addAttribute("specializedAcademicTranscripts", academicTranscriptsService.getSpecializedAcademicTranscripts(studentsService.getStudent()));
+        model.addAttribute("majorAcademicTranscripts", academicTranscriptsService.getMajorAcademicTranscripts(studentsService.getStudent()));
+        model.addAttribute("minorAcademicTranscripts", academicTranscriptsService.getMinorAcademicTranscripts(studentsService.getStudent()));
         return "AcademicTranscript";
     }
 }

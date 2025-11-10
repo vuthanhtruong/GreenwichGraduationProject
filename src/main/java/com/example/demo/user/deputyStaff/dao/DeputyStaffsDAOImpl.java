@@ -131,6 +131,21 @@ public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
     public Campuses getCampus() {
         return getDeputyStaff().getCampus();
     }
+    @Override
+    public List<DeputyStaffs> getDeputyStaffsByCampus(String campusId) {
+        try {
+            TypedQuery<DeputyStaffs> query = entityManager.createQuery(
+                            "SELECT s FROM DeputyStaffs s WHERE s.campus.id = :campusId",
+                            DeputyStaffs.class)
+                    .setParameter("campusId", campusId);
+            List<DeputyStaffs> result = query.getResultList();
+            logger.info("Retrieved {} deputy staffs in campus {}", result.size(), campusId);
+            return result;
+        } catch (Exception e) {
+            logger.error("Error retrieving deputy staffs by campus: {}", e.getMessage(), e);
+            throw new RuntimeException("Error retrieving deputy staffs by campus", e);
+        }
+    }
 
     @Override
     public DeputyStaffs getDeputyStaff() {
@@ -146,9 +161,6 @@ public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
-        if (!(person instanceof DeputyStaffs)) {
-            throw new IllegalStateException("Authenticated user is not a student");
-        }
         return entityManager.find(DeputyStaffs.class, person.getId());
     }
 

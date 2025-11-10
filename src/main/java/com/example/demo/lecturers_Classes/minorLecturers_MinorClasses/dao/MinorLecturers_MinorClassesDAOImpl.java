@@ -97,7 +97,7 @@ public class MinorLecturers_MinorClassesDAOImpl implements MinorLecturers_MinorC
         try {
             return entityManager.createQuery(
                             "SELECT l FROM MinorLecturers l " +
-                                    "WHERE l.campus = :campus " +
+                                    "WHERE l.campus.campusId = :campus " +
                                     "AND l.id NOT IN (" +
                                     "    SELECT mlmc.lecturer.id FROM MinorLecturers_MinorClasses mlmc " +
                                     "    WHERE mlmc.minorClass = :minorClass" +

@@ -1,5 +1,7 @@
 package com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.controller;
 
+import com.example.demo.studentRequiredSubjects.studentRequiredMajorSubjects.model.StudentRequiredSubjectsId;
+import com.example.demo.subject.abstractSubject.service.SubjectsService;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
 import com.example.demo.studentRequiredSubjects.studentRequiredMinorSubjects.model.StudentRequiredMinorSubjects;
@@ -15,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -26,16 +29,18 @@ public class MinorAssignMembersController {
     private final StudentRequiredMinorSubjectsService minorRequiredService;
     private final DeputyStaffsService deputyStaffsService;
     private final StudentsService studentsService;
+    private final SubjectsService subjectsService;
 
     public MinorAssignMembersController(
             MinorSubjectsService minorSubjectsService,
             StudentRequiredMinorSubjectsService minorRequiredService,
             DeputyStaffsService deputyStaffsService,
-            StudentsService studentsService) {
+            StudentsService studentsService, SubjectsService subjectsService) {
         this.minorSubjectsService = minorSubjectsService;
         this.minorRequiredService = minorRequiredService;
         this.deputyStaffsService = deputyStaffsService;
         this.studentsService = studentsService;
+        this.subjectsService = subjectsService;
     }
 
     @GetMapping("/minor-study-plan/assign-members")
@@ -89,7 +94,10 @@ public class MinorAssignMembersController {
             if (student == null) continue;
 
             StudentRequiredMinorSubjects assignment = new StudentRequiredMinorSubjects();
+            assignment.setId(new StudentRequiredSubjectsId(studentId, subjectId));
             assignment.setStudent(student);
+            assignment.setCreatedAt(LocalDateTime.now());
+            assignment.setSubject(subjectsService.getSubjectById(subjectId));
             assignment.setMinorSubject(subject);
             assignment.setRequiredReason("Assigned by: " + staff.getFullName());
             assignment.setAssignedBy(staff);
