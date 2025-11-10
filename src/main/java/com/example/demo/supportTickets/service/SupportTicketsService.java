@@ -15,4 +15,7 @@ public interface SupportTicketsService {
     Map<String, String> validateTicket(SupportTickets ticket);
     List<SupportTickets> searchTickets(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
+    String generateUniqueTicketId();
+    long countTickets(String searchType, String keyword);
+    List<SupportTickets> getAllTickets();
 }

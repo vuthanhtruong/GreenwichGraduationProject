@@ -83,7 +83,7 @@
                          th:src="@{'/admin-home/colleagues-list/avatar/' + ${colleague.id}}"
                          class="avatar" />
                     <img th:if="${colleague.avatar == null}"
-                         th:src="@{/images/default-avatar.png}"
+                         th:src="@{${colleague.getDefaultAvatarPath()}}"
                          class="avatar" />
                 </td>
                 <td th:text="${colleague.firstName + ' ' + colleague.lastName}"></td>

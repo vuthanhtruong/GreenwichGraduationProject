@@ -72,6 +72,8 @@ public abstract class Persons implements PersonsInterface {
         return (fn + " " + ln).trim();
     }
 
+    public abstract String getDefaultAvatarPath();
+
     @Override
     public String getFullAddress() {
         StringBuilder sb = new StringBuilder();

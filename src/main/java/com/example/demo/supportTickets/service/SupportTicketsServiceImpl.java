@@ -10,6 +10,20 @@ import java.util.Map;
 
 @Service
 public class SupportTicketsServiceImpl implements SupportTicketsService {
+    @Override
+    public List<SupportTickets> getAllTickets() {
+        return dao.getAllTickets();
+    }
+
+    @Override
+    public String generateUniqueTicketId() {
+        return dao.generateUniqueTicketId();
+    }
+
+    @Override
+    public long countTickets(String searchType, String keyword) {
+        return dao.countTickets(searchType, keyword);
+    }
 
     private final SupportTicketsDAO dao;
 

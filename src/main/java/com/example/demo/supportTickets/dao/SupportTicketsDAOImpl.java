@@ -17,6 +17,10 @@ import java.util.Map;
 @Repository
 @Transactional
 public class SupportTicketsDAOImpl implements SupportTicketsDAO {
+    @Override
+    public List<SupportTickets> getAllTickets() {
+        return entityManager.createQuery("from SupportTickets", SupportTickets.class).getResultList();
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -146,6 +150,21 @@ public class SupportTicketsDAOImpl implements SupportTicketsDAO {
 
         var query = entityManager.createQuery(jpql, Long.class);
         params.forEach(query::setParameter);
+        return query.getSingleResult();
+    }
+    @Override
+    public long countTickets(String searchType, String keyword) {
+        String jpql = "SELECT COUNT(t) FROM SupportTickets t WHERE 1=1";
+        if ("id".equals(searchType) && keyword != null && !keyword.isBlank()) {
+            jpql += " AND t.supportTicketId = :keyword";
+        } else if ("name".equals(searchType) && keyword != null && !keyword.isBlank()) {
+            jpql += " AND LOWER(t.ticketName) LIKE LOWER(CONCAT('%', :keyword, '%'))";
+        }
+
+        var query = entityManager.createQuery(jpql, Long.class);
+        if (keyword != null && !keyword.isBlank()) {
+            query.setParameter("keyword", "id".equals(searchType) ? keyword : keyword);
+        }
         return query.getSingleResult();
     }
 

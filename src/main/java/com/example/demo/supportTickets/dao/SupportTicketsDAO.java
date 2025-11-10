@@ -16,4 +16,6 @@ public interface SupportTicketsDAO {
     List<SupportTickets> searchTickets(String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResults(String searchType, String keyword);
     String generateUniqueTicketId();
+    long countTickets(String searchType, String keyword);
+    List<SupportTickets> getAllTickets();
 }

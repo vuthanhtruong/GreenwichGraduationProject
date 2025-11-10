@@ -12,7 +12,7 @@
 <div class="win11-container">
 
     <!-- ==== Toolbar ==== -->
-    <div class="search-toolbar unified-bar">
+    <header class="unified-bar">
         <div class="toolbar-left">
             <a th:href="@{${home}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
@@ -21,13 +21,14 @@
                 <i class="fas fa-newspaper"></i> Latest News
             </h2>
         </div>
-    </div>
+    </header>
 
-    <!-- ==== Search Bar ==== -->
+    <!-- ==== Search Section ==== -->
     <section class="win11-panel search-section">
-        <form method="get" th:action="@{/check-news}">
+        <form method="get" th:action="@{/check-news}" class="search-form">
             <div class="input-group">
-                <input type="text" name="keyword" th:value="${keyword}" placeholder="Search news..." class="input"/>
+                <input type="text" name="keyword" th:value="${keyword}"
+                       placeholder="Search news..." class="input" />
                 <div class="search-buttons">
                     <button type="submit" class="btn primary">
                         <i class="fas fa-search"></i> Search
@@ -40,34 +41,39 @@
         </form>
     </section>
 
-    <!-- ==== News List ==== -->
+    <!-- ==== News Section ==== -->
     <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-bullhorn"></i> Announcements</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-bullhorn"></i> Announcements
+        </h2>
 
+        <!-- ==== News List ==== -->
         <div th:if="${newsList != null and !newsList.isEmpty()}" class="news-grid">
-            <div th:each="news : ${newsList}" class="news-card">
+            <article th:each="news : ${newsList}" class="news-card">
                 <div class="news-content">
                     <h3 class="news-title" th:text="${news.title}">Title</h3>
                     <div class="news-meta">
-                        <span class="author" th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">Staff</span>
-                        <span class="date" th:text="${#temporals.format(news.createdAt, 'dd MMM yyyy')}">Date</span>
+                        <span class="author"
+                              th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">Staff</span>
+                        <span class="date"
+                              th:text="${#temporals.format(news.createdAt, 'dd MMM yyyy')}">Date</span>
                     </div>
                     <p class="news-excerpt" th:text="${news.content}">Content...</p>
-
                     <a th:href="@{/check-news/detail(postId=${news.postId})}" class="btn small primary">
                         <i class="fas fa-book-open"></i> Read More
                     </a>
                 </div>
-            </div>
+            </article>
         </div>
 
+        <!-- ==== No Data ==== -->
         <div th:if="${newsList == null or newsList.isEmpty()}" class="no-data">
             <i class="fas fa-newspaper fa-3x"></i>
             <p th:text="${message}">No news available.</p>
         </div>
 
         <!-- ==== Pagination ==== -->
-        <div class="pagination" th:if="${totalPages > 1}">
+        <nav class="pagination" th:if="${totalPages > 1}">
             <a th:href="@{/check-news(page=1, pageSize=${pageSize}, keyword=${keyword})}"
                th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
 
@@ -79,7 +85,8 @@
                     (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
                 )}"
                th:href="@{/check-news(page=${i}, pageSize=${pageSize}, keyword=${keyword})}"
-               th:classappend="${i == currentPage} ? 'active'" class="page-btn number"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"
                th:text="${i}">1</a>
 
             <a th:href="@{/check-news(page=${currentPage + 1}, pageSize=${pageSize}, keyword=${keyword})}"
@@ -87,7 +94,7 @@
 
             <a th:href="@{/check-news(page=${totalPages}, pageSize=${pageSize}, keyword=${keyword})}"
                th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
-        </div>
+        </nav>
     </section>
 </div>
 </body>

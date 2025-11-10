@@ -78,7 +78,7 @@
                          th:src="@{'/deputy-staff-home/your-manager/avatar/' + ${manager.id}}"
                          class="avatar" />
                     <img th:if="${manager.avatar == null}"
-                         th:src="@{/images/default-avatar.jpg}"
+                         th:src="@{${manager.getDefaultAvatarPath()}}"
                          class="avatar" />
                 </td>
                 <td th:text="${manager.firstName + ' ' + manager.lastName}"></td>

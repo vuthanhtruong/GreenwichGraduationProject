@@ -76,7 +76,7 @@
                          th:src="@{'/major-lecturer-home/your-colleagues/avatar/' + ${c.id}}"
                          class="avatar" th:alt="${c.fullName}" />
                     <img th:if="${c.avatar == null}"
-                         th:src="@{${defaultAvatar}}"
+                         th:src="@{${c.getDefaultAvatarPath()}}"
                          class="avatar" th:alt="${c.fullName}" />
                 </td>
                 <td th:text="${c.id}"></td>

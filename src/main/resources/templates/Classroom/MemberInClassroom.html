@@ -4,46 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${className} + ' - Members'">Class Members</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/MemberInClassroom.css}">
 </head>
-
 <body>
+
 <div class="win11-container">
 
-    <!-- Toolbar -->
-    <div class="search-toolbar">
+    <!-- ==== Toolbar ==== -->
+    <header class="unified-bar">
+        <!-- Left: Navigation -->
         <div class="toolbar-left">
             <a th:href="@{${home}}" class="btn secondary">
                 <i class="fas fa-home"></i> Home
             </a>
+
             <form method="post" th:action="@{/classroom}" class="inline-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classId}" />
                 <button type="submit" class="btn secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Classroom
+                    <i class="fas fa-arrow-left"></i> Back
                 </button>
             </form>
         </div>
 
+        <!-- Center: Title -->
         <div class="toolbar-center">
-            <h2><i class="fas fa-users"></i> <span th:text="${className}"></span></h2>
+            <h2 class="page-title">
+                <i class="fas fa-users"></i>
+                <span th:text="${className}">Class Name</span>
+            </h2>
         </div>
 
+        <!-- Right: Totals -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-user-graduate"></i>
-                <p><strong>Students:</strong> <span th:text="${studentsCount}"></span></p>
+                <strong>Students:</strong>
+                <span th:text="${studentsCount}">0</span>
             </div>
             <div class="total">
                 <i class="fas fa-chalkboard-teacher"></i>
-                <p><strong>Lecturers:</strong> <span th:text="${lecturersCount}"></span></p>
+                <strong>Lecturers:</strong>
+                <span th:text="${lecturersCount}">0</span>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Members Table -->
-    <div class="table-container">
+    <!-- ==== Members Table ==== -->
+    <section class="table-container">
         <table class="win11-table">
             <thead>
             <tr>
@@ -56,41 +66,50 @@
                 <th><i class="fas fa-comments"></i> Actions</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="person : ${members}">
                 <td th:text="${person.id}"></td>
+
                 <td>
                     <img th:if="${person.avatar != null}"
                          th:src="@{'/persons/avatar/' + ${person.id}}"
-                         class="avatar" th:alt="${person.fullName}" />
+                         th:alt="${person.getFullName()}"
+                         class="avatar"
+                         onerror="this.src='${person.getDefaultAvatarPath()}'"/>
+
                     <img th:unless="${person.avatar != null}"
-                         th:src="@{/img/default-avatar.png}"
-                         class="avatar" th:alt="${person.fullName}" />
+                         th:src="${person.getDefaultAvatarPath()}"
+                         th:alt="${person.getFullName()}"
+                         class="avatar"/>
                 </td>
-                <td th:text="${person.fullName}"></td>
+
+                <td th:text="${person.getFullName()}"></td>
                 <td th:text="${person.email} ?: '—'"></td>
                 <td th:text="${person.phoneNumber} ?: '—'"></td>
                 <td th:text="${person.gender} ?: '—'"></td>
+
                 <td class="actions">
                     <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input type="hidden" name="partnerId" th:value="${person.id}" />
-                        <button type="submit" class="btn-msg" title="Send message">
+                        <button type="submit" class="btn small primary">
                             <i class="fas fa-comment"></i> Message
                         </button>
                     </form>
                 </td>
             </tr>
 
+            <!-- Empty State -->
             <tr th:if="${#lists.isEmpty(members)}">
-                <td colspan="7" style="text-align:center; color:#999; padding: 40px;">
-                    <i class="fas fa-users-slash" style="font-size: 2rem; display: block; margin-bottom: 12px;"></i>
-                    No members in this class.
+                <td colspan="7" class="empty-state">
+                    <i class="fas fa-users-slash fa-2x"></i>
+                    <p>No members found in this class.</p>
                 </td>
             </tr>
             </tbody>
         </table>
-    </div>
+    </section>
 
 </div>
 </body>

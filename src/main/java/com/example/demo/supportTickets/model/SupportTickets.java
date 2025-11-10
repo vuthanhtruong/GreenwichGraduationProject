@@ -8,6 +8,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "SupportTickets")
@@ -26,7 +28,7 @@ public class SupportTickets {
     private String description;
 
     @Column(name = "Cost", nullable = false)
-    private Double cost;
+    private Double cost = 0.0; // KHỞI TẠO MẶC ĐỊNH
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID", nullable = true)
@@ -35,6 +37,10 @@ public class SupportTickets {
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
+
+    // Trong SupportTickets.java
+    @OneToMany(mappedBy = "supportTicket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SupportTicketDocuments> documents = new ArrayList<>(); // THÊM DÒNG NÀY
 
     public SupportTickets() {
         this.createdAt = LocalDateTime.now();

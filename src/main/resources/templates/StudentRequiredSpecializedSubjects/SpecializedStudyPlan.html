@@ -25,16 +25,6 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="campusId" th:value="${campusId}">
 
-            <!-- Curriculum -->
-            <select name="curriculumId" class="input">
-                <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
-                <option th:each="curriculum : ${curriculums}"
-                        th:value="${curriculum.curriculumId}"
-                        th:text="${curriculum.name}"
-                        th:selected="${curriculumId == curriculum.curriculumId}">
-                </option>
-            </select>
-
             <!-- Admission Year -->
             <select name="admissionYear" class="input">
                 <option value="" th:selected="${admissionYear == null}">All Years</option>
@@ -42,6 +32,16 @@
                         th:value="${year}"
                         th:text="${year}"
                         th:selected="${year == admissionYear}">
+                </option>
+            </select>
+
+            <!-- Curriculum -->
+            <select name="curriculumId" class="input">
+                <option value="" th:selected="${curriculumId == null}">All Curriculums</option>
+                <option th:each="curriculum : ${curriculums}"
+                        th:value="${curriculum.curriculumId}"
+                        th:text="${curriculum.name}"
+                        th:selected="${curriculumId == curriculum.curriculumId}">
                 </option>
             </select>
 

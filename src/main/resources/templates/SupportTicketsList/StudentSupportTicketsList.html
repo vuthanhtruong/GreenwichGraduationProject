@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Tickets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- ==== Toolbar ==== -->
+    <header class="search-toolbar unified-bar">
+        <!-- Left: Home -->
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-life-ring"></i> Support Tickets
+            </h2>
+        </div>
+
+        <!-- Center: Search -->
+        <form method="get" th:action="@{/student-home/support-tickets}" class="toolbar-center">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="search-group">
+                <label>
+                    <i class="fas fa-filter"></i>
+                    <select name="searchType" class="input small">
+                        <option value="name" th:selected="${searchType == 'name'}">Name</option>
+                        <option value="id" th:selected="${searchType == 'id'}">ID</option>
+                    </select>
+                </label>
+                <label class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input search-input" />
+                </label>
+                <button type="submit" class="btn small">
+                    <i class="fas fa-magnifying-glass"></i> Search
+                </button>
+                <a th:if="${keyword != null and keyword != ''}" th:href="@{/student-home/support-tickets}" class="btn small danger">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+
+        <!-- Right: Total -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-ticket-alt"></i>
+                <strong>Total:</strong> <span th:text="${totalTickets}">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==== Alert ==== -->
+    <div th:if="${alertMessage}" th:class="'alert ' + ${alertClass}">
+        <i class="fas" th:classappend="${alertClass == 'success' ? ' fa-check-circle' : (alertClass == 'danger' ? ' fa-triangle-exclamation' : ' fa-info-circle')}"></i>
+        <span th:text="${alertMessage}"></span>
+    </div>
+
+    <!-- ==== Table ==== -->
+    <section class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> ID</th>
+                <th><i class="fas fa-ticket"></i> Ticket Name</th>
+                <th><i class="fas fa-align-left"></i> Description</th>
+                <th><i class="fas fa-dollar-sign"></i> Cost</th>
+                <th><i class="fas fa-user"></i> Created By</th>
+                <th><i class="fas fa-calendar-alt"></i> Created At</th>
+                <th><i class="fas fa-eye"></i> View</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="ticket : ${tickets}">
+                <td th:text="${ticket.supportTicketId}"></td>
+                <td th:text="${ticket.ticketName}"></td>
+                <td th:text="${#strings.abbreviate(ticket.description, 80)}"></td>
+                <td th:text="${ticket.cost != null && ticket.cost > 0 ? '$' + ticket.cost : 'Free'}"></td>
+                <td th:text="${ticket.creator?.fullName} ?: 'Admin'"></td>
+                <td th:text="${ticket.createdAt}"></td>
+                <td>
+                    <a th:attr="data-id=${ticket.supportTicketId}, onclick='viewTicket(event, this)'"
+                       class="btn small primary" title="View Ticket">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+
+            <!-- Empty -->
+            <tr th:if="${#lists.isEmpty(tickets)}">
+                <td colspan="7" class="empty-state">
+                    <i class="fas fa-inbox fa-2x"></i>
+                    <p>No support tickets found.</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ==== Script ==== -->
+    <script>
+        function viewTicket(event, link) {
+            event.preventDefault();
+            const ticketId = link.getAttribute('data-id');
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            fetch('/student-home/support-tickets/set-current/' + ticketId, {
+                method: 'POST',
+                headers: { [csrfHeader]: csrfToken }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/student-home/support-tickets/view/current';
+                } else {
+                    alert('Unable to load support ticket!');
+                }
+            }).catch(() => alert('Connection error!'));
+        }
+    </script>
+
+</div>
+</body>
+</html>

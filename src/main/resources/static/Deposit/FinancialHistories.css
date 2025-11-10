@@ -1,242 +1,239 @@
-/* =============================
-   Windows 11 UI – Financial History
-   Author: Trunks
-   ============================= */
+:root {
+    /* ===== Color System ===== */
+    --brand: #2563eb;
+    --brand-dark: #1e40af;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #eab308;
+    --bg: #f3f3f3;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --zebra: #fafafa;
+
+    /* ===== UI ===== */
+    --radius: 14px;
+    --shadow: 0 4px 14px rgba(0,0,0,.12);
+    --transition: all 0.2s ease-in-out;
+}
 
 /* ===== Base ===== */
 body {
-    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: #f3f3f3;
     margin: 0;
-    color: #1a1a1a;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
     font-size: 16px;
     line-height: 1.5;
 }
 
 .win11-container {
-    padding: 24px;
     max-width: 1200px;
     margin: auto;
+    padding: 24px;
 }
 
-/* ===== Title Bar ===== */
-.win11-title-bar {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+/* ===== Unified Toolbar ===== */
+.unified-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 20px;
+    margin-bottom: 24px;
 }
 
-.title-left h1 {
-    margin: 0;
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #1a1a1a;
-}
-
-.title-left p {
-    margin: 6px 0 0;
-    color: #555;
-    font-size: 15px;
-}
-
-.banner-actions {
+.toolbar-left, .toolbar-center, .toolbar-right {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===== Table ===== */
+.table-container {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.win11-table th, .win11-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+
+.win11-table tr:nth-child(even) td {
+    background: var(--zebra);
+}
+
+.win11-table tr:hover td {
+    background: #eff6ff;
+}
+
+/* ===== Status Styles ===== */
+.status {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status::before {
+    content: '● ';
+}
+
+.status[data-status="COMPLETED"], .status:contains("COMPLETED") {
+    color: var(--success);
+}
+
+.status[data-status="FAILED"], .status:contains("FAILED") {
+    color: var(--danger);
+}
+
+.status[data-status="PROCESSING"], .status:contains("PROCESSING") {
+    color: var(--warning);
 }
 
 /* ===== Buttons ===== */
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 10px 18px;
+    padding: 8px 16px;
     border-radius: 10px;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: var(--text);
     text-decoration: none;
-    color: #1a1a1a;
+    cursor: pointer;
+    transition: var(--transition);
     font-size: 15px;
+    font-weight: 500;
     min-height: 40px;
 }
+
 .btn:hover {
-    background: #f0f6ff;
-    border-color: #2563eb;
-    color: #2563eb;
+    border-color: var(--brand);
+    background: #eff6ff;
+    color: var(--brand);
 }
+
 .btn.primary {
-    background: #2563eb;
+    background: var(--brand);
     color: #fff;
-    border: none;
+    border-color: var(--brand);
 }
 .btn.primary:hover {
-    background: #1e4fd6;
-}
-.btn.danger {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-}
-.btn.danger:hover {
-    background: #fee2e2;
+    background: var(--brand-dark);
 }
 
-/* ===== Card Containers ===== */
-.win11-card {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 24px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    margin-bottom: 24px;
+.btn.processing {
+    background: var(--warning);
+    color: #fff;
+    border: 1px solid var(--warning);
+}
+.btn.processing:hover {
+    background: #facc15;
 }
 
-/* ===== Stats Grid ===== */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.stat-card {
-    background: #f9fafb;
-    border-radius: 12px;
-    padding: 18px;
-    text-align: center;
-    box-shadow: inset 0 0 0 1px #e5e7eb;
-    transition: all 0.2s ease;
-}
-.stat-card:hover {
-    box-shadow: inset 0 0 0 1px #2563eb;
-    background: #f0f6ff;
-}
-.stat-card h3 {
-    margin: 0 0 8px;
-    font-size: 16px;
-    color: #374151;
-}
-.stat-card p {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #111827;
-}
-
-/* ===== Table ===== */
-.win11-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.win11-table th, .win11-table td {
-    padding: 14px 18px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-    font-size: 15px;
-}
-
-.win11-table th {
-    background: #f9fafb;
-    font-weight: 600;
-    font-size: 16px;
-    color: #374151;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.win11-table tr:hover {
-    background: #f0f6ff;
-}
-
-.win11-table td {
-    vertical-align: middle;
-}
-
-/* ===== Amount Formatting ===== */
-.amount {
-    font-weight: 600;
-    font-size: 15px;
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 8px;
-}
-.amount.positive {
-    color: #15803d;
-    background: #dcfce7;
-}
-.amount.negative {
-    color: #b91c1c;
-    background: #fee2e2;
-}
-
-/* ===== Status ===== */
-.status {
-    display: inline-block;
+.btn.small {
     padding: 6px 12px;
-    border-radius: 8px;
     font-size: 14px;
+}
+
+/* ===== Pagination ===== */
+.pagination {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #ddd;
+    background: #fff;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.page-btn:hover:not(.disabled) {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand-dark);
+}
+
+.page-btn.active {
+    background: var(--brand);
+    color: #fff;
     font-weight: 600;
-    text-transform: capitalize;
 }
 
-.status::before {
-    content: "●";
-    margin-right: 6px;
-    font-size: 10px;
+.page-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
-/* ===== Empty State ===== */
-.empty-state {
-    text-align: center;
-    padding: 50px;
-    color: #9ca3af;
+/* ===== Balance / Total ===== */
+.total {
+    background: #f9fafb;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--brand-dark);
+    font-weight: 500;
 }
-.empty-state i {
-    font-size: 3rem;
-    color: #d1d5db;
-    margin-bottom: 10px;
+
+/* ===== Inline Form ===== */
+.inline-form {
+    display: inline-block;
+    margin: 0;
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-    .win11-title-bar {
+    .unified-bar {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        align-items: stretch;
+        gap: 12px;
     }
-
-    .banner-actions {
-        flex-wrap: wrap;
-        gap: 10px;
+    .toolbar-right {
+        justify-content: space-between;
     }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
     .win11-table th, .win11-table td {
-        padding: 10px 12px;
         font-size: 14px;
+        padding: 10px;
     }
-}
-
-/* ===== Animations ===== */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.97); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.win11-card, .stat-card, .win11-table {
-    animation: fadeIn 0.25s ease;
 }

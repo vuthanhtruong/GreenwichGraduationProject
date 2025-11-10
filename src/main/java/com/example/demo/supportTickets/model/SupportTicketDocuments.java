@@ -30,7 +30,7 @@ public class SupportTicketDocuments {
     private Long fileSize; // bytes
 
     @Lob
-    @Column(name = "FileData", nullable = false,columnDefinition = "LONGBLOB")
+    @Column(name = "FileData", nullable = false, columnDefinition = "LONGBLOB")
     private byte[] fileData;
 
     // Quan hệ: 1 SupportTickets → nhiều Documents
