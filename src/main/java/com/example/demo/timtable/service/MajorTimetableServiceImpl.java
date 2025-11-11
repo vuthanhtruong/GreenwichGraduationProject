@@ -12,6 +12,15 @@ import java.util.List;
 
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
+    @Override
+    public MajorTimetable getById(String timetableId) {
+        return majorTimetableDAO.getById(timetableId);
+    }
+
+    @Override
+    public void delete(MajorTimetable timetable) {
+        majorTimetableDAO.delete(timetable);
+    }
 
     private final MajorTimetableDAO majorTimetableDAO;
 

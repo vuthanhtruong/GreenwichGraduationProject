@@ -77,6 +77,8 @@ public class SearchMinorClassesController {
                 model.addAttribute("searchType", searchType != null ? searchType : "name");
                 model.addAttribute("keyword", keyword != null ? keyword : "");
                 model.addAttribute("subjects", subjectsService.getAllSubjects());
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
                 return "SearchMinorClasses";
             }
 
@@ -100,6 +102,7 @@ public class SearchMinorClassesController {
                 model.addAttribute("keyword", keyword != null ? keyword : "");
                 model.addAttribute("subjects", subjectsService.getAllSubjects());
                 model.addAttribute("message", "No classes found matching the search criteria.");
+                model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
                 return "SearchMinorClasses";
             }
 
@@ -114,7 +117,7 @@ public class SearchMinorClassesController {
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
             model.addAttribute("subjects", subjectsService.getAllSubjects());
-
+            model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
             return "SearchMinorClasses";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while searching for classes: " + e.getMessage()));
@@ -125,6 +128,7 @@ public class SearchMinorClassesController {
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
             model.addAttribute("subjects", subjectsService.getAllSubjects());
+            model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
             return "SearchMinorClasses";
         }
     }

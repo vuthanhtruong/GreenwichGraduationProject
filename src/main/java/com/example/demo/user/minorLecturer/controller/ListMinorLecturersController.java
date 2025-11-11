@@ -18,9 +18,11 @@ import java.util.List;
 public class ListMinorLecturersController {
 
     private final MinorLecturersService minorLecturersService;
+    private final DeputyStaffsService deputyStaffsService;
 
-    public ListMinorLecturersController(DeputyStaffsService deputyStaffsService, MinorLecturersService minorLecturersService) {
+    public ListMinorLecturersController(DeputyStaffsService deputyStaffsService, MinorLecturersService minorLecturersService, DeputyStaffsService deputyStaffsService1) {
         this.minorLecturersService = minorLecturersService;
+        this.deputyStaffsService = deputyStaffsService1;
     }
 
     @GetMapping("")
@@ -53,6 +55,7 @@ public class ListMinorLecturersController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalMinorLecturers", 0);
                 model.addAttribute("alertClass", "alert-warning");
+                model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
                 return "MinorLecturersList";
             }
 
@@ -66,6 +69,7 @@ public class ListMinorLecturersController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalMinorLecturers", totalMinorLecturers);
+            model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
             return "MinorLecturersList";
         } catch (SecurityException e) {
             model.addAttribute("errors", List.of("Security error: " + e.getMessage()));
@@ -75,6 +79,7 @@ public class ListMinorLecturersController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalMinorLecturers", 0);
+            model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
             return "MinorLecturersList";
         }
     }

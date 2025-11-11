@@ -58,6 +58,8 @@ public class ListStudentsController {
                 model.addAttribute("editStudent", new Students());
                 model.addAttribute("relationshipTypes", RelationshipToStudent.values());
                 model.addAttribute("curriculums", curriculumService.getCurriculums());
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 model.addAttribute("specializations",specializationService.specializationsByMajor(staffsService.getStaffMajor()));
                 return "StudentsList";
             }
@@ -79,6 +81,8 @@ public class ListStudentsController {
             model.addAttribute("editStudent", new Students());
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());
             model.addAttribute("curriculums", curriculumService.getCurriculums());
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             model.addAttribute("specializations",specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             return "StudentsList";
         } catch (SecurityException e) {

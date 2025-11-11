@@ -17,6 +17,7 @@ public class MinorLecturerController {
     @GetMapping
     public String minorLecturerHome(Model model) {
         model.addAttribute("lecturer",minorLecturersService.getMinorLecturer());
+        model.addAttribute("currentCampusName", minorLecturersService.getMinorLecturer().getCampus().getCampusName());
         return "MinorLecturerHome";
     }
 }

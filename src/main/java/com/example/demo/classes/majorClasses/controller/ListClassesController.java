@@ -67,6 +67,8 @@ public class ListClassesController {
                 model.addAttribute("newClass", new MajorClasses());
                 model.addAttribute("message", "No classes found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "ClassesList";
             }
 
@@ -77,6 +79,8 @@ public class ListClassesController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalClasses", totalClasses);
             model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "ClassesList";
         } catch (Exception e) {
             model.addAttribute("errors", List.of("An error occurred while retrieving classes: " + e.getMessage()));
@@ -86,6 +90,8 @@ public class ListClassesController {
             model.addAttribute("totalPagesClasses", 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
             model.addAttribute("totalClasses", 0);
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "ClassesList";
         }
     }

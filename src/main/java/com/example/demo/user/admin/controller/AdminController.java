@@ -18,6 +18,7 @@ public class AdminController {
     @GetMapping("")
     String adminHome(Model model) {
         model.addAttribute("admin", adminsService.getAdmin());
+        model.addAttribute("campus",adminsService.getAdmin().getCampus().getCampusName());
         return "AdminHome";
     }
 }

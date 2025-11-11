@@ -65,6 +65,8 @@ public class SearchStudentsController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("searchType", searchType != null ? searchType : "name");
                 model.addAttribute("keyword", keyword != null ? keyword : "");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No students found matching the search criteria."));
                 return "SearchStudents";
             }
@@ -78,6 +80,8 @@ public class SearchStudentsController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             model.addAttribute("keyword", keyword != null ? keyword : "");
             if (successMessage != null) {
                 model.addAttribute("message", successMessage);
@@ -130,6 +134,8 @@ public class SearchStudentsController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("searchType", searchType != null ? searchType : "name");
                 model.addAttribute("keyword", keyword != null ? keyword : "");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No students found matching the search criteria."));
                 return "SearchStudents";
             }
@@ -144,6 +150,8 @@ public class SearchStudentsController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             if (successMessage != null) {
                 model.addAttribute("message", successMessage);
             } else if (error != null) {
@@ -156,6 +164,8 @@ public class SearchStudentsController {
             redirectAttributes.addFlashAttribute("searchType", searchType);
             redirectAttributes.addFlashAttribute("keyword", keyword);
             redirectAttributes.addFlashAttribute("page", page);
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             redirectAttributes.addFlashAttribute("pageSize", pageSize);
             return "redirect:/staff-home/search-students";
         }

@@ -56,6 +56,8 @@ public class ListLecturersController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("totalLecturers", 0);
                 model.addAttribute("alertClass", "alert-warning");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "LecturersList";
             }
 
@@ -69,6 +71,8 @@ public class ListLecturersController {
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalLecturers", totalLecturers);
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "LecturersList";
         } catch (SecurityException e) {
             model.addAttribute("errors", List.of("Security error: " + e.getMessage()));
@@ -78,6 +82,8 @@ public class ListLecturersController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalLecturers", 0);
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "LecturersList";
         }
     }

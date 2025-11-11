@@ -114,9 +114,9 @@
                                         <i class="fas fa-link"></i>
                                         <a th:href="${bookedTimetableMatrix[dayIdx][slotStat.index].room.link}" target="_blank" class="link">Enter Link</a>
                                     </div>
-                                    <div class="room-address" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.address != null}">
+                                    <div class="room-address" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress() != null}">
                                         <i class="fas fa-map-marker-alt"></i>
-                                        <a th:href="@{https://www.google.com/maps/search/?api=1&query=${#strings.replace(bookedTimetableMatrix[dayIdx][slotStat.index].room.address, ' ', '+')}}" target="_blank" class="link">Check Address</a>
+                                        <a th:href="@{https://www.google.com/maps/search/?api=1&query=${#strings.replace(bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress(), ' ', '+')}}" target="_blank" class="link">Check Address</a>
                                     </div>
                                     <div class="creator-info" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].creator != null}">
                                         <i class="fas fa-user"></i>

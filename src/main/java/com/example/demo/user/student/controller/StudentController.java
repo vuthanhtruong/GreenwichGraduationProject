@@ -23,6 +23,7 @@ public class StudentController {
         model.addAttribute("major", studentsService.getStudentMajor().getMajorName());
         model.addAttribute("student", studentsService.getStudent());
         model.addAttribute("accountBalancesService",accountBalancesService.findByStudentId(studentsService.getStudent().getId()));
+        model.addAttribute("campus",studentsService.getStudent().getCampus().getCampusName());
         return "StudentHome";
     }
 }

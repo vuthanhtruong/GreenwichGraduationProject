@@ -18,6 +18,7 @@ public class DeputyStaffController {
     @GetMapping
     public String getDeputyStaff(Model model) {
         model.addAttribute("deputyStaffs", deputyStaffsService.getDeputyStaff());
+        model.addAttribute("currentCampusName", deputyStaffsService.getCampus().getCampusName());
         return "DeputyStaffHome";
     }
 }

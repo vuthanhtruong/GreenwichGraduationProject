@@ -17,7 +17,8 @@
         <!-- Left Side: Title + Welcome -->
         <div class="title-left">
             <h1><i class="fas fa-user-tie"></i> Deputy Staff Home</h1>
-            <h2>Welcome, <span th:text="${deputyStaffs.lastName} + ' ' + ${deputyStaffs.firstName}"></span></h2>
+            <h2>Welcome, <span th:text="${deputyStaffs.lastName} + ' ' + ${deputyStaffs.firstName}+ ' at '+${currentCampusName}"></span>
+            </h2>
         </div>
 
         <!-- Right Side: Navigation -->

@@ -15,11 +15,7 @@
         <div class="title-left">
             <h1><i class="fas fa-user-graduate"></i> Student Home - <span th:text="${major}"></span></h1>
             <h2>
-                Welcome, <span th:text="${student.lastName} + ' ' + ${student.firstName}"></span>
-                — Balance:
-                <span th:text="${#numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}"></span> USD
-                — <i class="fas fa-envelope"></i>
-                <span th:text="${unreadMessages != null ? unreadMessages : 0}"></span> new messages
+                Welcome, <span th:text="${student.lastName} + ' ' + ${student.firstName}+ ' at '+${campus}"></span>
             </h2>
         </div>
 

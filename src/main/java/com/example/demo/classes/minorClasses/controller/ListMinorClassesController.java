@@ -68,6 +68,8 @@ public class ListMinorClassesController {
                 model.addAttribute("newClass", new MinorClasses());
                 model.addAttribute("message", "No minor classes found.");
                 model.addAttribute("alertClass", "alert-warning");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampus().getCampusName());
                 return "MinorClassesList";
             }
 

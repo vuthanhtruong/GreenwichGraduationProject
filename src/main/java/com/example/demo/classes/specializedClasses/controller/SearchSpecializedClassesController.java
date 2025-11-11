@@ -68,6 +68,8 @@ public class SearchSpecializedClassesController {
                 model.addAttribute("keyword", keyword != null ? keyword : "");
                 model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
                 model.addAttribute("message", "No classes found matching the search criteria.");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "SearchSpecializedClasses";
             }
 
@@ -82,7 +84,8 @@ public class SearchSpecializedClassesController {
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaff().getMajorManagement()));
-
+// Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "SearchSpecializedClasses";
         } catch (Exception e) {
             model.addAttribute("error", "An error occurred while searching for classes: " + e.getMessage());

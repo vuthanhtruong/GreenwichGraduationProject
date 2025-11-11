@@ -66,6 +66,8 @@ public class SearchClassesController {
                 model.addAttribute("keyword", keyword != null ? keyword : "");
                 model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
                 model.addAttribute("message", "No classes found matching the search criteria.");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "SearchClasses";
             }
 
@@ -80,6 +82,8 @@ public class SearchClassesController {
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
             model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
 
             return "SearchClasses";
         } catch (Exception e) {

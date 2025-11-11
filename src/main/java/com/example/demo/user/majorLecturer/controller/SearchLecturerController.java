@@ -65,6 +65,8 @@ public class SearchLecturerController {
                 model.addAttribute("pageSize", pageSize);
                 model.addAttribute("searchType", searchType != null ? searchType : "name");
                 model.addAttribute("keyword", keyword != null ? keyword : "");
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No lecturers found matching the search criteria."));
                 return "SearchLecturers";
             }
@@ -79,6 +81,8 @@ public class SearchLecturerController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             if (successMessage != null) {
                 model.addAttribute("message", successMessage);
             } else if (error != null) {
@@ -128,6 +132,8 @@ public class SearchLecturerController {
                 model.addAttribute("currentPage", 1);
                 model.addAttribute("totalPages", 1);
                 model.addAttribute("pageSize", pageSize);
+                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 model.addAttribute("searchType", searchType != null ? searchType : "name");
                 model.addAttribute("keyword", keyword != null ? keyword : "");
                 model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No lecturers found matching the search criteria."));
@@ -144,6 +150,8 @@ public class SearchLecturerController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("searchType", searchType != null ? searchType : "name");
             model.addAttribute("keyword", keyword != null ? keyword : "");
+            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             if (successMessage != null) {
                 model.addAttribute("message", successMessage);
             } else if (error != null) {

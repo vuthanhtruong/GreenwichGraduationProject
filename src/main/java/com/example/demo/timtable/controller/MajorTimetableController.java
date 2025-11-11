@@ -84,6 +84,13 @@ public class MajorTimetableController {
         int year = (inputYear != null) ? inputYear : currentYear;
         int week = (inputWeek != null) ? inputWeek : currentWeek;
 
+        // BLOCK PAST WEEKS
+        LocalDate selectedMonday = getWeekDates(year, week).get(0);
+        if (selectedMonday.isBefore(now.with(java.time.DayOfWeek.MONDAY))) {
+            ra.addFlashAttribute("error", "Cannot arrange timetable for past weeks.");
+            return redirectUrl(currentYear, currentWeek);
+        }
+
         MajorClasses majorClass = majorClassesService.getClassById(classId);
         if (majorClass == null) {
             ra.addFlashAttribute("error", "Class not found.");
@@ -290,6 +297,41 @@ public class MajorTimetableController {
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+        }
+
+        return redirectUrl(year, week);
+    }
+
+    // === ADD DELETE ENDPOINT ===
+    @PostMapping("/major-timetable/delete")
+    public String deleteTimetable(
+            @RequestParam String timetableId,
+            @RequestParam Integer year,
+            @RequestParam Integer week,
+            @RequestParam String classId,
+            RedirectAttributes ra) {
+
+        try {
+            MajorTimetable tt = majorTimetableService.getById(timetableId);
+            if (tt == null) {
+                ra.addFlashAttribute("error", "Schedule not found.");
+                return redirectUrl(year, week);
+            }
+
+            MajorClasses majorClass = tt.getClassEntity();
+            String campusId = majorClass.getCreator().getCampus().getCampusId();
+            Staffs currentStaff = staffsService.getStaff();
+
+            if (!currentStaff.getCampus().getCampusId().equals(campusId)) {
+                ra.addFlashAttribute("error", "Unauthorized campus.");
+                return redirectUrl(year, week);
+            }
+
+            majorTimetableService.delete(tt);
+            ra.addFlashAttribute("success", "Schedule deleted successfully.");
+
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Delete failed: " + e.getMessage());
         }
 
         return redirectUrl(year, week);

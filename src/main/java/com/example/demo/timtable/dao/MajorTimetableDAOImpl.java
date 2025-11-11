@@ -16,6 +16,20 @@ import java.util.List;
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
 
+    @Override
+    public MajorTimetable getById(String timetableId) {
+        return em.find(MajorTimetable.class, timetableId);
+    }
+
+    @Override
+    public void delete(MajorTimetable timetable) {
+        if (em.contains(timetable)) {
+            em.remove(timetable);
+        } else {
+            em.remove(em.merge(timetable));
+        }
+    }
+
     @PersistenceContext
     private EntityManager em;
 

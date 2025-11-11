@@ -21,4 +21,6 @@ public interface MajorTimetableService {
     void SaveMajorTimetable(MajorTimetable timetable, String campusId);
 
     List<MajorTimetable> getMajorTimetablesByWeekInYear(Integer weekInYear, Integer year, String campusId);
+    void delete(MajorTimetable timetable);
+    MajorTimetable getById(String timetableId);
 }

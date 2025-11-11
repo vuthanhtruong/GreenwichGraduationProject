@@ -18,6 +18,8 @@ public class StaffsController {
     public String getStaffHomeInfo(Model model) {
         model.addAttribute("major", staffsService.getStaffMajor().getMajorName());
         model.addAttribute("staff", staffsService.getStaff());
+        String campusName = staffsService.getCampusOfStaff().getCampusName();
+        model.addAttribute("campusName", campusName);
         return "StaffHome";
     }
 }
