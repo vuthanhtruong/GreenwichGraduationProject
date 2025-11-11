@@ -174,7 +174,7 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> getStudents() {
-        return entityManager.createQuery("SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator", Students.class)
+        return entityManager.createQuery("SELECT s FROM Students s", Students.class)
                 .getResultList();
     }
 
@@ -219,7 +219,7 @@ public class StudentDAOImpl implements StudentsDAO {
     public long numberOfStudentsByCampus(String campusId) {
         if (campusId == null || campusId.trim().isEmpty()) return 0L;
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId")
+                        "SELECT COUNT(s) FROM Students s WHERE s.campus.campusId = :campusId")
                 .setParameter("campusId", campusId)
                 .getSingleResult();
     }
@@ -303,7 +303,7 @@ public class StudentDAOImpl implements StudentsDAO {
     public List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize) {
         if (campusId == null || campusId.trim().isEmpty()) return List.of();
         return entityManager.createQuery(
-                        "SELECT s FROM Students s WHERE s.campus.id = :campusId", Students.class)
+                        "SELECT s FROM Students s WHERE s.campus.campusId = :campusId", Students.class)
                 .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -316,8 +316,8 @@ public class StudentDAOImpl implements StudentsDAO {
             return List.of();
         }
 
-        String queryString = "SELECT s FROM Students s JOIN FETCH s.campus JOIN FETCH s.specialization.major JOIN FETCH s.creator " +
-                "WHERE s.campus.id = :campusId";
+        String queryString = "SELECT s FROM Students s " +
+                "WHERE s.campus.campusId = :campusId";
 
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -357,7 +357,7 @@ public class StudentDAOImpl implements StudentsDAO {
             return 0L;
         }
 
-        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+        String queryString = "SELECT COUNT(s) FROM Students s WHERE s.campus.campusId = :campusId";
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
             String[] words = keyword.split("\\s+");
@@ -392,7 +392,7 @@ public class StudentDAOImpl implements StudentsDAO {
     public List<Integer> getUniqueAdmissionYearsByCampus(String campusId) {
         if (campusId == null || campusId.trim().isEmpty()) return List.of();
         String jpql = "SELECT DISTINCT YEAR(s.admissionYear) FROM Students s " +
-                "WHERE s.campus.id = :campusId " +
+                "WHERE s.campus.campusId = :campusId " +
                 "ORDER BY YEAR(s.admissionYear) ASC";
         return entityManager.createQuery(jpql, Integer.class)
                 .setParameter("campusId", campusId)
@@ -411,7 +411,7 @@ public class StudentDAOImpl implements StudentsDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.id = :campusId";
+        String jpql = "SELECT COUNT(s) FROM Students s WHERE s.campus.campusId = :campusId";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusId", campusId)
                 .getSingleResult();
@@ -446,8 +446,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId " +
-                                "ORDER BY s.id", Students.class)
+                                "WHERE s.campus.campusId = :campusId AND s.specialization.major.majorId = :majorId ", Students.class)
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
                 .getResultList();
@@ -455,12 +454,9 @@ public class StudentDAOImpl implements StudentsDAO {
 
     @Override
     public List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize) {
-        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank() || pageSize <= 0) {
-            return List.of();
-        }
         return entityManager.createQuery(
                         "SELECT s FROM Students s " +
-                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId", Students.class)
+                                "WHERE s.campus.campusId = :campusId AND s.specialization.major.majorId = :majorId", Students.class)
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
                 .setFirstResult(firstResult)
@@ -476,11 +472,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
 
         String baseQuery = "SELECT s FROM Students s " +
-                "JOIN FETCH s.campus " +
-                "JOIN FETCH s.specialization spec " +
-                "JOIN FETCH spec.major m " +
-                "JOIN FETCH s.creator " +
-                "WHERE s.campus.id = :campusId AND m.majorId = :majorId";
+                "WHERE s.campus.campusId = :campusId AND s.specialization.major.majorId = :majorId";
 
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -524,9 +516,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
 
         String baseQuery = "SELECT COUNT(s) FROM Students s " +
-                "JOIN s.specialization spec " +
-                "JOIN spec.major m " +
-                "WHERE s.campus.id = :campusId AND m.majorId = :majorId";
+                "WHERE s.campus.campusId = :campusId AND specialization.major.majorId = :majorId";
 
         if ("name".equals(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -567,7 +557,7 @@ public class StudentDAOImpl implements StudentsDAO {
         }
         return entityManager.createQuery(
                         "SELECT COUNT(s) FROM Students s " +
-                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId", Long.class)
+                                "WHERE s.campus.campusId = :campusId AND s.specialization.major.majorId = :majorId", Long.class)
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
                 .getSingleResult();

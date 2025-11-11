@@ -47,6 +47,7 @@ public class StaffsDAOImpl implements StaffsDAO {
     }
 
     private final EmailServiceForStaffService emailServiceForStaffService;
+
     @Override
     public Campuses getCampusOfStaff() {
         return getStaff().getCampus();

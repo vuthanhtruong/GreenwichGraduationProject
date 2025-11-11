@@ -21,7 +21,6 @@ import com.example.demo.tuitionByYear.model.TuitionByYearId;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
@@ -40,7 +39,7 @@ import java.util.*;
 public class DemoApplication {
 
     private static final String DEFAULT_PASSWORD = "Anhnam123";
-    private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0;
+    private static final double INITIAL_DEPOSIT_AMOUNT = 10000.0;
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
@@ -59,15 +58,13 @@ public class DemoApplication {
             seedStaffs(em);
             seedDeputyStaffs(em);
 
-            // 100 MajorLecturers: 10 per Major
             seedMajorLecturers(em);
-
-            // 100 Students: 10 per Specialization
             seedStudents(em);
 
             seedMajorSubjects(em);
             seedMinorSubjects(em);
             seedSpecializedSubjects(em);
+
             seedStudentBalancesAndDepositHistory(em);
             seedTuitionByYear(em);
             seedSlots(em);
@@ -236,8 +233,11 @@ public class DemoApplication {
         Admins creator = find(em, Admins.class, "id", "admin001");
         if (!exists(em, Curriculum.class, "curriculumId", "CURR01")) {
             Curriculum c = new Curriculum();
-            c.setCurriculumId("CURR01"); c.setName("BTEC"); c.setDescription("Chương trình BTEC");
-            c.setCreator(creator); c.setCreatedAt(LocalDateTime.now());
+            c.setCurriculumId("CURR01");
+            c.setName("BTEC");
+            c.setDescription("Chương trình BTEC");
+            c.setCreator(creator);
+            c.setCreatedAt(LocalDateTime.now());
             em.persist(c);
         }
     }
@@ -310,25 +310,18 @@ public class DemoApplication {
         }
     }
 
-    // 100 MAJOR LECTURERS: 10 per Major
+    // 100 MAJOR LECTURERS: 10 per Major → CHỈ STAFF CÙNG MAJOR + CAMPUS MỚI TẠO
     private static void seedMajorLecturers(EntityManager em) {
-        Admins adminCreator = find(em, Admins.class, "id", "admin001");
-        Staffs[] staffCreators = new Staffs[10];
-        for (int i = 0; i < 10; i++) staffCreators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
-
-        Majors[] majors = new Majors[10];
         String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
-        for (int i = 0; i < 10; i++) majors[i] = find(em, Majors.class, "majorId", majorIds[i]);
-
         String[] firstNames = {"Hải", "Yến", "Phong", "Thư", "Kiên", "Tâm", "Long", "Huyền", "Quân", "Mai",
                 "Khánh", "Linh", "Minh", "Ngọc", "Phương", "Quỳnh", "Sơn", "Tùng", "Uyên", "Vân"};
         String[] lastNames = {"Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn", "Trần"};
 
         int lecturerIndex = 1;
         for (int m = 0; m < 10; m++) {
-            Majors major = majors[m];
-            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (m % 5) + 1));
-            Staffs creator = staffCreators[m];
+            Majors major = find(em, Majors.class, "majorId", majorIds[m]);
+            Staffs creator = findStaffByMajorId(em, major.getMajorId());
+            Campuses campus = creator.getCampus(); // LẤY CAMPUS TỪ STAFF → BẢO MẬT
 
             for (int i = 0; i < 10; i++) {
                 String id = "lect" + String.format("%03d", lecturerIndex++);
@@ -359,24 +352,21 @@ public class DemoApplication {
         }
     }
 
-    // 100 STUDENTS: 10 per Specialization
+    // 100 STUDENTS: 10 per Specialization → CHỈ STAFF CÙNG MAJOR + CAMPUS MỚI TẠO
     private static void seedStudents(EntityManager em) {
-        Staffs creator = find(em, Staffs.class, "id", "staff001");
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
 
         String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_IT_CS", "SPEC_BUS_FIN", "SPEC_BUS_HR",
                 "SPEC_DES_UI", "SPEC_DES_3D", "SPEC_MKT_DIG", "SPEC_MKT_SM", "SPEC_ACC_TAX"};
-        Specialization[] specs = new Specialization[10];
-        for (int i = 0; i < 10; i++) specs[i] = find(em, Specialization.class, "specializationId", specIds[i]);
-
         String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi",
                 "Oanh", "Phúc", "Quang", "Rạng", "Sáng", "Tâm", "Uyên", "Vũ", "Xuân", "Yến"};
         String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương"};
 
         int studentIndex = 1;
         for (int s = 0; s < 10; s++) {
-            Specialization spec = specs[s];
-            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (s % 5) + 6));
+            Specialization spec = find(em, Specialization.class, "specializationId", specIds[s]);
+            Staffs creator = findStaffByMajorId(em, spec.getMajor().getMajorId());
+            Campuses campus = creator.getCampus();
 
             for (int i = 0; i < 10; i++) {
                 String id = "stu" + String.format("%03d", studentIndex++);
@@ -409,14 +399,9 @@ public class DemoApplication {
     }
 
     private static void seedMajorSubjects(EntityManager em) {
-        Staffs[] creators = new Staffs[10];
-        for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
-        Majors[] majors = new Majors[10];
-        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
-        for (int i = 0; i < 10; i++) majors[i] = find(em, Majors.class, "majorId", majorIds[i]);
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", "admin001");
-
+        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
         String[] names = {
                 "Nhập môn Quản trị", "Lập trình Java", "Thiết kế Cơ bản", "Marketing Căn bản",
                 "Kế toán Tài chính", "Phân tích Dữ liệu", "AI Cơ bản", "Mạng Máy tính",
@@ -426,24 +411,25 @@ public class DemoApplication {
         for (int i = 0; i < 10; i++) {
             String id = "SUB_MAJ_" + String.format("%03d", i + 1);
             if (exists(em, MajorSubjects.class, "subjectId", id)) continue;
+
+            Majors major = find(em, Majors.class, "majorId", majorIds[i]);
+            Staffs creator = findStaffByMajorId(em, majorIds[i]);
+
             MajorSubjects s = new MajorSubjects();
             s.setSubjectId(id);
             s.setSubjectName(names[i]);
             s.setSemester(i % 8 + 1);
             s.setIsAccepted(i % 3 == 0);
             s.setAcceptor(acceptor);
-            s.setCreator(creators[i]);
-            s.setMajor(majors[i]);
+            s.setCreator(creator);
+            s.setMajor(major);
             s.setCurriculum(curr);
             em.persist(s);
         }
     }
 
     private static void seedMinorSubjects(EntityManager em) {
-        DeputyStaffs[] creators = new DeputyStaffs[10];
-        for (int i = 0; i < 10; i++) creators[i] = find(em, DeputyStaffs.class, "id", "deputy" + String.format("%03d", i + 1));
         Admins acceptor = find(em, Admins.class, "id", "admin001");
-
         String[] names = {
                 "Tiếng Anh Giao tiếp", "Kỹ năng Mềm", "Tư duy Phản biện", "Quản lý Thời gian",
                 "Làm việc Nhóm", "Kỹ năng Thuyết trình", "Viết CV", "Phỏng vấn", "Tinh thần Khởi nghiệp", "Sức khỏe Tinh thần"
@@ -452,27 +438,25 @@ public class DemoApplication {
         for (int i = 0; i < 10; i++) {
             String id = "SUB_MIN_" + String.format("%03d", i + 1);
             if (exists(em, MinorSubjects.class, "subjectId", id)) continue;
+
+            DeputyStaffs creator = find(em, DeputyStaffs.class, "id", "deputy" + String.format("%03d", i + 1));
+
             MinorSubjects s = new MinorSubjects();
             s.setSubjectId(id);
             s.setSubjectName(names[i]);
             s.setSemester(i % 4 + 1);
             s.setIsAccepted(i % 4 == 0);
             s.setAcceptor(acceptor);
-            s.setCreator(creators[i]);
+            s.setCreator(creator);
             em.persist(s);
         }
     }
 
     private static void seedSpecializedSubjects(EntityManager em) {
-        Staffs[] creators = new Staffs[10];
-        for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
-        Specialization[] specs = new Specialization[10];
-        String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_IT_CS", "SPEC_BUS_FIN", "SPEC_BUS_HR",
-                "SPEC_DES_UI", "SPEC_DES_3D", "SPEC_MKT_DIG", "SPEC_MKT_SM", "SPEC_ACC_TAX"};
-        for (int i = 0; i < 10; i++) specs[i] = find(em, Specialization.class, "specializationId", specIds[i]);
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", "admin001");
-
+        String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_IT_CS", "SPEC_BUS_FIN", "SPEC_BUS_HR",
+                "SPEC_DES_UI", "SPEC_DES_3D", "SPEC_MKT_DIG", "SPEC_MKT_SM", "SPEC_ACC_TAX"};
         String[] names = {
                 "Phát triển Web", "Machine Learning", "Penetration Testing", "Ngân hàng Số",
                 "Tuyển dụng", "Figma Design", "Blender 3D", "SEO & SEM", "TikTok Marketing", "Kiểm toán"
@@ -481,14 +465,18 @@ public class DemoApplication {
         for (int i = 0; i < 10; i++) {
             String id = "SUB_SPEC_" + String.format("%03d", i + 1);
             if (exists(em, SpecializedSubject.class, "subjectId", id)) continue;
+
+            Specialization spec = find(em, Specialization.class, "specializationId", specIds[i]);
+            Staffs creator = findStaffByMajorId(em, spec.getMajor().getMajorId());
+
             SpecializedSubject s = new SpecializedSubject();
             s.setSubjectId(id);
             s.setSubjectName(names[i]);
             s.setSemester(i % 6 + 3);
             s.setIsAccepted(i % 5 == 0);
             s.setAcceptor(acceptor);
-            s.setCreator(creators[i]);
-            s.setSpecialization(specs[i]);
+            s.setCreator(creator);
+            s.setSpecialization(spec);
             s.setCurriculum(curr);
             em.persist(s);
         }
@@ -525,8 +513,6 @@ public class DemoApplication {
 
     private static void seedTuitionByYear(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
-        if (creator == null) throw new IllegalStateException("admin001 must exist!");
-
         List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
         List<Subjects> subjects = new ArrayList<>();
         subjects.addAll(em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList());
@@ -547,14 +533,11 @@ public class DemoApplication {
                     t.setSubject(subject);
                     t.setCampus(campus);
                     t.setAdmissionYear(year);
-
                     double base = 10 + (rand.nextDouble() * 10);
                     t.setTuition(roundTo2Decimals(base));
                     t.setReStudyTuition(roundTo2Decimals(base * 0.7));
-
                     t.setContractStatus(ContractStatus.ACTIVE);
                     t.setCreator(creator);
-
                     em.persist(t);
                 }
             }
@@ -576,11 +559,9 @@ public class DemoApplication {
         };
 
         for (String[] data : slotData) {
-            String id = data[0];
-            if (exists(em, Slots.class, "slotId", id)) continue;
-
+            if (exists(em, Slots.class, "slotId", data[0])) continue;
             Slots slot = new Slots();
-            slot.setSlotId(id);
+            slot.setSlotId(data[0]);
             slot.setSlotName(data[1]);
             slot.setStartTime(LocalTime.parse(data[2]));
             slot.setEndTime(LocalTime.parse(data[3]));
@@ -590,7 +571,6 @@ public class DemoApplication {
 
     private static void seedRooms(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
-        if (creator == null) throw new IllegalStateException("admin001 must exist!");
 
         // 10 Offline Rooms
         String[] physicalIds = {"G101", "G102", "G201", "G202", "G301", "G302", "G401", "G402", "G501", "G502"};
@@ -601,16 +581,12 @@ public class DemoApplication {
                 "Phòng G401 - Tầng 4", "Phòng G402 - Tầng 4",
                 "Phòng G501 - Tầng 5", "Phòng G502 - Tầng 5"
         };
-        int[] capacities = {30, 35, 40, 40, 50, 50, 60, 60, 80, 80};
 
         for (int i = 0; i < 10; i++) {
-            String roomId = physicalIds[i];
-            if (exists(em, OfflineRooms.class, "roomId", roomId)) continue;
-
+            if (exists(em, OfflineRooms.class, "roomId", physicalIds[i])) continue;
             Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 1));
-
             OfflineRooms room = new OfflineRooms();
-            room.setRoomId(roomId);
+            room.setRoomId(physicalIds[i]);
             room.setRoomName(physicalNames[i]);
             room.setCreator(creator);
             room.setCampus(campus);
@@ -636,13 +612,10 @@ public class DemoApplication {
         };
 
         for (int i = 0; i < 10; i++) {
-            String roomId = onlineIds[i];
-            if (exists(em, OnlineRooms.class, "roomId", roomId)) continue;
-
+            if (exists(em, OnlineRooms.class, "roomId", onlineIds[i])) continue;
             Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 6));
-
             OnlineRooms room = new OnlineRooms();
-            room.setRoomId(roomId);
+            room.setRoomId(onlineIds[i]);
             room.setRoomName(onlineNames[i]);
             room.setCreator(creator);
             room.setCampus(campus);
@@ -690,6 +663,17 @@ public class DemoApplication {
         try {
             String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
             return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    private static Staffs findStaffByMajorId(EntityManager em, String majorId) {
+        try {
+            String jpql = "SELECT s FROM Staffs s WHERE s.majorManagement.majorId = :majorId";
+            return em.createQuery(jpql, Staffs.class)
+                    .setParameter("majorId", majorId)
+                    .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }

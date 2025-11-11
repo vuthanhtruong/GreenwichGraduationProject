@@ -41,7 +41,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             return 0L;
         }
 
-        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.campusId = :campusId";
 
         if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -91,7 +91,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
 
     @Override
     public List<MajorLecturers> colleagueBycampusId(String campusId) {
-        return entityManager.createQuery("from MajorLecturers s where s.campus.id=:campusId And s.id!=:id", MajorLecturers.class).setParameter("campusId", campusId).
+        return entityManager.createQuery("from MajorLecturers s where s.campus.campusId=:campusId And s.id!=:id", MajorLecturers.class).setParameter("campusId", campusId).
                 setParameter("id", getMajorLecturer().getId()).getResultList();
     }
 
@@ -145,7 +145,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        String jpql = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
+        String jpql = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.campusId = :campusId";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusId", campusId)
                 .getSingleResult();
@@ -156,7 +156,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        String jpql = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+        String jpql = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.campusId = :campusId";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("campusId", campusId)
                 .getSingleResult();
@@ -312,7 +312,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
     public long numberOfLecturersByCampus(String campusId) {
         if (campusId == null || campusId.trim().isEmpty()) return 0L;
         return (Long) entityManager.createQuery(
-                        "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId")
+                        "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.campusId = :campusId")
                 .setParameter("campusId", campusId)
                 .getSingleResult();
     }
@@ -386,7 +386,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
     public List<MajorLecturers> getPaginatedLecturersByCampus(String campusId, int firstResult, int pageSize) {
         if (campusId == null || campusId.trim().isEmpty()) return List.of();
         return entityManager.createQuery(
-                        "SELECT l FROM MajorLecturers l WHERE l.campus.id = :campusId", MajorLecturers.class)
+                        "SELECT l FROM MajorLecturers l WHERE l.campus.campusId = :campusId", MajorLecturers.class)
                 .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -400,7 +400,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         }
 
         String queryString = "SELECT l FROM MajorLecturers l JOIN FETCH l.campus JOIN FETCH l.majorManagement JOIN FETCH l.creator " +
-                "WHERE l.campus.id = :campusId";
+                "WHERE l.campus.campusId = :campusId";
 
         if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -440,7 +440,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             return 0L;
         }
 
-        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId";
+        String queryString = "SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.campusId = :campusId";
 
         if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -477,7 +477,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        return entityManager.createQuery("SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.id = :campusId", Long.class)
+        return entityManager.createQuery("SELECT COUNT(l) FROM MajorLecturers l WHERE l.campus.campusId = :campusId", Long.class)
                 .setParameter("campusId", campusId)
                 .getSingleResult();
     }
@@ -487,7 +487,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         if (campusId == null || campusId.trim().isEmpty()) {
             throw new IllegalArgumentException("Campus ID must not be null or empty");
         }
-        return entityManager.createQuery("SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.id = :campusId", MinorLecturers.class)
+        return entityManager.createQuery("SELECT l FROM MinorLecturers l WHERE l.campus.campusId = :campusId", MinorLecturers.class)
                 .setParameter("campusId", campusId)
                 .setFirstResult(firstResult)
                 .setMaxResults(pageSize)
@@ -510,7 +510,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             return List.of();
         }
 
-        String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.id = :campusId";
+        String queryString = "SELECT l FROM MinorLecturers l JOIN FETCH l.campus WHERE l.campus.campusId = :campusId";
 
         if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -555,7 +555,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             return 0L;
         }
 
-        String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.id = :campusId";
+        String queryString = "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.campusId = :campusId";
 
         if ("name".equalsIgnoreCase(searchType)) {
             keyword = keyword.toLowerCase().trim();
@@ -613,7 +613,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         }
         return entityManager.createQuery(
                         "SELECT COUNT(l) FROM MajorLecturers l " +
-                                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId", Long.class)
+                                "WHERE l.campus.campusId = :campusId AND l.majorManagement.majorId = :majorId", Long.class)
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
                 .getSingleResult();
@@ -626,7 +626,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
 
         return entityManager.createQuery(
                         "SELECT l FROM MajorLecturers l " +
-                                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId " +
+                                "WHERE l.campus.campusId = :campusId AND l.majorManagement.majorId = :majorId " +
                                 "ORDER BY l.id", MajorLecturers.class)
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
@@ -645,7 +645,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         }
 
         String baseQuery = "SELECT l FROM MajorLecturers l " +
-                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId";
+                "WHERE l.campus.campusId = :campusId AND l.majorManagement.majorId = :majorId";
 
         String condition = buildSearchCondition(searchType, keyword);
         if (condition.isEmpty()) return List.of();
@@ -670,7 +670,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         }
 
         String baseQuery = "SELECT COUNT(l) FROM MajorLecturers l " +
-                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId";
+                "WHERE l.campus.campusId = :campusId AND l.majorManagement.majorId = :majorId";
 
         String condition = buildSearchCondition(searchType, keyword);
         if (condition.isEmpty()) return 0L;

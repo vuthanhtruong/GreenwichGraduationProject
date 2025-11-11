@@ -26,7 +26,7 @@ public interface StudentsService {
     Students getStudentById(String id);
     List<Students> getPaginatedStudentsByCampus(String campusId, int firstResult, int pageSize);
     List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
-    Long countSearchResultsByCampus(String campusId, String searchType, String keyword);
+    long countSearchResultsByCampus(String campusId, String searchType, String keyword);
     List<Integer> getUniqueAdmissionYearsByCampus(String campusId);
     List<Students> getStudentsByCampusAndMajor(String campusId, String majorId);
     List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize);

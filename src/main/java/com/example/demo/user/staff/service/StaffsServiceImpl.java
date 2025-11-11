@@ -106,6 +106,7 @@ public class StaffsServiceImpl implements StaffsService {
     public Majors getStaffMajor() {
         return staffsDAO.getStaffMajor();
     }
+
     private final StaffsDAO staffsDAO;
 
     public StaffsServiceImpl(StaffsDAO staffsDAO) {

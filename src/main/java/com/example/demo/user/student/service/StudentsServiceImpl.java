@@ -57,7 +57,7 @@ public class StudentsServiceImpl implements StudentsService {
     }
 
     @Override
-    public Long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
+    public long countSearchResultsByCampus(String campusId, String searchType, String keyword) {
         return studentsDAO.countSearchResultsByCampus(campusId, searchType, keyword);
     }
 
