@@ -1,7 +1,7 @@
-package com.example.demo.timtable.service;
+package com.example.demo.timtable.majorTimetable.service;
 
-import com.example.demo.timtable.dao.SlotsDAO;
-import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.majorTimetable.dao.SlotsDAO;
+import com.example.demo.timtable.majorTimetable.model.Slots;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timetable</title>
+    <title>Specialized Timetable</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/MajorTimetable.css}">
 </head>
@@ -17,7 +17,7 @@
                 Arrange timetable for <span th:text="${className}"></span>
                 at <span th:text="${classCreatorCampusName ?: 'Unknown Campus'}"></span>
             </h1>
-            <form th:action="@{/staff-home/classes-list/major-timetable}" method="post" class="inline-form header-form">
+            <form th:action="@{/staff-home/specialized-classes-list/specialized-timetable}" method="post" class="inline-form header-form">
                 <input type="hidden" name="classId" th:value="${classId}">
                 <div class="select-group">
                     <label><i class="fas fa-calendar-year"></i> Year</label>
@@ -43,7 +43,7 @@
                 <i class="fas fa-save"></i>
                 <span th:text="${isFullyScheduled} ? 'Fully Scheduled' : 'Save All'"></span>
             </button>
-            <a th:href="@{/staff-home/classes-list/clear-class}" class="btn btn-secondary">
+            <a th:href="@{/staff-home/specialized-classes-list/clear-class}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
@@ -71,8 +71,8 @@
 
             <!-- ACTION BUTTONS -->
             <div class="action-buttons">
-                <!-- NÚT GỬI THÔNG BÁO -->
-                <form th:action="@{/staff-home/classes-list/major-timetable/send-notification}" method="post" class="inline-form">
+                <!-- SEND NOTIFICATION -->
+                <form th:action="@{/staff-home/specialized-classes-list/specialized-timetable/send-notification}" method="post" class="inline-form">
                     <input type="hidden" name="classId" th:value="${classId}">
                     <input type="hidden" name="year" th:value="${year}">
                     <input type="hidden" name="week" th:value="${week}">
@@ -82,8 +82,8 @@
                     </button>
                 </form>
 
-                <!-- NÚT XEM TẤT CẢ LỊCH -->
-                <form th:action="@{/staff-home/classes-list/major-timetable/view-all}" method="post" class="inline-form">
+                <!-- VIEW ALL SCHEDULES -->
+                <form th:action="@{/staff-home/specialized-classes-list/specialized-timetable/view-all}" method="post" class="inline-form">
                     <input type="hidden" name="classId" th:value="${classId}">
                     <button type="submit" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-list-alt"></i> View All Schedules
@@ -111,7 +111,7 @@
     </div>
 
     <!-- TIMETABLE FORM -->
-    <form id="timetableForm" th:action="@{/staff-home/classes-list/major-timetable/save-all}" method="post">
+    <form id="timetableForm" th:action="@{/staff-home/specialized-classes-list/specialized-timetable/save-all}" method="post">
         <input type="hidden" name="year" th:value="${year}">
         <input type="hidden" name="week" th:value="${week}">
 
@@ -145,7 +145,7 @@
                              class="cell cell-booked"
                              th:data-timetable-id="${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId}">
                             <div class="cell-content">
-                                <a th:href="@{/staff-home/classes-list/major-timetable/detail(timetableId=${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId})}"
+                                <a th:href="@{/staff-home/specialized-classes-list/specialized-timetable/detail(timetableId=${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId})}"
                                    class="timetable-link">
                                     <div class="room-name">
                                         <i class="fas fa-door-open"></i>
@@ -170,12 +170,12 @@
                                     </div>
                                 </a>
                                 <div class="class-detail-btn">
-                                    <form th:action="@{/staff-home/classes-list/detail}" method="post" style="display:inline;">
+                                    <form th:action="@{/staff-home/specialized-classes-list/detail}" method="post" style="display:inline;">
                                         <input type="hidden" name="classId" th:value="${classId}">
                                         <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Detail Class</button>
                                     </form>
                                 </div>
-                                <form th:action="@{/staff-home/classes-list/major-timetable/delete}"
+                                <form th:action="@{/staff-home/specialized-classes-list/specialized-timetable/delete}"
                                       method="post" class="delete-form"
                                       onsubmit="return confirm('Delete this schedule?');">
                                     <input type="hidden" name="timetableId" th:value="${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId}">

@@ -1,46 +1,45 @@
-/* ========== RESET & BASE STYLE ========== */
+/* ===== BASE RESET ===== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, sans-serif;
+    font-family: "Segoe UI", "Roboto", sans-serif;
 }
 
 body {
-    background: #f3f6fa;
-    color: #222;
+    background-color: #f3f6fa;
+    color: #1a1a1a;
     line-height: 1.5;
 }
 
-/* ========== CONTAINER ========== */
+/* ===== CONTAINER ===== */
 .timetable-container {
     width: 95%;
     max-width: 1650px;
     margin: 2rem auto;
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     padding: 2rem;
 }
 
-/* ========== HEADER ========== */
+/* ===== HEADER ===== */
 .timetable-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 2px solid #e3e6eb;
-    padding-bottom: 1.2rem;
-    margin-bottom: 1.5rem;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-/* --- Header Main --- */
 .header-main {
     display: flex;
     align-items: center;
-    gap: 2rem;
     flex-wrap: wrap;
+    gap: 2rem;
 }
 
 .header-main h1 {
@@ -56,18 +55,17 @@ body {
     color: #0078d4;
 }
 
-/* --- Year/Week Form --- */
 .header-form {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
     flex-wrap: wrap;
 }
 
 .select-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .select-group label {
@@ -75,7 +73,7 @@ body {
     color: #333;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
 }
 
 .select-group i {
@@ -83,116 +81,176 @@ body {
 }
 
 .select-group select {
-    border: 1px solid #ccc;
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
+    background: #ffffff;
     cursor: pointer;
-    background: #fff;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease;
 }
 
 .select-group select:hover {
     border-color: #0078d4;
 }
 
-/* --- Header Controls --- */
 .header-controls {
     display: flex;
-    gap: 0.8rem;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 0.8rem;
 }
 
-/* Buttons */
+/* ===== BUTTONS ===== */
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     text-decoration: none;
     font-size: 0.95rem;
     padding: 0.5rem 1rem;
 }
 
-.btn i {
-    font-size: 0.9rem;
-}
-
-.btn-success { background-color: #198754; color: #fff; }
-.btn-success:hover { background-color: #157347; }
-
-.btn-secondary { background-color: #6c757d; color: #fff; }
-.btn-secondary:hover { background-color: #5a6268; }
-
-.btn-info { background-color: #0dcaf0; color: #fff; }
-.btn-info:hover { background-color: #0aa2c0; }
-
 .btn-sm {
     font-size: 0.8rem;
-    padding: 0.25rem 0.6rem;
+    padding: 0.35rem 0.7rem;
     border-radius: 6px;
 }
 
-/* ========== ALERTS ========== */
+.btn-success {
+    background-color: #198754;
+    color: #fff;
+}
+.btn-success:hover { background-color: #157347; }
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+.btn-secondary:hover { background-color: #5a6268; }
+
+.btn-outline-info {
+    background-color: transparent;
+    color: #0dcaf0;
+    border: 1px solid #0dcaf0;
+}
+.btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: #fff;
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-info {
+    background-color: #0dcaf0;
+    color: #fff;
+}
+.btn-info:hover {
+    background-color: #0aa2c0;
+}
+
+/* ===== STATUS BAR ===== */
+.slot-status-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.slot-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    align-items: center;
+}
+
+.status-item strong {
+    color: #111827;
+}
+
+.slot-status-week em {
+    color: #0078d4;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.text-success { color: #198754; }
+.text-warning { color: #d97706; }
+
+.action-buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+/* ===== ALERTS ===== */
 .alert {
     border-radius: 8px;
     padding: 0.8rem 1rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
     gap: 0.6rem;
     font-weight: 500;
 }
-
+.alert i { min-width: 18px; }
 .alert-success { background: #d1e7dd; color: #0f5132; }
-.alert-danger { background: #f8d7da; color: #842029; }
-.alert-info { background: #cff4fc; color: #055160; }
+.alert-danger  { background: #f8d7da; color: #842029; }
+.alert-info    { background: #cff4fc; color: #055160; }
+.alert-warning { background: #fff3cd; color: #664d03; }
 
-/* ========== TABLE ========== */
+/* ===== TABLE ===== */
 .table-wrapper {
     overflow-x: auto;
-    margin-top: 1rem;
 }
 
 .timetable-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
     text-align: center;
+    table-layout: fixed;
+    border: 1px solid #dee2e6;
 }
 
 .timetable-table th,
 .timetable-table td {
     border: 1px solid #dee2e6;
-    padding: 0.9rem;
+    padding: 0.8rem;
     vertical-align: middle;
 }
 
-/* --- TABLE HEADER --- */
 .timetable-table thead {
     background-color: #0078d4;
     color: #ffffff;
 }
 
-.day-header,
-.slot-header {
-    font-weight: 700;
-    text-align: center;
-    font-size: 1rem;
-    padding: 0.8rem 0.5rem;
-    line-height: 1.3;
-    white-space: normal;
-}
-
-/* Slot header (2 dòng) */
 .slot-header {
     background-color: #005ea2 !important;
-    font-weight: 700;
+    font-weight: bold;
     width: 15%;
+    text-align: center;
+    line-height: 1.3;
 }
 
 .slot-header div {
@@ -205,31 +263,27 @@ body {
     font-size: 0.85rem;
     color: #dceeff;
     font-weight: normal;
-    margin-top: 2px;
 }
 
 /* Day headers */
 .day-header {
-    font-size: 1rem;
-    font-weight: 600;
+    text-align: center;
     line-height: 1.35;
 }
 
 .day-name {
     display: block;
-    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.3px;
+    font-size: 1rem;
 }
 
 .day-date {
     display: block;
     font-size: 0.85rem;
     color: #dceeff;
-    margin-top: 1px;
 }
 
-/* ========== SLOT COLUMN ========== */
+/* ===== SLOTS ===== */
 .slot-cell {
     background-color: #f8fafc;
     text-align: left;
@@ -248,35 +302,26 @@ body {
     margin-top: 0.3rem;
 }
 
-/* ========== CELLS ========== */
+.slot-time i {
+    color: #0078d4;
+}
+
+/* ===== CELLS ===== */
 .timetable-cell {
-    height: 160px;
-    position: relative;
+    height: 170px;
     padding: 0.4rem;
 }
 
-/* --- BOOKED CELL --- */
+/* --- BOOKED --- */
 .cell-booked {
     background: #e7f3ff;
     border-left: 3px solid #0078d4;
     border-radius: 8px;
     height: 100%;
+    padding: 0.7rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 0.8rem;
-    transition: box-shadow 0.2s, transform 0.15s;
-}
-
-.cell-booked:hover {
-    box-shadow: 0 3px 10px rgba(0, 120, 212, 0.25);
-    transform: translateY(-2px);
-}
-
-.cell-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
 }
 
 .timetable-link {
@@ -287,23 +332,20 @@ body {
     gap: 0.3rem;
 }
 
-.timetable-link:hover {
-    text-decoration: underline;
-}
-
-/* Room and Info Lines */
-.room-name, .room-link, .room-address,
-.creator-info, .created-at {
+.room-name,
+.room-address,
+.room-link,
+.creator-info,
+.created-at {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     font-size: 0.9rem;
-    line-height: 1.4;
 }
 
 .room-name i { color: #0078d4; }
-.room-link i { color: #0d6efd; }
 .room-address i { color: #dc3545; }
+.room-link i { color: #0d6efd; }
 .creator-info i { color: #555; }
 .created-at i { color: #999; }
 
@@ -311,44 +353,51 @@ body {
     color: #0d6efd;
     text-decoration: none;
 }
-.link:hover {
-    text-decoration: underline;
-}
+.link:hover { text-decoration: underline; }
 
-/* View Detail Button */
+/* --- Actions (below) --- */
 .class-detail-btn {
-    display: flex;
-    justify-content: center;
-    margin-top: 0.3rem;
+    margin-top: 0.6rem;
+    text-align: center;
 }
 
-/* Delete Button */
 .btn-delete {
     background: transparent;
     border: none;
     color: #d9534f;
     cursor: pointer;
-    align-self: center;
-    transition: color 0.2s;
-    margin-top: 0.3rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-content: center;
+    margin: 0.5rem auto 0;
 }
-.btn-delete:hover { color: #b52b27; }
+.btn-delete i { font-size: 0.9rem; }
+.btn-delete:hover {
+    color: #b52b27;
+    transform: translateY(-1px);
+}
 
-/* --- AVAILABLE CELL --- */
+/* --- AVAILABLE --- */
 .cell-available {
     background-color: #e8f5e9;
     border: 1px dashed #81c784;
     border-radius: 6px;
     padding: 0.5rem;
 }
-.cell-available select {
+
+.room-select {
     width: 100%;
     padding: 0.4rem;
     border-radius: 4px;
     border: 1px solid #ccc;
     margin-bottom: 0.3rem;
+    font-size: 0.9rem;
 }
-.cell-available .room-count {
+
+.room-count {
     font-size: 0.8rem;
     color: #2e7d32;
     display: flex;
@@ -356,7 +405,7 @@ body {
     gap: 0.3rem;
 }
 
-/* --- UNAVAILABLE CELL --- */
+/* --- UNAVAILABLE --- */
 .cell-unavailable {
     background: #f8d7da;
     color: #842029;
@@ -366,23 +415,14 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 500;
+    flex-direction: column;
 }
 
-/* ========== RESPONSIVE DESIGN ========== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
     .timetable-header {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .header-main {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.8rem;
-    }
-
-    .header-controls {
-        align-self: flex-start;
     }
 }
 
@@ -403,13 +443,5 @@ body {
     .header-form {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .day-name {
-        font-size: 0.9rem;
-    }
-
-    .day-date {
-        font-size: 0.8rem;
     }
 }

@@ -1,17 +1,31 @@
-package com.example.demo.timtable.service;
+package com.example.demo.timtable.majorTimetable.service;
 
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
-import com.example.demo.timtable.dao.MajorTimetableDAO;
-import com.example.demo.timtable.model.MajorTimetable;
-import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.majorTimetable.dao.MajorTimetableDAO;
+import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
+import com.example.demo.timtable.majorTimetable.model.Slots;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
+    @Override
+    public List<MajorTimetable> getAllSchedulesByClass(String classId) {
+        return majorTimetableDAO.getAllSchedulesByClass(classId);
+    }
+
+    @Override
+    public int countTotalBookedSlots(String classId) {
+        return majorTimetableDAO.countTotalBookedSlots(classId);
+    }
+
+    @Override
+    public int countBookedSlotsInWeek(String classId, Integer week, Integer year, String campusId) {
+        return majorTimetableDAO.countBookedSlotsInWeek(classId, week, year, campusId);
+    }
+
     @Override
     public MajorTimetable getById(String timetableId) {
         return majorTimetableDAO.getById(timetableId);

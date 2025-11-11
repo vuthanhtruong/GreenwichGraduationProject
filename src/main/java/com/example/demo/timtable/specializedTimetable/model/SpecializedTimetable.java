@@ -1,34 +1,32 @@
-package com.example.demo.timtable.model;
+package com.example.demo.timtable.specializedTimetable.model;
 
-import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.timtable.majorTimetable.model.Timetable;
 import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.room.model.Rooms;
-import com.example.demo.entity.Enums.DaysOfWeek;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
-
 @Entity
-@Table(name = "MajorTimetable")
+@Table(name = "SpecializedTimetable")
 @PrimaryKeyJoinColumn(name = "TimetableID")
 @Getter
 @Setter
-public class MajorTimetable extends Timetable {
+public class SpecializedTimetable extends Timetable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MajorClasses classEntity;
+    private SpecializedClasses specializedClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    public MajorTimetable() {}
+    // === CONSTRUCTOR MỚI: DÙNG weekOfYear ===
+    public SpecializedTimetable() {}
 
 }

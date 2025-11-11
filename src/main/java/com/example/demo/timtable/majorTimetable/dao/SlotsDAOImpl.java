@@ -1,6 +1,6 @@
-package com.example.demo.timtable.dao;
+package com.example.demo.timtable.majorTimetable.dao;
 
-import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.majorTimetable.model.Slots;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

@@ -88,7 +88,7 @@
                     </form>
                 </td>
                 <td>
-                    <form method="post" th:action="@{/staff-home/specialized-classes-list/timetable}" class="inline-form">
+                    <form method="post" th:action="@{/staff-home/specialized-classes-list/specialized-timetable}" class="inline-form">
                         <input type="hidden" name="classId" th:value="${clazz.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn small">

@@ -1,4 +1,4 @@
-package com.example.demo.timtable.model;
+package com.example.demo.timtable.majorTimetable.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,4 +24,8 @@ public class Slots {
 
     @Column(name = "EndTime", nullable = false)
     private LocalTime endTime;
+
+    public Slots() {
+        this.slotId = slotId;
+    }
 }

@@ -1,6 +1,6 @@
-package com.example.demo.timtable.dao;
+package com.example.demo.timtable.majorTimetable.dao;
 
-import com.example.demo.timtable.model.Timetable;
+import com.example.demo.timtable.majorTimetable.model.Timetable;
 
 import java.util.List;
 

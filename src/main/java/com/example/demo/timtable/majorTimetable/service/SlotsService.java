@@ -1,6 +1,6 @@
-package com.example.demo.timtable.service;
+package com.example.demo.timtable.majorTimetable.service;
 
-import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.majorTimetable.model.Slots;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package com.example.demo.timtable.dao;
+package com.example.demo.timtable.majorTimetable.dao;
 
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
-import com.example.demo.timtable.model.MajorTimetable;
-import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
+import com.example.demo.timtable.majorTimetable.model.Slots;
 
 import java.util.List;
 
@@ -23,4 +23,7 @@ public interface MajorTimetableDAO {
 
     void delete(MajorTimetable timetable);
     MajorTimetable getById(String timetableId);
+    int countBookedSlotsInWeek(String classId, Integer week, Integer year, String campusId);
+    int countTotalBookedSlots(String classId); // BỎ campusId
+    List<MajorTimetable> getAllSchedulesByClass(String classId);
 }

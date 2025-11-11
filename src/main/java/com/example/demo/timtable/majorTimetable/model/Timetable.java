@@ -1,4 +1,4 @@
-package com.example.demo.timtable.model;
+package com.example.demo.timtable.majorTimetable.model;
 
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
