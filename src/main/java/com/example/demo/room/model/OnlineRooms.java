@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "OnlineRooms")
-@PrimaryKeyJoinColumn(name = "RoomID") // Liên kết với ID từ Room
+@PrimaryKeyJoinColumn(name = "RoomID")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,4 +18,14 @@ public class OnlineRooms extends Rooms {
 
     @Column(name = "Link", nullable = true, length = 500)
     private String link;
+
+    @Override
+    public String getLink() {
+        return link;
+    }
+
+    @Override
+    public String getAddress() {
+        return null;
+    }
 }

@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "Timetable")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -35,6 +37,12 @@ public abstract class Timetable {
 
     @Column(name = "WeekOfYear", nullable = false)
     private Integer weekOfYear;  // THAY date → weekOfYear
+
+    @Column(name = "Year", nullable = false)
+    private Integer year;  // Năm của tuần (ví dụ: 2025)
+
+    @Column(name = "CreatedAt")
+    private LocalDateTime createdAt;
 
     public Timetable() {}
 

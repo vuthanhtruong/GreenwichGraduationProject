@@ -1,0 +1,415 @@
+/* ========== RESET & BASE STYLE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background: #f3f6fa;
+    color: #222;
+    line-height: 1.5;
+}
+
+/* ========== CONTAINER ========== */
+.timetable-container {
+    width: 95%;
+    max-width: 1650px;
+    margin: 2rem auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+}
+
+/* ========== HEADER ========== */
+.timetable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #e3e6eb;
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* --- Header Main --- */
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.header-main h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1a202c;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.header-main h1 i {
+    color: #0078d4;
+}
+
+/* --- Year/Week Form --- */
+.header-form {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.select-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.select-group label {
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.select-group i {
+    color: #0078d4;
+}
+
+.select-group select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.select-group select:hover {
+    border-color: #0078d4;
+}
+
+/* --- Header Controls --- */
+.header-controls {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+}
+
+.btn i {
+    font-size: 0.9rem;
+}
+
+.btn-success { background-color: #198754; color: #fff; }
+.btn-success:hover { background-color: #157347; }
+
+.btn-secondary { background-color: #6c757d; color: #fff; }
+.btn-secondary:hover { background-color: #5a6268; }
+
+.btn-info { background-color: #0dcaf0; color: #fff; }
+.btn-info:hover { background-color: #0aa2c0; }
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+}
+
+/* ========== ALERTS ========== */
+.alert {
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 500;
+}
+
+.alert-success { background: #d1e7dd; color: #0f5132; }
+.alert-danger { background: #f8d7da; color: #842029; }
+.alert-info { background: #cff4fc; color: #055160; }
+
+/* ========== TABLE ========== */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.timetable-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: center;
+}
+
+.timetable-table th,
+.timetable-table td {
+    border: 1px solid #dee2e6;
+    padding: 0.9rem;
+    vertical-align: middle;
+}
+
+/* --- TABLE HEADER --- */
+.timetable-table thead {
+    background-color: #0078d4;
+    color: #ffffff;
+}
+
+.day-header,
+.slot-header {
+    font-weight: 700;
+    text-align: center;
+    font-size: 1rem;
+    padding: 0.8rem 0.5rem;
+    line-height: 1.3;
+    white-space: normal;
+}
+
+/* Slot header (2 dòng) */
+.slot-header {
+    background-color: #005ea2 !important;
+    font-weight: 700;
+    width: 15%;
+}
+
+.slot-header div {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.slot-header small {
+    display: block;
+    font-size: 0.85rem;
+    color: #dceeff;
+    font-weight: normal;
+    margin-top: 2px;
+}
+
+/* Day headers */
+.day-header {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.day-name {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.day-date {
+    display: block;
+    font-size: 0.85rem;
+    color: #dceeff;
+    margin-top: 1px;
+}
+
+/* ========== SLOT COLUMN ========== */
+.slot-cell {
+    background-color: #f8fafc;
+    text-align: left;
+    padding: 0.8rem 1rem;
+    border-right: 2px solid #dee2e6;
+}
+
+.slot-name {
+    font-weight: 600;
+    color: #2b2b2b;
+}
+
+.slot-time {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.3rem;
+}
+
+/* ========== CELLS ========== */
+.timetable-cell {
+    height: 160px;
+    position: relative;
+    padding: 0.4rem;
+}
+
+/* --- BOOKED CELL --- */
+.cell-booked {
+    background: #e7f3ff;
+    border-left: 3px solid #0078d4;
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.8rem;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.cell-booked:hover {
+    box-shadow: 0 3px 10px rgba(0, 120, 212, 0.25);
+    transform: translateY(-2px);
+}
+
+.cell-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.timetable-link {
+    text-decoration: none;
+    color: #004085;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.timetable-link:hover {
+    text-decoration: underline;
+}
+
+/* Room and Info Lines */
+.room-name, .room-link, .room-address,
+.creator-info, .created-at {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.room-name i { color: #0078d4; }
+.room-link i { color: #0d6efd; }
+.room-address i { color: #dc3545; }
+.creator-info i { color: #555; }
+.created-at i { color: #999; }
+
+.link {
+    color: #0d6efd;
+    text-decoration: none;
+}
+.link:hover {
+    text-decoration: underline;
+}
+
+/* View Detail Button */
+.class-detail-btn {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.3rem;
+}
+
+/* Delete Button */
+.btn-delete {
+    background: transparent;
+    border: none;
+    color: #d9534f;
+    cursor: pointer;
+    align-self: center;
+    transition: color 0.2s;
+    margin-top: 0.3rem;
+}
+.btn-delete:hover { color: #b52b27; }
+
+/* --- AVAILABLE CELL --- */
+.cell-available {
+    background-color: #e8f5e9;
+    border: 1px dashed #81c784;
+    border-radius: 6px;
+    padding: 0.5rem;
+}
+.cell-available select {
+    width: 100%;
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 0.3rem;
+}
+.cell-available .room-count {
+    font-size: 0.8rem;
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* --- UNAVAILABLE CELL --- */
+.cell-unavailable {
+    background: #f8d7da;
+    color: #842029;
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1024px) {
+    .timetable-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+    }
+
+    .header-controls {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .timetable-table th,
+    .timetable-table td {
+        padding: 0.5rem;
+    }
+
+    .cell-booked, .cell-available, .cell-unavailable {
+        font-size: 0.8rem;
+    }
+
+    .header-main h1 {
+        font-size: 1.3rem;
+    }
+
+    .header-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .day-name {
+        font-size: 0.9rem;
+    }
+
+    .day-date {
+        font-size: 0.8rem;
+    }
+}

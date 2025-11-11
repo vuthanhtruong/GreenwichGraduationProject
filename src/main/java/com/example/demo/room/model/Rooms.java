@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public abstract class Rooms {
+
     @Id
     @Column(name = "RoomID")
     private String roomId;
@@ -44,11 +45,33 @@ public abstract class Rooms {
     @Column(name = "Avatar", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] avatar;
 
-    public Rooms(String roomId, String roomName, Admins creator, Campuses campuses, LocalDateTime createdAt, byte[] avatar) {
+    // === ABSTRACT: GET LINK (FOR ONLINE) ===
+    public abstract String getLink();
+
+    // === ABSTRACT: GET ADDRESS (FOR OFFLINE) ===
+    public abstract String getAddress();
+
+    // === CONCRETE: SAFE DISPLAY INFO ===
+    public String getRoomDisplayInfo() {
+        String link = getLink();
+        String address = getAddress();
+
+        StringBuilder sb = new StringBuilder();
+        if (link != null && !link.isBlank()) {
+            sb.append("Link: ").append(link);
+        }
+        if (address != null && !address.isBlank()) {
+            if (sb.length() > 0) sb.append(" | ");
+            sb.append("Address: ").append(address);
+        }
+        return sb.length() > 0 ? sb.toString() : "No location info";
+    }
+
+    public Rooms(String roomId, String roomName, Admins creator, Campuses campus, LocalDateTime createdAt, byte[] avatar) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.creator = creator;
-        this.campus = campuses;
+        this.campus = campus;
         this.createdAt = createdAt;
         this.avatar = avatar;
     }
@@ -58,10 +81,9 @@ public abstract class Rooms {
         return "Room{" +
                 "roomId='" + roomId + '\'' +
                 ", roomName='" + roomName + '\'' +
-                ", creator=" + (creator != null ? creator.getId() : null) +
+                ", display='" + getRoomDisplayInfo() + '\'' +
                 ", campus=" + (campus != null ? campus.getCampusId() : null) +
                 ", createdAt=" + createdAt +
-                ", avatar=" + (avatar != null ? "present" : "null") +
                 '}';
     }
 }

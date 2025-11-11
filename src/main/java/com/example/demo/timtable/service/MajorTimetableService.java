@@ -9,8 +9,16 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MajorTimetableService {
-    MajorTimetable getTimetableByClassSlotDayWeek(String classId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear);
-    List<Rooms> getAvailableRoomsForSlot(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
-    String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
-    void SaveMajorTimetable(MajorTimetable timetable);
+    MajorTimetable getTimetableByClassSlotDayWeek(
+            String classId, String campusId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear, Integer year);
+
+    List<Rooms> getAvailableRoomsForSlot(
+            String classId, String campusId, Slots slots, DaysOfWeek daysOfWeek, Integer weekNumberInYear, Integer year);
+
+    String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(
+            String classId, String campusId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear, Integer year);
+
+    void SaveMajorTimetable(MajorTimetable timetable, String campusId);
+
+    List<MajorTimetable> getMajorTimetablesByWeekInYear(Integer weekInYear, Integer year, String campusId);
 }
