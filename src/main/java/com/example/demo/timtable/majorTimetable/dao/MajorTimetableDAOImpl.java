@@ -315,4 +315,26 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
                 .setParameter("year", year)
                 .getResultList();
     }
+
+    @Override
+    public List<MajorTimetable> getMajorTimetableByStudent(String studentId, Integer week, Integer year) {
+        String jpql = """
+        SELECT t FROM MajorTimetable t
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+          AND t.classEntity.classId IN (
+            SELECT smc.majorClass.classId
+            FROM Students_MajorClasses smc 
+            WHERE smc.student.id = :studentId
+          )
+        ORDER BY t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MajorTimetable.class)
+                .setParameter("studentId", studentId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+    }
+
 }

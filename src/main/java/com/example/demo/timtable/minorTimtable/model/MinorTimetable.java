@@ -1,4 +1,5 @@
-package com.example.demo.timtable.minorTimtable.model;
+// src/main/java/com/example/demo/timetable/minorTimetable/model/MinorTimetable.java
+package com.example.demo.timtable.minorTimetable.model;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.timtable.majorTimetable.model.Timetable;
@@ -26,6 +27,25 @@ public class MinorTimetable extends Timetable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private DeputyStaffs creator;
 
-    public MinorTimetable() {}
+    @Override
+    public String getClassId() {
+        return minorClass != null ? minorClass.getClassId() : null;
+    }
 
+    @Override
+    public String getClassName() {
+        return minorClass != null ? minorClass.getNameClass() : "Unknown";
+    }
+
+    @Override
+    public String getClassType() {
+        return "Minor";
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "N/A";
+    }
+
+    public MinorTimetable() {}
 }

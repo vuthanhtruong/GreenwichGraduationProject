@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/timetable/majorTimetable/model/Timetable.java
 package com.example.demo.timtable.majorTimetable.model;
 
 import com.example.demo.entity.Enums.DaysOfWeek;
@@ -36,21 +37,28 @@ public abstract class Timetable {
     private DaysOfWeek dayOfWeek;
 
     @Column(name = "WeekOfYear", nullable = false)
-    private Integer weekOfYear;  // THAY date → weekOfYear
+    private Integer weekOfYear;
 
     @Column(name = "Year", nullable = false)
-    private Integer year;  // Năm của tuần (ví dụ: 2025)
+    private Integer year;
 
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
+    // ===== ABSTRACT METHODS - LOẠI BỎ INSTANCEOF =====
+    public abstract String getClassId();        // ID của lớp
+    public abstract String getClassName();      // Tên lớp
+    public abstract String getClassType();      // "Major", "Minor", "Specialized"
+    public abstract String getCreatorName();    // Tên người tạo
+
     public Timetable() {}
 
-    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfWeek, Integer weekOfYear) {
+    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfWeek, Integer weekOfYear, Integer year) {
         this.timetableId = timetableId;
         this.room = room;
         this.slot = slot;
         this.dayOfWeek = dayOfWeek;
         this.weekOfYear = weekOfYear;
+        this.year = year;
     }
 }

@@ -26,4 +26,5 @@ public interface MajorTimetableService {
     int countBookedSlotsInWeek(String classId, Integer week, Integer year, String campusId);
     int countTotalBookedSlots(String classId); // BỎ campusId
     List<MajorTimetable> getAllSchedulesByClass(String classId);
+    List<MajorTimetable> getMajorTimetableByStudent(String studentId, Integer week, Integer year);
 }

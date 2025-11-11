@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/timetable/majorTimetable/model/MajorTimetable.java
 package com.example.demo.timtable.majorTimetable.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
@@ -25,6 +26,25 @@ public class MajorTimetable extends Timetable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    public MajorTimetable() {}
+    @Override
+    public String getClassId() {
+        return classEntity != null ? classEntity.getClassId() : null;
+    }
 
+    @Override
+    public String getClassName() {
+        return classEntity != null ? classEntity.getNameClass() : "Unknown";
+    }
+
+    @Override
+    public String getClassType() {
+        return "Major";
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "N/A";
+    }
+
+    public MajorTimetable() {}
 }

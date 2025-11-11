@@ -41,4 +41,6 @@ public interface SpecializedTimetableDAO {
 
     // Lấy toàn bộ lịch của lớp (không phân trang)
     List<SpecializedTimetable> getAllSchedulesByClass(String classId);
+
+    List<SpecializedTimetable> getSpecializedTimetableByStudent(String studentId, Integer week, Integer year);
 }

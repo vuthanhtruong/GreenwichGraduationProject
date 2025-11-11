@@ -16,6 +16,11 @@ import java.util.List;
 @Transactional
 public class SpecializedTimetableServiceImpl implements SpecializedTimetableService {
     @Override
+    public List<SpecializedTimetable> getSpecializedTimetableByStudent(String studentId, Integer week, Integer year) {
+        return dao.getSpecializedTimetableByStudent(studentId, week, year);
+    }
+
+    @Override
     public SpecializedTimetable getTimetableByClassSlotDayWeek(String classId, String campusId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear, Integer year) {
         return dao.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, weekOfYear, year);
     }

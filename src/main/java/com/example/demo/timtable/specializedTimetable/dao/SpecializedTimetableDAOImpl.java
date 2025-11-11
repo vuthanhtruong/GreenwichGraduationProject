@@ -332,4 +332,25 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
                 .setParameter("year", year)
                 .getResultList();
     }
+
+    @Override
+    public List<SpecializedTimetable> getSpecializedTimetableByStudent(String studentId, Integer week, Integer year) {
+        String jpql = """
+        SELECT t FROM SpecializedTimetable t
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+          AND t.specializedClass.classId IN (
+            SELECT ssc.specializedClass.classId 
+            FROM Students_SpecializedClasses ssc 
+            WHERE ssc.student.id = :studentId
+          )
+        ORDER BY t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, SpecializedTimetable.class)
+                .setParameter("studentId", studentId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+    }
 }

@@ -1,6 +1,5 @@
 package com.example.demo.attendance.model;
 
-import com.example.demo.timtable.minorTimtable.model.MinorTimetable;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.entity.Enums.AttendanceStatus;
 import com.example.demo.user.student.model.Students;
@@ -22,7 +21,7 @@ public class MinorAttendance extends Attendance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TimetableID", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private MinorTimetable timetable;
+    private com.example.demo.timtable.minorTimetable.model.MinorTimetable timetable;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MarkedByID", nullable = false, insertable = false, updatable = false)
@@ -31,7 +30,7 @@ public class MinorAttendance extends Attendance {
 
     public MinorAttendance() {}
 
-    public MinorAttendance(String attendanceId, Students student, MinorEmployes markedBy, MinorTimetable timetable, AttendanceStatus status, String note, LocalDateTime createdAt) {
+    public MinorAttendance(String attendanceId, Students student, MinorEmployes markedBy, com.example.demo.timtable.minorTimetable.model.MinorTimetable timetable, AttendanceStatus status, String note, LocalDateTime createdAt) {
         super.setAttendanceId(attendanceId);
         super.setStudent(student);
         this.markedBy = markedBy;

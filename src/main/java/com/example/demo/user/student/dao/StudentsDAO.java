@@ -1,6 +1,7 @@
 package com.example.demo.user.student.dao;
 
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.major.model.Majors;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.student.model.Students;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ public interface StudentsDAO {
     String generateUniqueStudentId(String majorId, LocalDate createdDate);
     Map<String, String> StudentValidation(Students student, MultipartFile avatarFile);
     Students getStudent();
-    com.example.demo.major.model.Majors getStudentMajor();
+    Majors getStudentMajor();
     List<Students> getStudents();
     Students addStudents(Students students, Curriculum curriculum, Specialization specialization, String randomPassword);
     long numberOfStudentsByCampus(String campusId);

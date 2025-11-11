@@ -1,12 +1,11 @@
-// com.example.demo.timtable.majorTimetable.dao.TimetableDAO
-package com.example.demo.timtable.majorTimetable.dao;
+// com.example.demo.timtable.majorTimetable.service.TimetableService
+package com.example.demo.timtable.majorTimetable.service;
 
 import com.example.demo.timtable.majorTimetable.model.Timetable;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public interface TimetableDAO {
+public interface TimetableService {
     List<Timetable> getTimetablesByWeekInYear(Integer weekInYear, Integer year);
     List<Timetable> getStudentTimetable(String studentId, Integer week, Integer year);
 }

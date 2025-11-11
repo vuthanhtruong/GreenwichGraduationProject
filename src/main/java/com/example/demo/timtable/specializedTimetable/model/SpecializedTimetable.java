@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/timetable/specializedTimetable/model/SpecializedTimetable.java
 package com.example.demo.timtable.specializedTimetable.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
@@ -26,7 +27,25 @@ public class SpecializedTimetable extends Timetable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
-    // === CONSTRUCTOR MỚI: DÙNG weekOfYear ===
-    public SpecializedTimetable() {}
+    @Override
+    public String getClassId() {
+        return specializedClass != null ? specializedClass.getClassId() : null;
+    }
 
+    @Override
+    public String getClassName() {
+        return specializedClass != null ? specializedClass.getNameClass() : "Unknown";
+    }
+
+    @Override
+    public String getClassType() {
+        return "Specialized";
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "N/A";
+    }
+
+    public SpecializedTimetable() {}
 }
