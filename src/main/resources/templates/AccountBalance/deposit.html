@@ -28,10 +28,10 @@
         </div>
 
         <!-- Right: Balance (optional, nếu bạn có dữ liệu) -->
-        <div class="toolbar-right" th:if="${student.balance != null}">
+        <div class="toolbar-right" th:if="${account != null}">
             <div class="total">
                 <i class="fas fa-coins"></i>
-                <span><strong>Current Balance:</strong> $<span th:text="${#numbers.formatDecimal(student.balance, 1, 2)}"></span></span>
+                <span><strong>Current Balance:</strong> $<span th:text="${#numbers.formatDecimal(account.getBalance(), 1, 2)}"></span></span>
             </div>
         </div>
     </div>

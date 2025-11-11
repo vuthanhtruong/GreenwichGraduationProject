@@ -1,0 +1,308 @@
+package com.example.demo.timtable.controller;
+
+import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.entity.Enums.DaysOfWeek;
+import com.example.demo.room.model.Rooms;
+import com.example.demo.room.service.RoomsService;
+import com.example.demo.timtable.model.MajorTimetable;
+import com.example.demo.timtable.model.Slots;
+import com.example.demo.timtable.service.MajorTimetableService;
+import com.example.demo.timtable.service.SlotsService;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.staff.service.StaffsService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.IsoFields;
+import java.util.*;
+import java.util.stream.IntStream;
+
+@Controller
+@RequestMapping("/staff-home/classes-list")
+@RequiredArgsConstructor
+@SessionAttributes("selectedClassId")
+public class MajorTimetableController {
+
+    private final MajorTimetableService majorTimetableService;
+    private final SlotsService slotsService;
+    private final StaffsService staffsService;
+    private final MajorClassesService majorClassesService;
+    private final RoomsService roomsService;
+
+    @PostMapping("/major-timetable")
+    public String openTimetableFromList(
+            @RequestParam String classId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer week,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (classId == null || classId.isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "Invalid class selected.");
+            return "redirect:/staff-home/classes-list";
+        }
+
+        model.addAttribute("selectedClassId", classId);
+
+        String redirect = "redirect:/staff-home/classes-list/major-timetable";
+        if (year != null) {
+            redirect += "?year=" + year;
+            if (week != null) redirect += "&week=" + week;
+        } else if (week != null) {
+            redirect += "?week=" + week;
+        }
+        return redirect;
+    }
+
+    @GetMapping("/major-timetable")
+    public String showTimetable(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer week,
+            @SessionAttribute(value = "selectedClassId", required = false) String classId,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (classId == null || classId.isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "Please select a class first.");
+            return "redirect:/staff-home/classes-list";
+        }
+
+        return loadTimetable(classId, year, week, model);
+    }
+
+    private String loadTimetable(String classId, Integer year, Integer week, Model model) {
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+        int currentWeek = now.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+
+        year = (year != null) ? year : currentYear;
+        week = (week != null) ? week : currentWeek;
+
+        List<Slots> slots = slotsService.getSlots();
+        if (slots.isEmpty()) {
+            model.addAttribute("error", "No time slots configured.");
+            return "MajorTimetable";
+        }
+
+        List<LocalDate> dates = getWeekDates(year, week);
+        List<String> dayNames = dayNames();
+
+        DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("dd/MM");
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        List<String> dayLabels = dates.stream().map(d -> d.format(dayFmt)).toList();
+        List<String> dateLabels = dates.stream().map(d -> d.format(dateFmt)).toList();
+
+        Integer finalYear = year;
+        List<String> weekLabels = IntStream.rangeClosed(1, 53)
+                .mapToObj(w -> {
+                    List<LocalDate> wd = getWeekDates(finalYear, w);
+                    if (wd.get(0).getYear() != finalYear) return null;
+                    return w + " (" + wd.get(0).format(dayFmt) + " - " + wd.get(6).format(dayFmt) + ")";
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        @SuppressWarnings("unchecked")
+        List<String>[][] availableRoomsMatrix = new List[7][slots.size()];
+        String[][] bookedRoomMatrix = new String[7][slots.size()];
+
+        MajorClasses majorClass = majorClassesService.getClassById(classId);
+        String className = (majorClass != null) ? majorClass.getNameClass() : classId;
+
+        for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
+            DaysOfWeek day = DaysOfWeek.valueOf(dayNames.get(dayIdx));
+            LocalDate date = dates.get(dayIdx);
+
+            for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
+                Slots slot = slots.get(slotIdx);
+
+                MajorTimetable existing = majorTimetableService.getTimetableByClassSlotDayDate(classId, slot.getSlotId(), day, date);
+
+                if (existing != null) {
+                    availableRoomsMatrix[dayIdx][slotIdx] = List.of();
+                    bookedRoomMatrix[dayIdx][slotIdx] = existing.getRoom().getRoomId();
+                } else {
+                    List<String> rooms = majorTimetableService
+                            .getAvailableRoomsForSlot(classId, slot, day, week)
+                            .stream()
+                            .map(Rooms::getRoomId)
+                            .sorted()
+                            .toList();
+                    availableRoomsMatrix[dayIdx][slotIdx] = rooms;
+                    bookedRoomMatrix[dayIdx][slotIdx] = null;
+                }
+            }
+        }
+
+        model.addAttribute("classId", classId);
+        model.addAttribute("className", className);
+        model.addAttribute("year", year);
+        model.addAttribute("week", week);
+        model.addAttribute("currentYear", currentYear);
+        model.addAttribute("currentWeek", currentWeek);
+        model.addAttribute("slots", slots);
+        model.addAttribute("dayNames", dayNames);
+        model.addAttribute("dayLabels", dayLabels);
+        model.addAttribute("dateLabels", dateLabels);
+        model.addAttribute("weekLabels", weekLabels);
+        model.addAttribute("availableRoomsMatrix", availableRoomsMatrix);
+        model.addAttribute("bookedRoomMatrix", bookedRoomMatrix);
+
+        return "MajorTimetable";
+    }
+
+    @PostMapping("/major-timetable/save-all")
+    public String saveAllMajorTimetable(
+            @RequestParam Integer year,
+            @RequestParam Integer week,
+            @RequestParam Map<String, String> allParams,
+            @SessionAttribute("selectedClassId") String classId,
+            RedirectAttributes redirectAttributes) {
+
+        int savedCount = 0;
+        List<String> errors = new ArrayList<>();
+        Set<String> usedRoomSlotDate = new HashSet<>();
+
+        try {
+            Staffs creator = staffsService.getStaff();
+            if (creator == null) {
+                redirectAttributes.addFlashAttribute("error", "Staff not found.");
+                return redirectUrl(year, week);
+            }
+
+            List<Slots> slots = slotsService.getSlots();
+            if (slots.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "No slots configured.");
+                return redirectUrl(year, week);
+            }
+
+            MajorClasses majorClass = majorClassesService.getClassById(classId);
+            if (majorClass == null) {
+                redirectAttributes.addFlashAttribute("error", "Class not found.");
+                return redirectUrl(year, week);
+            }
+
+            List<LocalDate> dates = getWeekDates(year, week);
+            if (dates.size() < 7) {
+                redirectAttributes.addFlashAttribute("error", "Invalid week dates.");
+                return redirectUrl(year, week);
+            }
+
+            List<String> dayNames = dayNames();
+            for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
+                LocalDate date = dates.get(dayIdx);
+                DaysOfWeek dayOfWeek = DaysOfWeek.valueOf(dayNames.get(dayIdx));
+
+                for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
+                    String roomKey = "room_" + dayIdx + "_" + slotIdx;
+                    String roomId = allParams.get(roomKey);
+
+                    if (roomId == null || roomId.trim().isEmpty() || roomId.equals("-- Select Room --")) {
+                        continue;
+                    }
+
+                    String slotIdKey = "slotId_" + dayIdx + "_" + slotIdx;
+                    String slotId = allParams.get(slotIdKey);
+                    if (slotId == null || slotId.isEmpty()) continue;
+
+                    Slots slot = slotsService.getSlotById(slotId);
+                    if (slot == null) {
+                        errors.add("Invalid slot ID: " + slotId);
+                        continue;
+                    }
+
+                    String conflictKey = roomId + "|" + slotId + "|" + date;
+                    if (usedRoomSlotDate.contains(conflictKey)) {
+                        errors.add("Room " + roomId + " already booked on " + date + " in this save.");
+                        continue;
+                    }
+
+                    Rooms room = roomsService.getRoomById(roomId);
+                    if (room == null) {
+                        errors.add("Room not found: " + roomId);
+                        continue;
+                    }
+
+                    MajorTimetable existing = majorTimetableService.getTimetableByClassSlotDayDate(classId, slot.getSlotId(), dayOfWeek, date);
+
+                    if (existing != null) {
+                        errors.add("Already booked: " + roomId + " on " + date);
+                        continue;
+                    }
+
+                    MajorTimetable timetable = new MajorTimetable();
+                    timetable.setTimetableId(UUID.randomUUID().toString());
+                    timetable.setClassEntity(majorClass);
+                    timetable.setRoom(room);
+                    timetable.setSlot(slot);
+                    timetable.setDayOfWeek(dayOfWeek);
+                    timetable.setDate(date);
+                    timetable.setCreator(creator);
+
+                    majorTimetableService.SaveMajorTimetable(timetable);
+                    savedCount++;
+                    usedRoomSlotDate.add(conflictKey);
+                }
+            }
+
+            if (savedCount > 0) {
+                redirectAttributes.addFlashAttribute("success", "Successfully saved " + savedCount + " room(s).");
+            } else if (errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("info", "No rooms were selected.");
+            }
+
+            if (!errors.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", String.join("<br>", errors));
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "System error: " + e.getMessage());
+        }
+
+        return redirectUrl(year, week);
+    }
+
+    @GetMapping("/major-timetable/save-all")
+    public String blockDirectSave(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", "Direct access not allowed.");
+        return "redirect:/staff-home/classes-list";
+    }
+
+    @GetMapping("/clear-class")
+    public String clearClass(HttpSession session) {
+        session.removeAttribute("selectedClassId");
+        return "redirect:/staff-home/classes-list";
+    }
+
+    private String redirectUrl(Integer year, Integer week) {
+        String url = "redirect:/staff-home/classes-list/major-timetable";
+        if (year != null) {
+            url += "?year=" + year;
+            if (week != null) url += "&week=" + week;
+        } else if (week != null) {
+            url += "?week=" + week;
+        }
+        return url;
+    }
+
+    private List<String> dayNames() {
+        return List.of("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY");
+    }
+
+    private List<LocalDate> getWeekDates(int year, int week) {
+        LocalDate firstDay = LocalDate.of(year, 1, 1)
+                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
+                .with(java.time.DayOfWeek.MONDAY);
+        return IntStream.range(0, 7)
+                .mapToObj(i -> firstDay.plusDays(i))
+                .toList();
+    }
+}

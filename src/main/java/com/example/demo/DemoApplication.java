@@ -7,11 +7,14 @@ import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.entity.Enums.*;
 import com.example.demo.financialHistory.depositHistory.model.DepositHistories;
 import com.example.demo.major.model.Majors;
+import com.example.demo.room.model.OfflineRooms;
+import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.subject.abstractSubject.model.Subjects;
+import com.example.demo.timtable.model.Slots;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.model.TuitionByYearId;
 import com.example.demo.user.admin.model.Admins;
@@ -29,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -64,6 +68,11 @@ public class DemoApplication {
             seedSpecializedSubjects(em);
             seedStudentBalancesAndDepositHistory(em);
             seedTuitionByYear(em); // GIÁ 10–20 USD
+            seedSpecializedSubjects(em);
+            seedStudentBalancesAndDepositHistory(em);
+            seedTuitionByYear(em); // GIÁ 10–20 USD
+            seedSlots(em);         // ĐÃ CÓ
+            seedRooms(em);         // MỚI THÊM
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -612,6 +621,91 @@ public class DemoApplication {
             return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
         } catch (NoResultException e) {
             return null;
+        }
+    }
+    private static void seedSlots(EntityManager em) {
+        String[][] slotData = {
+                {"SLOT01", "Slot 1", "07:10", "08:40"},
+                {"SLOT02", "Slot 2", "08:50", "10:20"},
+                {"SLOT03", "Slot 3", "10:30", "12:00"},
+                {"SLOT04", "Slot 4", "12:50", "14:20"},
+                {"SLOT05", "Slot 5", "14:30", "16:00"},
+                {"SLOT06", "Slot 6", "16:10", "17:40"}
+        };
+
+        for (String[] data : slotData) {
+            String id = data[0];
+            if (exists(em, Slots.class, "slotId", id)) continue;
+
+            Slots slot = new Slots();
+            slot.setSlotId(id);
+            slot.setSlotName(data[1]);
+            slot.setStartTime(LocalTime.parse(data[2]));
+            slot.setEndTime(LocalTime.parse(data[3]));
+            em.persist(slot);
+        }
+    }
+    private static void seedRooms(EntityManager em) {
+        Admins creator = find(em, Admins.class, "id", "admin001");
+        if (creator == null) throw new IllegalStateException("admin001 must exist!");
+
+        // === 10 PHÒNG HỌC VẬT LÝ ===
+        String[] physicalIds = {"G101", "G102", "G201", "G202", "G301", "G302", "G401", "G402", "G501", "G502"};
+        String[] physicalNames = {
+                "Phòng G101 - Tầng 1", "Phòng G102 - Tầng 1",
+                "Phòng G201 - Tầng 2", "Phòng G202 - Tầng 2",
+                "Phòng G301 - Tầng 3", "Phòng G302 - Tầng 3",
+                "Phòng G401 - Tầng 4", "Phòng G402 - Tầng 4",
+                "Phòng G501 - Tầng 5", "Phòng G502 - Tầng 5"
+        };
+        int[] capacities = {30, 35, 40, 40, 50, 50, 60, 60, 80, 80};
+
+        for (int i = 0; i < 10; i++) {
+            String roomId = physicalIds[i];
+            if (exists(em, OfflineRooms.class, "roomId", roomId)) continue;
+
+            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 1));
+
+            OfflineRooms room = new OfflineRooms();
+            room.setRoomId(roomId);
+            room.setRoomName(physicalNames[i]);
+            room.setCreator(creator);
+            room.setCampus(campus);
+            room.setFloor((i / 2) + 1); // Tầng 1 → 5
+            em.persist(room);
+        }
+
+        // === 10 PHÒNG HỌC ONLINE ===
+        String[] onlineIds = {"ONLINE01", "ONLINE02", "ZOOM01", "ZOOM02", "MEET01", "MEET02", "TEAMS01", "TEAMS02", "WEBEX01", "WEBEX02"};
+        String[] onlineNames = {
+                "Phòng Online 01", "Phòng Online 02",
+                "Zoom Room 01", "Zoom Room 02",
+                "Google Meet 01", "Google Meet 02",
+                "Microsoft Teams 01", "Microsoft Teams 02",
+                "Cisco Webex 01", "Cisco Webex 02"
+        };
+        String[] links = {
+                "https://zoom.us/j/1234567890", "https://zoom.us/j/9876543210",
+                "https://zoom.us/j/1112223334", "https://zoom.us/j/4445556667",
+                "https://meet.google.com/abc-defg-hij", "https://meet.google.com/xyz-abcd-efg",
+                "https://teams.microsoft.com/l/meetup-join/19%3A...", "https://teams.microsoft.com/l/meetup-join/19%3A...",
+                "https://webex.com/meet/room1", "https://webex.com/meet/room2"
+        };
+
+        for (int i = 0; i < 10; i++) {
+            String roomId = onlineIds[i];
+            if (exists(em, OnlineRooms.class, "roomId", roomId)) continue;
+
+            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 6)); // CAMP06 → CAMP10
+
+            OnlineRooms room = new OnlineRooms();
+            room.setRoomId(roomId);
+            room.setRoomName(onlineNames[i]);
+            room.setCreator(creator);
+            room.setCampus(campus);
+            room.setLink(links[i]);
+
+            em.persist(room);
         }
     }
 }

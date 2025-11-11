@@ -33,18 +33,18 @@ public abstract class Timetable {
 
     @Column(name = "DayOfTheWeek", nullable = true, length = 20)
     @Enumerated(EnumType.STRING)
-    private DaysOfWeek dayOfTheWeek;
+    private DaysOfWeek dayOfWeek;
 
     @Column(name = "Date", nullable = true)
     private LocalDate date;
 
     public Timetable() {}
 
-    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date) {
+    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfWeek, LocalDate date) {
         this.timetableId = timetableId;
         this.room = room;
         this.slot = slot;
-        this.dayOfTheWeek = dayOfTheWeek;
+        this.dayOfWeek = dayOfWeek;
         this.date = date;
     }
 }

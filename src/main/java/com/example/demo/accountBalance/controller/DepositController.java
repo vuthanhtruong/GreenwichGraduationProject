@@ -47,6 +47,7 @@ public class DepositController {
             model.addAttribute("error", "Student not found");
             return "error";
         }
+        model.addAttribute("account", accountBalancesService.findByStudentId(student.getId()));
         model.addAttribute("student", student);
         return "deposit";
     }
