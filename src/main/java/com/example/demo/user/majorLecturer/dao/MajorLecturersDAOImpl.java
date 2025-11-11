@@ -605,4 +605,107 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
         if (updated.getCreator() != null) existing.setCreator(updated.getCreator());
         if (updated.getAvatar() != null) existing.setAvatar(updated.getAvatar());
     }
+    // === NEW: totalLecturersByCampusAndMajor ===
+    @Override
+    public long totalLecturersByCampusAndMajor(String campusId, String majorId) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank()) {
+            return 0L;
+        }
+        return entityManager.createQuery(
+                        "SELECT COUNT(l) FROM MajorLecturers l " +
+                                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getSingleResult();
+    }
+
+    // === NEW: getPaginatedLecturersByCampusAndMajor ===
+    @Override
+    public List<MajorLecturers> getPaginatedLecturersByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize) {
+        if (campusId == null || majorId == null || pageSize <= 0) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT l FROM MajorLecturers l " +
+                                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId " +
+                                "ORDER BY l.id", MajorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    // === NEW: searchLecturersByCampusAndMajor ===
+    @Override
+    public List<MajorLecturers> searchLecturersByCampusAndMajor(
+            String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize) {
+
+        if (campusId == null || majorId == null || keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
+        }
+
+        String baseQuery = "SELECT l FROM MajorLecturers l " +
+                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId";
+
+        String condition = buildSearchCondition(searchType, keyword);
+        if (condition.isEmpty()) return List.of();
+
+        TypedQuery<MajorLecturers> query = entityManager.createQuery(baseQuery + condition + " ORDER BY l.id", MajorLecturers.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize);
+
+        setSearchParameters(query, searchType, keyword);
+        return query.getResultList();
+    }
+
+    // === NEW: countSearchLecturersByCampusAndMajor ===
+    @Override
+    public long countSearchLecturersByCampusAndMajor(
+            String campusId, String majorId, String searchType, String keyword) {
+
+        if (campusId == null || majorId == null || keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String baseQuery = "SELECT COUNT(l) FROM MajorLecturers l " +
+                "WHERE l.campus.id = :campusId AND l.majorManagement.majorId = :majorId";
+
+        String condition = buildSearchCondition(searchType, keyword);
+        if (condition.isEmpty()) return 0L;
+
+        TypedQuery<Long> query = entityManager.createQuery(baseQuery + condition, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId);
+
+        setSearchParameters(query, searchType, keyword);
+        return query.getSingleResult();
+    }
+    private String buildSearchCondition(String searchType, String keyword) {
+        if ("name".equalsIgnoreCase(searchType)) {
+            String[] words = keyword.toLowerCase().trim().split("\\s+");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) sb.append(" AND ");
+                sb.append("(LOWER(l.firstName) LIKE :word").append(i)
+                        .append(" OR LOWER(l.lastName) LIKE :word").append(i).append(")");
+            }
+            return " AND (" + sb + ")";
+        } else if ("id".equalsIgnoreCase(searchType)) {
+            return " AND LOWER(l.id) LIKE LOWER(:keyword)";
+        }
+        return "";
+    }
+
+    private void setSearchParameters(TypedQuery<?> query, String searchType, String keyword) {
+        if ("name".equalsIgnoreCase(searchType)) {
+            String[] words = keyword.toLowerCase().trim().split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equalsIgnoreCase(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+    }
 }

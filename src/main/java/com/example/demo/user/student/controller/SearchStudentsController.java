@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/user/student/controller/SearchStudentsController.java
 package com.example.demo.user.student.controller;
 
 import com.example.demo.user.staff.service.StaffsService;
@@ -6,10 +7,7 @@ import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
@@ -29,71 +27,16 @@ public class SearchStudentsController {
 
     @GetMapping("/search-students")
     public String showSearchPage(
-            Model model,
-            HttpSession session,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) Integer pageSize,
             @RequestParam(value = "successMessage", required = false) String successMessage,
-            @RequestParam(value = "error", required = false) String error) {
-        try {
-            if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("pageSize");
-                if (pageSize == null) {
-                    pageSize = 20;
-                }
-            }
-            session.setAttribute("pageSize", pageSize);
+            @RequestParam(value = "error", required = false) String error,
+            Model model,
+            HttpSession session) {
 
-            List<Students> students;
-            long totalStudents;
-
-            if (keyword == null || keyword.trim().isEmpty()) {
-                totalStudents = studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId());
-                students = studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
-            } else {
-                students = studentsService.searchStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalStudents = studentsService.countSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
-            }
-
-            if (totalStudents == 0) {
-                model.addAttribute("student", new Students());
-                model.addAttribute("students", new ArrayList<>());
-                model.addAttribute("currentPage", 1);
-                model.addAttribute("totalPages", 1);
-                model.addAttribute("pageSize", pageSize);
-                model.addAttribute("searchType", searchType != null ? searchType : "name");
-                model.addAttribute("keyword", keyword != null ? keyword : "");
-                // Inside showClassesList(), after retrieving classes
-                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
-                model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No students found matching the search criteria."));
-                return "SearchStudents";
-            }
-
-            int totalPages = (int) Math.ceil((double) totalStudents / pageSize);
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
-
-            model.addAttribute("students", students);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", totalPages);
-            model.addAttribute("pageSize", pageSize);
-            model.addAttribute("searchType", searchType != null ? searchType : "name");
-            // Inside showClassesList(), after retrieving classes
-            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
-            model.addAttribute("keyword", keyword != null ? keyword : "");
-            if (successMessage != null) {
-                model.addAttribute("message", successMessage);
-            } else if (error != null) {
-                model.addAttribute("error", error);
-            }
-
-            return "SearchStudents";
-        } catch (Exception e) {
-            model.addAttribute("error", "An error occurred while searching for students: " + e.getMessage());
-            return "error";
-        }
+        return handleSearch(searchType, keyword, page, pageSize, successMessage, error, model, session, null);
     }
 
     @PostMapping("/search-students")
@@ -107,67 +50,95 @@ public class SearchStudentsController {
             Model model,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         try {
-            if (pageSize == null) {
-                pageSize = (Integer) session.getAttribute("pageSize");
-                if (pageSize == null) {
-                    pageSize = 5;
-                }
-            }
-            session.setAttribute("pageSize", pageSize);
+            return handleSearch(searchType, keyword, page, pageSize, successMessage, error, model, session, redirectAttributes);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Search failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("searchType", searchType);
+            redirectAttributes.addFlashAttribute("keyword", keyword);
+            redirectAttributes.addFlashAttribute("page", page);
+            redirectAttributes.addFlashAttribute("pageSize", pageSize != null ? pageSize : 20);
+            return "redirect:/staff-home/search-students";
+        }
+    }
 
-            List<Students> students;
-            long totalStudents;
+    private String handleSearch(
+            String searchType, String keyword, int page, Integer pageSize,
+            String successMessage, String error,
+            Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
+        String campusId = staffsService.getCampusOfStaff().getCampusId();
+        String majorId = staffsService.getStaff().getMajorManagement().getMajorId(); // Fixed: Only staff's major
+        String campusName = staffsService.getCampusOfStaff().getCampusName();
+        String majorName = staffsService.getStaffMajor().getMajorName();
+
+        if (pageSize == null) {
+            pageSize = (Integer) session.getAttribute("pageSize");
+            if (pageSize == null || pageSize <= 0) pageSize = 20;
+        }
+        session.setAttribute("pageSize", pageSize);
+
+        List<Students> students;
+        long totalStudents;
+
+        int firstResult = (page - 1) * pageSize;
+
+        try {
             if (keyword == null || keyword.trim().isEmpty()) {
-                totalStudents = studentsService.numberOfStudentsByCampus(staffsService.getCampusOfStaff().getCampusId());
-                students = studentsService.getPaginatedStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),(page - 1) * pageSize, pageSize);
+                totalStudents = studentsService.totalStudentsByCampusAndMajor(campusId, majorId);
+                students = studentsService.getPaginatedStudentsByCampusAndMajor(campusId, majorId, firstResult, pageSize);
             } else {
-                students = studentsService.searchStudentsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword, (page - 1) * pageSize, pageSize);
-                totalStudents = studentsService.countSearchResultsByCampus(staffsService.getCampusOfStaff().getCampusId(),searchType, keyword);
+                searchType = (searchType == null || searchType.isBlank()) ? "name" : searchType;
+                totalStudents = studentsService.countSearchResultsByCampusAndMajor(campusId, majorId, searchType, keyword.trim());
+                students = studentsService.searchStudentsByCampusAndMajor(campusId, majorId, searchType, keyword.trim(), firstResult, pageSize);
             }
 
-            if (totalStudents == 0) {
-                model.addAttribute("students", new ArrayList<>());
-                model.addAttribute("currentPage", 1);
-                model.addAttribute("totalPages", 1);
-                model.addAttribute("pageSize", pageSize);
-                model.addAttribute("searchType", searchType != null ? searchType : "name");
-                model.addAttribute("keyword", keyword != null ? keyword : "");
-                // Inside showClassesList(), after retrieving classes
-                model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
-                model.addAttribute("message", successMessage != null ? successMessage : (error != null ? error : "No students found matching the search criteria."));
-                return "SearchStudents";
-            }
-
-            int totalPages = (int) Math.ceil((double) totalStudents / pageSize);
+            int totalPages = totalStudents == 0 ? 1 : (int) Math.ceil((double) totalStudents / pageSize);
             if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
+            if (page > totalPages && totalPages > 0) page = totalPages;
 
             model.addAttribute("students", students);
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", totalPages);
             model.addAttribute("pageSize", pageSize);
-            model.addAttribute("searchType", searchType != null ? searchType : "name");
-            model.addAttribute("keyword", keyword != null ? keyword : "");
-            // Inside showClassesList(), after retrieving classes
-            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
+            model.addAttribute("totalStudents", totalStudents);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword != null ? keyword.trim() : "");
+            model.addAttribute("currentCampusName", campusName);
+            model.addAttribute("currentMajorName", majorName);
+
             if (successMessage != null) {
                 model.addAttribute("message", successMessage);
             } else if (error != null) {
                 model.addAttribute("error", error);
+            } else if (totalStudents == 0) {
+                model.addAttribute("message", "No students found in " + majorName + " matching your search.");
             }
 
             return "SearchStudents";
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "An error occurred while searching for students: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("searchType", searchType);
-            redirectAttributes.addFlashAttribute("keyword", keyword);
-            redirectAttributes.addFlashAttribute("page", page);
-            // Inside showClassesList(), after retrieving classes
-            model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
-            redirectAttributes.addFlashAttribute("pageSize", pageSize);
-            return "redirect:/staff-home/search-students";
+            String errMsg = "Search error: " + e.getMessage();
+            if (redirectAttributes != null) {
+                redirectAttributes.addFlashAttribute("error", errMsg);
+                redirectAttributes.addFlashAttribute("searchType", searchType);
+                redirectAttributes.addFlashAttribute("keyword", keyword);
+                redirectAttributes.addFlashAttribute("page", page);
+                redirectAttributes.addFlashAttribute("pageSize", pageSize);
+                return "redirect:/staff-home/search-students";
+            } else {
+                model.addAttribute("error", errMsg);
+                model.addAttribute("students", new ArrayList<>());
+                model.addAttribute("currentPage", 1);
+                model.addAttribute("totalPages", 1);
+                model.addAttribute("pageSize", pageSize);
+                model.addAttribute("searchType", "name");
+                model.addAttribute("keyword", "");
+                model.addAttribute("currentCampusName", campusName);
+                model.addAttribute("currentMajorName", majorName);
+                return "SearchStudents";
+            }
         }
     }
 }

@@ -28,4 +28,9 @@ public interface StudentsDAO {
     List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResultsByCampus(String campusId, String searchType, String keyword);
     List<Integer> getUniqueAdmissionYearsByCampus(String campusId);
+    List<Students> getStudentsByCampusAndMajor(String campusId, String majorId);
+    List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize);
+    List<Students> searchStudentsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchResultsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword);
+    long totalStudentsByCampusAndMajor(String campusId, String majorId);
 }

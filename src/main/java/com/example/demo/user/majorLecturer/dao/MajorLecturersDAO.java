@@ -34,4 +34,8 @@ public interface MajorLecturersDAO {
     long countMajorLecturersSearchResultsByCampus(String campusId, String searchType, String keyword);
     List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     List<MajorLecturers> searchMajorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
+    long totalLecturersByCampusAndMajor(String campusId, String majorId);
+    List<MajorLecturers> getPaginatedLecturersByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize);
+    List<MajorLecturers> searchLecturersByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchLecturersByCampusAndMajor(String campusId, String majorId, String searchType, String keyword);
 }

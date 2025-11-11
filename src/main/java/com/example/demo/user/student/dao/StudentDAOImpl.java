@@ -437,4 +437,139 @@ public class StudentDAOImpl implements StudentsDAO {
         if (edited.getCurriculum() != null) existing.setCurriculum(edited.getCurriculum());
         if (edited.getSpecialization() != null) existing.setSpecialization(edited.getSpecialization());
     }
+    // src/main/java/com/example/demo/user/student/dao/StudentDAOImpl.java
+
+    @Override
+    public List<Students> getStudentsByCampusAndMajor(String campusId, String majorId) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank()) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                        "SELECT s FROM Students s " +
+                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId " +
+                                "ORDER BY s.id", Students.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank() || pageSize <= 0) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                        "SELECT s FROM Students s " +
+                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId", Students.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public List<Students> searchStudentsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank() ||
+                keyword == null || keyword.trim().isEmpty() || pageSize <= 0) {
+            return List.of();
+        }
+
+        String baseQuery = "SELECT s FROM Students s " +
+                "JOIN FETCH s.campus " +
+                "JOIN FETCH s.specialization spec " +
+                "JOIN FETCH spec.major m " +
+                "JOIN FETCH s.creator " +
+                "WHERE s.campus.id = :campusId AND m.majorId = :majorId";
+
+        if ("name".equals(searchType)) {
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder condition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) condition.append(" AND ");
+                condition.append("(LOWER(s.firstName) LIKE :word").append(i)
+                        .append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+            }
+            baseQuery += " AND (" + condition + ")";
+        } else if ("id".equals(searchType)) {
+            baseQuery += " AND LOWER(s.id) LIKE LOWER(:keyword)";
+        } else {
+            return List.of();
+        }
+
+        TypedQuery<Students> query = entityManager.createQuery(baseQuery, Students.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize);
+
+        if ("name".equals(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equals(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        return query.getResultList();
+    }
+
+    @Override
+    public long countSearchResultsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank() ||
+                keyword == null || keyword.trim().isEmpty()) {
+            return 0L;
+        }
+
+        String baseQuery = "SELECT COUNT(s) FROM Students s " +
+                "JOIN s.specialization spec " +
+                "JOIN spec.major m " +
+                "WHERE s.campus.id = :campusId AND m.majorId = :majorId";
+
+        if ("name".equals(searchType)) {
+            keyword = keyword.toLowerCase().trim();
+            String[] words = keyword.split("\\s+");
+            StringBuilder condition = new StringBuilder();
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) condition.append(" AND ");
+                condition.append("(LOWER(s.firstName) LIKE :word").append(i)
+                        .append(" OR LOWER(s.lastName) LIKE :word").append(i).append(")");
+            }
+            baseQuery += " AND (" + condition + ")";
+        } else if ("id".equals(searchType)) {
+            baseQuery += " AND LOWER(s.id) LIKE LOWER(:keyword)";
+        } else {
+            return 0L;
+        }
+
+        TypedQuery<Long> query = entityManager.createQuery(baseQuery, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId);
+
+        if ("name".equals(searchType)) {
+            String[] words = keyword.split("\\s+");
+            for (int i = 0; i < words.length; i++) {
+                query.setParameter("word" + i, "%" + words[i] + "%");
+            }
+        } else if ("id".equals(searchType)) {
+            query.setParameter("keyword", "%" + keyword.trim() + "%");
+        }
+
+        return query.getSingleResult();
+    }
+
+    @Override
+    public long totalStudentsByCampusAndMajor(String campusId, String majorId) {
+        if (campusId == null || campusId.isBlank() || majorId == null || majorId.isBlank()) {
+            return 0L;
+        }
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Students s " +
+                                "WHERE s.campus.id = :campusId AND s.specialization.major.majorId = :majorId", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getSingleResult();
+    }
 }

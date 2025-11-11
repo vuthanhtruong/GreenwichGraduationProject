@@ -1,6 +1,7 @@
 package com.example.demo.user.student.service;
 
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.major.model.Majors;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.student.model.Students;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ public interface StudentsService {
     String generateUniqueStudentId(String majorId, LocalDate createdDate);
     Map<String, String> StudentValidation(Students student, MultipartFile avatarFile);
     Students getStudent();
-    com.example.demo.major.model.Majors getStudentMajor();
+    Majors getStudentMajor();
     List<Students> getStudents();
     Students addStudents(Students students, Curriculum curriculum, Specialization specialization, String randomPassword);
     long numberOfStudentsByCampus(String campusId);
@@ -27,4 +28,9 @@ public interface StudentsService {
     List<Students> searchStudentsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     Long countSearchResultsByCampus(String campusId, String searchType, String keyword);
     List<Integer> getUniqueAdmissionYearsByCampus(String campusId);
+    List<Students> getStudentsByCampusAndMajor(String campusId, String majorId);
+    List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize);
+    List<Students> searchStudentsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize);
+    long countSearchResultsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword);
+    long totalStudentsByCampusAndMajor(String campusId, String majorId);
 }

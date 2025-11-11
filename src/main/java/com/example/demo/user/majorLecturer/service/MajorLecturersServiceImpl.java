@@ -13,6 +13,26 @@ import java.util.Map;
 @Service
 public class MajorLecturersServiceImpl implements MajorLecturersService {
     @Override
+    public long totalLecturersByCampusAndMajor(String campusId, String majorId) {
+        return lecturesDAO.totalLecturersByCampusAndMajor(campusId, majorId);
+    }
+
+    @Override
+    public List<MajorLecturers> getPaginatedLecturersByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize) {
+        return lecturesDAO.getPaginatedLecturersByCampusAndMajor(campusId, majorId, firstResult, pageSize);
+    }
+
+    @Override
+    public List<MajorLecturers> searchLecturersByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize) {
+        return lecturesDAO.searchLecturersByCampusAndMajor(campusId, majorId, searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public long countSearchLecturersByCampusAndMajor(String campusId, String majorId, String searchType, String keyword) {
+        return lecturesDAO.countSearchLecturersByCampusAndMajor(campusId, majorId, searchType, keyword);
+    }
+
+    @Override
     public long countSearchMajorLecturersByCampus(String campusId, String searchType, String keyword) {
         return lecturesDAO.countSearchMajorLecturersByCampus(campusId, searchType, keyword);
     }

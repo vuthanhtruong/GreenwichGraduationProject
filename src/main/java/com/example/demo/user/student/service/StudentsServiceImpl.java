@@ -15,6 +15,30 @@ import java.util.Map;
 
 @Service
 public class StudentsServiceImpl implements StudentsService {
+    @Override
+    public List<Students> getStudentsByCampusAndMajor(String campusId, String majorId) {
+        return studentsDAO.getStudentsByCampusAndMajor(campusId, majorId);
+    }
+
+    @Override
+    public List<Students> getPaginatedStudentsByCampusAndMajor(String campusId, String majorId, int firstResult, int pageSize) {
+        return studentsDAO.getPaginatedStudentsByCampusAndMajor(campusId, majorId, firstResult, pageSize);
+    }
+
+    @Override
+    public List<Students> searchStudentsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize) {
+        return studentsDAO.searchStudentsByCampusAndMajor(campusId, majorId, searchType, keyword, firstResult, pageSize);
+    }
+
+    @Override
+    public long countSearchResultsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword) {
+        return studentsDAO.countSearchResultsByCampusAndMajor(campusId, majorId, searchType, keyword);
+    }
+
+    @Override
+    public long totalStudentsByCampusAndMajor(String campusId, String majorId) {
+        return studentsDAO.totalStudentsByCampusAndMajor(campusId, majorId);
+    }
 
     private final StudentsDAO studentsDAO;
 

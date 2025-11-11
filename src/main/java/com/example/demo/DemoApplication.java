@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/DemoApplication.java
 package com.example.demo;
 
 import com.example.demo.accountBalance.model.AccountBalances;
@@ -33,10 +34,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -60,19 +58,20 @@ public class DemoApplication {
             seedCurriculums(em);
             seedStaffs(em);
             seedDeputyStaffs(em);
+
+            // 100 MajorLecturers: 10 per Major
             seedMajorLecturers(em);
-            seedMinorLecturers(em);
+
+            // 100 Students: 10 per Specialization
             seedStudents(em);
+
             seedMajorSubjects(em);
             seedMinorSubjects(em);
             seedSpecializedSubjects(em);
             seedStudentBalancesAndDepositHistory(em);
-            seedTuitionByYear(em); // GIÁ 10–20 USD
-            seedSpecializedSubjects(em);
-            seedStudentBalancesAndDepositHistory(em);
-            seedTuitionByYear(em); // GIÁ 10–20 USD
-            seedSlots(em);         // ĐÃ CÓ
-            seedRooms(em);         // MỚI THÊM
+            seedTuitionByYear(em);
+            seedSlots(em);
+            seedRooms(em);
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -88,9 +87,11 @@ public class DemoApplication {
     private static void seedCampuses(EntityManager em) {
         String[] ids = {"CAMP01", "CAMP02", "CAMP03", "CAMP04", "CAMP05", "CAMP06", "CAMP07", "CAMP08", "CAMP09", "CAMP10"};
         String[] names = {"Hà Nội", "TP.HCM", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Huế", "Quy Nhơn", "Nha Trang", "Vũng Tàu", "Thanh Hóa"};
-        LocalDate[] opens = {LocalDate.of(2010, 1, 1), LocalDate.of(2012, 5, 15), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 9, 10),
+        LocalDate[] opens = {
+                LocalDate.of(2010, 1, 1), LocalDate.of(2012, 5, 15), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 9, 10),
                 LocalDate.of(2018, 11, 25), LocalDate.of(2019, 4, 5), LocalDate.of(2020, 2, 14), LocalDate.of(2021, 7, 1),
-                LocalDate.of(2022, 8, 30), LocalDate.of(2023, 10, 12)};
+                LocalDate.of(2022, 8, 30), LocalDate.of(2023, 10, 12)
+        };
 
         for (int i = 0; i < 10; i++) {
             if (exists(em, Campuses.class, "campusId", ids[i])) continue;
@@ -127,7 +128,6 @@ public class DemoApplication {
         Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
         admin.setCampus(campus);
         admin.setCreator(admin);
-
         em.persist(admin);
         createAuth(em, id, admin);
 
@@ -151,9 +151,11 @@ public class DemoApplication {
                 "admin7@example.com", "admin8@example.com", "admin9@example.com", "admin10@example.com"};
         String[] phones = {"+84987654321", "+84911223344", "+84955667788", "+84933445566",
                 "+84977889900", "+84922334455", "+84966778899", "+84944556677", "+84988990011"};
-        LocalDate[] births = {LocalDate.of(1982, 3, 22), LocalDate.of(1978, 7, 10), LocalDate.of(1985, 11, 30),
-                LocalDate.of(1981, 5, 18), LocalDate.of(1987, 9, 25), LocalDate.of(1979, 12, 12), LocalDate.of(1983, 4, 8),
-                LocalDate.of(1986, 6, 20), LocalDate.of(1984, 8, 14)};
+        LocalDate[] births = {
+                LocalDate.of(1982, 3, 22), LocalDate.of(1978, 7, 10), LocalDate.of(1985, 11, 30),
+                LocalDate.of(1981, 5, 18), LocalDate.of(1987, 9, 25), LocalDate.of(1979, 12, 12),
+                LocalDate.of(1983, 4, 8), LocalDate.of(1986, 6, 20), LocalDate.of(1984, 8, 14)
+        };
 
         for (int i = 0; i < 9; i++) {
             if (exists(em, Admins.class, "id", ids[i])) continue;
@@ -188,8 +190,10 @@ public class DemoApplication {
     private static void seedMajors(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
         String[] ids = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
-        String[] names = {"Quản trị Kinh doanh", "Công nghệ Thông tin", "Thiết kế Đồ họa", "Marketing",
-                "Kế toán", "Khoa học Dữ liệu", "Trí tuệ Nhân tạo", "An ninh Mạng", "Tài chính", "Quản trị Nhân sự"};
+        String[] names = {
+                "Quản trị Kinh doanh", "Công nghệ Thông tin", "Thiết kế Đồ họa", "Marketing",
+                "Kế toán", "Khoa học Dữ liệu", "Trí tuệ Nhân tạo", "An ninh Mạng", "Tài chính", "Quản trị Nhân sự"
+        };
 
         for (int i = 0; i < 10; i++) {
             if (exists(em, Majors.class, "majorId", ids[i])) continue;
@@ -236,23 +240,14 @@ public class DemoApplication {
             c.setCreator(creator); c.setCreatedAt(LocalDateTime.now());
             em.persist(c);
         }
-        if (!exists(em, Curriculum.class, "curriculumId", "CURR02")) {
-            Curriculum c = new Curriculum();
-            c.setCurriculumId("CURR02"); c.setName("3+0"); c.setDescription("Chương trình 3+0");
-            c.setCreator(creator); c.setCreatedAt(LocalDateTime.now());
-            em.persist(c);
-        }
     }
 
     private static void seedStaffs(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
-        Majors[] majors = {
-                find(em, Majors.class, "majorId", "GBH"), find(em, Majors.class, "majorId", "GCH"),
-                find(em, Majors.class, "majorId", "GDH"), find(em, Majors.class, "majorId", "GKH"),
-                find(em, Majors.class, "majorId", "GKT"), find(em, Majors.class, "majorId", "GDT"),
-                find(em, Majors.class, "majorId", "GAT"), find(em, Majors.class, "majorId", "GNT"),
-                find(em, Majors.class, "majorId", "GFT"), find(em, Majors.class, "majorId", "GHT")
-        };
+        Majors[] majors = new Majors[10];
+        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
+        for (int i = 0; i < 10; i++) majors[i] = find(em, Majors.class, "majorId", majorIds[i]);
+
         Campuses[] campuses = new Campuses[10];
         for (int i = 0; i < 10; i++) campuses[i] = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", i + 1));
 
@@ -315,118 +310,118 @@ public class DemoApplication {
         }
     }
 
+    // 100 MAJOR LECTURERS: 10 per Major
     private static void seedMajorLecturers(EntityManager em) {
-        Staffs creator = find(em, Staffs.class, "id", "staff001");
-        String[] firstNames = {"Hải", "Yến", "Phong", "Thư", "Kiên", "Tâm", "Long", "Huyền", "Quân", "Mai"};
+        Admins adminCreator = find(em, Admins.class, "id", "admin001");
+        Staffs[] staffCreators = new Staffs[10];
+        for (int i = 0; i < 10; i++) staffCreators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
+
+        Majors[] majors = new Majors[10];
+        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
+        for (int i = 0; i < 10; i++) majors[i] = find(em, Majors.class, "majorId", majorIds[i]);
+
+        String[] firstNames = {"Hải", "Yến", "Phong", "Thư", "Kiên", "Tâm", "Long", "Huyền", "Quân", "Mai",
+                "Khánh", "Linh", "Minh", "Ngọc", "Phương", "Quỳnh", "Sơn", "Tùng", "Uyên", "Vân"};
         String[] lastNames = {"Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn", "Trần"};
 
-        for (int i = 0; i < 10; i++) {
-            String id = "lect" + String.format("%03d", i + 1);
-            if (exists(em, MajorLecturers.class, "id", id)) continue;
-            MajorLecturers l = new MajorLecturers();
-            l.setId(id);
-            l.setFirstName(firstNames[i]);
-            l.setLastName(lastNames[i]);
-            l.setEmail(id + "@lecturer.com");
-            l.setPhoneNumber("+8493" + String.format("%08d", 3000000 + i * 11111));
-            l.setBirthDate(LocalDate.of(1975 + i % 10, 1 + i % 12, 1 + i % 28));
-            l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-            l.setCountry("Vietnam");
-            l.setProvince("Đà Nẵng");
-            l.setCity("Đà Nẵng");
-            l.setDistrict("Hải Châu");
-            l.setWard("Hòa Cường");
-            l.setStreet("78 Nguyễn Văn Linh");
-            l.setPostalCode("550000");
-            l.setMajorManagement(find(em, Majors.class, "majorId", i < 5 ? "GCH" : "GBH"));
-            l.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
-            l.setEmploymentTypes(EmploymentTypes.FULL_TIME);
-            l.setCreator(creator);
-            em.persist(l);
-            createAuth(em, id, l);
+        int lecturerIndex = 1;
+        for (int m = 0; m < 10; m++) {
+            Majors major = majors[m];
+            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (m % 5) + 1));
+            Staffs creator = staffCreators[m];
+
+            for (int i = 0; i < 10; i++) {
+                String id = "lect" + String.format("%03d", lecturerIndex++);
+                if (exists(em, MajorLecturers.class, "id", id)) continue;
+
+                MajorLecturers l = new MajorLecturers();
+                l.setId(id);
+                l.setFirstName(firstNames[i]);
+                l.setLastName(lastNames[i % 10]);
+                l.setEmail(id + "@lecturer.com");
+                l.setPhoneNumber("+8493" + String.format("%08d", 3000000 + lecturerIndex * 111));
+                l.setBirthDate(LocalDate.of(1975 + i, 1 + i % 12, 1 + i % 28));
+                l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+                l.setCountry("Vietnam");
+                l.setProvince("Đà Nẵng");
+                l.setCity("Đà Nẵng");
+                l.setDistrict("Hải Châu");
+                l.setWard("Hòa Cường");
+                l.setStreet("78 Nguyễn Văn Linh");
+                l.setPostalCode("550000");
+                l.setMajorManagement(major);
+                l.setCampus(campus);
+                l.setEmploymentTypes(EmploymentTypes.FULL_TIME);
+                l.setCreator(creator);
+                em.persist(l);
+                createAuth(em, id, l);
+            }
         }
     }
 
-    private static void seedMinorLecturers(EntityManager em) {
-        DeputyStaffs creator = find(em, DeputyStaffs.class, "id", "deputy001");
-        String[] firstNames = {"Tùng", "Hương", "Khoa", "Ngọc", "Đức", "Thảo", "Minh", "Lan", "Hùng", "Mai"};
-        String[] lastNames = {"Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương", "Nguyễn", "Trần", "Lê"};
-
-        for (int i = 0; i < 10; i++) {
-            String id = "minlect" + String.format("%03d", i + 1);
-            if (exists(em, MinorLecturers.class, "id", id)) continue;
-            MinorLecturers l = new MinorLecturers();
-            l.setId(id);
-            l.setFirstName(firstNames[i]);
-            l.setLastName(lastNames[i]);
-            l.setEmail(id + "@minor.com");
-            l.setPhoneNumber("+8494" + String.format("%08d", 4000000 + i * 22222));
-            l.setBirthDate(LocalDate.of(1980 + i % 8, 1 + i % 12, 1 + i % 28));
-            l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-            l.setCountry("Vietnam");
-            l.setProvince("Hải Phòng");
-            l.setCity("Hải Phòng");
-            l.setDistrict("Hồng Bàng");
-            l.setWard("Hùng Vương");
-            l.setStreet("56 Trần Phú");
-            l.setPostalCode("180000");
-            l.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
-            l.setEmploymentTypes(EmploymentTypes.PART_TIME);
-            l.setCreator(creator);
-            em.persist(l);
-            createAuth(em, id, l);
-        }
-    }
-
+    // 100 STUDENTS: 10 per Specialization
     private static void seedStudents(EntityManager em) {
         Staffs creator = find(em, Staffs.class, "id", "staff001");
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
-        String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi"};
+
+        String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_IT_CS", "SPEC_BUS_FIN", "SPEC_BUS_HR",
+                "SPEC_DES_UI", "SPEC_DES_3D", "SPEC_MKT_DIG", "SPEC_MKT_SM", "SPEC_ACC_TAX"};
+        Specialization[] specs = new Specialization[10];
+        for (int i = 0; i < 10; i++) specs[i] = find(em, Specialization.class, "specializationId", specIds[i]);
+
+        String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi",
+                "Oanh", "Phúc", "Quang", "Rạng", "Sáng", "Tâm", "Uyên", "Vũ", "Xuân", "Yến"};
         String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đặng", "Bùi", "Ngô", "Dương"};
 
-        for (int i = 0; i < 10; i++) {
-            String id = "stu" + String.format("%03d", i + 1);
-            if (exists(em, Students.class, "id", id)) continue;
-            Students s = new Students();
-            s.setId(id);
-            s.setFirstName(firstNames[i]);
-            s.setLastName(lastNames[i]);
-            s.setEmail(id + "@student.com");
-            s.setPhoneNumber("+8495" + String.format("%08d", 5000000 + i * 33333));
-            s.setBirthDate(LocalDate.of(2000 + i % 5, 1 + i % 12, 1 + i % 28));
-            s.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-            s.setCountry("Vietnam");
-            s.setProvince("Cần Thơ");
-            s.setCity("Cần Thơ");
-            s.setDistrict("Ninh Kiều");
-            s.setWard("Cái Khế");
-            s.setStreet("89 Ninh Kiều");
-            s.setPostalCode("900000");
-            s.setAdmissionYear(2025 + (i % 3));
-            s.setCreator(creator);
-            s.setCampus(find(em, Campuses.class, "campusId", "CAMP0" + (i % 5 == 0 ? 1 : i % 5 + 1)));
-            s.setSpecialization(find(em, Specialization.class, "specializationId", "SPEC_IT_SE"));
-            s.setCurriculum(curr);
-            em.persist(s);
-            createAuth(em, id, s);
+        int studentIndex = 1;
+        for (int s = 0; s < 10; s++) {
+            Specialization spec = specs[s];
+            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (s % 5) + 6));
+
+            for (int i = 0; i < 10; i++) {
+                String id = "stu" + String.format("%03d", studentIndex++);
+                if (exists(em, Students.class, "id", id)) continue;
+
+                Students student = new Students();
+                student.setId(id);
+                student.setFirstName(firstNames[i]);
+                student.setLastName(lastNames[i % 10]);
+                student.setEmail(id + "@student.com");
+                student.setPhoneNumber("+8495" + String.format("%08d", 5000000 + studentIndex * 333));
+                student.setBirthDate(LocalDate.of(2000 + i % 5, 1 + i % 12, 1 + i % 28));
+                student.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+                student.setCountry("Vietnam");
+                student.setProvince("Cần Thơ");
+                student.setCity("Cần Thơ");
+                student.setDistrict("Ninh Kiều");
+                student.setWard("Cái Khế");
+                student.setStreet("89 Ninh Kiều");
+                student.setPostalCode("900000");
+                student.setAdmissionYear(2025);
+                student.setCreator(creator);
+                student.setCampus(campus);
+                student.setSpecialization(spec);
+                student.setCurriculum(curr);
+                em.persist(student);
+                createAuth(em, id, student);
+            }
         }
     }
 
     private static void seedMajorSubjects(EntityManager em) {
         Staffs[] creators = new Staffs[10];
         for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
-        Majors[] majors = {
-                find(em, Majors.class, "majorId", "GBH"), find(em, Majors.class, "majorId", "GCH"),
-                find(em, Majors.class, "majorId", "GDH"), find(em, Majors.class, "majorId", "GKH"),
-                find(em, Majors.class, "majorId", "GKT"), find(em, Majors.class, "majorId", "GDT"),
-                find(em, Majors.class, "majorId", "GAT"), find(em, Majors.class, "majorId", "GNT"),
-                find(em, Majors.class, "majorId", "GFT"), find(em, Majors.class, "majorId", "GHT")
-        };
+        Majors[] majors = new Majors[10];
+        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GDT", "GAT", "GNT", "GFT", "GHT"};
+        for (int i = 0; i < 10; i++) majors[i] = find(em, Majors.class, "majorId", majorIds[i]);
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", "admin001");
 
-        String[] names = {"Nhập môn Quản trị", "Lập trình Java", "Thiết kế Cơ bản", "Marketing Căn bản",
-                "Kế toán Tài chính", "Phân tích Dữ liệu", "AI Cơ bản", "Mạng Máy tính", "Tài chính Doanh nghiệp", "Quản lý Nhân sự"};
+        String[] names = {
+                "Nhập môn Quản trị", "Lập trình Java", "Thiết kế Cơ bản", "Marketing Căn bản",
+                "Kế toán Tài chính", "Phân tích Dữ liệu", "AI Cơ bản", "Mạng Máy tính",
+                "Tài chính Doanh nghiệp", "Quản lý Nhân sự"
+        };
 
         for (int i = 0; i < 10; i++) {
             String id = "SUB_MAJ_" + String.format("%03d", i + 1);
@@ -449,8 +444,10 @@ public class DemoApplication {
         for (int i = 0; i < 10; i++) creators[i] = find(em, DeputyStaffs.class, "id", "deputy" + String.format("%03d", i + 1));
         Admins acceptor = find(em, Admins.class, "id", "admin001");
 
-        String[] names = {"Tiếng Anh Giao tiếp", "Kỹ năng Mềm", "Tư duy Phản biện", "Quản lý Thời gian",
-                "Làm việc Nhóm", "Kỹ năng Thuyết trình", "Viết CV", "Phỏng vấn", "Tinh thần Khởi nghiệp", "Sức khỏe Tinh thần"};
+        String[] names = {
+                "Tiếng Anh Giao tiếp", "Kỹ năng Mềm", "Tư duy Phản biện", "Quản lý Thời gian",
+                "Làm việc Nhóm", "Kỹ năng Thuyết trình", "Viết CV", "Phỏng vấn", "Tinh thần Khởi nghiệp", "Sức khỏe Tinh thần"
+        };
 
         for (int i = 0; i < 10; i++) {
             String id = "SUB_MIN_" + String.format("%03d", i + 1);
@@ -469,23 +466,17 @@ public class DemoApplication {
     private static void seedSpecializedSubjects(EntityManager em) {
         Staffs[] creators = new Staffs[10];
         for (int i = 0; i < 10; i++) creators[i] = find(em, Staffs.class, "id", "staff" + String.format("%03d", i + 1));
-        Specialization[] specs = {
-                find(em, Specialization.class, "specializationId", "SPEC_IT_SE"),
-                find(em, Specialization.class, "specializationId", "SPEC_IT_AI"),
-                find(em, Specialization.class, "specializationId", "SPEC_IT_CS"),
-                find(em, Specialization.class, "specializationId", "SPEC_BUS_FIN"),
-                find(em, Specialization.class, "specializationId", "SPEC_BUS_HR"),
-                find(em, Specialization.class, "specializationId", "SPEC_DES_UI"),
-                find(em, Specialization.class, "specializationId", "SPEC_DES_3D"),
-                find(em, Specialization.class, "specializationId", "SPEC_MKT_DIG"),
-                find(em, Specialization.class, "specializationId", "SPEC_MKT_SM"),
-                find(em, Specialization.class, "specializationId", "SPEC_ACC_TAX")
-        };
+        Specialization[] specs = new Specialization[10];
+        String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_IT_CS", "SPEC_BUS_FIN", "SPEC_BUS_HR",
+                "SPEC_DES_UI", "SPEC_DES_3D", "SPEC_MKT_DIG", "SPEC_MKT_SM", "SPEC_ACC_TAX"};
+        for (int i = 0; i < 10; i++) specs[i] = find(em, Specialization.class, "specializationId", specIds[i]);
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", "admin001");
 
-        String[] names = {"Phát triển Web", "Machine Learning", "Penetration Testing", "Ngân hàng Số",
-                "Tuyển dụng", "Figma Design", "Blender 3D", "SEO & SEM", "TikTok Marketing", "Kiểm toán"};
+        String[] names = {
+                "Phát triển Web", "Machine Learning", "Penetration Testing", "Ngân hàng Số",
+                "Tuyển dụng", "Figma Design", "Blender 3D", "SEO & SEM", "TikTok Marketing", "Kiểm toán"
+        };
 
         for (int i = 0; i < 10; i++) {
             String id = "SUB_SPEC_" + String.format("%03d", i + 1);
@@ -505,7 +496,7 @@ public class DemoApplication {
 
     private static void seedStudentBalancesAndDepositHistory(EntityManager em) {
         LocalDateTime now = LocalDateTime.now();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             String studentId = "stu" + String.format("%03d", i + 1);
             Students student = find(em, Students.class, "id", studentId);
             if (student == null || exists(em, AccountBalances.class, "studentId", studentId)) continue;
@@ -532,7 +523,6 @@ public class DemoApplication {
         }
     }
 
-    // ===================== TUITION BY YEAR - GIÁ 10–20 USD =====================
     private static void seedTuitionByYear(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
         if (creator == null) throw new IllegalStateException("admin001 must exist!");
@@ -558,7 +548,7 @@ public class DemoApplication {
                     t.setCampus(campus);
                     t.setAdmissionYear(year);
 
-                    double base = 10 + (rand.nextDouble() * 10); // 10.00 – 19.99
+                    double base = 10 + (rand.nextDouble() * 10);
                     t.setTuition(roundTo2Decimals(base));
                     t.setReStudyTuition(roundTo2Decimals(base * 0.7));
 
@@ -575,54 +565,6 @@ public class DemoApplication {
         return Math.round(val * 100.0) / 100.0;
     }
 
-    // ===================== HELPER METHODS =====================
-
-    private static void createAuth(EntityManager em, String personId, Persons person) {
-        if (exists(em, Authenticators.class, "personId", personId)) return;
-        Authenticators auth = new Authenticators();
-        auth.setPersonId(personId);
-        auth.setPerson(person);
-        auth.setPassword(DEFAULT_PASSWORD);
-        em.persist(auth);
-    }
-
-    // exists() cho ID kiểu String
-    private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
-        try {
-            String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
-            em.createQuery(jpql, Integer.class).setParameter("id", idValue).getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-
-    // exists() riêng cho TuitionByYearId
-    private static boolean existsTuitionByYear(EntityManager em, TuitionByYearId id) {
-        try {
-            String jpql = "SELECT 1 FROM TuitionByYear t WHERE " +
-                    "t.id.subjectId = :subjectId AND " +
-                    "t.id.admissionYear = :admissionYear AND " +
-                    "t.id.campusId = :campusId";
-            em.createQuery(jpql, Integer.class)
-                    .setParameter("subjectId", id.getSubjectId())
-                    .setParameter("admissionYear", id.getAdmissionYear())
-                    .setParameter("campusId", id.getCampusId())
-                    .getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
-    }
-
-    private static <T> T find(EntityManager em, Class<T> clazz, String idField, String idValue) {
-        try {
-            String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
-            return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-    }
     private static void seedSlots(EntityManager em) {
         String[][] slotData = {
                 {"SLOT01", "Slot 1", "07:10", "08:40"},
@@ -645,11 +587,12 @@ public class DemoApplication {
             em.persist(slot);
         }
     }
+
     private static void seedRooms(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", "admin001");
         if (creator == null) throw new IllegalStateException("admin001 must exist!");
 
-        // === 10 PHÒNG HỌC VẬT LÝ ===
+        // 10 Offline Rooms
         String[] physicalIds = {"G101", "G102", "G201", "G202", "G301", "G302", "G401", "G402", "G501", "G502"};
         String[] physicalNames = {
                 "Phòng G101 - Tầng 1", "Phòng G102 - Tầng 1",
@@ -671,11 +614,11 @@ public class DemoApplication {
             room.setRoomName(physicalNames[i]);
             room.setCreator(creator);
             room.setCampus(campus);
-            room.setFloor((i / 2) + 1); // Tầng 1 → 5
+            room.setFloor((i / 2) + 1);
             em.persist(room);
         }
 
-        // === 10 PHÒNG HỌC ONLINE ===
+        // 10 Online Rooms
         String[] onlineIds = {"ONLINE01", "ONLINE02", "ZOOM01", "ZOOM02", "MEET01", "MEET02", "TEAMS01", "TEAMS02", "WEBEX01", "WEBEX02"};
         String[] onlineNames = {
                 "Phòng Online 01", "Phòng Online 02",
@@ -696,7 +639,7 @@ public class DemoApplication {
             String roomId = onlineIds[i];
             if (exists(em, OnlineRooms.class, "roomId", roomId)) continue;
 
-            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 6)); // CAMP06 → CAMP10
+            Campuses campus = find(em, Campuses.class, "campusId", "CAMP" + String.format("%02d", (i % 5) + 6));
 
             OnlineRooms room = new OnlineRooms();
             room.setRoomId(roomId);
@@ -704,8 +647,51 @@ public class DemoApplication {
             room.setCreator(creator);
             room.setCampus(campus);
             room.setLink(links[i]);
-
             em.persist(room);
+        }
+    }
+
+    // ===================== HELPER METHODS =====================
+
+    private static void createAuth(EntityManager em, String personId, Persons person) {
+        if (exists(em, Authenticators.class, "personId", personId)) return;
+        Authenticators auth = new Authenticators();
+        auth.setPersonId(personId);
+        auth.setPerson(person);
+        auth.setPassword(DEFAULT_PASSWORD);
+        em.persist(auth);
+    }
+
+    private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
+        try {
+            String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+            em.createQuery(jpql, Integer.class).setParameter("id", idValue).getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    private static boolean existsTuitionByYear(EntityManager em, TuitionByYearId id) {
+        try {
+            String jpql = "SELECT 1 FROM TuitionByYear t WHERE t.id.subjectId = :subjectId AND t.id.admissionYear = :admissionYear AND t.id.campusId = :campusId";
+            em.createQuery(jpql, Integer.class)
+                    .setParameter("subjectId", id.getSubjectId())
+                    .setParameter("admissionYear", id.getAdmissionYear())
+                    .setParameter("campusId", id.getCampusId())
+                    .getSingleResult();
+            return true;
+        } catch (NoResultException e) {
+            return false;
+        }
+    }
+
+    private static <T> T find(EntityManager em, Class<T> clazz, String idField, String idValue) {
+        try {
+            String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+            return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 }
