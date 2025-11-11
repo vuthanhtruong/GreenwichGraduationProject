@@ -13,7 +13,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; padding: 20px; }
         .container { max-width: 1500px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #0078d4, #106ebe); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .header { background: linear-gradient(135deg, #0078d4, #106ebe); color: white; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; flex-wrap: wrap; gap: 14px; }
         .header h1 { margin: 0; font-size: 1.6rem; }
         .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         .header select { padding: 8px 14px; border: none; border-radius: 6px; background: white; color: #333; font-size: 0.95rem; min-width: 110px; }
@@ -36,41 +36,45 @@
         .cell-unavailable { background: #fafafa; color: #aaa; font-style: italic; }
         .room-select { width: 100%; padding: 7px; border: 1px solid #90caf9; border-radius: 4px; font-size: 13px; background: white; }
         .room-count { font-size: 0.75rem; color: #1976d2; margin-top: 5px; }
-        @media (max-width: 992px) { .header { flex-direction: column; text-align: center; gap: 14px; } .controls { justify-content: center; } table { font-size: 12px; } .slot-cell { width: 140px; } }
+        @media (max-width: 992px) {
+            .header { flex-direction: column; text-align: center; }
+            .controls { justify-content: center; }
+            table { font-size: 12px; }
+            .slot-cell { width: 140px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Timetable for <span th:text="${className}"></span></h1>
-        <h1><a th:href="@{/staff-home/classes-list}" class="back-btn">Back</a></h1>
+        <h1>Timetable for <span th:text="${className}"></span> (<span th:text="${classId}"></span>)</h1>
         <div class="controls">
-            <div>
-                <button type="submit" form="timetableForm" class="save-all-btn">Save All</button>
-            </div>
-            <form th:action="@{/staff-home/classes-list/major-timetable}" method="post" style="display:flex; gap:10px; align-items:center;">
-                <input type="hidden" name="classId" th:value="${classId}">
-                <label>YEAR</label>
-                <select name="year" onchange="this.form.submit()">
-                    <option th:each="y : ${#numbers.sequence(currentYear - 5, currentYear + 5)}"
-                            th:value="${y}" th:text="${y}" th:selected="${y == year}"></option>
-                </select>
-                <label>WEEK</label>
-                <select name="week" onchange="this.form.submit()">
-                    <option th:each="label, iter : ${weekLabels}"
-                            th:value="${iter.index + 1}" th:text="${label}" th:selected="${iter.index + 1 == week}"></option>
-                </select>
-            </form>
+            <button type="submit" form="timetableForm" class="save-all-btn">Save All</button>
+            <a th:href="@{/staff-home/classes-list/clear-class}" class="back-btn">Back to List</a>
         </div>
+        <form th:action="@{/staff-home/classes-list/major-timetable}" method="post" style="display:flex; gap:10px; align-items:center;">
+            <input type="hidden" name="classId" th:value="${classId}">
+            <label>YEAR</label>
+            <select name="year" onchange="this.form.submit()">
+                <option th:each="y : ${#numbers.sequence(currentYear - 5, currentYear + 5)}"
+                        th:value="${y}" th:text="${y}" th:selected="${y == year}"></option>
+            </select>
+            <label>WEEK</label>
+            <select name="week" onchange="this.form.submit()">
+                <option th:each="label, iter : ${weekLabels}"
+                        th:value="${iter.index + 1}" th:text="${label}" th:selected="${iter.index + 1 == week}"></option>
+            </select>
+        </form>
     </div>
 
+    <!-- ALERTS -->
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}" class="alert alert-error" th:utext="${error}"></div>
     <div th:if="${info}" class="alert alert-info" th:text="${info}"></div>
 
+    <!-- TIMETABLE FORM -->
     <form id="timetableForm" th:action="@{/staff-home/classes-list/major-timetable/save-all}" method="post">
-        <input type="hidden" name="classId" th:value="${classId}">
         <input type="hidden" name="year" th:value="${year}">
         <input type="hidden" name="week" th:value="${week}">
 
@@ -78,8 +82,8 @@
             <thead>
             <tr>
                 <th>Slot</th>
-                <th th:each="dayName, stat : ${dayNames}"
-                    th:text="${dayName} + ' (' + ${dayLabels[stat.index]} + ')'"></th>
+                <th th:each="dayLabel, stat : ${dayLabels}"
+                    th:text="${dayNames[stat.index]} + ' (' + ${dayLabel} + ')'"></th>
             </tr>
             </thead>
             <tbody>
@@ -89,10 +93,12 @@
                     <small th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></small>
                 </td>
                 <td th:each="dayIdx : ${#numbers.sequence(0, 6)}">
+                    <!-- BOOKED -->
                     <div th:if="${bookedRoomMatrix[dayIdx][slotStat.index] != null}" class="cell-booked">
                         BOOKED: <strong th:text="${bookedRoomMatrix[dayIdx][slotStat.index]}"></strong>
                     </div>
 
+                    <!-- AVAILABLE -->
                     <div th:if="${bookedRoomMatrix[dayIdx][slotStat.index] == null && !availableRoomsMatrix[dayIdx][slotStat.index].isEmpty()}"
                          class="cell-available">
                         <select th:name="'room_' + ${dayIdx} + '_' + ${slotStat.index}"
@@ -103,12 +109,11 @@
                                     th:text="${room}"></option>
                         </select>
                         <input type="hidden" th:name="'slotId_' + ${dayIdx} + '_' + ${slotStat.index}" th:value="${slot.slotId}">
-                        <input type="hidden" th:name="'dayOfWeek_' + ${dayIdx} + '_' + ${slotStat.index}" th:value="${dayNames[dayIdx]}">
-                        <input type="hidden" th:name="'date_' + ${dayIdx} + '_' + ${slotStat.index}" th:value="${dateLabels[dayIdx]}">
                         <div class="room-count"
                              th:text="'(' + ${#lists.size(availableRoomsMatrix[dayIdx][slotStat.index])} + ' available)'"></div>
                     </div>
 
+                    <!-- NO ROOM -->
                     <div th:if="${bookedRoomMatrix[dayIdx][slotStat.index] == null && availableRoomsMatrix[dayIdx][slotStat.index].isEmpty()}"
                          class="cell-unavailable">
                         No room available

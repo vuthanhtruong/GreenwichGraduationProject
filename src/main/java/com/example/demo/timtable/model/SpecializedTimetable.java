@@ -10,8 +10,6 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "SpecializedTimetable")
 @PrimaryKeyJoinColumn(name = "TimetableID")
@@ -29,11 +27,7 @@ public class SpecializedTimetable extends Timetable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    // === CONSTRUCTOR MỚI: DÙNG weekOfYear ===
     public SpecializedTimetable() {}
 
-    public SpecializedTimetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date, SpecializedClasses specializedClass, Staffs creator) {
-        super(timetableId, room, slot, dayOfTheWeek, date);
-        this.specializedClass = specializedClass;
-        this.creator = creator;
-    }
 }

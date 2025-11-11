@@ -95,10 +95,7 @@ public class MajorTimetableController {
         List<String> dayNames = dayNames();
 
         DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("dd/MM");
-        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         List<String> dayLabels = dates.stream().map(d -> d.format(dayFmt)).toList();
-        List<String> dateLabels = dates.stream().map(d -> d.format(dateFmt)).toList();
 
         Integer finalYear = year;
         List<String> weekLabels = IntStream.rangeClosed(1, 53)
@@ -110,7 +107,6 @@ public class MajorTimetableController {
                 .filter(Objects::nonNull)
                 .toList();
 
-        @SuppressWarnings("unchecked")
         List<String>[][] availableRoomsMatrix = new List[7][slots.size()];
         String[][] bookedRoomMatrix = new String[7][slots.size()];
 
@@ -119,12 +115,10 @@ public class MajorTimetableController {
 
         for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
             DaysOfWeek day = DaysOfWeek.valueOf(dayNames.get(dayIdx));
-            LocalDate date = dates.get(dayIdx);
-
             for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
                 Slots slot = slots.get(slotIdx);
 
-                MajorTimetable existing = majorTimetableService.getTimetableByClassSlotDayDate(classId, slot.getSlotId(), day, date);
+                MajorTimetable existing = majorTimetableService.getTimetableByClassSlotDayWeek(classId, slot.getSlotId(), day, week);
 
                 if (existing != null) {
                     availableRoomsMatrix[dayIdx][slotIdx] = List.of();
@@ -151,7 +145,6 @@ public class MajorTimetableController {
         model.addAttribute("slots", slots);
         model.addAttribute("dayNames", dayNames);
         model.addAttribute("dayLabels", dayLabels);
-        model.addAttribute("dateLabels", dateLabels);
         model.addAttribute("weekLabels", weekLabels);
         model.addAttribute("availableRoomsMatrix", availableRoomsMatrix);
         model.addAttribute("bookedRoomMatrix", bookedRoomMatrix);
@@ -169,7 +162,7 @@ public class MajorTimetableController {
 
         int savedCount = 0;
         List<String> errors = new ArrayList<>();
-        Set<String> usedRoomSlotDate = new HashSet<>();
+        Set<String> usedRoomSlotWeek = new HashSet<>();
 
         try {
             Staffs creator = staffsService.getStaff();
@@ -190,15 +183,8 @@ public class MajorTimetableController {
                 return redirectUrl(year, week);
             }
 
-            List<LocalDate> dates = getWeekDates(year, week);
-            if (dates.size() < 7) {
-                redirectAttributes.addFlashAttribute("error", "Invalid week dates.");
-                return redirectUrl(year, week);
-            }
-
             List<String> dayNames = dayNames();
             for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
-                LocalDate date = dates.get(dayIdx);
                 DaysOfWeek dayOfWeek = DaysOfWeek.valueOf(dayNames.get(dayIdx));
 
                 for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
@@ -219,9 +205,9 @@ public class MajorTimetableController {
                         continue;
                     }
 
-                    String conflictKey = roomId + "|" + slotId + "|" + date;
-                    if (usedRoomSlotDate.contains(conflictKey)) {
-                        errors.add("Room " + roomId + " already booked on " + date + " in this save.");
+                    String conflictKey = roomId + "|" + slotId + "|" + week;
+                    if (usedRoomSlotWeek.contains(conflictKey)) {
+                        errors.add("Room " + roomId + " already booked in week " + week);
                         continue;
                     }
 
@@ -231,10 +217,8 @@ public class MajorTimetableController {
                         continue;
                     }
 
-                    MajorTimetable existing = majorTimetableService.getTimetableByClassSlotDayDate(classId, slot.getSlotId(), dayOfWeek, date);
-
-                    if (existing != null) {
-                        errors.add("Already booked: " + roomId + " on " + date);
+                    if (majorTimetableService.getTimetableByClassSlotDayWeek(classId, slotId, dayOfWeek, week) != null) {
+                        errors.add("Already booked: " + roomId + " in week " + week);
                         continue;
                     }
 
@@ -244,19 +228,19 @@ public class MajorTimetableController {
                     timetable.setRoom(room);
                     timetable.setSlot(slot);
                     timetable.setDayOfWeek(dayOfWeek);
-                    timetable.setDate(date);
+                    timetable.setWeekOfYear(week);  // LƯU TUẦN
                     timetable.setCreator(creator);
 
                     majorTimetableService.SaveMajorTimetable(timetable);
                     savedCount++;
-                    usedRoomSlotDate.add(conflictKey);
+                    usedRoomSlotWeek.add(conflictKey);
                 }
             }
 
             if (savedCount > 0) {
-                redirectAttributes.addFlashAttribute("success", "Successfully saved " + savedCount + " room(s).");
+                redirectAttributes.addFlashAttribute("success", "Saved " + savedCount + " room(s) in week " + week);
             } else if (errors.isEmpty()) {
-                redirectAttributes.addFlashAttribute("info", "No rooms were selected.");
+                redirectAttributes.addFlashAttribute("info", "No rooms selected.");
             }
 
             if (!errors.isEmpty()) {
@@ -264,7 +248,7 @@ public class MajorTimetableController {
             }
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "System error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
         }
 
         return redirectUrl(year, week);

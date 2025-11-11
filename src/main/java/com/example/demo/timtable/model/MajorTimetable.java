@@ -31,9 +31,4 @@ public class MajorTimetable extends Timetable {
 
     public MajorTimetable() {}
 
-    public MajorTimetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfTheWeek, LocalDate date, MajorClasses classEntity, Staffs creator) {
-        super(timetableId, room, slot, dayOfTheWeek, date);
-        this.classEntity = classEntity;
-        this.creator = creator;
-    }
 }

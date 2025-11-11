@@ -4,13 +4,10 @@ import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timtable.model.MajorTimetable;
 import com.example.demo.timtable.model.Slots;
-import com.example.demo.timtable.service.MajorTimetableService;
-
-import java.time.LocalDate;
 import java.util.List;
 
 public interface MajorTimetableDAO {
-    MajorTimetable getTimetableByClassSlotDayDate(String classId, String slotId, DaysOfWeek dayOfWeek, LocalDate date);
+    MajorTimetable getTimetableByClassSlotDayWeek(String classId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear);
     List<Rooms> getAvailableRoomsForSlot(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
     String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
     void SaveMajorTimetable(MajorTimetable timetable);

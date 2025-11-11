@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MajorTimetableService {
-    MajorTimetable getTimetableByClassSlotDayDate(String classId, String slotId, DaysOfWeek dayOfWeek, LocalDate date);
+    MajorTimetable getTimetableByClassSlotDayWeek(String classId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear);
     List<Rooms> getAvailableRoomsForSlot(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
     String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(String classId, Slots slots, DaysOfWeek daysOfWeek, Integer WeekNumberInYear);
     void SaveMajorTimetable(MajorTimetable timetable);

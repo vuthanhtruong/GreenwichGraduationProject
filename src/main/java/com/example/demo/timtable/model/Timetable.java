@@ -8,8 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "Timetable")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -31,20 +29,20 @@ public abstract class Timetable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Slots slot;
 
-    @Column(name = "DayOfTheWeek", nullable = true, length = 20)
+    @Column(name = "DayOfTheWeek", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private DaysOfWeek dayOfWeek;
 
-    @Column(name = "Date", nullable = true)
-    private LocalDate date;
+    @Column(name = "WeekOfYear", nullable = false)
+    private Integer weekOfYear;  // THAY date → weekOfYear
 
     public Timetable() {}
 
-    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfWeek, LocalDate date) {
+    public Timetable(String timetableId, Rooms room, Slots slot, DaysOfWeek dayOfWeek, Integer weekOfYear) {
         this.timetableId = timetableId;
         this.room = room;
         this.slot = slot;
         this.dayOfWeek = dayOfWeek;
-        this.date = date;
+        this.weekOfYear = weekOfYear;
     }
 }

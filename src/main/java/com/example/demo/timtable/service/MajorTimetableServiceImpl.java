@@ -13,8 +13,8 @@ import java.util.List;
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
     @Override
-    public MajorTimetable getTimetableByClassSlotDayDate(String classId, String slotId, DaysOfWeek dayOfWeek, LocalDate date) {
-        return majorTimetableDAO.getTimetableByClassSlotDayDate(classId, slotId, dayOfWeek, date);
+    public MajorTimetable getTimetableByClassSlotDayWeek(String classId, String slotId, DaysOfWeek dayOfWeek, Integer weekOfYear) {
+        return majorTimetableDAO.getTimetableByClassSlotDayWeek(classId, slotId, dayOfWeek, weekOfYear);
     }
 
     @Override
