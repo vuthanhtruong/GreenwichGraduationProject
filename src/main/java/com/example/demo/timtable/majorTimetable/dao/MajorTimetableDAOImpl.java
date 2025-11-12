@@ -4,6 +4,7 @@ import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
 import com.example.demo.timtable.majorTimetable.model.Slots;
+import com.example.demo.timtable.majorTimetable.service.SlotsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,11 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
+    private final SlotsService slotsService;
+
+    public MajorTimetableDAOImpl(SlotsService slotsService) {
+        this.slotsService = slotsService;
+    }
 
     @Override
     public List<MajorTimetable> getAllSchedulesByClass(String classId) {
@@ -166,7 +172,7 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
     @Override
     public String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(
             String classId, String campusId, Slots slots, DaysOfWeek daysOfWeek, Integer weekNumberInYear, Integer year) {
-        String[][] result = new String[7][6];
+        String[][] result = new String[7][slotsService.getSlots().size()];
         List<Slots> allSlots = em.createQuery("SELECT s FROM Slots s ORDER BY s.slotId", Slots.class).getResultList();
 
         for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
@@ -191,42 +197,41 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
         }
     }
 
-    // === HELPER: XUNG ĐỘT GIẢNG VIÊN (CAMPUS) ===
     private boolean lecturerHasConflict(String lecturerId, String slotId, DaysOfWeek day, Integer weekOfYear, Integer year, String excludeClassId, String campusId) {
         String jpql = """
-                SELECT COUNT(*) > 0 FROM (
-                    SELECT 1 FROM MajorTimetable t
-                    JOIN t.classEntity c
-                    JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                      AND c.classId != :excludeClassId
-                    UNION ALL
-                    SELECT 1 FROM MinorTimetable t
-                    JOIN t.minorClass c
-                    JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                    UNION ALL
-                    SELECT 1 FROM SpecializedTimetable t
-                    JOIN t.specializedClass c
-                    JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                ) AS sub
-                """;
+            SELECT COUNT(*) > 0 FROM (
+                SELECT 1 AS dummy FROM MajorTimetable t
+                JOIN t.classEntity c
+                JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
+                WHERE lmc.lecturer.id = :lecturerId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+                  AND c.classId != :excludeClassId
+                UNION ALL
+                SELECT 1 AS dummy FROM MinorTimetable t
+                JOIN t.minorClass c
+                JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
+                WHERE lmc.lecturer.id = :lecturerId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+                UNION ALL
+                SELECT 1 AS dummy FROM SpecializedTimetable t
+                JOIN t.specializedClass c
+                JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
+                WHERE lmc.lecturer.id = :lecturerId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+            ) AS sub
+            """;
         return em.createQuery(jpql, Boolean.class)
                 .setParameter("lecturerId", lecturerId)
                 .setParameter("slotId", slotId)
@@ -238,42 +243,41 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
                 .getSingleResult();
     }
 
-    // === HELPER: XUNG ĐỘT SINH VIÊN (CAMPUS) ===
     private boolean studentHasConflict(String studentId, String slotId, DaysOfWeek day, Integer weekOfYear, Integer year, String excludeClassId, String campusId) {
         String jpql = """
-                SELECT COUNT(*) > 0 FROM (
-                    SELECT 1 FROM MajorTimetable t
-                    JOIN t.classEntity c
-                    JOIN Students_MajorClasses smc ON c.classId = smc.majorClass.classId
-                    WHERE smc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                      AND c.classId != :excludeClassId
-                    UNION ALL
-                    SELECT 1 FROM MinorTimetable t
-                    JOIN t.minorClass c
-                    JOIN Students_MinorClasses smc ON c.classId = smc.minorClass.classId
-                    WHERE smc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                    UNION ALL
-                    SELECT 1 FROM SpecializedTimetable t
-                    JOIN t.specializedClass c
-                    JOIN Students_SpecializedClasses smc ON c.classId = smc.specializedClass.classId
-                    WHERE smc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                ) AS sub
-                """;
+            SELECT COUNT(*) > 0 FROM (
+                SELECT 1 AS dummy FROM MajorTimetable t
+                JOIN t.classEntity c
+                JOIN Students_MajorClasses smc ON c.classId = smc.majorClass.classId
+                WHERE smc.student.id = :studentId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+                  AND c.classId != :excludeClassId
+                UNION ALL
+                SELECT 1 AS dummy FROM MinorTimetable t
+                JOIN t.minorClass c
+                JOIN Students_MinorClasses smc ON c.classId = smc.minorClass.classId
+                WHERE smc.student.id = :studentId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+                UNION ALL
+                SELECT 1 AS dummy FROM SpecializedTimetable t
+                JOIN t.specializedClass c
+                JOIN Students_SpecializedClasses smc ON c.classId = smc.specializedClass.classId
+                WHERE smc.student.id = :studentId
+                  AND c.creator.campus.campusId = :campusId
+                  AND t.slot.slotId = :slotId
+                  AND t.dayOfWeek = :day
+                  AND t.weekOfYear = :week
+                  AND t.year = :year
+            ) AS sub
+            """;
         return em.createQuery(jpql, Boolean.class)
                 .setParameter("studentId", studentId)
                 .setParameter("slotId", slotId)

@@ -1,16 +1,17 @@
-package com.example.demo.timtable.majorTimetable.controller;
+// src/main/java/com/example/demo/timetable/minorTimetable/controller/MinorTimetableController.java
+package com.example.demo.timtable.minorTimtable.controller;
 
-import com.example.demo.classes.majorClasses.model.MajorClasses;
-import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.classes.minorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.room.service.RoomsService;
-import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
 import com.example.demo.timtable.majorTimetable.model.Slots;
-import com.example.demo.timtable.majorTimetable.service.MajorTimetableService;
 import com.example.demo.timtable.majorTimetable.service.SlotsService;
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.staff.service.StaffsService;
+import com.example.demo.timtable.minorTimtable.model.MinorTimetable;
+import com.example.demo.timtable.minorTimtable.service.MinorTimetableService;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -26,58 +27,54 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 @Controller
-@RequestMapping("/staff-home/classes-list")
+@RequestMapping("/deputy-staff-home/minor-classes-list")
 @RequiredArgsConstructor
-public class MajorTimetableController {
+public class MinorTimetableController {
 
-    private final MajorTimetableService majorTimetableService;
+    private final MinorTimetableService minorTimetableService;
     private final SlotsService slotsService;
-    private final StaffsService staffsService;
-    private final MajorClassesService majorClassesService;
+    private final DeputyStaffsService deputyStaffsService;
+    private final MinorClassesService minorClassesService;
     private final RoomsService roomsService;
 
-    @PostMapping("/major-timetable")
+    // === MỞ LỊCH TỪ DANH SÁCH LỚP ===
+    @PostMapping("/minor-timetable")
     public String openTimetableFromList(
             @RequestParam String classId,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
             HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes ra) {
 
         if (classId == null || classId.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Please select a class.");
-            return "redirect:/staff-home/classes-list";
+            ra.addFlashAttribute("error", "Please select a class.");
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        // LƯU TRỰC TIẾP VÀO SESSION THAY VÌ RedirectAttributes
-        session.setAttribute("selectedClassId", classId);
+        session.setAttribute("selectedMinorClassId", classId);
 
-        String url = "redirect:/staff-home/classes-list/major-timetable";
-        if (year != null) {
-            url += "?year=" + year + (week != null ? "&week=" + week : "");
-        } else if (week != null) {
-            url += "?week=" + week;
-        }
+        String url = "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+        if (year != null) url += "?year=" + year + (week != null ? "&week=" + week : "");
+        else if (week != null) url += "?week=" + week;
         return url;
     }
 
-    @GetMapping("/major-timetable")
+    // === HIỂN THỊ LỊCH ===
+    @GetMapping("/minor-timetable")
     public String showTimetable(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
             HttpSession session,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes ra) {
 
-        // LẤY TRỰC TIẾP TỪ SESSION
-        String classId = (String) session.getAttribute("selectedClassId");
-
+        String classId = (String) session.getAttribute("selectedMinorClassId");
         if (classId == null || classId.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Please select a class first.");
-            return "redirect:/staff-home/classes-list";
+            ra.addFlashAttribute("error", "Please select a class first.");
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        return loadTimetable(classId, year, week, model, redirectAttributes);
+        return loadTimetable(classId, year, week, model, ra);
     }
 
     private String loadTimetable(String classId, Integer inputYear, Integer inputWeek, Model model, RedirectAttributes ra) {
@@ -90,31 +87,29 @@ public class MajorTimetableController {
 
         boolean isPast = isPastWeek(year, week, currentYear, currentWeek);
 
-        MajorClasses majorClass = majorClassesService.getClassById(classId);
-        if (majorClass == null) {
+        MinorClasses minorClass = minorClassesService.getClassById(classId);
+        if (minorClass == null) {
             ra.addFlashAttribute("error", "Class not found.");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        String className = majorClass.getNameClass();
-        String campusId = (majorClass.getCreator() != null && majorClass.getCreator().getCampus() != null)
-                ? majorClass.getCreator().getCampus().getCampusId() : null;
+        String className = minorClass.getNameClass();
+        String campusId = minorClass.getCreator().getCampus().getCampusId();
         if (campusId == null) {
             ra.addFlashAttribute("error", "Class has no campus assigned.");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
-        Staffs currentStaff = staffsService.getStaff();
-        if (currentStaff == null || currentStaff.getCampus() == null ||
-                !currentStaff.getCampus().getCampusId().equals(campusId)) {
+        DeputyStaffs currentStaff = deputyStaffsService.getDeputyStaff();
+        if (currentStaff == null || !currentStaff.getCampus().getCampusId().equals(campusId)) {
             ra.addFlashAttribute("error", "You are not authorized to manage this campus.");
-            return "redirect:/staff-home/classes-list";
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
         List<Slots> slots = slotsService.getSlots();
         if (slots.isEmpty()) {
             model.addAttribute("error", "No time slots configured.");
-            return "MajorTimetable";
+            return "MinorTimetable";
         }
 
         List<LocalDate> dates = getWeekDates(year, week);
@@ -131,15 +126,14 @@ public class MajorTimetableController {
                 .filter(Objects::nonNull)
                 .toList();
 
-        List<MajorTimetable> allTimetablesInWeek = majorTimetableService
-                .getMajorTimetablesByWeekInYear(week, year, campusId);
+        List<MinorTimetable> allInWeek = minorTimetableService.getMinorTimetablesByWeekInYear(week, year, campusId);
 
-        MajorTimetable[][] bookedMatrix = new MajorTimetable[7][slots.size()];
+        MinorTimetable[][] bookedMatrix = new MinorTimetable[7][slots.size()];
         List<String>[][] availableRoomsMatrix = new List[7][slots.size()];
 
         int bookedSlotsInWeek = 0;
-        for (MajorTimetable t : allTimetablesInWeek) {
-            if (t.getClassEntity().getClassId().equals(classId)) {
+        for (MinorTimetable t : allInWeek) {
+            if (t.getClassId().equals(classId)) {
                 int dayIdx = t.getDayOfWeek().ordinal();
                 int slotIdx = slots.indexOf(t.getSlot());
                 if (slotIdx >= 0 && dayIdx < 7) {
@@ -149,7 +143,7 @@ public class MajorTimetableController {
             }
         }
 
-        int totalRequiredSlots = majorClass.getSlotQuantity() != null ? majorClass.getSlotQuantity() : 0;
+        int totalRequiredSlots = minorClass.getSlotQuantity() != null ? minorClass.getSlotQuantity() : 0;
         int remainingSlots = totalRequiredSlots - bookedSlotsInWeek;
         boolean isFullyScheduled = remainingSlots <= 0;
 
@@ -174,7 +168,7 @@ public class MajorTimetableController {
                     continue;
                 }
 
-                List<String> rooms = majorTimetableService
+                List<String> rooms = minorTimetableService
                         .getAvailableRoomsForSlot(classId, campusId, slots.get(slotIdx), day, week, year)
                         .stream()
                         .map(Rooms::getRoomId)
@@ -184,10 +178,9 @@ public class MajorTimetableController {
             }
         }
 
-        String campusName = (majorClass.getCreator() != null && majorClass.getCreator().getCampus() != null)
-                ? majorClass.getCreator().getCampus().getCampusName() : "Unknown Campus";
+        String campusName = minorClass.getCreator().getCampus().getCampusName();
 
-        int totalBookedSlots = majorTimetableService.countTotalBookedSlots(classId);
+        int totalBookedSlots = minorTimetableService.countTotalBookedSlots(classId);
         int remainingTotalSlots = totalRequiredSlots - totalBookedSlots;
 
         model.addAttribute("totalRequiredSlots", totalRequiredSlots);
@@ -211,22 +204,22 @@ public class MajorTimetableController {
         model.addAttribute("remainingSlots", remainingSlots);
         model.addAttribute("isFullyScheduled", isFullyScheduled);
 
-        return "MajorTimetable";
+        return "MinorTimetable";
     }
 
-    @PostMapping("/major-timetable/save-all")
-    public String saveAllMajorTimetable(
+    // === LƯU TẤT CẢ ===
+    @PostMapping("/minor-timetable/save-all")
+    public String saveAll(
             @RequestParam Integer year,
             @RequestParam Integer week,
             @RequestParam Map<String, String> allParams,
             HttpSession session,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes ra) {
 
-        // LẤY TRỰC TIẾP TỪ SESSION
-        String classId = (String) session.getAttribute("selectedClassId");
+        String classId = (String) session.getAttribute("selectedMinorClassId");
         if (classId == null || classId.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "No class selected.");
-            return "redirect:/staff-home/classes-list";
+            ra.addFlashAttribute("error", "No class selected.");
+            return "redirect:/deputy-staff-home/minor-classes-list";
         }
 
         LocalDate now = LocalDate.now();
@@ -235,7 +228,7 @@ public class MajorTimetableController {
         int currentWeek = now.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
 
         if (isPastWeek(year, week, currentYear, currentWeek)) {
-            redirectAttributes.addFlashAttribute("error", "Cannot save timetable for past weeks.");
+            ra.addFlashAttribute("error", "Cannot save timetable for past weeks.");
             return redirectUrl(year, week);
         }
 
@@ -245,36 +238,36 @@ public class MajorTimetableController {
         Set<String> usedRoomSlotWeek = new HashSet<>();
 
         try {
-            Staffs creator = staffsService.getStaff();
+            DeputyStaffs creator = deputyStaffsService.getDeputyStaff();
             if (creator == null) {
-                redirectAttributes.addFlashAttribute("error", "Staff not found.");
+                ra.addFlashAttribute("error", "Deputy staff not found.");
                 return redirectUrl(year, week);
             }
 
-            MajorClasses majorClass = majorClassesService.getClassById(classId);
-            if (majorClass == null || majorClass.getCreator() == null || majorClass.getCreator().getCampus() == null) {
-                redirectAttributes.addFlashAttribute("error", "Invalid class or no campus.");
+            MinorClasses minorClass = minorClassesService.getClassById(classId);
+            if (minorClass == null || minorClass.getCreator() == null || minorClass.getCreator().getCampus() == null) {
+                ra.addFlashAttribute("error", "Invalid class or no campus.");
                 return redirectUrl(year, week);
             }
 
-            String campusId = majorClass.getCreator().getCampus().getCampusId();
+            String campusId = minorClass.getCreator().getCampus().getCampusId();
             if (!creator.getCampus().getCampusId().equals(campusId)) {
-                redirectAttributes.addFlashAttribute("error", "You are not authorized to save for this campus.");
+                ra.addFlashAttribute("error", "You are not authorized to save for this campus.");
                 return redirectUrl(year, week);
             }
 
-            int totalRequired = majorClass.getSlotQuantity() != null ? majorClass.getSlotQuantity() : 0;
-            int currentBooked = majorTimetableService.countBookedSlotsInWeek(classId, week, year, campusId);
+            int totalRequired = minorClass.getSlotQuantity() != null ? minorClass.getSlotQuantity() : 0;
+            int currentBooked = minorTimetableService.countBookedSlotsInWeek(classId, week, year, campusId);
 
             if (currentBooked >= totalRequired) {
-                redirectAttributes.addFlashAttribute("error",
+                ra.addFlashAttribute("error",
                         "Class is fully scheduled (" + currentBooked + "/" + totalRequired + "). Cannot add more.");
                 return redirectUrl(year, week);
             }
 
             List<Slots> slots = slotsService.getSlots();
             if (slots.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "No time slots configured.");
+                ra.addFlashAttribute("error", "No time slots configured.");
                 return redirectUrl(year, week);
             }
 
@@ -321,61 +314,63 @@ public class MajorTimetableController {
                         continue;
                     }
 
-                    if (majorTimetableService.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, week, year) != null) {
+                    if (minorTimetableService.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, week, year) != null) {
                         errors.add("Class already has schedule in this slot");
                         continue;
                     }
 
-                    MajorTimetable timetable = new MajorTimetable();
+                    MinorTimetable timetable = new MinorTimetable();
                     timetable.setTimetableId(UUID.randomUUID().toString());
-                    timetable.setClassEntity(majorClass);
+                    timetable.setMinorClass(minorClass);
                     timetable.setRoom(room);
                     timetable.setSlot(slot);
                     timetable.setDayOfWeek(dayOfWeek);
                     timetable.setWeekOfYear(week);
                     timetable.setYear(year);
                     timetable.setCreator(creator);
-                    majorTimetableService.SaveMajorTimetable(timetable, campusId);
+
+                    minorTimetableService.saveMinorTimetable(timetable, campusId);
                     savedCount++;
                     usedRoomSlotWeek.add(conflictKey);
                 }
             }
 
             if (savedCount > 0) {
-                redirectAttributes.addFlashAttribute("success",
+                ra.addFlashAttribute("success",
                         "Successfully saved " + savedCount + " room(s) in week " + week + "/" + year);
             } else if (errors.isEmpty()) {
-                redirectAttributes.addFlashAttribute("info", "No valid rooms selected.");
+                ra.addFlashAttribute("info", "No valid rooms selected.");
             }
             if (!errors.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", String.join("<br>", errors));
+                ra.addFlashAttribute("error", String.join("<br>", errors));
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            ra.addFlashAttribute("error", "Error: " + e.getMessage());
         }
         return redirectUrl(year, week);
     }
 
-    @PostMapping("/major-timetable/delete")
+    // === XÓA LỊCH ===
+    @PostMapping("/minor-timetable/delete")
     public String deleteTimetable(
             @RequestParam String timetableId,
             @RequestParam Integer year,
             @RequestParam Integer week,
             RedirectAttributes ra) {
         try {
-            MajorTimetable tt = majorTimetableService.getById(timetableId);
+            MinorTimetable tt = minorTimetableService.getById(timetableId);
             if (tt == null) {
                 ra.addFlashAttribute("error", "Schedule not found.");
                 return redirectUrl(year, week);
             }
-            MajorClasses majorClass = tt.getClassEntity();
-            String campusId = majorClass.getCreator().getCampus().getCampusId();
-            Staffs currentStaff = staffsService.getStaff();
+            MinorClasses minorClass = tt.getMinorClass();
+            String campusId = minorClass.getCreator().getCampus().getCampusId();
+            DeputyStaffs currentStaff = deputyStaffsService.getDeputyStaff();
             if (!currentStaff.getCampus().getCampusId().equals(campusId)) {
                 ra.addFlashAttribute("error", "Unauthorized campus.");
                 return redirectUrl(year, week);
             }
-            majorTimetableService.delete(tt);
+            minorTimetableService.delete(tt);
             ra.addFlashAttribute("success", "Schedule deleted successfully.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Delete failed: " + e.getMessage());
@@ -383,25 +378,25 @@ public class MajorTimetableController {
         return redirectUrl(year, week);
     }
 
+    // === XÓA SESSION ===
     @GetMapping("/clear-class")
     public String clearClass(HttpSession session) {
-        session.removeAttribute("selectedClassId");
-        return "redirect:/staff-home/classes-list";
+        session.removeAttribute("selectedMinorClassId");
+        return "redirect:/deputy-staff-home/minor-classes-list";
     }
 
-    @GetMapping("/major-timetable/save-all")
+    // === CHẶN TRUY CẬP TRỰC TIẾP ===
+    @GetMapping("/minor-timetable/save-all")
     public String blockDirectSave(RedirectAttributes ra) {
         ra.addFlashAttribute("error", "Direct access not allowed.");
-        return "redirect:/staff-home/classes-list";
+        return "redirect:/deputy-staff-home/minor-classes-list";
     }
 
+    // === HELPER ===
     private String redirectUrl(Integer year, Integer week) {
-        String url = "redirect:/staff-home/classes-list/major-timetable";
-        if (year != null) {
-            url += "?year=" + year + (week != null ? "&week=" + week : "");
-        } else if (week != null) {
-            url += "?week=" + week;
-        }
+        String url = "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+        if (year != null) url += "?year=" + year + (week != null ? "&week=" + week : "");
+        else if (week != null) url += "?week=" + week;
         return url;
     }
 
@@ -413,9 +408,7 @@ public class MajorTimetableController {
         LocalDate firstDay = LocalDate.of(year, 1, 1)
                 .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
                 .with(java.time.DayOfWeek.MONDAY);
-        return IntStream.range(0, 7)
-                .mapToObj(firstDay::plusDays)
-                .toList();
+        return IntStream.range(0, 7).mapToObj(firstDay::plusDays).toList();
     }
 
     private boolean isPastWeek(int year, int week, int currentYear, int currentWeek) {

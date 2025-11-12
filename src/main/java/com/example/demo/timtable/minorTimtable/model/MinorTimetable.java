@@ -1,5 +1,5 @@
 // src/main/java/com/example/demo/timetable/minorTimetable/model/MinorTimetable.java
-package com.example.demo.timtable.minorTimetable.model;
+package com.example.demo.timtable.minorTimtable.model;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.timtable.majorTimetable.model.Timetable;

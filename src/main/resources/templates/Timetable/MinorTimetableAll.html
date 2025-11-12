@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deputy Staff - All Schedules</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}" />
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ==== Unified Toolbar (Win11 Unified Layout) ==== -->
+    <div class="search-toolbar unified-bar">
+        <!-- LEFT -->
+        <div class="toolbar-left">
+            <a th:href="@{/deputy-staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-calendar-check"></i> All Schedules for
+                <span th:text="${className}"></span>
+                <small th:if="${campusName != null}" th:text="' - ' + ${campusName}"></small>
+            </h2>
+        </div>
+
+        <!-- RIGHT: Total + Close -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-clipboard-list"></i>
+                <strong>Total Slots:</strong>
+                <span th:text="${totalSlots}"></span>
+            </div>
+            <a th:href="@{/deputy-staff-home/minor-classes-list/clear-class}" class="btn small danger">
+                <i class="fas fa-times"></i> Close
+            </a>
+        </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <!-- All Schedules Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> No</th>
+                <th><i class="fas fa-calendar-week"></i> Week / Year</th>
+                <th><i class="fas fa-clock"></i> Day</th>
+                <th><i class="fas fa-door-open"></i> Room</th>
+                <th><i class="fas fa-chalkboard"></i> Slot</th>
+                <th><i class="fas fa-user"></i> Creator</th>
+                <th><i class="fas fa-trash-alt"></i> Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sched, iter : ${schedules}">
+                <td th:text="${iter.count}"></td>
+                <td>
+                    <strong th:text="${sched.weekOfYear}"></strong>
+                    <small th:text="'/' + ${sched.year}"></small>
+                </td>
+                <td th:text="${#strings.capitalizeWords(sched.dayOfWeek.name().toLowerCase())}"></td>
+                <td>
+                    <strong th:text="${sched.room.roomName ?: sched.room.roomId}"></strong>
+                </td>
+                <td>
+                    <span th:text="${sched.slot.slotName}"></span>
+                    <small class="text-muted" th:text="'(' + ${#temporals.format(sched.slot.startTime, 'HH:mm')} + '-' + ${#temporals.format(sched.slot.endTime, 'HH:mm')} + ')'"></small>
+                </td>
+                <td th:text="${sched.creator != null ? sched.creator.fullName : 'N/A'}"></td>
+                <td>
+                    <form th:action="@{/deputy-staff-home/minor-classes-list/minor-timetable-all/delete}"
+                          method="post"
+                          onsubmit="return confirm('Delete this schedule?');"
+                          class="inline-form">
+                        <input type="hidden" name="timetableId" th:value="${sched.timetableId}">
+                        <input type="hidden" name="classId" th:value="${classId}">
+                        <button type="submit" class="btn danger small">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(schedules)}">
+                <td colspan="7" class="text-center text-muted">
+                    <i class="fas fa-calendar-times"></i> No schedules found for this class.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

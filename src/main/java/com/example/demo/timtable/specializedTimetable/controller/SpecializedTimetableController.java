@@ -28,7 +28,6 @@ import java.util.stream.IntStream;
 @Controller
 @RequestMapping("/staff-home/specialized-classes-list")
 @RequiredArgsConstructor
-@SessionAttributes("selectedSpecializedClassId")
 public class SpecializedTimetableController {
 
     private final SpecializedTimetableService timetableService;
@@ -42,12 +41,17 @@ public class SpecializedTimetableController {
             @RequestParam String classId,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
+
         if (classId == null || classId.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "Please select a class.");
             return "redirect:/staff-home/specialized-classes-list";
         }
-        redirectAttributes.addFlashAttribute("selectedSpecializedClassId", classId);
+
+        // LƯU TRỰC TIẾP VÀO SESSION
+        session.setAttribute("selectedSpecializedClassId", classId);
+
         String url = "redirect:/staff-home/specialized-classes-list/specialized-timetable";
         if (year != null) {
             url += "?year=" + year + (week != null ? "&week=" + week : "");
@@ -61,14 +65,18 @@ public class SpecializedTimetableController {
     public String showTimetable(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
-            @SessionAttribute(value = "selectedSpecializedClassId", required = false) String classId,
+            HttpSession session,
             Model model,
-            RedirectAttributes redirectAttributes,
-            HttpSession session) {
+            RedirectAttributes redirectAttributes) {
+
+        // LẤY TRỰC TIẾP TỪ SESSION
+        String classId = (String) session.getAttribute("selectedSpecializedClassId");
+
         if (classId == null || classId.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "Please select a class first.");
             return "redirect:/staff-home/specialized-classes-list";
         }
+
         return loadTimetable(classId, year, week, model, redirectAttributes);
     }
 
@@ -85,7 +93,7 @@ public class SpecializedTimetableController {
         SpecializedClasses specializedClass = classesService.getClassById(classId);
         if (specializedClass == null) {
             ra.addFlashAttribute("error", "Class not found.");
-            return redirectUrl(year, week);
+            return "redirect:/staff-home/specialized-classes-list";
         }
 
         String className = specializedClass.getNameClass();
@@ -93,14 +101,14 @@ public class SpecializedTimetableController {
                 ? specializedClass.getCreator().getCampus().getCampusId() : null;
         if (campusId == null) {
             ra.addFlashAttribute("error", "Class has no campus assigned.");
-            return redirectUrl(year, week);
+            return "redirect:/staff-home/specialized-classes-list";
         }
 
         Staffs currentStaff = staffsService.getStaff();
         if (currentStaff == null || currentStaff.getCampus() == null ||
                 !currentStaff.getCampus().getCampusId().equals(campusId)) {
             ra.addFlashAttribute("error", "You are not authorized to manage this campus.");
-            return redirectUrl(year, week);
+            return "redirect:/staff-home/specialized-classes-list";
         }
 
         List<Slots> slots = slotsService.getSlots();
@@ -185,7 +193,6 @@ public class SpecializedTimetableController {
         model.addAttribute("totalRequiredSlots", totalRequiredSlots);
         model.addAttribute("totalBookedSlots", totalBookedSlots);
         model.addAttribute("remainingTotalSlots", remainingTotalSlots);
-
         model.addAttribute("classCreatorCampusName", campusName);
         model.addAttribute("classId", classId);
         model.addAttribute("className", className);
@@ -212,8 +219,15 @@ public class SpecializedTimetableController {
             @RequestParam Integer year,
             @RequestParam Integer week,
             @RequestParam Map<String, String> allParams,
-            @SessionAttribute("selectedSpecializedClassId") String classId,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
+
+        // LẤY TRỰC TIẾP TỪ SESSION
+        String classId = (String) session.getAttribute("selectedSpecializedClassId");
+        if (classId == null || classId.isBlank()) {
+            redirectAttributes.addFlashAttribute("error", "No class selected.");
+            return "redirect:/staff-home/specialized-classes-list";
+        }
 
         LocalDate now = LocalDate.now();
         LocalDateTime nowTime = LocalDateTime.now();
@@ -347,7 +361,6 @@ public class SpecializedTimetableController {
             @RequestParam String timetableId,
             @RequestParam Integer year,
             @RequestParam Integer week,
-            @RequestParam String classId,
             RedirectAttributes ra) {
         try {
             SpecializedTimetable tt = timetableService.getById(timetableId);
@@ -401,7 +414,7 @@ public class SpecializedTimetableController {
                 .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
                 .with(java.time.DayOfWeek.MONDAY);
         return IntStream.range(0, 7)
-                .mapToObj(i -> firstDay.plusDays(i))
+                .mapToObj(firstDay::plusDays)
                 .toList();
     }
 

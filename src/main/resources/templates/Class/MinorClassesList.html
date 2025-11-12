@@ -95,7 +95,7 @@
                     </form>
                 </td>
                 <td>
-                    <form method="post" th:action="@{/deputy-staff-home/minor-classes-list/timetable}" class="inline-form">
+                    <form method="post" th:action="@{/deputy-staff-home/minor-classes-list/minor-timetable}" class="inline-form">
                         <input type="hidden" name="classId" th:value="${clazz.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn small"><i class="fas fa-calendar"></i> Timetable</button>

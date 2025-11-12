@@ -3,6 +3,7 @@ package com.example.demo.timtable.specializedTimetable.dao;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timtable.majorTimetable.model.Slots;
+import com.example.demo.timtable.majorTimetable.service.SlotsService;
 import com.example.demo.timtable.specializedTimetable.model.SpecializedTimetable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,6 +19,12 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
 
     @PersistenceContext
     private EntityManager em;
+
+    private final SlotsService slotsService;
+
+    public SpecializedTimetableDAOImpl(SlotsService slotsService) {
+        this.slotsService = slotsService;
+    }
 
     // === 1. KIỂM TRA LỊCH ĐÃ TỒN TẠI ===
     @Override
@@ -97,7 +104,7 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
     @Override
     public String[][] SlotOfTheDayThatCanBeSuccessfullyArranged(
             String classId, String campusId, Slots slots, DaysOfWeek daysOfWeek, Integer weekNumberInYear, Integer year) {
-        String[][] result = new String[7][6];
+        String[][] result = new String[7][slotsService.getSlots().size()];
         List<Slots> allSlots = em.createQuery("SELECT s FROM Slots s ORDER BY s.slotId", Slots.class).getResultList();
 
         for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
