@@ -1,7 +1,7 @@
 package com.example.demo.attendance.minorAttendance.model;
 
 import com.example.demo.attendance.majorAttendance.model.Attendance;
-import com.example.demo.timtable.minorTimtable.model.MinorTimetable;
+import com.example.demo.timetable.minorTimtable.model.MinorTimetable;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.entity.Enums.AttendanceStatus;
 import com.example.demo.user.student.model.Students;

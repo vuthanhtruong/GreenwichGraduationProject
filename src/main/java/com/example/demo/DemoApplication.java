@@ -15,7 +15,7 @@ import com.example.demo.subject.majorSubject.model.MajorSubjects;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.subject.abstractSubject.model.Subjects;
-import com.example.demo.timtable.majorTimetable.model.Slots;
+import com.example.demo.timetable.majorTimetable.model.Slots;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.model.TuitionByYearId;
 import com.example.demo.user.admin.model.Admins;

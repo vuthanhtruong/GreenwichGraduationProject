@@ -1,217 +1,290 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/MajorTimetable.css}">
 </head>
+
 <body>
 <div class="timetable-container">
-    <!-- HEADER -->
+
+    <!-- ========================= HEADER ========================= -->
     <header class="timetable-header">
+
         <div class="header-main">
             <h1>
                 <i class="fas fa-calendar-alt"></i>
                 Arrange timetable for <span th:text="${className}"></span>
                 at <span th:text="${classCreatorCampusName ?: 'Unknown Campus'}"></span>
             </h1>
-            <form th:action="@{/staff-home/classes-list/major-timetable}" method="post" class="inline-form header-form">
+
+            <form class="inline-form header-form"
+                  th:action="@{/staff-home/classes-list/major-timetable}"
+                  method="post">
+
                 <input type="hidden" name="classId" th:value="${classId}">
+
                 <div class="select-group">
                     <label><i class="fas fa-calendar-year"></i> Year</label>
                     <select name="year" onchange="this.form.submit()">
                         <option th:each="y : ${#numbers.sequence(currentYear - 5, currentYear + 5)}"
-                                th:value="${y}" th:text="${y}" th:selected="${y == year}"></option>
+                                th:value="${y}" th:text="${y}" th:selected="${y == year}">
+                        </option>
                     </select>
                 </div>
+
                 <div class="select-group">
                     <label><i class="fas fa-calendar-week"></i> Week</label>
                     <select name="week" onchange="this.form.submit()">
                         <option th:each="label, iter : ${weekLabels}"
-                                th:value="${iter.index + 1}" th:text="${label}"
-                                th:selected="${iter.index + 1 == week}"></option>
+                                th:value="${iter.index + 1}"
+                                th:text="${label}"
+                                th:selected="${iter.index + 1 == week}">
+                        </option>
                     </select>
                 </div>
             </form>
         </div>
+
         <div class="header-controls">
-            <button type="submit" form="timetableForm" class="btn btn-success"
+            <button type="submit"
+                    form="timetableForm"
+                    class="btn btn-success"
                     th:disabled="${isPast or isFullyScheduled}"
-                    th:title="${isFullyScheduled} ? 'Class is fully scheduled' : (${isPast} ? 'Cannot save in past weeks' : '')">
+                    th:title="${isFullyScheduled} ? 'Class is fully scheduled' :
+                             (isPast ? 'Cannot save in past weeks' : '')">
+
                 <i class="fas fa-save"></i>
                 <span th:text="${isFullyScheduled} ? 'Fully Scheduled' : 'Save All'"></span>
             </button>
-            <a th:href="@{/staff-home/classes-list/clear-class}" class="btn btn-secondary">
+
+            <a th:href="@{/staff-home/classes-list/clear-class}"
+               class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
     </header>
 
-    <!-- SLOT STATUS + ACTION BUTTONS -->
+    <!-- ========================= SLOT STATUS ========================= -->
     <div class="slot-status-container" th:if="${totalRequiredSlots > 0}">
         <div class="status-row">
-            <!-- SLOT STATUS -->
+
             <div class="slot-status">
                 <div class="status-item">
                     <strong>Required:</strong> <span th:text="${totalRequiredSlots}"></span> slots
                 </div>
+
                 <div class="status-item">
                     <strong>Booked (all weeks):</strong> <span th:text="${totalBookedSlots}"></span>
                 </div>
-                <div class="status-item" th:classappend="${remainingTotalSlots <= 0} ? 'text-success' : 'text-warning'">
+
+                <div class="status-item"
+                     th:classappend="${remainingTotalSlots <= 0} ? 'text-success' : 'text-warning'">
                     <strong>Remaining:</strong>
-                    <span th:text="${remainingTotalSlots > 0} ? ${remainingTotalSlots} + ' slot(s)' : 'Fully scheduled'"></span>
+                    <span th:text="${remainingTotalSlots > 0} ?
+                                   ${remainingTotalSlots} + ' slot(s)' :
+                                   'Fully scheduled'"></span>
                 </div>
+
                 <div class="slot-status-week">
                     <em>This week: <span th:text="${bookedSlotsInWeek}"></span> slot(s) booked</em>
                 </div>
             </div>
 
-            <!-- ACTION BUTTONS -->
             <div class="action-buttons">
-                <!-- NÚT GỬI THÔNG BÁO -->
-                <form th:action="@{/staff-home/classes-list/major-timetable/send-notification}" method="post" class="inline-form">
+
+                <form class="inline-form"
+                      th:action="@{/staff-home/classes-list/major-timetable/send-notification}"
+                      method="post"
+                      onclick="return confirm('Send timetable notification to students?')">
+
                     <input type="hidden" name="classId" th:value="${classId}">
                     <input type="hidden" name="year" th:value="${year}">
                     <input type="hidden" name="week" th:value="${week}">
-                    <button type="submit" class="btn btn-outline-info btn-sm"
-                            onclick="return confirm('Send timetable notification to students?')">
+
+                    <button type="submit" class="btn btn-outline-info btn-sm">
                         <i class="fas fa-bell"></i> Send Notification
                     </button>
                 </form>
 
-                <!-- NÚT XEM TẤT CẢ LỊCH -->
-                <form th:action="@{/staff-home/classes-list/major-timetable/view-all}" method="post" class="inline-form">
+                <form class="inline-form"
+                      th:action="@{/staff-home/classes-list/major-timetable/view-all}"
+                      method="post">
+
                     <input type="hidden" name="classId" th:value="${classId}">
+
                     <button type="submit" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-list-alt"></i> View All Schedules
                     </button>
                 </form>
+
             </div>
         </div>
     </div>
 
-    <!-- ALERTS -->
+    <!-- ========================= ALERTS ========================= -->
     <div th:if="${success}" class="alert alert-success">
         <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
     </div>
+
     <div th:if="${error}" class="alert alert-danger">
         <i class="fas fa-exclamation-triangle"></i> <span th:utext="${error}"></span>
     </div>
+
     <div th:if="${info}" class="alert alert-info">
         <i class="fas fa-info-circle"></i> <span th:text="${info}"></span>
     </div>
 
-    <!-- PAST WEEK WARNING -->
     <div th:if="${isPast}" class="alert alert-warning">
         <i class="fas fa-history"></i>
         <strong>Past week</strong> – You cannot arrange or modify timetable for past weeks.
     </div>
 
-    <!-- TIMETABLE FORM -->
-    <form id="timetableForm" th:action="@{/staff-home/classes-list/major-timetable/save-all}" method="post">
+    <!-- ========================= MAIN FORM ========================= -->
+    <form id="timetableForm"
+          th:action="@{/staff-home/classes-list/major-timetable/save-all}"
+          method="post">
+
         <input type="hidden" name="year" th:value="${year}">
         <input type="hidden" name="week" th:value="${week}">
 
         <div class="table-wrapper">
             <table class="timetable-table">
+
                 <thead>
                 <tr>
                     <th class="slot-header">
                         <div>Slot</div>
                         <small>Day in Week</small>
                     </th>
+
                     <th th:each="dayLabel, dayStat : ${dayLabels}" class="day-header">
                         <span class="day-name" th:text="${dayNames[dayStat.index]}"></span>
                         <small class="day-date" th:text="'(' + ${dayLabel} + ')'"></small>
                     </th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="slot, slotStat : ${slots}">
+
                     <td class="slot-cell">
                         <div class="slot-name" th:text="${slot.slotName}"></div>
                         <div class="slot-time">
                             <i class="far fa-clock"></i>
-                            <span th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></span>
+                            <span th:text="${#temporals.format(slot.startTime, 'HH:mm')}
+                                          + ' - '
+                                          + ${#temporals.format(slot.endTime, 'HH:mm')}">
+                            </span>
                         </div>
                     </td>
-                    <td th:each="dayIdx : ${#numbers.sequence(0, 6)}" class="timetable-cell">
+
+                    <td th:each="dayIdx : ${#numbers.sequence(0, 6)}"
+                        class="timetable-cell">
 
                         <!-- BOOKED -->
                         <div th:if="${bookedTimetableMatrix[dayIdx][slotStat.index] != null}"
                              class="cell cell-booked"
-                             th:data-timetable-id="${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId}">
+                             th:id="'cell_' + ${dayIdx} + '_' + ${slotStat.index}">
+
                             <div class="cell-content">
-                                    <div class="room-name">
-                                        <i class="fas fa-door-open"></i>
-                                        <strong th:text="${bookedTimetableMatrix[dayIdx][slotStat.index].room.roomName ?: bookedTimetableMatrix[dayIdx][slotStat.index].room.roomId}"></strong>
-                                    </div>
-                                    <div class="room-link" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.link != null}">
-                                        <i class="fas fa-link"></i>
-                                        <a th:href="${bookedTimetableMatrix[dayIdx][slotStat.index].room.link}" target="_blank" class="link">Enter Link</a>
-                                    </div>
-                                    <div class="room-address" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress() != null}">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <a th:href="@{https://www.google.com/maps/search/?api=1&query=${#strings.replace(bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress(), ' ', '+')}}"
-                                           target="_blank" class="link">Check Address</a>
-                                    </div>
-                                    <div class="creator-info" th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].creator != null}">
-                                        <i class="fas fa-user"></i>
-                                        <span th:text="${bookedTimetableMatrix[dayIdx][slotStat.index].creator.fullName}"></span>
-                                    </div>
-                                    <div class="created-at">
-                                        <i class="fas fa-clock"></i>
-                                        <span th:text="${#temporals.format(bookedTimetableMatrix[dayIdx][slotStat.index].createdAt, 'dd/MM/yyyy HH:mm')}"></span>
-                                    </div>
-                                </a>
-                                <div class="class-detail-btn">
-                                    <form th:action="@{/major-timetable/detail}" method="post" class="inline-form">
-                                        <input type="hidden" name="classId" th:value="${classId}">
-                                        <input type="hidden" name="timetableId" th:value="${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId}">
-                                        <button type="submit" class="btn btn-info btn-sm" title="View class & schedule details">
-                                            <i class="fas fa-eye"></i> Detail
-                                        </button>
-                                    </form>
+
+                                <div class="room-name">
+                                    <i class="fas fa-door-open"></i>
+                                    <strong th:text="${bookedTimetableMatrix[dayIdx][slotStat.index].room.roomName
+                                                      ?: bookedTimetableMatrix[dayIdx][slotStat.index].room.roomId}">
+                                    </strong>
                                 </div>
-                                <form th:action="@{/staff-home/classes-list/major-timetable/delete}"
-                                      method="post" class="delete-form"
-                                      onsubmit="return confirm('Delete this schedule?');">
-                                    <input type="hidden" name="timetableId" th:value="${bookedTimetableMatrix[dayIdx][slotStat.index].timetableId}">
-                                    <input type="hidden" name="year" th:value="${year}">
-                                    <input type="hidden" name="week" th:value="${week}">
-                                    <input type="hidden" name="classId" th:value="${classId}">
-                                    <button type="submit" class="btn-delete"><i class="fas fa-trash-alt"></i> Delete</button>
-                                </form>
+
+                                <div class="room-link"
+                                     th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.link != null}">
+                                    <i class="fas fa-link"></i>
+                                    <a class="link"
+                                       target="_blank"
+                                       th:href="${bookedTimetableMatrix[dayIdx][slotStat.index].room.link}">
+                                        Enter Link
+                                    </a>
+                                </div>
+
+                                <div class="room-address"
+                                     th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress() != null}">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <a class="link"
+                                       target="_blank"
+                                       th:href="@{https://www.google.com/maps/search/?api=1&query=${#strings.replace(bookedTimetableMatrix[dayIdx][slotStat.index].room.getAddress(), ' ', '+')}}">
+                                        Check Address
+                                    </a>
+                                </div>
+
+                                <div class="creator-info"
+                                     th:if="${bookedTimetableMatrix[dayIdx][slotStat.index].creator != null}">
+                                    <i class="fas fa-user"></i>
+                                    <span th:text="${bookedTimetableMatrix[dayIdx][slotStat.index].creator.fullName}"></span>
+                                </div>
+
+                                <div class="created-at">
+                                    <i class="fas fa-clock"></i>
+                                    <span th:text="${#temporals.format(bookedTimetableMatrix[dayIdx][slotStat.index].createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                                </div>
+
+                                <!-- BTN: DETAIL -->
+                                <button type="submit"
+                                        class="btn btn-info btn-sm"
+                                        th:form="'detailForm_' + ${dayIdx} + '_' + ${slotStat.index}">
+                                    <i class="fas fa-eye"></i> Detail
+                                </button>
+
+                                <!-- BTN: DELETE -->
+                                <button type="submit"
+                                        class="btn-delete"
+                                        th:form="'deleteForm_' + ${dayIdx} + '_' + ${slotStat.index}"
+                                        onclick="return confirm('Delete this schedule?');">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+
                             </div>
                         </div>
 
-                        <!-- AVAILABLE (FUTURE) -->
+                        <!-- AVAILABLE -->
                         <div th:if="${bookedTimetableMatrix[dayIdx][slotStat.index] == null
                                     && !availableRoomsMatrix[dayIdx][slotStat.index].isEmpty()
                                     && !isPast}"
                              class="cell cell-available">
-                            <select th:name="'room_' + ${dayIdx} + '_' + ${slotStat.index}" class="room-select">
+
+                            <select class="room-select"
+                                    th:name="'room_' + ${dayIdx} + '_' + ${slotStat.index}">
                                 <option value="">-- Select Room --</option>
                                 <option th:each="roomId : ${availableRoomsMatrix[dayIdx][slotStat.index]}"
-                                        th:value="${roomId}" th:text="${roomId}"></option>
+                                        th:value="${roomId}"
+                                        th:text="${roomId}">
+                                </option>
                             </select>
-                            <input type="hidden" th:name="'slotId_' + ${dayIdx} + '_' + ${slotStat.index}"
+
+                            <input type="hidden"
+                                   th:name="'slotId_' + ${dayIdx} + '_' + ${slotStat.index}"
                                    th:value="${slot.slotId}">
+
                             <div class="room-count">
                                 <i class="fas fa-check"></i>
-                                <span th:text="${#lists.size(availableRoomsMatrix[dayIdx][slotStat.index])} + ' available'"></span>
+                                <span th:text="${#lists.size(availableRoomsMatrix[dayIdx][slotStat.index])}
+                                              + ' available'"></span>
                             </div>
                         </div>
 
-                        <!-- UNAVAILABLE: PAST OR NO ROOM -->
+                        <!-- UNAVAILABLE -->
                         <div th:if="${bookedTimetableMatrix[dayIdx][slotStat.index] == null
                                     && (isPast || availableRoomsMatrix[dayIdx][slotStat.index].isEmpty())}"
                              class="cell cell-unavailable">
                             <i class="fas fa-ban"></i>
-                            <span th:text="${isPast} ? 'Not available (past week)' : 'No room available'"></span>
+                            <span th:text="${isPast} ?
+                                           'Not available (past week)' :
+                                           'No room available'">
+                            </span>
                         </div>
 
                     </td>
@@ -220,6 +293,38 @@
             </table>
         </div>
     </form>
+
+    <!-- ========================= STANDALONE FORMS ========================= -->
+    <!-- FORM DETAIL + FORM DELETE TÁCH RIÊNG (KHÔNG LỒNG VÀO BÊN TRONG FORM LỚN) -->
+
+    <th:block th:each="slot, slotStat : ${slots}">
+        <th:block th:each="dayIdx : ${#numbers.sequence(0, 6)}">
+
+            <!-- DETAIL FORM -->
+            <form th:id="'detailForm_' + ${dayIdx} + '_' + ${slotStat.index}"
+                  th:action="@{/major-timetable/detail}"
+                  method="post"
+                  hidden>
+                <input type="hidden" name="classId" th:value="${classId}">
+                <input type="hidden" name="timetableId"
+                       th:value="${bookedTimetableMatrix[dayIdx][slotStat.index]?.timetableId}">
+            </form>
+
+            <!-- DELETE FORM -->
+            <form th:id="'deleteForm_' + ${dayIdx} + '_' + ${slotStat.index}"
+                  th:action="@{/staff-home/classes-list/major-timetable/delete}"
+                  method="post"
+                  hidden>
+                <input type="hidden" name="classId" th:value="${classId}">
+                <input type="hidden" name="year" th:value="${year}">
+                <input type="hidden" name="week" th:value="${week}">
+                <input type="hidden" name="timetableId"
+                       th:value="${bookedTimetableMatrix[dayIdx][slotStat.index]?.timetableId}">
+            </form>
+
+        </th:block>
+    </th:block>
+
 </div>
 </body>
 </html>

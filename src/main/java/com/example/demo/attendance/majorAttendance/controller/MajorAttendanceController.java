@@ -3,15 +3,12 @@ package com.example.demo.attendance.majorAttendance.controller;
 
 import com.example.demo.attendance.majorAttendance.model.MajorAttendance;
 import com.example.demo.attendance.majorAttendance.service.MajorAttendanceService;
-import com.example.demo.classes.majorClasses.service.MajorClassesService;
 import com.example.demo.entity.Enums.AttendanceStatus;
-import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
-import com.example.demo.timtable.majorTimetable.service.MajorTimetableService;
+import com.example.demo.timetable.majorTimetable.model.MajorTimetable;
+import com.example.demo.timetable.majorTimetable.service.MajorTimetableService;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.user.employe.service.EmployesService;
-import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
