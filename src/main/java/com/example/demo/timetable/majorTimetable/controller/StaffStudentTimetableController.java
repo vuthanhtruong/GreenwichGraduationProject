@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/timetable/majorTimetable/controller/StaffStudentTimetableController.java
 package com.example.demo.timetable.majorTimetable.controller;
 
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -9,9 +10,7 @@ import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,14 +20,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/student-home/timetable")
-public class StudentTimetableController {
+@RequestMapping("/staff-timetable")
+public class StaffStudentTimetableController {
 
     private final TimetableService timetableService;
     private final StudentsService studentsService;
     private final SlotsService slotsService;
 
-    public StudentTimetableController(
+    public StaffStudentTimetableController(
             TimetableService timetableService,
             StudentsService studentsService,
             SlotsService slotsService) {
@@ -37,16 +36,34 @@ public class StudentTimetableController {
         this.slotsService = slotsService;
     }
 
-    @GetMapping
-    public String showStudentTimetable(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer week,
-            Model model,
+    @PostMapping("/student-view")
+    public String showStudentTimetablePost(
+            @RequestParam String studentId,
             HttpSession session) {
 
-        Students student = studentsService.getStudent();
+        session.setAttribute("view_studentId", studentId);
+
+        return "redirect:/staff-timetable/student-view";
+    }
+
+    @GetMapping("/student-view")
+    public String showStudentTimetableGet(
+            Model model,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer week,
+            HttpSession session) {
+
+        String studentId = (String) session.getAttribute("view_studentId");
+
+        if (studentId == null) {
+            model.addAttribute("error", "No student selected.");
+            return "redirect:/staff-home/students-list";
+        }
+
+        Students student = studentsService.getStudentById(studentId);
         if (student == null) {
-            return "redirect:/login";
+            model.addAttribute("error", "Student not found.");
+            return "redirect:/staff-home/students-list";
         }
 
         LocalDate now = LocalDate.now();
@@ -111,8 +128,8 @@ public class StudentTimetableController {
         model.addAttribute("week", week);
         model.addAttribute("currentYear", currentYear);
         model.addAttribute("currentWeek", currentWeek);
-        model.addAttribute("home", "/student-home"); // Optional: to hide edit buttons in HTML
-        model.addAttribute("action", "/student-home/timetable"); // Optional: to hide edit buttons in HTML
+        model.addAttribute("home", "/staff-home"); // Optional: to hide edit buttons in HTML
+        model.addAttribute("action", "/staff-timetable/student-view"); // Optional: to hide edit buttons in HTML
     }
 
     private List<LocalDate> getWeekDates(int year, int week) {

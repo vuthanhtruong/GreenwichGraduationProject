@@ -16,6 +16,10 @@ import java.util.List;
 @Repository
 @Transactional
 public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
+    @Override
+    public SpecializedTimetable getTimetableById(String timetableId) {
+        return em.find(SpecializedTimetable.class, timetableId);
+    }
 
     @PersistenceContext
     private EntityManager em;
@@ -217,96 +221,150 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
 
     // === HELPER: XUNG ĐỘT GIẢNG VIÊN ===
     private boolean lecturerHasConflict(String lecturerId, String slotId, DaysOfWeek day, Integer weekOfYear, Integer year, String excludeClassId, String campusId) {
-        String jpql = """
-                SELECT COUNT(*) > 0 FROM (
-                    SELECT 1 FROM SpecializedTimetable t
-                    JOIN t.specializedClass c
-                    JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                      AND c.classId != :excludeClassId
-                    UNION ALL
-                    SELECT 1 FROM MajorTimetable t
-                    JOIN t.classEntity c
-                    JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                    UNION ALL
-                    SELECT 1 FROM MinorTimetable t
-                    JOIN t.minorClass c
-                    JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
-                    WHERE lmc.lecturer.id = :lecturerId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                ) AS sub
-                """;
-        return em.createQuery(jpql, Boolean.class)
+        // Kiểm tra xung đột trong SpecializedTimetable
+        String jpql1 = """
+            SELECT COUNT(t) FROM SpecializedTimetable t
+            JOIN t.specializedClass c
+            JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
+            WHERE lmc.lecturer.id = :lecturerId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+              AND c.classId != :excludeClassId
+            """;
+        Long count1 = em.createQuery(jpql1, Long.class)
                 .setParameter("lecturerId", lecturerId)
+                .setParameter("campusId", campusId)
                 .setParameter("slotId", slotId)
                 .setParameter("day", day)
                 .setParameter("week", weekOfYear)
                 .setParameter("year", year)
                 .setParameter("excludeClassId", excludeClassId)
-                .setParameter("campusId", campusId)
                 .getSingleResult();
+
+        if (count1 > 0) return true;
+
+        // Kiểm tra xung đột trong MajorTimetable
+        String jpql2 = """
+            SELECT COUNT(t) FROM MajorTimetable t
+            JOIN t.classEntity c
+            JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
+            WHERE lmc.lecturer.id = :lecturerId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+            """;
+        Long count2 = em.createQuery(jpql2, Long.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("campusId", campusId)
+                .setParameter("slotId", slotId)
+                .setParameter("day", day)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        if (count2 > 0) return true;
+
+        // Kiểm tra xung đột trong MinorTimetable
+        String jpql3 = """
+            SELECT COUNT(t) FROM MinorTimetable t
+            JOIN t.minorClass c
+            JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
+            WHERE lmc.lecturer.id = :lecturerId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+            """;
+        Long count3 = em.createQuery(jpql3, Long.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("campusId", campusId)
+                .setParameter("slotId", slotId)
+                .setParameter("day", day)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        return count3 > 0;
     }
 
     // === HELPER: XUNG ĐỘT SINH VIÊN ===
     private boolean studentHasConflict(String studentId, String slotId, DaysOfWeek day, Integer weekOfYear, Integer year, String excludeClassId, String campusId) {
-        String jpql = """
-                SELECT COUNT(*) > 0 FROM (
-                    SELECT 1 FROM SpecializedTimetable t
-                    JOIN t.specializedClass c
-                    JOIN Students_SpecializedClasses ssc ON c.classId = ssc.specializedClass.classId
-                    WHERE ssc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                      AND c.classId != :excludeClassId
-                    UNION ALL
-                    SELECT 1 FROM MajorTimetable t
-                    JOIN t.classEntity c
-                    JOIN Students_MajorClasses smc ON c.classId = smc.majorClass.classId
-                    WHERE smc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                    UNION ALL
-                    SELECT 1 FROM MinorTimetable t
-                    JOIN t.minorClass c
-                    JOIN Students_MinorClasses smc ON c.classId = smc.minorClass.classId
-                    WHERE smc.student.id = :studentId
-                      AND c.creator.campus.campusId = :campusId
-                      AND t.slot.slotId = :slotId
-                      AND t.dayOfWeek = :day
-                      AND t.weekOfYear = :week
-                      AND t.year = :year
-                ) AS sub
-                """;
-        return em.createQuery(jpql, Boolean.class)
+        // Kiểm tra xung đột trong SpecializedTimetable
+        String jpql1 = """
+            SELECT COUNT(t) FROM SpecializedTimetable t
+            JOIN t.specializedClass c
+            JOIN Students_SpecializedClasses ssc ON c.classId = ssc.specializedClass.classId
+            WHERE ssc.student.id = :studentId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+              AND c.classId != :excludeClassId
+            """;
+        Long count1 = em.createQuery(jpql1, Long.class)
                 .setParameter("studentId", studentId)
+                .setParameter("campusId", campusId)
                 .setParameter("slotId", slotId)
                 .setParameter("day", day)
                 .setParameter("week", weekOfYear)
                 .setParameter("year", year)
                 .setParameter("excludeClassId", excludeClassId)
-                .setParameter("campusId", campusId)
                 .getSingleResult();
+
+        if (count1 > 0) return true;
+
+        // Kiểm tra xung đột trong MajorTimetable
+        String jpql2 = """
+            SELECT COUNT(t) FROM MajorTimetable t
+            JOIN t.classEntity c
+            JOIN Students_MajorClasses smc ON c.classId = smc.majorClass.classId
+            WHERE smc.student.id = :studentId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+            """;
+        Long count2 = em.createQuery(jpql2, Long.class)
+                .setParameter("studentId", studentId)
+                .setParameter("campusId", campusId)
+                .setParameter("slotId", slotId)
+                .setParameter("day", day)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        if (count2 > 0) return true;
+
+        // Kiểm tra xung đột trong MinorTimetable
+        String jpql3 = """
+            SELECT COUNT(t) FROM MinorTimetable t
+            JOIN t.minorClass c
+            JOIN Students_MinorClasses smc ON c.classId = smc.minorClass.classId
+            WHERE smc.student.id = :studentId
+              AND c.creator.campus.campusId = :campusId
+              AND t.slot.slotId = :slotId
+              AND t.dayOfWeek = :day
+              AND t.weekOfYear = :week
+              AND t.year = :year
+            """;
+        Long count3 = em.createQuery(jpql3, Long.class)
+                .setParameter("studentId", studentId)
+                .setParameter("campusId", campusId)
+                .setParameter("slotId", slotId)
+                .setParameter("day", day)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        return count3 > 0;
     }
 
     // === HELPER: PHÒNG TRỐNG TRONG CAMPUS ===

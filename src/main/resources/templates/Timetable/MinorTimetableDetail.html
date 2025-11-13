@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Schedule Detail</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/MajorTimetableDetail.css}">
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- Header -->
+    <div class="win11-title-bar">
+        <div>
+            <h1>Schedule Detail</h1>
+            <h2>Review minor class info, lecturers & student attendance</h2>
+        </div>
+
+        <a th:href="@{/deputy-staff-home/minor-classes-list}" class="btn home-btn">
+            Back to List
+        </a>
+    </div>
+
+    <!-- Success Alert -->
+    <div th:if="${param.success}" class="win11-alert success">
+        Attendance saved successfully!
+    </div>
+
+    <!-- CLASS INFORMATION -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            Class Information
+        </h2>
+
+        <div class="info-grid">
+            <div class="info-item"><strong>Class:</strong>
+                <span th:text="${minorClass.nameClass}"></span>
+            </div>
+
+            <div class="info-item"><strong>Subject:</strong>
+                <span th:text="${minorClass.getMinorSubject().getSubjectName()}"></span>
+            </div>
+
+            <div class="info-item"><strong>Slot:</strong>
+                <span th:text="${timetable.slot.slotName}"></span>
+                <small>(
+                    <span th:text="${#temporals.format(timetable.slot.startTime,'HH:mm')}"></span> -
+                    <span th:text="${#temporals.format(timetable.slot.endTime,'HH:mm')}"></span>
+                    )</small>
+            </div>
+
+            <div class="info-item"><strong>Date:</strong>
+                <span th:text="${timetable.createdAt}"></span>
+                <small th:text="'(' + ${timetable.dayOfWeek} + ')'"></small>
+            </div>
+
+            <div class="info-item"><strong>Week:</strong>
+                <span th:text="${timetable.weekOfYear}"></span> /
+                <span th:text="${timetable.year}"></span>
+            </div>
+
+            <div class="info-item"><strong>Room:</strong>
+                <span th:text="${timetable.room.roomName ?: timetable.room.roomId}"></span>
+                <a th:if="${timetable.room.link}" th:href="${timetable.room.link}" target="_blank" class="link">
+                    Join
+                </a>
+            </div>
+
+            <div class="info-item"><strong>Created by:</strong>
+                <span th:text="${timetable.creator?.fullName ?: 'System'}"></span>
+                <small th:text="${#temporals.format(timetable.createdAt,'HH:mm, dd/MM')}"></small>
+            </div>
+
+            <div class="info-item"><strong>Attendance Time:</strong>
+                <span th:if="${attendanceTime != null}"
+                      th:text="${#temporals.format(attendanceTime,'HH:mm dd/MM/yyyy')}"></span>
+                <span th:if="${attendanceTime == null}" class="text-muted">Not taken yet</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- LECTURERS -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            Lecturers (<span th:text="${#lists.size(lecturers)}"></span>)
+        </h2>
+
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lec : ${lecturers}">
+                    <td th:text="${lec.id}"></td>
+                    <td th:text="${lec.fullName}"></td>
+                    <td th:text="${lec.email}"></td>
+                    <td th:text="${lec.phoneNumber}"></td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(lecturers)}">
+                    <td colspan="4" class="text-center text-muted">No lecturers assigned</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- STUDENT ATTENDANCE -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            Student Attendance (
+            <span th:text="${#lists.size(studentAttendanceList)}"></span>
+            )
+        </h2>
+
+        <form th:action="@{/minor-timetable/detail/save-attendance}" method="post">
+
+            <input type="hidden" name="timetableId" th:value="${timetable.timetableId}">
+            <input type="hidden" name="classId" th:value="${minorClass.classId}">
+
+            <div class="table-container">
+                <table class="win11-table attendance-table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Image</th>
+                        <th>Student ID</th>
+                        <th>Full Name</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="item, iter : ${studentAttendanceList}">
+                        <th:block th:with="student=${item[0]}, attendance=${item[1]}">
+
+                            <td th:text="${iter.index + 1}"></td>
+
+                            <td>
+                                <img th:src="${student.avatar ?: student.defaultAvatarPath}"
+                                     class="student-img">
+                            </td>
+
+                            <td th:text="${student.id}"></td>
+                            <td th:text="${student.fullName}"></td>
+
+                            <!-- Attendance Status -->
+                            <td class="status-radio">
+
+                                <label class="radio-label">
+                                    <input type="radio"
+                                           th:name="'status_' + ${student.id}"
+                                           value="ATTENDED"
+                                           th:checked="${attendance.status == T(com.example.demo.entity.Enums.AttendanceStatus).ATTENDED}">
+                                    <span class="radio-custom present"></span> Present
+                                </label>
+
+                                <label class="radio-label">
+                                    <input type="radio"
+                                           th:name="'status_' + ${student.id}"
+                                           value="ABSENT"
+                                           th:checked="${attendance.status == T(com.example.demo.entity.Enums.AttendanceStatus).ABSENT}">
+                                    <span class="radio-custom absent"></span> Absent
+                                </label>
+
+                            </td>
+
+                            <td>
+                                <input type="text"
+                                       th:name="'note_' + ${student.id}"
+                                       th:value="${attendance.note}"
+                                       maxlength="200"
+                                       placeholder="Optional note..."
+                                       class="note-input">
+                            </td>
+
+                        </th:block>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+                <button type="submit" class="btn primary">
+                    Save Attendance
+                </button>
+
+                <button type="button" class="btn" onclick="setAll('ATTENDED')">
+                    All Present
+                </button>
+
+                <button type="button" class="btn danger" onclick="setAll('ABSENT')">
+                    All Absent
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+</div>
+
+<script>
+    function setAll(value) {
+        document.querySelectorAll(`input[value="${value}"]`).forEach(el => el.checked = true);
+    }
+</script>
+
+</body>
+</html>

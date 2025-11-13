@@ -284,9 +284,11 @@
 
             <!-- DETAIL FORM -->
             <form th:id="'detailForm_' + ${dayIdx} + '_' + ${slotStat.index}"
-                  th:action="@{/deputy-staff-home/minor-classes-list/detail}"
+                  th:action="@{/minor-timetable/detail}"
                   method="post" hidden>
                 <input type="hidden" name="classId" th:value="${classId}">
+                <input type="hidden" name="timetableId"
+                       th:value="${bookedTimetableMatrix[dayIdx][slotStat.index]?.timetableId}">
             </form>
 
             <!-- DELETE FORM -->

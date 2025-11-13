@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin-home")
 public class AdminController {
-    private final AdminsService  adminsService;
+    private final AdminsService adminsService;
 
     public AdminController(AdminsService adminsService) {
         this.adminsService = adminsService;

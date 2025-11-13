@@ -14,9 +14,9 @@
         <div class="header-main">
             <h1>
                 <i class="fas fa-calendar-alt"></i>
-                My Timetable
+                Timetable
             </h1>
-            <form th:action="@{/student-home/timetable}" method="get" class="header-form">
+            <form th:action="@{${action}}" method="get" class="header-form">
                 <div class="select-group">
                     <label><i class="fas fa-calendar-year"></i> Year</label>
                     <select name="year" onchange="this.form.submit()">
@@ -38,7 +38,7 @@
             </form>
         </div>
         <div>
-            <a th:href="@{/student-home}" class="btn btn-secondary">
+            <a th:href="@{${home}}" class="btn btn-secondary">
                 <i class="fas fa-home"></i> Home
             </a>
         </div>
