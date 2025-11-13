@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Specializations</title>
+    <title>Specializations</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
@@ -13,14 +13,21 @@
     <!-- ===== Unified Toolbar ===== -->
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/major-lecturer-home}" class="btn home-btn">
+            <!-- Nút Home: Tự động về đúng trang chủ -->
+            <a th:href="@{${isOwnView}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
+            </a>
+
+            <!-- Nút Back: Chỉ hiện khi Staff xem chi tiết -->
+            <a th:href="@{${backUrl}}" class="btn secondary small" th:if="${backUrl != null}">
+                <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
 
         <div class="toolbar-center">
             <h1 class="page-title">
-                <i class="fas fa-book"></i> Your Specializations
+                <i class="fas fa-book"></i>
+                <span th:text="${pageTitle}"></span>
             </h1>
         </div>
 
@@ -28,7 +35,7 @@
             <div class="total">
                 <i class="fas fa-layer-group"></i>
                 <strong>Total:</strong>
-                <span th:text="${Specializations != null ? Specializations.size() : 0}"></span>
+                <span th:text="${specializations != null ? specializations.size() : 0}"></span>
             </div>
         </div>
     </div>
@@ -40,19 +47,45 @@
             <tr>
                 <th><i class="fas fa-id-card"></i> Specialization ID</th>
                 <th><i class="fas fa-book-open"></i> Specialization Name</th>
+                <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-calendar-plus"></i> Created At</th>
+
+                <!-- Cột Actions: Chỉ hiện khi xem theo Major (cho phép Assign) -->
+                <th th:if="${!isLecturerView}"><i class="fas fa-cogs"></i> Actions</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="spec : ${Specializations}">
-                <td th:text="${spec.specialization.specializationId}"></td>
-                <td th:text="${spec.specialization.specializationName}"></td>
-                <td th:text="${spec.createdAt}"></td>
+            <tr th:each="spec : ${specializations}">
+                <td th:text="${spec.specializationId}"></td>
+                <td th:text="${spec.specializationName}"></td>
+                <td th:text="${spec.creator?.firstName + ' ' + spec.creator?.lastName ?: 'N/A'}"></td>
+                <td th:text="${spec.createdAt != null ? #temporals.format(spec.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
+
+                <!-- Actions: Chỉ hiện khi xem theo Major -->
+                <td th:if="${!isLecturerView}">
+                    <div class="actions">
+                        <form th:action="@{/staff-home/lecturer-specialization/assign-lecturer}" method="post" class="inline-form">
+                            <input type="hidden" name="specializationId" th:value="${spec.specializationId}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn small primary">
+                                <i class="fas fa-user-plus"></i> Assign Lecturer
+                            </button>
+                        </form>
+                    </div>
+                </td>
+
+                <!-- Khi xem theo Lecturer → hiện icon tick -->
+                <td th:if="${isLecturerView}" class="text-center text-success">
+                    <i class="fas fa-check-circle"></i> Assigned
+                </td>
             </tr>
-            <tr th:if="${#lists.isEmpty(Specializations)}">
-                <td colspan="5" class="text-center">
+
+            <!-- Empty State -->
+            <tr th:if="${#lists.isEmpty(specializations)}">
+                <td colspan="${isLecturerView ? 4 : 5}" class="text-center">
                     <div class="alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i> No specializations assigned to you.
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span th:text="${message ?: 'No specializations found.'}"></span>
                     </div>
                 </td>
             </tr>

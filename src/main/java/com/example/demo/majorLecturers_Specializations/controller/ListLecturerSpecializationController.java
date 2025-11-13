@@ -21,6 +21,7 @@ public class ListLecturerSpecializationController {
     @GetMapping()
     public String listLecturerSpecializations(Model model) {
         model.addAttribute("Specializations",majorLecturersSpecializationsService.getSpecializationsByLecturer(majorLecturersService.getMajorLecturer()));
+        model.addAttribute("backUrl", "/major-lecturer-home");
         return "YourSpecializations";
     }
 }

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timetable - [[${lecturer.fullName}]]</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <title>Timetable</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/MajorTimetable.css}">
 </head>
 <body>
@@ -14,9 +14,9 @@
         <div class="header-main">
             <h1>
                 <i class="fas fa-chalkboard-teacher"></i>
-                My Teaching Schedule
+                <span th:text="${isStaffView} ? 'Lecturer Timetable - ' + ${lecturer.fullName} : 'My Teaching Schedule'"></span>
             </h1>
-            <form th:action="@{/major-lecturer-home/major-timetable}" method="get" class="header-form">
+            <form th:action="@{${action}}" method="get" class="header-form">
                 <div class="select-group">
                     <label><i class="fas fa-calendar-year"></i> Year</label>
                     <select name="year" onchange="this.form.submit()">
@@ -38,8 +38,11 @@
             </form>
         </div>
         <div>
-            <a th:href="@{/major-lecturer-home}" class="btn btn-secondary">
+            <a th:href="@{${home}}" class="btn btn-secondary">
                 <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{${list}}" class="btn btn-info" th:if="${list != null}">
+                <i class="fas fa-users"></i> Lecturers List
             </a>
         </div>
     </header>
@@ -49,7 +52,7 @@
         <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
     </div>
 
-    <!-- STATUS: Chỉ hiện khi có lịch -->
+    <!-- STATUS -->
     <div class="slot-status-container" th:if="${#lists.size(timetables) > 0}">
         <div class="status-row">
             <div class="slot-status">
@@ -63,7 +66,7 @@
         </div>
     </div>
 
-    <!-- BẢNG LUÔN HIỆN – DÙ KHÔNG CÓ LỊCH -->
+    <!-- BẢNG TKB -->
     <div class="table-wrapper">
         <table class="timetable-table">
             <thead>
@@ -90,8 +93,7 @@
                 <td th:each="dayIdx : ${#numbers.sequence(0, 6)}" class="timetable-cell">
 
                     <!-- CÓ LỊCH -->
-                    <div th:if="${matrix[dayIdx][slotStat.index] != null}"
-                         class="cell cell-booked">
+                    <div th:if="${matrix[dayIdx][slotStat.index] != null}" class="cell cell-booked">
                         <div class="cell-content">
                             <div class="class-info">
                                 <i class="fas fa-graduation-cap"></i>
@@ -121,11 +123,10 @@
                         </div>
                     </div>
 
-                    <!-- KHÔNG CÓ LỊCH → HIỆN "Free" -->
-                    <div th:if="${matrix[dayIdx][slotStat.index] == null}"
-                         class="cell cell-unavailable">
+                    <!-- KHÔNG CÓ LỊCH -->
+                    <div th:if="${matrix[dayIdx][slotStat.index] == null}" class="cell cell-unavailable">
                         <i class="fas fa-minus"></i>
-                        <span class="text-muted">Free</span>
+                        <span class="text-muted" th:text="${isStaffView} ? 'Free' : 'Free'">Free</span>
                     </div>
 
                 </td>

@@ -1,4 +1,4 @@
-// src/main/java/com/example/demo/timetable/majorTimetable/controller/MajorLecturerTimetableController.java
+// src/main/java/com/example/demo/timetable/majorTimetable/controller/StaffLecturerTimetableController.java
 package com.example.demo.timetable.majorTimetable.controller;
 
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -10,9 +10,7 @@ import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,14 +20,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/major-lecturer-home/major-timetable")
-public class MajorLecturerTimetableController {
+@RequestMapping("/staff-timetable")
+public class StaffLecturerTimetableController {
 
     private final TimetableService timetableService;
     private final MajorLecturersService lecturersService;
     private final SlotsService slotsService;
 
-    public MajorLecturerTimetableController(
+    public StaffLecturerTimetableController(
             TimetableService timetableService,
             MajorLecturersService lecturersService,
             SlotsService slotsService) {
@@ -38,16 +36,29 @@ public class MajorLecturerTimetableController {
         this.slotsService = slotsService;
     }
 
-    @GetMapping
-    public String showLecturerTimetable(
+    @PostMapping("/lecturer")
+    public String showLecturerTimetablePost(@RequestParam String lecturerId, HttpSession session) {
+        session.setAttribute("view_lecturerId", lecturerId);
+        return "redirect:/staff-timetable/lecturer";
+    }
+
+    @GetMapping("/lecturer")
+    public String showLecturerTimetableGet(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
             Model model,
             HttpSession session) {
 
-        MajorLecturers lecturer = lecturersService.getMajorLecturer(); // từ login
+        String lecturerId = (String) session.getAttribute("view_lecturerId");
+        if (lecturerId == null) {
+            model.addAttribute("error", "No lecturer selected.");
+            return "redirect:/staff-home/lecturers-list";
+        }
+
+        MajorLecturers lecturer = lecturersService.getLecturerById(lecturerId);
         if (lecturer == null) {
-            return "redirect:/login";
+            model.addAttribute("error", "Lecturer not found.");
+            return "redirect:/staff-home/lecturers-list";
         }
 
         LocalDate now = LocalDate.now();
@@ -63,11 +74,16 @@ public class MajorLecturerTimetableController {
             return "MajorLecturerTimetable";
         }
 
-        // DÙNG HÀM ĐÃ CÓ: getMajorLecturerTimetable
         List<Timetable> timetables = timetableService.getMajorLecturerTimetable(
                 lecturer.getId(), targetWeek, targetYear);
 
         prepareView(model, timetables, allSlots, targetYear, targetWeek, currentYear, currentWeek, lecturer);
+
+        // Đánh dấu là Staff đang xem
+        model.addAttribute("isStaffView", true);
+        model.addAttribute("list", "/staff-home/lecturers-list");
+        model.addAttribute("home", "/staff-home");
+        model.addAttribute("action", "/staff-timetable/lecturer");
 
         return "MajorLecturerTimetable";
     }
@@ -80,7 +96,6 @@ public class MajorLecturerTimetableController {
                 .map(d -> d.format(DateTimeFormatter.ofPattern("dd/MM")))
                 .collect(Collectors.toList());
 
-        // Ma trận: 7 ngày x số slot
         Timetable[][] matrix = new Timetable[7][slots.size()];
         for (Timetable t : timetables) {
             int dayIdx = t.getDayOfWeek().ordinal();
@@ -90,7 +105,6 @@ public class MajorLecturerTimetableController {
             }
         }
 
-        // Danh sách tuần trong năm
         List<String> weekLabels = new ArrayList<>();
         for (int w = 1; w <= 53; w++) {
             List<LocalDate> dates = getWeekDates(year, w);
@@ -115,10 +129,6 @@ public class MajorLecturerTimetableController {
         model.addAttribute("week", week);
         model.addAttribute("currentYear", currentYear);
         model.addAttribute("currentWeek", currentWeek);
-        // Chỉ thêm 3 dòng này vào prepareView:
-        model.addAttribute("isStaffView", false);
-        model.addAttribute("home", "/major-lecturer-home");
-        model.addAttribute("action", "/major-lecturer-home/major-timetable");
     }
 
     private List<LocalDate> getWeekDates(int year, int week) {
