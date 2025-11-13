@@ -1,5 +1,6 @@
-package com.example.demo.attendance.model;
+package com.example.demo.attendance.specializedAttendance.model;
 
+import com.example.demo.attendance.majorAttendance.model.Attendance;
 import com.example.demo.timtable.specializedTimetable.model.SpecializedTimetable;
 import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;

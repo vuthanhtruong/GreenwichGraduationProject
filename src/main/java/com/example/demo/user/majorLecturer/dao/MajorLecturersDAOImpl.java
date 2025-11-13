@@ -131,13 +131,7 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
             default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
         };
 
-        return entityManager.createQuery(
-                        "SELECT l FROM MajorLecturers l " +
-                                "JOIN FETCH l.majorManagement m " +
-                                "JOIN FETCH l.campus c " +
-                                "WHERE l.id = :id", MajorLecturers.class)
-                .setParameter("id", person.getId())
-                .getSingleResult();
+        return entityManager.find(MajorLecturers.class, person.getId());
     }
 
     @Override

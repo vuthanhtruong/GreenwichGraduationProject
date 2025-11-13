@@ -360,4 +360,29 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
                 .setParameter("year", year)
                 .getResultList();
     }
+
+    @Override
+    public List<SpecializedTimetable> getSpecializedTimetablesByMajorLecturer(
+            String lecturerId, Integer week, Integer year) {
+
+        String jpql = """
+        SELECT DISTINCT t FROM SpecializedTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.specializedClass c
+        JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
+        JOIN c.creator staff
+        WHERE lmc.lecturer.id = :lecturerId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+        ORDER BY t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, SpecializedTimetable.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+    }
 }

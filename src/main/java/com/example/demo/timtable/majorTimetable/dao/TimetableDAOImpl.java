@@ -2,10 +2,8 @@
 package com.example.demo.timtable.majorTimetable.dao;
 
 import com.example.demo.timtable.majorTimetable.model.Timetable;
-import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
 import com.example.demo.timtable.majorTimetable.service.MajorTimetableService;
 import com.example.demo.timtable.minorTimtable.service.MinorTimetableService;
-import com.example.demo.timtable.specializedTimetable.model.SpecializedTimetable;
 import com.example.demo.timtable.specializedTimetable.service.SpecializedTimetableService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,6 +16,14 @@ import java.util.List;
 @Repository
 @Transactional
 public class TimetableDAOImpl implements TimetableDAO {
+    @Override
+    public List<Timetable> getMajorLecturerTimetable(String lecturerId, Integer week, Integer year) {
+        List<Timetable> timetables = new ArrayList<>();
+        timetables.addAll(majorTimetableService.getMajorTimetableByStudent(lecturerId, week, year));
+        timetables.addAll(specializedTimetableService.getSpecializedTimetableByStudent(lecturerId, week, year));
+        return timetables;
+    }
+
     @Override
     public List<Timetable> getTimetablesByWeekInYear(Integer weekInYear, Integer year) {
         return List.of();

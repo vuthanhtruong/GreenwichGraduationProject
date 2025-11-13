@@ -8,4 +8,5 @@ import java.util.List;
 public interface TimetableService {
     List<Timetable> getTimetablesByWeekInYear(Integer weekInYear, Integer year);
     List<Timetable> getStudentTimetable(String studentId, Integer week, Integer year);
+    List<Timetable> getMajorLecturerTimetable(String lecturerId, Integer week, Integer year);
 }

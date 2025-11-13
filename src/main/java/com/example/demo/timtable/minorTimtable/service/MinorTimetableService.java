@@ -23,4 +23,5 @@ public interface MinorTimetableService {
             String classId, String campusId, Slots slots, DaysOfWeek daysOfWeek, Integer weekNumberInYear, Integer year);
     void saveMinorTimetable(MinorTimetable timetable, String campusId);
     List<MinorTimetable> getMinorTimetableByStudent(String studentId, Integer week, Integer year);
+    List<MinorTimetable> getMinorTimetablesByMinorLecturer(String lecturerId, Integer week, Integer year);
 }

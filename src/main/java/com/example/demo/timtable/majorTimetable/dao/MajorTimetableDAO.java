@@ -27,4 +27,6 @@ public interface MajorTimetableDAO {
     int countTotalBookedSlots(String classId); // BỎ campusId
     List<MajorTimetable> getAllSchedulesByClass(String classId);
     List<MajorTimetable> getMajorTimetableByStudent(String studentId, Integer week, Integer year);
+    List<MajorTimetable> getMajorTimetablesByLecturer(String lecturerId, Integer week, Integer year);
+    MajorTimetable getMajorTimetableById(String timetableId);
 }

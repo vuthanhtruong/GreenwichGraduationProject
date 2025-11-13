@@ -1,0 +1,320 @@
+/* =========================================================
+   WINDOWS 11 FLUENT UI THEME — Schedule Detail Page
+   ========================================================= */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+    --danger: #dc2626;
+    --success: #22c55e;
+
+    --bg-light: #f3f3f3;
+    --bg-white: #ffffff;
+
+    --text-dark: #1a1a1a;
+    --text-muted: #6b7280;
+
+    --border: #e5e7eb;
+    --shadow: rgba(0, 0, 0, 0.08);
+
+    --radius: 14px;
+    --transition: 0.2s ease;
+}
+
+body {
+    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+.win11-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+.win11-title-bar {
+    background: var(--bg-white);
+    padding: 24px 28px;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+.win11-title-bar h1 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.win11-title-bar h2 {
+    margin-top: 8px;
+    font-size: 15px;
+    color: var(--text-muted);
+}
+
+.home-btn {
+    padding: 10px 18px;
+    background: #eef3ff;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.home-btn:hover {
+    background: #dceafe;
+}
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+.win11-alert {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #e0f2fe;
+    border-left: 5px solid var(--primary);
+}
+
+.win11-alert.success {
+    background: #dcfce7;
+    border-left-color: var(--success);
+    color: #166534;
+}
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+.win11-panel {
+    background: var(--bg-white);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.panel-header {
+    margin: 0 0 18px 0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   CLASS INFO GRID
+   ========================================================= */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.info-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-dark);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+.table-container {
+    background: var(--bg-white);
+    border-radius: var(--radius);
+    overflow-x: hidden !important;     /* Không scroll ngang */
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.win11-table th,
+.win11-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+}
+
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+.win11-table tr:hover {
+    background: #f0f6ff;
+}
+
+/* Student avatar */
+.student-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+}
+
+/* =========================================================
+   ATTENDANCE RADIO
+   ========================================================= */
+.status-radio {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.radio-label input {
+    display: none;
+}
+
+.radio-custom {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: inline-block;
+    transition: 0.15s;
+}
+
+.present {
+    border-color: var(--success);
+}
+.absent {
+    border-color: var(--danger);
+}
+
+.radio-label input:checked + .radio-custom.present {
+    background: var(--success);
+}
+
+.radio-label input:checked + .radio-custom.absent {
+    background: var(--danger);
+}
+
+/* =========================================================
+   NOTE COLUMN (UPDATED)
+   ========================================================= */
+
+/* Cột cuối cùng (Note) ngắn lại */
+.attendance-table td:last-child,
+.attendance-table th:last-child {
+    width: 160px;
+    max-width: 160px;
+}
+
+/* Input note */
+.note-input {
+    width: 100%;
+    max-width: 160px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+
+    white-space: nowrap;          /* không xuống dòng */
+    overflow: hidden;             /* ẩn phần dư */
+    text-overflow: ellipsis;      /* thêm dấu ... */
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 16px;
+}
+
+.btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-white);
+    cursor: pointer;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.btn:hover {
+    background: #f0f6ff;
+}
+
+.btn.primary {
+    background: var(--primary);
+    border: none;
+    color: #fff;
+}
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn.danger {
+    background: #fee2e2;
+    border-color: #f5c2c2;
+    color: var(--danger);
+}
+.btn.danger:hover {
+    background: #fbd5d5;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+    .win11-title-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .status-radio {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}

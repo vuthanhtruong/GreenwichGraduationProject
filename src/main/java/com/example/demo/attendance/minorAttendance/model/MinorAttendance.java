@@ -1,5 +1,6 @@
-package com.example.demo.attendance.model;
+package com.example.demo.attendance.minorAttendance.model;
 
+import com.example.demo.attendance.majorAttendance.model.Attendance;
 import com.example.demo.timtable.minorTimtable.model.MinorTimetable;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.example.demo.entity.Enums.AttendanceStatus;
@@ -20,12 +21,12 @@ import java.time.LocalDateTime;
 public class MinorAttendance extends Attendance {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TimetableID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "TimetableID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorTimetable timetable;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MarkedByID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "MarkedByID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorEmployes markedBy;
 

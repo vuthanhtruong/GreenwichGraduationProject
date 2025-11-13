@@ -34,4 +34,5 @@ public interface MinorTimetableDAO {
     void saveMinorTimetable(MinorTimetable timetable, String campusId);
 
     List<MinorTimetable> getMinorTimetableByStudent(String studentId, Integer week, Integer year);
+    List<MinorTimetable> getMinorTimetablesByMinorLecturer(String lecturerId, Integer week, Integer year);
 }

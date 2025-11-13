@@ -16,6 +16,11 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
+    @Override
+    public MajorTimetable getMajorTimetableById(String timetableId) {
+        return em.find(MajorTimetable.class, timetableId);
+    }
+
     private final SlotsService slotsService;
 
     public MajorTimetableDAOImpl(SlotsService slotsService) {
@@ -336,6 +341,28 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
 
         return em.createQuery(jpql, MajorTimetable.class)
                 .setParameter("studentId", studentId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+    }
+    @Override
+    public List<MajorTimetable> getMajorTimetablesByLecturer(String lecturerId, Integer week, Integer year) {
+        String jpql = """
+        SELECT DISTINCT t FROM MajorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.classEntity c
+        JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
+        JOIN c.creator staff
+        WHERE lmc.lecturer.id = :lecturerId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+        ORDER BY t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MajorTimetable.class)
+                .setParameter("lecturerId", lecturerId)
                 .setParameter("week", week)
                 .setParameter("year", year)
                 .getResultList();

@@ -1,4 +1,4 @@
-package com.example.demo.attendance.model;
+package com.example.demo.attendance.majorAttendance.model;
 
 import com.example.demo.entity.Enums.AttendanceStatus;
 import com.example.demo.user.student.model.Students;

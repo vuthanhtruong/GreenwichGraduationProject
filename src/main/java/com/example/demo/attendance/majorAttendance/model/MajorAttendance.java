@@ -1,4 +1,4 @@
-package com.example.demo.attendance.model;
+package com.example.demo.attendance.majorAttendance.model;
 
 import com.example.demo.timtable.majorTimetable.model.MajorTimetable;
 import com.example.demo.user.employe.model.MajorEmployes;
@@ -20,12 +20,12 @@ import java.time.LocalDateTime;
 public class MajorAttendance extends Attendance {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TimetableID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "TimetableID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorTimetable timetable;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MarkedByID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "MarkedByID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorEmployes markedBy;
 

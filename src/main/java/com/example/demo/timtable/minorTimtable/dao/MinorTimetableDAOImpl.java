@@ -18,6 +18,31 @@ import java.util.List;
 @Transactional
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
 
+    @Override
+    public List<MinorTimetable> getMinorTimetablesByMinorLecturer(
+            String lecturerId, Integer week, Integer year) {
+
+        String jpql = """
+            SELECT DISTINCT t FROM MinorTimetable t
+            JOIN FETCH t.room
+            JOIN FETCH t.slot
+            LEFT JOIN FETCH t.creator
+            JOIN t.minorClass c
+            JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
+            JOIN c.creator staff
+            WHERE lmc.lecturer.id = :lecturerId
+              AND t.weekOfYear = :week
+              AND t.year = :year
+            ORDER BY t.dayOfWeek, t.slot.startTime
+            """;
+
+        return em.createQuery(jpql, MinorTimetable.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager em;
 
