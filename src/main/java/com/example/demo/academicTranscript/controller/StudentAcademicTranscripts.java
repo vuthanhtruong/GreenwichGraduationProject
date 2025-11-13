@@ -24,6 +24,7 @@ public class StudentAcademicTranscripts {
         model.addAttribute("specializedAcademicTranscripts", academicTranscriptsService.getSpecializedAcademicTranscripts(studentsService.getStudent()));
         model.addAttribute("majorAcademicTranscripts", academicTranscriptsService.getMajorAcademicTranscripts(studentsService.getStudent()));
         model.addAttribute("minorAcademicTranscripts", academicTranscriptsService.getMinorAcademicTranscripts(studentsService.getStudent()));
+        model.addAttribute("home", "/student-home"); // For "Back to Home" button in HTML
         return "AcademicTranscript";
     }
 }

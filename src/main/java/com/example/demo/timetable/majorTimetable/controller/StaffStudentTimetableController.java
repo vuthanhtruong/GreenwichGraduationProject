@@ -128,6 +128,7 @@ public class StaffStudentTimetableController {
         model.addAttribute("week", week);
         model.addAttribute("currentYear", currentYear);
         model.addAttribute("currentWeek", currentWeek);
+        model.addAttribute("list", "/staff-home/students-list");
         model.addAttribute("home", "/staff-home"); // Optional: to hide edit buttons in HTML
         model.addAttribute("action", "/staff-timetable/student-view"); // Optional: to hide edit buttons in HTML
     }

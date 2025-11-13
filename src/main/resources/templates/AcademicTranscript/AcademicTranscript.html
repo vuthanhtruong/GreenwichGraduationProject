@@ -13,8 +13,11 @@
     <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/student-home}" class="btn home-btn">
+            <a th:href="@{${home}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{${list}}" class="btn list-btn" th:if="${list != null}">
+                Students List
             </a>
         </div>
         <div class="toolbar-center">

@@ -41,6 +41,9 @@
             <a th:href="@{${home}}" class="btn btn-secondary">
                 <i class="fas fa-home"></i> Home
             </a>
+            <a th:href="@{${list}}" class="btn list-btn" th:if="${list != null}">
+                Students List
+            </a>
         </div>
     </header>
 

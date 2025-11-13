@@ -106,7 +106,7 @@
 
                 <!-- Academic Transcript -->
                 <td>
-                    <form th:action="@{/staff-transcript}" method="get" class="inline-form">
+                    <form th:action="@{/staff-transcript}" method="post" class="inline-form">
                         <input type="hidden" name="studentId" th:value="${student.id}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn info small">
