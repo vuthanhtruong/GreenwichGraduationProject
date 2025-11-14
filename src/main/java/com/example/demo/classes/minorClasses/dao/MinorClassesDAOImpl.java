@@ -1,5 +1,6 @@
 package com.example.demo.classes.minorClasses.dao;
 
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
 import jakarta.persistence.EntityManager;
@@ -10,14 +11,22 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
 public class MinorClassesDAOImpl implements MinorClassesDAO {
 
+    private final ClassesService classesService;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    public MinorClassesDAOImpl(ClassesService classesService) {
+        this.classesService = classesService;
+    }
 
     @Override
     public List<MinorClasses> getClasses() {
@@ -50,25 +59,24 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
 
     @Override
     public MinorClasses editClass(String id, MinorClasses classObj) {
-        if (classObj == null || id == null) {
-            throw new IllegalArgumentException("Class object or ID cannot be null");
-        }
+        if (id == null || id.isBlank()) throw new IllegalArgumentException("Class ID is required.");
+        if (classObj == null) throw new IllegalArgumentException("Class data cannot be null.");
 
         MinorClasses existing = entityManager.find(MinorClasses.class, id);
         if (existing == null) {
-            throw new IllegalArgumentException("Class with ID " + id + " not found");
+            throw new IllegalArgumentException("Class not found with ID: " + id);
         }
 
-        List<String> errors = validateClass(classObj, id);
+        Map<String, String> errors = validateClass(classObj, id);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
+            throw new IllegalArgumentException("Validation failed: " + errors);
         }
 
         existing.setNameClass(classObj.getNameClass());
         existing.setSlotQuantity(classObj.getSlotQuantity());
         existing.setSession(classObj.getSession());
         existing.setMinorSubject(classObj.getMinorSubject());
-
+        existing.setSession(classObj.getSession());
         return entityManager.merge(existing);
     }
 
@@ -95,37 +103,50 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
-    public List<String> validateClass(MinorClasses classObj, String excludeId) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateClass(MinorClasses classObj, String excludeId) {
+        Map<String, String> errors = new LinkedHashMap<>();
 
+        // 1. Class name
         if (classObj.getNameClass() == null || classObj.getNameClass().trim().isEmpty()) {
-            errors.add("Class name cannot be blank.");
-        } else if (!isValidName(classObj.getNameClass())) {
-            errors.add("Class name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
+            errors.put("nameClass", "Class name is required.");
+        } else {
+            String nameClass = classObj.getNameClass().trim();
+            if (!isValidName(nameClass)) {
+                errors.put("nameClass", "Class name contains invalid characters. Only letters, numbers, spaces, and . - ' are allowed.");
+            } else {
+                classObj.setNameClass(nameClass);
+
+                // CHECK TRÙNG TÊN TOÀN HỆ THỐNG (Major + Minor + ...)
+                boolean exists = (excludeId != null && !excludeId.isBlank())
+                        ? classesService.existsByNameClassExcludingId(nameClass, excludeId)
+                        : classesService.existsByNameClass(nameClass);
+
+                if (exists) {
+                    errors.put("nameClass", "Class name \"" + nameClass + "\" is already in use.");
+                }
+            }
         }
 
+        // 2. Slot quantity
         if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
-            errors.add("Total slots must be greater than 0.");
+            errors.put("slotQuantity", "Total slots must be greater than 0.");
         }
 
-        if (classObj.getMinorSubject() == null || classObj.getMinorSubject().getSubjectId() == null) {
-            errors.add("Subject is required.");
+        // 3. Subject
+        if (classObj.getMinorSubject() == null || classObj.getMinorSubject().getSubjectId() == null || classObj.getMinorSubject().getSubjectId().trim().isEmpty()) {
+            errors.put("minorSubject", "Please select a subject.");
         } else {
             MinorSubjects subject = entityManager.find(MinorSubjects.class, classObj.getMinorSubject().getSubjectId());
             if (subject == null) {
-                errors.add("Invalid subject selected.");
+                errors.put("minorSubject", "Selected subject does not exist.");
             } else {
                 classObj.setMinorSubject(subject);
             }
         }
 
+        // 4. Session (học kỳ) - bắt buộc
         if (classObj.getSession() == null) {
-            errors.add("Session is required.");
-        }
-
-        if (classObj.getNameClass() != null && getClassByName(classObj.getNameClass()) != null &&
-                (excludeId == null || !getClassByName(classObj.getNameClass()).getClassId().equals(excludeId))) {
-            errors.add("Class name is already in use.");
+            errors.put("session", "Please select a semester.");
         }
 
         return errors;

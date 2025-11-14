@@ -8,9 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MajorClassesServiceImpl implements MajorClassesService {
+    @Override
+    public Map<String, String> validateClass(MajorClasses classObj, String excludeId) {
+        return classesDAO.validateClass(classObj, excludeId);
+    }
 
     private final MajorClassesDAO classesDAO;
 
@@ -46,11 +51,6 @@ public class MajorClassesServiceImpl implements MajorClassesService {
     @Override
     public String generateUniqueClassId(String majorId, LocalDateTime createdDate) {
         return classesDAO.generateUniqueClassId(majorId, createdDate);
-    }
-
-    @Override
-    public List<String> validateClass(MajorClasses classObj, String excludeId) {
-        return classesDAO.validateClass(classObj, excludeId);
     }
 
     @Override

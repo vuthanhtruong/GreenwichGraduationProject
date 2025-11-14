@@ -7,9 +7,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MinorClassesServiceImpl implements MinorClassesService {
+    @Override
+    public Map<String, String> validateClass(MinorClasses classObj, String excludeId) {
+        return classesDAO.validateClass(classObj, excludeId);
+    }
 
     private final MinorClassesDAO classesDAO;
 
@@ -24,7 +29,6 @@ public class MinorClassesServiceImpl implements MinorClassesService {
     @Override public MinorClasses editClass(String id, MinorClasses c) { return classesDAO.editClass(id, c); }
     @Override public void deleteClass(String id) { classesDAO.deleteClass(id); }
     @Override public String generateUniqueClassId(LocalDateTime createdDate) { return classesDAO.generateUniqueClassId(createdDate); }
-    @Override public List<String> validateClass(MinorClasses classObj, String excludeId) { return classesDAO.validateClass(classObj, excludeId); }
 
     @Override
     public List<MinorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, String campusId) {

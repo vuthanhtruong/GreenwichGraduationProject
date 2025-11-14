@@ -90,6 +90,8 @@ public class EditSpecializedSubjectController {
         Map<String, String> errors = subjectsService.validateSubject(subject, specializationId, curriculumId);
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            model.addAttribute("curriculumId", curriculumId);
+            model.addAttribute("specializationId", specializationId);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("specializations", specializationService.specializationsByMajor(staffsService.getStaffMajor()));
             model.addAttribute("searchType", searchType);

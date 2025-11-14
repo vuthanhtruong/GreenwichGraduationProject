@@ -6,18 +6,17 @@ import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.minorSubject.service.MinorSubjectsService;
 import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/deputy-staff-home/minor-classes-list")
@@ -28,8 +27,9 @@ public class AddMinorClassController {
     private final MinorSubjectsService subjectsService;
     private final DeputyStaffsService staffsService;
 
-    @Autowired
-    public AddMinorClassController(MinorClassesService classesService, MinorSubjectsService subjectsService, DeputyStaffsService staffsService) {
+    public AddMinorClassController(MinorClassesService classesService,
+                                   MinorSubjectsService subjectsService,
+                                   DeputyStaffsService staffsService) {
         this.classesService = classesService;
         this.subjectsService = subjectsService;
         this.staffsService = staffsService;
@@ -37,69 +37,70 @@ public class AddMinorClassController {
 
     @PostMapping("/add-class")
     public String addClass(
-            @RequestParam("nameClass") String nameClass,
-            @RequestParam("slotQuantity") Integer slotQuantity,
+            @Valid @ModelAttribute("newClass") MinorClasses newClass,
+            BindingResult bindingResult,
             @RequestParam("subjectId") String subjectId,
-            @RequestParam("session") Sessions sessionEnum,  // Đổi tên: tránh trùng
             Model model,
             RedirectAttributes redirectAttributes,
-            HttpSession httpSession) {  // Đổi tên: httpSession
+            HttpSession session) {
 
-        List<String> errors = new ArrayList<>();
-        MinorClasses newClass = new MinorClasses();
-        newClass.setNameClass(nameClass);
-        newClass.setSlotQuantity(slotQuantity);
-        newClass.setMinorSubject(subjectsService.getSubjectById(subjectId));
-        newClass.setSession(sessionEnum);  // Dùng sessionEnum
+        if (subjectId != null && !subjectId.isBlank()) {
+            newClass.setMinorSubject(subjectsService.getSubjectById(subjectId));
+        }
 
-        errors.addAll(classesService.validateClass(newClass, null));
+        Map<String, String> serviceErrors = classesService.validateClass(newClass, null);
 
-        if (!errors.isEmpty()) {
+        if (bindingResult.hasErrors() || !serviceErrors.isEmpty()) {
+            model.addAttribute("org.springframework.validation.BindingResult.newClass", bindingResult);
+            model.addAttribute("serviceErrors", serviceErrors);
             model.addAttribute("openAddOverlay", true);
-            model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.getAllSubjects());
             model.addAttribute("sessions", Sessions.values());
-
-            // Pagination from httpSession
-            Integer pageSize = (Integer) httpSession.getAttribute("classPageSize");
-            if (pageSize == null) pageSize = 5;
-
-            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, pageSize,staffsService.getCampus().getCampusId()));
-            model.addAttribute("currentPageClasses", httpSession.getAttribute("currentPageClasses") != null ? httpSession.getAttribute("currentPageClasses") : 1);
-            model.addAttribute("totalPagesClasses", httpSession.getAttribute("totalPagesClasses") != null ? httpSession.getAttribute("totalPagesClasses") : 1);
-            model.addAttribute("pageSize", pageSize);
-            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getCampus().getCampusId()));
-
-            return "MinorClassesList";
+            return loadClassesPage(model, session, 1);
         }
 
         try {
             String classId = classesService.generateUniqueClassId(LocalDateTime.now());
             newClass.setClassId(classId);
-            newClass.setCreatedAt(LocalDateTime.now());
             newClass.setCreator(staffsService.getDeputyStaff());
             classesService.addClass(newClass);
+
             redirectAttributes.addFlashAttribute("successMessage", "Minor class added successfully!");
             return "redirect:/deputy-staff-home/minor-classes-list";
         } catch (Exception e) {
-            errors.add("Failed to add class: " + e.getMessage());
+            model.addAttribute("serviceErrors", Map.of("general", "Failed to add minor class: " + e.getMessage()));
             model.addAttribute("openAddOverlay", true);
-            model.addAttribute("errors", errors);
             model.addAttribute("newClass", newClass);
-            model.addAttribute("subjects", subjectsService.getAllSubjects());
-            model.addAttribute("sessions", Sessions.values());
-
-            Integer pageSize = (Integer) httpSession.getAttribute("classPageSize");
-            if (pageSize == null) pageSize = 5;
-
-            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, pageSize,staffsService.getCampus().getCampusId()));
-            model.addAttribute("currentPageClasses", httpSession.getAttribute("currentPageClasses") != null ? httpSession.getAttribute("currentPageClasses") : 1);
-            model.addAttribute("totalPagesClasses", httpSession.getAttribute("totalPagesClasses") != null ? httpSession.getAttribute("totalPagesClasses") : 1);
-            model.addAttribute("pageSize", pageSize);
-            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getCampus().getCampusId()));
-
-            return "MinorClassesList";
+            return loadClassesPage(model, session, 1);
         }
+    }
+
+    private String loadClassesPage(Model model, HttpSession session, int page) {
+        Integer pageSize = (Integer) session.getAttribute("classPageSize");
+        if (pageSize == null || pageSize <= 0) pageSize = 5;
+
+        int firstResult = (page - 1) * pageSize;
+        String campusId = staffsService.getCampus().getCampusId();
+
+        List<MinorClasses> classes = classesService.getPaginatedClassesByCampus(firstResult, pageSize, campusId);
+        long totalClasses = classesService.numberOfClassesByCampus(campusId);
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
+
+        model.addAttribute("classes", classes);
+        model.addAttribute("subjects", subjectsService.getAllSubjects());
+        model.addAttribute("currentPageClasses", page);
+        model.addAttribute("totalPagesClasses", totalPages);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalClasses", totalPages);
+        model.addAttribute("sessions", Sessions.values());
+        model.addAttribute("currentCampusName", staffsService.getCampus().getCampusName());
+
+        return "MinorClassesList";
+    }
+
+    @ModelAttribute("newClass")
+    public MinorClasses populateNewClass() {
+        return new MinorClasses();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.classes.majorClasses.dao;
 
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
@@ -11,14 +12,22 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
 public class MajorClassesDAOImpl implements MajorClassesDAO {
 
+    private final ClassesService classesService;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    public MajorClassesDAOImpl(ClassesService classesService) {
+        this.classesService = classesService;
+    }
 
     @Override
     public void SetNullWhenDeletingSubject(MajorSubjects subject) {
@@ -80,25 +89,28 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
 
     @Override
     public MajorClasses editClass(String id, MajorClasses classObj) {
-        if (classObj == null || id == null) {
-            throw new IllegalArgumentException("Class object or ID cannot be null");
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Class ID is required.");
+        }
+        if (classObj == null) {
+            throw new IllegalArgumentException("Class data cannot be null.");
         }
 
-        MajorClasses existingClass = entityManager.find(MajorClasses.class, id);
-        if (existingClass == null) {
-            throw new IllegalArgumentException("Class with ID " + id + " not found");
+        MajorClasses existing = entityManager.find(MajorClasses.class, id);
+        if (existing == null) {
+            throw new IllegalArgumentException("Class not found with ID: " + id);
         }
 
-        List<String> errors = validateClass(classObj, id);
+        Map<String, String> errors = validateClass(classObj, id);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
+            throw new IllegalArgumentException("Validation failed: " + errors);
         }
 
-        existingClass.setNameClass(classObj.getNameClass());
-        existingClass.setSlotQuantity(classObj.getSlotQuantity());
-        existingClass.setSubject(classObj.getSubject());
-
-        return entityManager.merge(existingClass);
+        existing.setNameClass(classObj.getNameClass());
+        existing.setSlotQuantity(classObj.getSlotQuantity());
+        existing.setSubject(classObj.getSubject());
+        existing.setSession(classObj.getSession());
+        return entityManager.merge(existing);
     }
 
     @Override
@@ -133,33 +145,45 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
-    public List<String> validateClass(MajorClasses classObj, String excludeId) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateClass(MajorClasses classObj, String excludeId) {
+        Map<String, String> errors = new LinkedHashMap<>();
 
+        // 1. Class name - required + format
         if (classObj.getNameClass() == null || classObj.getNameClass().trim().isEmpty()) {
-            errors.add("Class name cannot be blank.");
-        } else if (!isValidName(classObj.getNameClass())) {
-            errors.add("Class name is not valid. Only letters, numbers, spaces, and standard punctuation are allowed.");
-        }
-
-        if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
-            errors.add("Total slots must be greater than 0.");
-        }
-
-        if (classObj.getSubject() == null || classObj.getSubject().getSubjectId() == null) {
-            errors.add("Subject is required.");
+            errors.put("nameClass", "Class name is required.");
         } else {
-            MajorSubjects subject = entityManager.find(MajorSubjects.class, classObj.getSubject().getSubjectId());
-            if (subject == null) {
-                errors.add("Invalid subject selected.");
+            String nameClass = classObj.getNameClass().trim();
+            if (!isValidName(nameClass)) {
+                errors.put("nameClass", "Class name contains invalid characters. Only letters, numbers, spaces, and . - ' are allowed.");
             } else {
-                classObj.setSubject(subject);
+                classObj.setNameClass(nameClass); // normalize
+
+                // 2. CHECK DUPLICATE NAME GLOBALLY (across all class types)
+                boolean exists = (excludeId != null && !excludeId.isBlank())
+                        ? classesService.existsByNameClassExcludingId(nameClass, excludeId)
+                        : classesService.existsByNameClass(nameClass);
+
+                if (exists) {
+                    errors.put("nameClass", "Class name \"" + nameClass + "\" is already in use.");
+                }
             }
         }
 
-        if (classObj.getNameClass() != null && getClassByName(classObj.getNameClass()) != null &&
-                (excludeId == null || !getClassByName(classObj.getNameClass()).getClassId().equals(excludeId))) {
-            errors.add("Class Name is already in use.");
+        // 3. Slot quantity
+        if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
+            errors.put("slotQuantity", "Total slots must be greater than 0.");
+        }
+
+        // 4. Subject
+        if (classObj.getSubject() == null || classObj.getSubject().getSubjectId() == null || classObj.getSubject().getSubjectId().trim().isEmpty()) {
+            errors.put("subject", "Please select a subject.");
+        } else {
+            MajorSubjects subject = entityManager.find(MajorSubjects.class, classObj.getSubject().getSubjectId());
+            if (subject == null) {
+                errors.put("subject", "Selected subject does not exist.");
+            } else {
+                classObj.setSubject(subject); // attach managed entity
+            }
         }
 
         return errors;

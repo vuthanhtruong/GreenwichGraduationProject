@@ -2,6 +2,7 @@ package com.example.demo.classes.majorClasses.controller;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
@@ -67,7 +68,7 @@ public class ListClassesController {
                 model.addAttribute("newClass", new MajorClasses());
                 model.addAttribute("message", "No classes found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
-                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("sessions", Sessions.values());
                 model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "ClassesList";
             }
@@ -79,7 +80,7 @@ public class ListClassesController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalClasses", totalClasses);
             model.addAttribute("subjects", subjectsService.AcceptedSubjectsByMajor(staffsService.getStaffMajor()));
-            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("sessions", Sessions.values());
             model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "ClassesList";
         } catch (Exception e) {
@@ -90,7 +91,7 @@ public class ListClassesController {
             model.addAttribute("totalPagesClasses", 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
             model.addAttribute("totalClasses", 0);
-            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("sessions", Sessions.values());
             model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "ClassesList";
         }

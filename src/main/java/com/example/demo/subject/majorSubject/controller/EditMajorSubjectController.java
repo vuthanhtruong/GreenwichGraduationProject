@@ -90,6 +90,7 @@ public class EditMajorSubjectController {
         Map<String, String> errors = subjectsService.validateSubject(subject, curriculumId);
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
+            model.addAttribute("curriculumId", curriculumId);
             model.addAttribute("curriculums", curriculumService.getCurriculums());
             model.addAttribute("searchType", searchType);
             model.addAttribute("keyword", keyword);

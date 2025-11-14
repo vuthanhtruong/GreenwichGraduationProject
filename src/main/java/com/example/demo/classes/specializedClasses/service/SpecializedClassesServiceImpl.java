@@ -8,9 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SpecializedClassesServiceImpl implements SpecializedClassesService {
+    @Override
+    public Map<String, String> validateClass(SpecializedClasses classObj, String excludeId) {
+        return classesDAO.validateClass(classObj, excludeId);
+    }
 
     private final SpecializedClassesDAO classesDAO;
 
@@ -79,8 +84,4 @@ public class SpecializedClassesServiceImpl implements SpecializedClassesService 
         return classesDAO.generateUniqueClassId(specializationId, createdDate);
     }
 
-    @Override
-    public List<String> validateClass(SpecializedClasses classObj, String excludeId) {
-        return classesDAO.validateClass(classObj, excludeId);
-    }
 }

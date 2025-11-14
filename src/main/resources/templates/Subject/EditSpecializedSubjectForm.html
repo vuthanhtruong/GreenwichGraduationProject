@@ -11,11 +11,15 @@
 <div class="win11-container">
     <!-- Title Bar -->
     <header class="win11-title-bar">
-        <h1><i class="fas fa-book"></i> <i class="fas fa-edit"></i> Edit Specialized Subject</h1>
+        <h1>Edit Specialized Subject</h1>
     </header>
+
     <!-- Content -->
     <div class="win11-content">
-        <form method="post" th:action="@{/staff-home/specialized-subjects-list/edit-specialized-subject-form}" th:object="${subject}">
+        <form method="post"
+              th:action="@{/staff-home/specialized-subjects-list/edit-specialized-subject-form}"
+              th:object="${subject}">
+
             <!-- Hidden Fields -->
             <input type="hidden" name="_method" value="put">
             <input type="hidden" th:field="*{subjectId}">
@@ -28,63 +32,67 @@
 
             <!-- Subject Information -->
             <section class="win11-panel">
-                <h2 class="panel-header"><i class="fas fa-book"></i> Subject Information</h2>
+                <h2 class="panel-header">Subject Information</h2>
                 <div class="form-group grid-3">
+
                     <!-- Subject Name -->
                     <div class="form-row">
-                        <label for="subjectName"><i class="fas fa-book"></i> Subject Name:</label>
+                        <label for="subjectName">Subject Name:</label>
                         <input id="subjectName" th:field="*{subjectName}" required type="text" class="input uppercase-input">
-                        <div th:if="${errors != null and errors.containsKey('subjectName')}" class="text-danger" th:text="${errors.get('subjectName')}"></div>
+                        <div th:if="${errors?.containsKey('subjectName')}" class="text-danger" th:text="${errors.get('subjectName')}"></div>
                     </div>
 
                     <!-- Semester -->
                     <div class="form-row">
-                        <label for="semester"><i class="fas fa-calendar"></i> Semester:</label>
+                        <label for="semester">Semester:</label>
                         <input id="semester" th:field="*{semester}" type="number" min="1" required class="input">
-                        <div th:if="${errors != null and errors.containsKey('semester')}" class="text-danger" th:text="${errors.get('semester')}"></div>
+                        <div th:if="${errors?.containsKey('semester')}" class="text-danger" th:text="${errors.get('semester')}"></div>
                     </div>
 
                     <!-- Curriculum -->
                     <div class="form-row">
-                        <label for="curriculumId"><i class="fas fa-book-open"></i> Curriculum:</label>
+                        <label for="curriculumId">Curriculum:</label>
                         <select id="curriculumId" name="curriculumId" required class="input">
-                            <option value="">Select Curriculum</option>
+                            <option value="" disabled>Select Curriculum</option>
                             <option th:each="curriculum : ${curriculums}"
                                     th:value="${curriculum.curriculumId}"
                                     th:text="${curriculum.name}"
-                                    th:selected="${subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId}"></option>
+                                    th:selected="${curriculumId != null ?
+                                                  curriculumId == curriculum.curriculumId :
+                                                  (subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId)}">
+                            </option>
                         </select>
-                        <div th:if="${errors != null and errors.containsKey('curriculumId')}" class="text-danger" th:text="${errors.get('curriculumId')}"></div>
+                        <div th:if="${errors?.containsKey('curriculumId')}" class="text-danger" th:text="${errors.get('curriculumId')}"></div>
                     </div>
 
                     <!-- Specialization -->
                     <div class="form-row">
-                        <label for="specializationId"><i class="fas fa-tags"></i> Specialization:</label>
+                        <label for="specializationId">Specialization:</label>
                         <select id="specializationId" name="specializationId" required class="input">
-                            <option value="">Select Specialization</option>
-                            <option th:each="specialization : ${specializations}"
-                                    th:value="${specialization.specializationId}"
-                                    th:text="${specialization.specializationName}"
-                                    th:selected="${subject.specialization != null and subject.specialization.specializationId == specialization.specializationId}"></option>
+                            <option value="" disabled>Select Specialization</option>
+                            <option th:each="spec : ${specializations}"
+                                    th:value="${spec.specializationId}"
+                                    th:text="${spec.specializationName}"
+                                    th:selected="${specializationId != null ?
+                                                  specializationId == spec.specializationId :
+                                                  (subject.specialization != null and subject.specialization.specializationId == spec.specializationId)}">
+                            </option>
                         </select>
-                        <div th:if="${errors != null and errors.containsKey('specializationId')}" class="text-danger" th:text="${errors.get('specializationId')}"></div>
+                        <div th:if="${errors?.containsKey('specializationId')}" class="text-danger" th:text="${errors.get('specializationId')}"></div>
                     </div>
+
                 </div>
             </section>
 
             <!-- Actions -->
             <div class="form-actions">
-                <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Changes</button>
+                <button type="submit" class="btn primary">Save Changes</button>
                 <a th:if="${source == 'search'}"
                    th:href="@{/staff-home/specialized-subjects-list/search-subjects(page=${page}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword}, specializationId=${selectedSpecializationId})}"
-                   class="btn">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
+                   class="btn">Back</a>
                 <a th:if="${source != 'search'}"
                    th:href="@{/staff-home/specialized-subjects-list(page=${page}, pageSize=${pageSize}, specializationId=${selectedSpecializationId})}"
-                   class="btn">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
+                   class="btn">Back</a>
             </div>
         </form>
     </div>

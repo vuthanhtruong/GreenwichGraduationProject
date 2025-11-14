@@ -6,6 +6,7 @@ import com.example.demo.subject.majorSubject.model.MajorSubjects;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface MajorClassesService {
     void SetNullWhenDeletingSubject(MajorSubjects subject);
@@ -18,7 +19,7 @@ public interface MajorClassesService {
     MajorClasses editClass(String id, MajorClasses classObj);
     void deleteClass(String id);
     String generateUniqueClassId(String majorId, LocalDateTime createdDate);
-    List<String> validateClass(MajorClasses classObj, String excludeId);
+    Map<String, String> validateClass(MajorClasses classObj, String excludeId);
     List<MajorClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId);
     long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId);
     List<MajorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId);

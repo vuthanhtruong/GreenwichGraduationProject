@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classes List</title>
-    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link rel="stylesheet" th:href="@{/ClassesList.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -233,66 +233,76 @@
     <!-- Overlay: Add Class -->
     <div id="addClassOverlay" class="overlay">
         <div class="overlay-content">
-            <h2><i class="fas fa-plus-circle"></i> Add New Class</h2>
-            <form method="post" th:action="@{/staff-home/classes-list/add-class}"
-                  th:object="${newClass}" enctype="multipart/form-data">
+            <h2>Add New Class</h2>
+
+            <form method="post" th:action="@{/staff-home/classes-list/add-class}" th:object="${newClass}">
+
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                 <section class="win11-panel">
-                    <h2 class="panel-header"><i class="fas fa-info-circle"></i> Class Information</h2>
+                    <h2 class="panel-header">Class Information</h2>
+
                     <div class="form-group grid-2">
 
                         <!-- Class Name -->
-                        <div class="form-row">
-                            <label for="nameClass"><i class="fas fa-chalkboard"></i> Class Name:</label>
-                            <input id="nameClass" th:field="*{nameClass}" required type="text" class="input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('class name')}"
-                                 th:text="${error}">
-                            </div>
+                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('nameClass')} ? 'error'">
+                            <label>Class Name:</label>
+                            <input th:field="*{nameClass}" required class="input" placeholder="Ex: Java Programming 2025" />
+                            <span th:if="${#fields.hasErrors('nameClass')}" th:errors="*{nameClass}" class="error-text"></span>
+                            <span th:if="${serviceErrors?.containsKey('nameClass')}" th:text="${serviceErrors.get('nameClass')}" class="error-text"></span>
                         </div>
 
                         <!-- Total Slots -->
-                        <div class="form-row">
-                            <label for="slotQuantity"><i class="fas fa-chair"></i> Total Slots:</label>
-                            <input id="slotQuantity" th:field="*{slotQuantity}" required type="number" min="1"
-                                   class="input short-input">
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('total slots')}"
-                                 th:text="${error}">
-                            </div>
+                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('slotQuantity')} ? 'error'">
+                            <label>Total Slots:</label>
+                            <input th:field="*{slotQuantity}" type="number" min="1" required class="input" />
+                            <span th:if="${#fields.hasErrors('slotQuantity')}" th:errors="*{slotQuantity}" class="error-text"></span>
+                            <span th:if="${serviceErrors?.containsKey('slotQuantity')}" th:text="${serviceErrors.get('slotQuantity')}" class="error-text"></span>
                         </div>
 
                         <!-- Subject -->
-                        <div class="form-row">
-                            <label for="subjectId"><i class="fas fa-book"></i> Subject:</label>
-                            <select id="subjectId" name="subjectId" class="input" required>
+                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('subject')} ? 'error'">
+                            <label>Subject:</label>
+                            <select name="subjectId" class="input" required>
                                 <option value="">Select subject</option>
-                                <option th:each="subject : ${subjects}" th:value="${subject.subjectId}"
-                                        th:text="${subject.subjectName}"
-                                        th:selected="${newClass.subject != null and newClass.subject.subjectId == subject.subjectId}">
+                                <option th:each="sub : ${subjects}"
+                                        th:value="${sub.subjectId}"
+                                        th:text="${sub.subjectName}"
+                                        th:selected="${newClass?.subject?.subjectId == sub.subjectId}">
                                 </option>
                             </select>
-                            <div class="text-danger" th:each="error : ${errors}"
-                                 th:if="${#strings.toLowerCase(error).contains('subject')}"
-                                 th:text="${error}">
-                            </div>
+                            <span th:if="${serviceErrors?.containsKey('subject')}" th:text="${serviceErrors.get('subject')}" class="error-text"></span>
+                        </div>
+
+                        <!-- Session -->
+                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('session')} ? 'error'">
+                            <label>Semester:</label>
+                            <select th:field="*{session}" class="input" required>
+                                <option value="">Select semester</option>
+
+                                <!-- Dòng chuẩn để hiển thị enum Sessions -->
+                                <option th:each="s : ${T(com.example.demo.entity.Enums.Sessions).values()}"
+                                        th:value="${s}"
+                                        th:text="${s}"
+                                        th:selected="${s == newClass?.session}">
+                                </option>
+                            </select>
+
+                            <span th:if="${#fields.hasErrors('session')}" th:errors="*{session}" class="error-text"></span>
+                            <span th:if="${serviceErrors?.containsKey('session')}" th:text="${serviceErrors.get('session')}" class="error-text"></span>
                         </div>
 
                     </div>
                 </section>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn primary">
-                        <i class="fas fa-save"></i> Save
-                    </button>
-                    <button type="button" class="btn danger" onclick="closeAddClassOverlay()">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
+                    <button type="submit" class="btn primary">Save Class</button>
+                    <button type="button" class="btn danger" onclick="closeAddClassOverlay()">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
+
 </div>
 
 <script>

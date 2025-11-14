@@ -2,20 +2,22 @@ package com.example.demo.classes.majorClasses.controller;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.subject.majorSubject.service.MajorSubjectsService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/staff-home/classes-list")
@@ -25,8 +27,9 @@ public class AddClassController {
     private final StaffsService staffsService;
     private final MajorSubjectsService subjectsService;
 
-    @Autowired
-    public AddClassController(MajorClassesService classesService, StaffsService staffsService, MajorSubjectsService subjectsService) {
+    public AddClassController(MajorClassesService classesService,
+                              StaffsService staffsService,
+                              MajorSubjectsService subjectsService) {
         this.classesService = classesService;
         this.staffsService = staffsService;
         this.subjectsService = subjectsService;
@@ -34,54 +37,74 @@ public class AddClassController {
 
     @PostMapping("/add-class")
     public String addClass(
-            @RequestParam("nameClass") String nameClass,
-            @RequestParam("slotQuantity") Integer slotQuantity,
+            @Valid @ModelAttribute("newClass") MajorClasses newClass,
+            BindingResult bindingResult,
             @RequestParam("subjectId") String subjectId,
             Model model,
             RedirectAttributes redirectAttributes,
             HttpSession session) {
 
-        List<String> errors = new ArrayList<>();
-        MajorClasses newClass = new MajorClasses();
-        newClass.setNameClass(nameClass);
-        newClass.setSlotQuantity(slotQuantity);
-        newClass.setSubject(subjectsService.getSubjectById(subjectId));
+        if (subjectId != null && !subjectId.isBlank()) {
+            newClass.setSubject(subjectsService.getSubjectById(subjectId));
+        }
 
-        errors.addAll(classesService.validateClass(newClass, newClass.getClassId()));
+        Map<String, String> serviceErrors = classesService.validateClass(newClass, null);
 
-        if (!errors.isEmpty()) {
-            model.addAttribute("openAddOverlay", true); // 👈 thêm cờ này
-            model.addAttribute("errors", errors);
+        if (bindingResult.hasErrors() || !serviceErrors.isEmpty()) {
+            model.addAttribute("org.springframework.validation.BindingResult.newClass", bindingResult);
+            model.addAttribute("serviceErrors", serviceErrors);
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("newClass", newClass);
             model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
-            model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
-            model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
-            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
-            return "ClassesList";
+            model.addAttribute("sessions", Sessions.values());
+            return loadClassesPage(model, session, 1);
         }
 
         try {
             String majorId = staffsService.getStaffMajor() != null ? staffsService.getStaffMajor().getMajorId() : "default";
             String classId = classesService.generateUniqueClassId(majorId, LocalDateTime.now());
             newClass.setClassId(classId);
-            newClass.setCreatedAt(LocalDateTime.now());
             newClass.setCreator(staffsService.getStaff());
             classesService.addClass(newClass);
+
             redirectAttributes.addFlashAttribute("successMessage", "Class added successfully!");
             return "redirect:/staff-home/classes-list";
         } catch (Exception e) {
-            errors.add("Failed to add class: " + e.getMessage());
-            model.addAttribute("errors", errors);
+            Map<String, String> errorMap = Map.of("general", "System error: " + e.getMessage());
+            model.addAttribute("serviceErrors", errorMap);
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("newClass", newClass);
-            model.addAttribute("subjects", subjectsService.subjectsByMajor(staffsService.getStaffMajor()));
-            model.addAttribute("classes", classesService.getPaginatedClassesByCampus(0, (Integer) session.getAttribute("classPageSize") != null ? (Integer) session.getAttribute("classPageSize") : 5, staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
-            model.addAttribute("currentPageClasses", session.getAttribute("currentPageClasses") != null ? session.getAttribute("currentPageClasses") : 1);
-            model.addAttribute("totalPagesClasses", session.getAttribute("totalPagesClasses") != null ? session.getAttribute("totalPagesClasses") : 1);
-            model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
-            model.addAttribute("totalClasses", classesService.numberOfClassesByCampus(staffsService.getStaffMajor(),staffsService.getCampusOfStaff().getCampusId()));
-            return "ClassesList";
+            return loadClassesPage(model, session, 1);
         }
+    }
+
+    private String loadClassesPage(Model model, HttpSession session, int page) {
+        Integer pageSize = (Integer) session.getAttribute("classPageSize");
+        if (pageSize == null || pageSize <= 0) pageSize = 5;
+
+        int firstResult = (page - 1) * pageSize;
+        var staffMajor = staffsService.getStaffMajor();
+        String campusId = staffsService.getCampusOfStaff().getCampusId();
+
+        List<MajorClasses> classes = classesService.getPaginatedClassesByCampus(
+                firstResult, pageSize, staffMajor, campusId);
+        long totalClasses = classesService.numberOfClassesByCampus(staffMajor, campusId);
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalClasses / pageSize));
+
+        model.addAttribute("classes", classes);
+        model.addAttribute("subjects", subjectsService.subjectsByMajor(staffMajor));
+        model.addAttribute("currentPageClasses", page);
+        model.addAttribute("totalPagesClasses", totalPages);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalClasses", totalClasses);
+        model.addAttribute("sessions", Sessions.values());
+        model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
+
+        return "ClassesList";
+    }
+
+    @ModelAttribute("newClass")
+    public MajorClasses populateNewClass() {
+        return new MajorClasses();
     }
 }

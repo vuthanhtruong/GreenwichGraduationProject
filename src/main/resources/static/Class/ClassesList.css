@@ -266,3 +266,21 @@ body {
 .input.short-input {
     width: 120px;  /* hoặc 100px tùy ý */
 }
+/* ===== Form Error Highlight ===== */
+.form-row.error input,
+.form-row.error select,
+.form-row.error textarea {
+    border-color: #dc2626 !important;
+    background: #fff5f5;
+}
+
+.error-text {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: -4px;
+}
+
+.form-row.error label {
+    color: #dc2626;
+    font-weight: 600;
+}

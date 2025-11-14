@@ -46,17 +46,19 @@
                         <div th:if="${errors != null and errors.containsKey('semester')}" class="text-danger" th:text="${errors.get('semester')}"></div>
                     </div>
 
-                    <!-- Curriculum -->
                     <div class="form-row">
-                        <label for="curriculumId"><i class="fas fa-book-open"></i> Curriculum:</label>
+                        <label for="curriculumId">Curriculum:</label>
                         <select id="curriculumId" name="curriculumId" required class="input">
                             <option value="" disabled>Select Curriculum</option>
                             <option th:each="curriculum : ${curriculums}"
                                     th:value="${curriculum.curriculumId}"
                                     th:text="${curriculum.name}"
-                                    th:selected="${subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId}"></option>
+                                    th:selected="${curriculumId != null ? curriculumId == curriculum.curriculumId :
+                              (subject.curriculum != null and subject.curriculum.curriculumId == curriculum.curriculumId)}">
+                            </option>
                         </select>
-                        <div th:if="${errors != null and errors.containsKey('curriculumId')}" class="text-danger" th:text="${errors.get('curriculumId')}"></div>
+                        <div th:if="${errors != null and errors.containsKey('curriculumId')}"
+                             class="text-danger" th:text="${errors.get('curriculumId')}"></div>
                     </div>
                 </div>
             </section>

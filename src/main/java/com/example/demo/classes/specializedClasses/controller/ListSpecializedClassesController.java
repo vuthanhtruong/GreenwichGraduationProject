@@ -2,6 +2,7 @@ package com.example.demo.classes.specializedClasses.controller;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
+import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.specializedSubject.service.SpecializedSubjectsService;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.servlet.http.HttpSession;
@@ -68,7 +69,7 @@ public class ListSpecializedClassesController {
                 model.addAttribute("specializedSubjects", specializedSubjectsService.getSubjects());
                 model.addAttribute("newClass", new SpecializedClasses());
                 model.addAttribute("alertClass", "alert-warning");
-                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("sessions", Sessions.values());
                 model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "SpecializedClassesList";
             }
@@ -102,7 +103,7 @@ public class ListSpecializedClassesController {
                 model.addAttribute("newClass", new SpecializedClasses());
                 model.addAttribute("message", "No specialized classes found for this major.");
                 model.addAttribute("alertClass", "alert-warning");
-                // Inside showClassesList(), after retrieving classes
+                model.addAttribute("sessions", Sessions.values());
                 model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
                 return "SpecializedClassesList";
             }
@@ -114,7 +115,7 @@ public class ListSpecializedClassesController {
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalClasses", totalClasses);
             model.addAttribute("specializedSubjects", specializedSubjectsService.getSubjects());
-            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("sessions", Sessions.values());
             model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "SpecializedClassesList";
         } catch (Exception e) {
@@ -126,7 +127,7 @@ public class ListSpecializedClassesController {
             model.addAttribute("totalPagesClasses", 1);
             model.addAttribute("pageSize", pageSize);
             model.addAttribute("totalClasses", 0);
-            // Inside showClassesList(), after retrieving classes
+            model.addAttribute("sessions", Sessions.values());
             model.addAttribute("currentCampusName", staffsService.getCampusOfStaff().getCampusName());
             return "SpecializedClassesList";
         }

@@ -1,5 +1,6 @@
 package com.example.demo.classes.specializedClasses.dao;
 
+import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.major.model.Majors;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Repository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -21,8 +24,14 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
     private static final Logger log = LoggerFactory.getLogger(SpecializedClassesDAOImpl.class);
 
+    private final ClassesService classesService;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    public SpecializedClassesDAOImpl(ClassesService classesService) {
+        this.classesService = classesService;
+    }
 
     @Override
     public List<SpecializedClasses> getClassesByMajorAndCampus(Majors major, String campusId) {
@@ -109,18 +118,17 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
     @Override
     public SpecializedClasses editClass(String id, SpecializedClasses classObj) {
-        if (classObj == null || id == null) {
-            throw new IllegalArgumentException("Class object or ID cannot be null");
-        }
+        if (id == null || id.isBlank()) throw new IllegalArgumentException("Class ID is required.");
+        if (classObj == null) throw new IllegalArgumentException("Class data cannot be null.");
 
         SpecializedClasses existing = getClassById(id);
         if (existing == null) {
-            throw new IllegalArgumentException("Class with ID " + id + " not found");
+            throw new IllegalArgumentException("Specialized class not found: " + id);
         }
 
-        List<String> errors = validateClass(classObj, id);
+        Map<String, String> errors = validateClass(classObj, id);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join("; ", errors));
+            throw new IllegalArgumentException("Validation failed: " + errors);
         }
 
         existing.setNameClass(classObj.getNameClass());
@@ -129,7 +137,7 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         existing.setSpecializedSubject(classObj.getSpecializedSubject());
 
         SpecializedClasses updated = entityManager.merge(existing);
-        log.info("Updated specialized class ID: {}", id);
+        log.info("Updated specialized class: {} → {}", id, classObj.getNameClass());
         return updated;
     }
 
@@ -164,33 +172,51 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     }
 
     @Override
-    public List<String> validateClass(SpecializedClasses classObj, String excludeId) {
-        List<String> errors = new ArrayList<>();
+    public Map<String, String> validateClass(SpecializedClasses classObj, String excludeId) {
+        Map<String, String> errors = new LinkedHashMap<>();
 
+        // 1. Name
         if (classObj.getNameClass() == null || classObj.getNameClass().trim().isEmpty()) {
-            errors.add("Class name cannot be blank.");
-        } else if (!isValidName(classObj.getNameClass())) {
-            errors.add("Class name is not valid.");
-        }
-
-        if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
-            errors.add("Total slots must be greater than 0.");
-        }
-
-        if (classObj.getSpecializedSubject() == null || classObj.getSpecializedSubject().getSubjectId() == null) {
-            errors.add("Specialized subject is required.");
+            errors.put("nameClass", "Class name is required.");
         } else {
-            SpecializedSubject subject = entityManager.find(SpecializedSubject.class, classObj.getSpecializedSubject().getSubjectId());
+            String nameClass = classObj.getNameClass().trim();
+            if (!isValidName(nameClass)) {
+                errors.put("nameClass", "Class name contains invalid characters.");
+            } else {
+                classObj.setNameClass(nameClass);
+
+                // CHECK TRÙNG TÊN TOÀN HỆ THỐNG
+                boolean exists = (excludeId != null && !excludeId.isBlank())
+                        ? classesService.existsByNameClassExcludingId(nameClass, excludeId)
+                        : classesService.existsByNameClass(nameClass);
+
+                if (exists) {
+                    errors.put("nameClass", "Class name \"" + nameClass + "\" is already in use.");
+                }
+            }
+        }
+
+        // 2. Slot quantity
+        if (classObj.getSlotQuantity() == null || classObj.getSlotQuantity() <= 0) {
+            errors.put("slotQuantity", "Total slots must be greater than 0.");
+        }
+
+        // 3. Specialized Subject
+        if (classObj.getSpecializedSubject() == null || classObj.getSpecializedSubject().getSubjectId() == null) {
+            errors.put("specializedSubject", "Please select a specialized subject.");
+        } else {
+            SpecializedSubject subject = entityManager.find(SpecializedSubject.class,
+                    classObj.getSpecializedSubject().getSubjectId());
             if (subject == null) {
-                errors.add("Invalid specialized subject.");
+                errors.put("specializedSubject", "Selected subject does not exist.");
             } else {
                 classObj.setSpecializedSubject(subject);
             }
         }
 
-        if (classObj.getNameClass() != null && getClassByName(classObj.getNameClass()) != null &&
-                (excludeId == null || !getClassByName(classObj.getNameClass()).getClassId().equals(excludeId))) {
-            errors.add("Class Name is already in use.");
+        // 4. Session (nếu bạn vẫn muốn bắt buộc)
+        if (classObj.getSession() == null) {
+            errors.put("session", "Please select a semester.");
         }
 
         return errors;
