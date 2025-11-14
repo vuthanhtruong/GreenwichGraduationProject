@@ -31,6 +31,45 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
     @Value("${app.base-url}")
     private String baseUrl;
 
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultMinorLecturerTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case MINOR_LECTURE_ADD:
+                template.setSalutation("Access Your Lecturer Account");
+                template.setGreeting("Welcome to Our University");
+                template.setBody("Your lecturer account has been successfully created. Below are your account details and important information.");
+                break;
+            case MINOR_LECTURE_EDIT:
+                template.setSalutation("Lecturer Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your lecturer account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case MINOR_LECTURE_DELETE:
+                template.setSalutation("Lecturer Account Notification");
+                template.setGreeting("Account Status Update");
+                template.setBody("This email is to notify you about changes to your lecturer account status.");
+                break;
+            default:
+                template.setSalutation("Lecturer Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your lecturer account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/login" : "http://localhost:8080/login");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
+
     private String generateEmailTemplate(
             MinorLecturerEmailContext context,
             EmailTemplateDTO template,
@@ -51,7 +90,7 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
         String campus = safe.apply(context.campusName());
         String employmentType = safe.apply(context.employmentType());
 
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : baseUrl + "/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/login" : "/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
@@ -152,11 +191,8 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
                 .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;font-family:sans-serif;'>").append(employmentType).append("</td>")
                 .append("</tr>")
                 .append("<tr>")
-                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;border-bottom:1px solid #e5e7eb;background:#ffffff;font-family:sans-serif;'>Created Date</td>")
-                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #e5e7eb;background:#ffffff;font-family:sans-serif;'>").append(safeDate.apply(context.createdDate())).append("</td>")
-                .append("</tr>")
-                .append("<tr style='background:#f8fafc;'>")
-                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;font-family:sans-serif;'>Added By</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;font-weight:600;background:#ffffff;font-family:sans-serif;'>Created Date</td>")
+                .append("<td style='padding:12px 14px;font-size:14px;color:#374151;background:#ffffff;font-family:sans-serif;'>").append(safeDate.apply(context.createdDate())).append("</td>")
                 .append("</tr>")
                 .append("</table>");
 
@@ -195,7 +231,6 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
                 .append("<p style='margin:0;font-size:12px;'>")
                 .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
                 .append("<span style='color:#d1d5db;'>|</span>")
-                .append("<span style='color:#d1d5db;'>|</span>")
                 .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
                 .append("</p>")
                 .append("</td></tr>")
@@ -226,13 +261,24 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
     ) throws MessagingException {
         log.info("Preparing to send {} email to: {}", templateType, to);
 
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
-        if (templateOpt.isEmpty()) {
-            log.error("Template not found: {}", templateType);
-            throw new RuntimeException("Template not found: " + templateType);
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template {} not found in database. Using default template.", templateType);
+                templateDTO = createDefaultMinorLecturerTemplate(templateType);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template {} from database", templateType);
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template {} from database: {}", templateType, e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultMinorLecturerTemplate(templateType);
         }
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
         String htmlMessage = generateEmailTemplate(context, templateDTO, includeCredentials, lecturerId, rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -254,9 +300,11 @@ public class EmailServiceForMinorLecturerDAOImpl implements EmailServiceForMinor
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
     }
 

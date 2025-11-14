@@ -7,6 +7,7 @@ import com.example.demo.email_service.dto.LecturerEmailContext;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDAO {
 
     @Autowired
@@ -27,6 +29,45 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
 
     @Value("${app.base-url}")
     private String baseUrl;
+
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultLecturerTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case MAJOR_LECTURE_ADD:
+                template.setSalutation("Access Your Lecturer Account");
+                template.setGreeting("Welcome to Our University");
+                template.setBody("Your lecturer account has been successfully created. Below are your account details and important information.");
+                break;
+            case MAJOR_LECTURE_EDIT:
+                template.setSalutation("Lecturer Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your lecturer account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case MAJOR_LECTURE_DELETE:
+                template.setSalutation("Lecturer Account Notification");
+                template.setGreeting("Account Status Update");
+                template.setBody("This email is to notify you about changes to your lecturer account status.");
+                break;
+            default:
+                template.setSalutation("Lecturer Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your lecturer account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/login" : "http://localhost:8080/login");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
 
     private String generateEmailTemplate(
             LecturerEmailContext context,
@@ -50,14 +91,14 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
         String creator = safe.apply(context.creatorName());
 
         // Sử dụng baseUrl từ cấu hình và template
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : "/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/login" : "/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
 
         // Social media links
         String facebookLink = template.getLinkFacebook() != null ? template.getLinkFacebook() : "https://www.facebook.com/GreenwichVietnam";
-        String instagramLink = "#"; // Có thể thêm field này vào template nếu cần
+        String instagramLink = "#";
         String tiktokLink = template.getLinkTiktok() != null ? template.getLinkTiktok() : "https://www.tiktok.com/@greenwichvietnam";
 
         // Xử lý ảnh - sử dụng CID hoặc URL mặc định
@@ -220,10 +261,24 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyLoginInformation(String to, String subject, LecturerEmailContext context, String rawPassword) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_ADD);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_ADD);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template MAJOR_LECTURE_ADD not found in database. Using default template.");
+                templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_ADD);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template MAJOR_LECTURE_ADD from database");
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template MAJOR_LECTURE_ADD from database: {}", e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_ADD);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, true, context.lecturerId(), rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -239,21 +294,38 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
 
         mailSender.send(message);
+        log.info("Successfully sent MAJOR_LECTURE_ADD email to: {}", to);
     }
 
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyInformationAfterEditing(String to, String subject, LecturerEmailContext context) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_EDIT);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_EDIT);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template MAJOR_LECTURE_EDIT not found in database. Using default template.");
+                templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_EDIT);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template MAJOR_LECTURE_EDIT from database");
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template MAJOR_LECTURE_EDIT from database: {}", e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_EDIT);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -269,20 +341,38 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
 
         mailSender.send(message);
+        log.info("Successfully sent MAJOR_LECTURE_EDIT email to: {}", to);
     }
 
     @Async("emailTaskExecutor")
+    @Override
     public void sendEmailToNotifyLecturerDeletion(String to, String subject, LecturerEmailContext context) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_DELETE);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.MAJOR_LECTURE_DELETE);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template MAJOR_LECTURE_DELETE not found in database. Using default template.");
+                templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_DELETE);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template MAJOR_LECTURE_DELETE from database");
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template MAJOR_LECTURE_DELETE from database: {}", e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultLecturerTemplate(EmailTemplateTypes.MAJOR_LECTURE_DELETE);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -298,11 +388,14 @@ public class EmailServiceForLecturerDAOImpl implements EmailServiceForLecturerDA
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
 
         mailSender.send(message);
+        log.info("Successfully sent MAJOR_LECTURE_DELETE email to: {}", to);
     }
 }

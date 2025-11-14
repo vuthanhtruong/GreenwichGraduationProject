@@ -89,6 +89,8 @@ public class AddStudentController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("curriculumId", curriculumId);
+            model.addAttribute("specializationId", specializationId);
             model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("relationshipTypes", RelationshipToStudent.values());

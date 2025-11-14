@@ -219,16 +219,29 @@
                             <div th:if="${errors?.containsKey('lastName')}" class="text-danger" th:text="${errors.get('lastName')}"></div>
                         </div>
                         <div class="form-row">
+                            <label for="birthDate"><i class="fas fa-birthday-cake"></i> Birth Date:</label>
+                            <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
+                            <div class="text-danger" th:if="${errors?.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
+                        </div>
+                        <div class="form-row">
+                            <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
+                            <select id="gender" th:field="*{gender}" class="input">
+                                <option value="">Select gender</option>
+                                <option th:each="g : ${T(com.example.demo.entity.Enums.Gender).values()}"
+                                        th:value="${g}" th:text="${g}"></option>
+                            </select>
+                            <div class="text-danger" th:if="${errors?.containsKey('gender')}" th:text="${errors.get('gender')}"></div>
+                        </div>
+                        <div class="form-row">
                             <label for="email"><i class="fas fa-envelope"></i> Email:</label>
                             <input id="email" th:field="*{email}" required type="email" class="input">
                             <div th:if="${errors?.containsKey('email')}" class="text-danger" th:text="${errors.get('email')}"></div>
                             <small class="form-text"><i class="fas fa-info-circle"></i> Account details and password will be emailed.</small>
                         </div>
                         <div class="form-row">
-                            <label for="specializations"><i class="fas fa-tags"></i> Specializations (comma-separated):</label>
-                            <input id="specializations" type="text" name="specializations" class="input"
-                                   placeholder="e.g. Java, Spring, Database" />
-                            <div th:if="${errors?.containsKey('specializations')}" class="text-danger" th:text="${errors.get('specializations')}"></div>
+                            <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number:</label>
+                            <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
+                            <div class="text-danger" th:if="${errors?.containsKey('phoneNumber')}" th:text="${errors.get('phoneNumber')}"></div>
                         </div>
                     </div>
                 </section>

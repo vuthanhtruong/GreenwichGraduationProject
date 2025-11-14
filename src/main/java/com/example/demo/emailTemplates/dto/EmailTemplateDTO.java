@@ -47,6 +47,10 @@ public class EmailTemplateDTO {
         }
     }
 
+    public EmailTemplateDTO() {
+
+    }
+
     // --- Getters & Setters ---
     public Integer getId() { return id; }
     public String getType() { return type; }

@@ -48,6 +48,7 @@ public class AddDeputyStaffsController {
         try {
             errors = deputyStaffsService.validateDeputyStaff(deputyStaff, avatarFile, campusId);
             if (!errors.isEmpty()) {
+                model.addAttribute("campusId", campusId);
                 model.addAttribute("openAddOverlay", true);
                 model.addAttribute("errors", errors);
                 model.addAttribute("newDeputyStaff", deputyStaff);

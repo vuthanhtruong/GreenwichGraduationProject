@@ -13,7 +13,7 @@ public record StudentEmailContext(
         String campusName,
         String majorName,
         String creatorName,
-        int admissionYear,
+        Integer admissionYear,
         LocalDate createdDate,
         String learningProgramType
 ) {}

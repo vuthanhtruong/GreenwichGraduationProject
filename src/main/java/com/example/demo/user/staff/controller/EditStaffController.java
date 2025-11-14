@@ -92,6 +92,8 @@ public class EditStaffController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("majorId", majorId);
+            model.addAttribute("campusId", campusId);
             model.addAttribute("errors", errors);
             model.addAttribute("genders", Arrays.asList(Gender.values()));
             model.addAttribute("majors", majorsService.getMajors());

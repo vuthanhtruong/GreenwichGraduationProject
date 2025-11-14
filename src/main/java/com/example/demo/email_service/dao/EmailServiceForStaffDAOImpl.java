@@ -31,6 +31,45 @@ public class EmailServiceForStaffDAOImpl implements EmailServiceForStaffDAO {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultStaffTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case STAFF_ADD:
+                template.setSalutation("Access Your Staff Account");
+                template.setGreeting("Welcome to Our University Team");
+                template.setBody("Your staff account has been successfully created. Below are your account details and important information.");
+                break;
+            case STAFF_EDIT:
+                template.setSalutation("Staff Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your staff account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case STAFF_DELETE:
+                template.setSalutation("Staff Account Notification");
+                template.setGreeting("Account Status Update");
+                template.setBody("This email is to notify you about changes to your staff account status.");
+                break;
+            default:
+                template.setSalutation("Staff Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your staff account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/login" : "http://localhost:8080/login");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
+
     private String generateEmailTemplate(
             StaffEmailContext context,
             EmailTemplateDTO template,
@@ -53,7 +92,7 @@ public class EmailServiceForStaffDAOImpl implements EmailServiceForStaffDAO {
         String creator = safe.apply(context.creatorName());
 
         // Sử dụng baseUrl từ cấu hình và template
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : baseUrl + "/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/login" : "/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
@@ -198,7 +237,6 @@ public class EmailServiceForStaffDAOImpl implements EmailServiceForStaffDAO {
                 .append("<p style='margin:0;font-size:12px;'>")
                 .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
                 .append("<span style='color:#d1d5db;'>|</span>")
-                .append("<span style='color:#d1d5db;'>|</span>")
                 .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
                 .append("</p>")
                 .append("</td></tr>")
@@ -229,13 +267,24 @@ public class EmailServiceForStaffDAOImpl implements EmailServiceForStaffDAO {
     ) throws MessagingException {
         log.info("Preparing to send {} email to: {}", templateType, to);
 
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
-        if (templateOpt.isEmpty()) {
-            log.error("Template not found: {}", templateType);
-            throw new RuntimeException("Template not found: " + templateType);
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template {} not found in database. Using default template.", templateType);
+                templateDTO = createDefaultStaffTemplate(templateType);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template {} from database", templateType);
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template {} from database: {}", templateType, e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultStaffTemplate(templateType);
         }
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
         String htmlMessage = generateEmailTemplate(context, templateDTO, includeCredentials, staffId, rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -257,9 +306,11 @@ public class EmailServiceForStaffDAOImpl implements EmailServiceForStaffDAO {
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
     }
 

@@ -82,6 +82,11 @@
                         <div class="text-danger" th:if="${errors != null and errors.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
                     </div>
                     <div class="form-row">
+                        <label for="admissionYear"><i class="fas fa-calendar-alt"></i> admissionYear:</label>
+                        <input id="admissionYear" th:field="*{admissionYear}" required type="text" class="input">
+                        <div class="text-danger" th:if="${errors?.containsKey('admissionYear')}" th:text="${errors.get('admissionYear')}"></div>
+                    </div>
+                    <div class="form-row">
                         <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
                         <select id="gender" th:field="*{gender}" class="input">
                             <option value="">Select gender</option>
@@ -93,26 +98,32 @@
                         <div class="text-danger" th:if="${errors != null and errors.containsKey('gender')}" th:text="${errors.get('gender')}"></div>
                     </div>
                     <div class="form-row">
-                        <label for="curriculumId"><i class="fas fa-book"></i> Curriculum:</label>
-                        <select id="curriculumId" name="curriculumId" class="input">
+                        <label for="curriculum">Curriculum:</label>
+                        <select id="curriculum" name="curriculumId" required class="input">
                             <option value="">Select Curriculum</option>
-                            <option th:each="curriculum : ${curriculums}"
-                                    th:value="${curriculum.curriculumId}"
-                                    th:text="${curriculum.name}"
-                                    th:selected="${student.curriculum != null and student.curriculum.curriculumId == curriculum.curriculumId}"></option>
+                            <option th:each="c : ${curriculums}"
+                                    th:value="${c.curriculumId}"
+                                    th:text="${c.name}"
+                                    th:selected="${(curriculumId != null and curriculumId == c.curriculumId)
+                            or (curriculumId == null and student?.curriculum?.curriculumId == c.curriculumId)}">
+                            </option>
                         </select>
-                        <!-- Note: No error handling for curriculumId as it's not in StudentValidation -->
+                        <div class="text-danger" th:if="${errors?.containsKey('curriculumId')}" th:text="${errors.get('curriculumId')}"></div>
                     </div>
+
+                    <!-- Narrow Specialization -->
                     <div class="form-row">
-                        <label for="specializationId"><i class="fas fa-briefcase"></i> Specialization:</label>
-                        <select id="specializationId" name="specializationId" class="input" required>
-                            <option value="">Select Specialization</option>
+                        <label for="specialization">Narrow Specialization:</label>
+                        <select id="specialization" name="specializationId" required class="input">
+                            <option value="">Select Narrow Specialization</option>
                             <option th:each="s : ${specializations}"
                                     th:value="${s.specializationId}"
-                                    th:text="${s.getSpecializationName()}"
-                                    th:selected="${student.specialization != null and student.specialization.specializationId == s.specializationId}"></option>
+                                    th:text="${s.specializationName}"
+                                    th:selected="${(specializationId != null and specializationId == s.specializationId)
+                            or (specializationId == null and student?.specialization?.specializationId == s.specializationId)}">
+                            </option>
                         </select>
-                        <!-- Note: No error handling for specializationId as it's not in StudentValidation -->
+                        <div class="text-danger" th:if="${errors?.containsKey('specializationId')}" th:text="${errors.get('specializationId')}"></div>
                     </div>
                 </div>
             </section>

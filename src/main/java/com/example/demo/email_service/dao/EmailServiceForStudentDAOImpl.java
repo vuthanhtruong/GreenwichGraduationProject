@@ -28,6 +28,45 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     @Value("${app.base-url}")
     private String baseUrl;
 
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case STUDENT_ADD:
+                template.setSalutation("Access Your Student Account");
+                template.setGreeting("Welcome to Our University");
+                template.setBody("Your student account has been successfully created. Below are your account details and important information.");
+                break;
+            case STUDENT_EDIT:
+                template.setSalutation("Student Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your student account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case STUDENT_DELETE:
+                template.setSalutation("Student Account Notification");
+                template.setGreeting("Account Status Update");
+                template.setBody("This email is to notify you about changes to your student account status.");
+                break;
+            default:
+                template.setSalutation("Student Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your student account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/login" : "http://localhost:8080/login");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
+
     private String generateEmailTemplate(
             StudentEmailContext context,
             EmailTemplateDTO template,
@@ -51,14 +90,14 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         String creator = safe.apply(context.creatorName());
 
         // Sử dụng baseUrl từ cấu hình và template
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : "/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/login" : "/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
 
         // Social media links
         String facebookLink = template.getLinkFacebook() != null ? template.getLinkFacebook() : "https://www.facebook.com/GreenwichVietnam";
-        String instagramLink = "#"; // Có thể thêm field này vào template nếu cần
+        String instagramLink = "#";
         String tiktokLink = template.getLinkTiktok() != null ? template.getLinkTiktok() : "https://www.tiktok.com/@greenwichvietnam";
 
         // Xử lý ảnh - sử dụng CID hoặc URL mặc định
@@ -229,10 +268,22 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyLoginInformation(String to, String subject, StudentEmailContext context, String rawPassword) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_ADD);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_ADD);
+
+            if (templateOpt.isEmpty()) {
+                System.err.println("WARN: Template STUDENT_ADD not found in database. Using default template.");
+                templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_ADD);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to fetch template from database: " + e.getMessage());
+            templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_ADD);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, true, context.studentId(), rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -259,10 +310,22 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailToNotifyInformationAfterEditing(String to, String subject, StudentEmailContext context) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_EDIT);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_EDIT);
+
+            if (templateOpt.isEmpty()) {
+                System.err.println("WARN: Template STUDENT_EDIT not found in database. Using default template.");
+                templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_EDIT);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to fetch template from database: " + e.getMessage());
+            templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_EDIT);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -287,11 +350,24 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
     }
 
     @Async("emailTaskExecutor")
+    @Override
     public void sendEmailToNotifyStudentDeletion(String to, String subject, StudentEmailContext context) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_DELETE);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        EmailTemplateDTO templateDTO;
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_DELETE);
+
+            if (templateOpt.isEmpty()) {
+                System.err.println("WARN: Template STUDENT_DELETE not found in database. Using default template.");
+                templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_DELETE);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to fetch template from database: " + e.getMessage());
+            templateDTO = createDefaultTemplate(EmailTemplateTypes.STUDENT_DELETE);
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, false, "", "");
 
         MimeMessage message = mailSender.createMimeMessage();

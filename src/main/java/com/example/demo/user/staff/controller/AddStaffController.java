@@ -64,8 +64,11 @@ public class AddStaffController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("openAddOverlay", true);
             model.addAttribute("errors", errors);
             model.addAttribute("staff", staff);
+            model.addAttribute("majorId", majorId);
+            model.addAttribute("campusId", campusId);
             model.addAttribute("majors", majorsService.getMajors());
             model.addAttribute("campuses", campusesService.getCampuses());
             model.addAttribute("staffs", staffsService.getPaginatedStaffs(0, (Integer) session.getAttribute("staffPageSize") != null ? (Integer) session.getAttribute("staffPageSize") : 5));

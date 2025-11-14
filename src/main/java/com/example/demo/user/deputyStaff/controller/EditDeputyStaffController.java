@@ -85,6 +85,7 @@ public class EditDeputyStaffController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("campusId", campusId);
             model.addAttribute("errors", errors);
             model.addAttribute("genders", Arrays.asList(Gender.values()));
             model.addAttribute("campuses", campusesService.getCampuses());

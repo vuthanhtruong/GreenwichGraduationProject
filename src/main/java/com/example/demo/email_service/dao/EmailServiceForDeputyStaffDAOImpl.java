@@ -31,6 +31,45 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
     @Value("${app.base-url}")
     private String baseUrl;
 
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultDeputyStaffTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case MINOR_LECTURE_ADD:
+                template.setSalutation("Access Your Deputy Staff Account");
+                template.setGreeting("Welcome to Our University Team");
+                template.setBody("Your deputy staff account has been successfully created. Below are your account details and important information.");
+                break;
+            case MINOR_LECTURE_EDIT:
+                template.setSalutation("Deputy Staff Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your deputy staff account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case MINOR_LECTURE_DELETE:
+                template.setSalutation("Deputy Staff Account Notification");
+                template.setGreeting("Account Status Update");
+                template.setBody("This email is to notify you about changes to your deputy staff account status.");
+                break;
+            default:
+                template.setSalutation("Deputy Staff Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your deputy staff account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/login" : "http://localhost:8080/login");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
+
     private String generateEmailTemplate(
             DeputyStaffEmailContext context,
             EmailTemplateDTO template,
@@ -51,7 +90,7 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
         String campus = safe.apply(context.campusName());
         String creator = safe.apply(context.creatorName());
 
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : baseUrl + "/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/login" : "/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
@@ -113,7 +152,7 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
                 .append(mainMessage)
                 .append("</p>");
 
-        // Info table - Không có Major/Department vì MinorEmployes không có field này
+        // Info table
         html.append("<table class='info-table' role='presentation' width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>")
                 .append("<tr style='background:#f8fafc;'>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;width:40%;font-weight:600;border-bottom:1px solid #e5e7eb;font-family:sans-serif;'>Deputy Staff ID</td>")
@@ -192,7 +231,6 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
                 .append("<p style='margin:0;font-size:12px;'>")
                 .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
                 .append("<span style='color:#d1d5db;'>|</span>")
-                .append("<span style='color:#d1d5db;'>|</span>")
                 .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
                 .append("</p>")
                 .append("</td></tr>")
@@ -223,13 +261,24 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
     ) throws MessagingException {
         log.info("Preparing to send {} email to: {}", templateType, to);
 
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
-        if (templateOpt.isEmpty()) {
-            log.error("Template not found: {}", templateType);
-            throw new RuntimeException("Template not found: " + templateType);
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template {} not found in database. Using default template.", templateType);
+                templateDTO = createDefaultDeputyStaffTemplate(templateType);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template {} from database", templateType);
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template {} from database: {}", templateType, e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultDeputyStaffTemplate(templateType);
         }
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
         String htmlMessage = generateEmailTemplate(context, templateDTO, includeCredentials, deputyStaffId, rawPassword);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -251,9 +300,11 @@ public class EmailServiceForDeputyStaffDAOImpl implements EmailServiceForDeputyS
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
     }
 

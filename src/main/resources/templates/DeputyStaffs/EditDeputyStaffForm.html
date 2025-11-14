@@ -89,9 +89,13 @@
                         <label for="campus">Campus:</label>
                         <select id="campus" name="campusId" class="input" required>
                             <option value="">Select campus</option>
-                            <option th:each="c : ${campuses}" th:value="${c.campusId}" th:text="${c.campusName}" th:selected="${c.campusId == deputyStaff.campus?.campusId}"></option>
+                            <option th:each="campus : ${campuses}"
+                                    th:value="${campus.campusId}"
+                                    th:text="${campus.campusName}"
+                                    th:selected="${(campusId != null and campusId == campus.campusId) or (campusId == null and deputyStaff?.campus?.campusId == campus.campusId)}">
+                            </option>
                         </select>
-                        <div th:if="${errors != null and errors.containsKey('campusId')}" class="error-text" th:text="${errors.get('campusId')}"></div>
+                        <div th:if="${errors?.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
                     </div>
                 </div>
             </section>

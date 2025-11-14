@@ -127,6 +127,8 @@ public class EditStudentController {
         }
 
         if (!errors.isEmpty()) {
+            model.addAttribute("curriculumId", curriculumId);
+            model.addAttribute("specializationId", specializationId);
             model.addAttribute("errors", errors);
             model.addAttribute("genders", Arrays.asList(Gender.values()));
             model.addAttribute("relationshipTypes", Arrays.asList(RelationshipToStudent.values()));

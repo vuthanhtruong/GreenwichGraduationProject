@@ -120,6 +120,9 @@ public class StudentDAOImpl implements StudentsDAO {
                 errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
         }
+        if (student.getAdmissionYear() == null || student.getAdmissionYear() < 1900 || student.getAdmissionYear() > LocalDate.now().getYear() + 1) {
+            errors.put("admissionYear", "Admission year must be between 1900 and next year.");
+        }
         if (student.getGender() == null) {
             errors.put("gender", "Gender is required to assign a default avatar.");
         }
@@ -201,7 +204,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 savedStudent.getCampus() != null ? savedStudent.getCampus().getCampusName() : null,
                 savedStudent.getSpecialization().getMajor() != null ? savedStudent.getSpecialization().getMajor().getMajorName() : null,
                 savedStudent.getCreator() != null ? savedStudent.getCreator().getFullName() : null,
-                2025,
+                savedStudent.getAdmissionYear(),
                 savedStudent.getCreatedDate(),
                 savedStudent.getCurriculum() != null ? savedStudent.getCurriculum().getName() : null
         );
@@ -285,7 +288,7 @@ public class StudentDAOImpl implements StudentsDAO {
                 existingStudent.getCampus() != null ? existingStudent.getCampus().getCampusName() : null,
                 existingStudent.getSpecialization().getMajor() != null ? existingStudent.getSpecialization().getMajor().getMajorName() : null,
                 existingStudent.getCreator() != null ? existingStudent.getCreator().getFullName() : null,
-                2025,
+                existingStudent.getAdmissionYear(),
                 existingStudent.getCreatedDate(),
                 existingStudent.getCurriculum() != null ? existingStudent.getCurriculum().getName() : null
         );

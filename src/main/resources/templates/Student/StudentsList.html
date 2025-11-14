@@ -244,6 +244,11 @@
                             <div class="text-danger" th:if="${errors?.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
                         </div>
                         <div class="form-row">
+                            <label for="admissionYear"><i class="fas fa-calendar-alt"></i> admissionYear:</label>
+                            <input id="admissionYear" th:field="*{admissionYear}" required type="text" class="input">
+                            <div class="text-danger" th:if="${errors?.containsKey('admissionYear')}" th:text="${errors.get('admissionYear')}"></div>
+                        </div>
+                        <div class="form-row">
                             <label for="gender"><i class="fas fa-venus-mars"></i> Gender:</label>
                             <select id="gender" th:field="*{gender}" class="input">
                                 <option value="">Select gender</option>
@@ -252,22 +257,34 @@
                             </select>
                             <div class="text-danger" th:if="${errors?.containsKey('gender')}" th:text="${errors.get('gender')}"></div>
                         </div>
+                        <!-- Curriculum -->
                         <div class="form-row">
-                            <label for="curriculum"><i class="fas fa-book"></i> Curriculum:</label>
+                            <label for="curriculum">Curriculum:</label>
                             <select id="curriculum" name="curriculumId" required class="input">
                                 <option value="">Select Curriculum</option>
                                 <option th:each="c : ${curriculums}"
-                                        th:value="${c.curriculumId}" th:text="${c.name}"></option>
+                                        th:value="${c.curriculumId}"
+                                        th:text="${c.name}"
+                                        th:selected="${(curriculumId != null and curriculumId == c.curriculumId)
+                            or (curriculumId == null and student?.curriculum?.curriculumId == c.curriculumId)}">
+                                </option>
                             </select>
+                            <div class="text-danger" th:if="${errors?.containsKey('curriculumId')}" th:text="${errors.get('curriculumId')}"></div>
                         </div>
+
+                        <!-- Narrow Specialization -->
                         <div class="form-row">
-                            <label for="specialization"><i class="fas fa-graduation-cap"></i> Narrow Specialization:</label>
+                            <label for="specialization">Narrow Specialization:</label>
                             <select id="specialization" name="specializationId" required class="input">
                                 <option value="">Select Narrow Specialization</option>
                                 <option th:each="s : ${specializations}"
                                         th:value="${s.specializationId}"
-                                        th:text="${s.specializationName}"></option>
+                                        th:text="${s.specializationName}"
+                                        th:selected="${(specializationId != null and specializationId == s.specializationId)
+                            or (specializationId == null and student?.specialization?.specializationId == s.specializationId)}">
+                                </option>
                             </select>
+                            <div class="text-danger" th:if="${errors?.containsKey('specializationId')}" th:text="${errors.get('specializationId')}"></div>
                         </div>
                     </div>
                 </section>

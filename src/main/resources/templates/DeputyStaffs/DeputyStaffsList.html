@@ -202,12 +202,15 @@
                     <h2 class="panel-header"><i class="fas fa-university"></i> Campus</h2>
                     <div class="form-group grid-2">
                         <div class="form-row">
-                            <label for="campus"><i class="fas fa-university"></i> Campus:</label>
+                            <label for="campus">Campus:</label>
                             <select id="campus" name="campusId" class="input" required>
-                                <option value="">Select Campus</option>
-                                <option th:each="campus : ${campuses}" th:value="${campus.getCampusId()}" th:text="${campus.campusName}"></option>
+                                <option value="">Select campus</option>
+                                <option th:each="campus : ${campuses}"
+                                        th:value="${campus.campusId}"
+                                        th:text="${campus.campusName}"
+                                        th:selected="${campusId != null and campusId == campus.campusId}"></option>
                             </select>
-                            <div th:if="${errors != null and errors.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
+                            <div th:if="${errors?.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
                         </div>
                     </div>
                 </section>

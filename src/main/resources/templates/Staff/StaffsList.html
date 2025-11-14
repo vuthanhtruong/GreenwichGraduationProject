@@ -223,25 +223,29 @@
 
                 <!-- Workplace -->
                 <section class="win11-panel">
-                    <h2 class="panel-header"><i class="fas fa-briefcase"></i> Workplace Information</h2>
+                    <h2 class="panel-header">Workplace Information</h2>
                     <div class="form-group grid-2">
                         <div class="form-row">
-                            <label for="majorManagement"><i class="fas fa-building"></i> Major:</label>
+                            <label for="majorManagement">Major:</label>
                             <select id="majorManagement" name="majorId" class="input" required>
                                 <option value="">Select major</option>
                                 <option th:each="major : ${majors}"
-                                        th:value="${major.majorId}" th:text="${major.majorName}"></option>
+                                        th:value="${major.majorId}"
+                                        th:text="${major.majorName}"
+                                        th:selected="${majorId != null and majorId == major.majorId}"></option>
                             </select>
-                            <div th:if="${errors != null and errors.containsKey('majorId')}" class="text-danger" th:text="${errors.get('majorId')}"></div>
+                            <div th:if="${errors?.containsKey('majorId')}" class="text-danger" th:text="${errors.get('majorId')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="campus"><i class="fas fa-map-marker-alt"></i> Campus:</label>
+                            <label for="campus">Campus:</label>
                             <select id="campus" name="campusId" class="input" required>
                                 <option value="">Select campus</option>
                                 <option th:each="campus : ${campuses}"
-                                        th:value="${campus.campusId}" th:text="${campus.campusName}"></option>
+                                        th:value="${campus.campusId}"
+                                        th:text="${campus.campusName}"
+                                        th:selected="${campusId != null and campusId == campus.campusId}"></option>
                             </select>
-                            <div th:if="${errors != null and errors.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
+                            <div th:if="${errors?.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
                         </div>
                     </div>
                 </section>
