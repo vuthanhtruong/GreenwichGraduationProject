@@ -68,8 +68,7 @@ public class ListMinorClassesController {
                 model.addAttribute("newClass", new MinorClasses());
                 model.addAttribute("message", "No minor classes found.");
                 model.addAttribute("alertClass", "alert-warning");
-                // Inside showClassesList(), after retrieving classes
-                model.addAttribute("currentCampusName", staffsService.getCampus().getCampusName());
+                model.addAttribute("currentCampusName",staffsService.getDeputyStaff().getCampus().getCampusName());
                 return "MinorClassesList";
             }
 
@@ -81,6 +80,7 @@ public class ListMinorClassesController {
             model.addAttribute("totalClasses", totalClasses);
             model.addAttribute("subjects", subjectsService.getAllSubjects());
             model.addAttribute("sessions", Sessions.values());
+            model.addAttribute("currentCampusName",staffsService.getDeputyStaff().getCampus().getCampusName());
             return "MinorClassesList";
 
         } catch (Exception e) {
@@ -92,6 +92,8 @@ public class ListMinorClassesController {
             model.addAttribute("totalPagesClasses", 1);
             model.addAttribute("pageSize", session.getAttribute("classPageSize") != null ? session.getAttribute("classPageSize") : 5);
             model.addAttribute("totalClasses", 0);
+            model.addAttribute("newClass", new MinorClasses());
+            model.addAttribute("currentCampusName",staffsService.getDeputyStaff().getCampus().getCampusName());
             return "MinorClassesList";
         }
     }

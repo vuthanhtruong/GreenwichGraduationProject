@@ -106,7 +106,7 @@ public class MinorSyllabusesListController {
         return "redirect:/deputy-staff-home/minor-subjects-list/syllabuses-list";
     }
 
-    @PostMapping("/delete-syllabus")
+    @DeleteMapping("/delete-syllabus")
     public String delete(@RequestParam("syllabusId") String syllabusId, RedirectAttributes ra, HttpSession session) {
         String subjectId = (String) session.getAttribute("currentMinorSubjectId");
         MinorSyllabuses s = syllabusesService.getSyllabusById(syllabusId);

@@ -6,7 +6,6 @@ import com.example.demo.supportTickets.dao.SupportTicketRequestsDocumentDAO;
 import com.example.demo.supportTickets.model.SupportTicketRequests;
 import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

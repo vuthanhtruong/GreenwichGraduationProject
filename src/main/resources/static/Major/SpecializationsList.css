@@ -1,281 +1,300 @@
-/* ================================
-   🌟 GLOBAL BASE STYLES
-================================ */
+/* ===========================================================
+   WINDOWS 11 FLUENT DESIGN – GLOBAL STYLES
+=========================================================== */
+
+:root {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-danger: #dc2626;
+
+    --color-bg: #f3f3f3;
+    --color-white: #ffffff;
+
+    --shadow-soft: 0 3px 10px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 18px rgba(0,0,0,0.15);
+
+    --pad-sm: 8px;
+    --pad-md: 14px;
+    --pad-lg: 20px;
+}
+
+/* ===========================================================
+   BASE
+=========================================================== */
+
 body {
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: #f3f4f6;
+    background: var(--color-bg);
     margin: 0;
     color: #1a1a1a;
-    line-height: 1.5;
-}
-
-.win11-container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-}
-
-/* ================================
-   🧭 TITLE BAR
-================================ */
-.win11-title-bar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.win11-title-bar h1 {
-    font-size: 22px;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    color: #7c3aed; /* Màu tím học thuật */
-}
-
-/* ================================
-   🧩 ALERTS
-================================ */
-.win11-alert {
-    padding: 12px 16px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-size: 14px;
-}
-
-.win11-alert.success {
-    background: #f0fdf4;
-    color: #065f46;
-    border-left: 4px solid #16a34a;
-}
-
-.win11-alert.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border-left: 4px solid #dc2626;
-}
-
-.win11-alert i {
     font-size: 16px;
 }
 
-/* ================================
-   🧭 TOOLBAR (Unified Search + Controls)
-================================ */
+.win11-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+
+/* ===========================================================
+   TOOLBAR
+=========================================================== */
+
 .search-toolbar {
+    background: var(--color-white);
+    padding: var(--pad-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #fff;
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    gap: 12px;
+    margin-bottom: 30px;
+    gap: 18px;
     flex-wrap: wrap;
 }
 
-.toolbar-left,
-.toolbar-center,
-.toolbar-right {
+.toolbar-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
+}
+
+.page-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 20px;
+    margin: 0;
+}
+
+.page-title i {
+    margin-right: 6px;
+}
+
+.subtitle {
+    font-size: 13px;
+    opacity: .7;
 }
 
 .toolbar-center {
-    flex-grow: 1;
-    justify-content: center;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .toolbar-right {
-    justify-content: flex-end;
+    display: flex;
+    align-items: center;
     gap: 16px;
 }
 
-/* ================================
-   🧾 INPUTS & FORMS
-================================ */
-.input {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: 0.2s;
-}
 
-.input:focus {
-    border-color: #7c3aed;
-    background: #f5f3ff;
-    outline: none;
-}
+/* ===========================================================
+    BUTTONS
+=========================================================== */
 
-.input.small {
-    width: 60px;
-    text-align: center;
-}
-
-/* ================================
-   🔘 BUTTONS
-================================ */
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 8px;
+    gap: 8px;
+    padding: var(--pad-sm) var(--pad-md);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
     border: 1px solid #ddd;
-    background: #fff;
     cursor: pointer;
-    font-size: 14px;
     text-decoration: none;
     color: #1a1a1a;
-    transition: all 0.25s ease;
+    transition: 0.25s;
+    font-size: 15px;
 }
 
 .btn:hover {
-    background: #f5f3ff;
-    border-color: #7c3aed;
-    color: #7c3aed;
+    background: #f0f6ff;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn.small {
+    padding: 8px 12px;
+    font-size: 14px;
 }
 
 .btn.primary {
-    background: #7c3aed;
-    color: #fff;
+    background: var(--color-primary);
+    color: white;
     border: none;
 }
 
 .btn.primary:hover {
-    background: #6d28d9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(124,58,237,0.3);
+    background: var(--color-primary-hover);
 }
 
 .btn.danger {
-    background: #dc2626;
-    color: #fff;
-    border: none;
+    background: #fee2e2;
+    color: var(--color-danger);
+    border: 1px solid #fca5a5;
 }
 
 .btn.danger:hover {
-    background: #b91c1c;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(220,38,38,0.25);
+    background: #fecaca;
 }
 
-.btn.small {
-    padding: 5px 10px;
-    font-size: 0.85em;
+
+/* ===========================================================
+    INPUTS
+=========================================================== */
+
+.input {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid #ccc;
+    min-height: 40px;
+    font-size: 15px;
+    transition: 0.2s;
 }
 
-/* ================================
-   📚 TABLE (Specializations List)
-================================ */
+.input.small {
+    width: 110px;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+
+/* ===========================================================
+    PANEL
+=========================================================== */
+
+.win11-panel {
+    background: var(--color-white);
+    padding: var(--pad-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 24px;
+}
+
+.panel-header {
+    font-size: 19px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* ===========================================================
+    TABLE
+=========================================================== */
+
 .table-container {
-    margin: 20px 0;
     overflow-x: auto;
 }
 
 .win11-table {
     width: 100%;
     border-collapse: collapse;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    background: var(--color-white);
 }
 
-.win11-table th,
-.win11-table td {
-    padding: 12px 14px;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+.win11-table thead {
+    background: #f8f9fb;
 }
 
 .win11-table th {
-    background: #f9fafb;
-    color: #4c1d95;
     font-weight: 600;
-    font-size: 14px;
+    padding: 14px;
+    text-align: left;
+    border-bottom: 2px solid #eee;
 }
 
-.win11-table tr:hover td {
-    background: #f5f3ff;
-    transition: 0.2s;
+.win11-table td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
 }
 
-.win11-table td .actions {
+.win11-table tbody tr:hover {
+    background: #f4f8ff;
+}
+
+
+/* ===========================================================
+    TABLE ACTIONS
+=========================================================== */
+
+.actions {
     display: flex;
+    gap: 10px;
     flex-wrap: wrap;
-    gap: 6px;
 }
 
-/* ================================
-   📑 PAGINATION
-================================ */
+.inline-form {
+    display: inline-block;
+}
+
+
+/* ===========================================================
+    PAGINATION
+=========================================================== */
+
 .pagination {
     display: flex;
-    justify-content: center;
-    align-items: center;
     gap: 8px;
+    justify-content: center;
+    margin: 25px 0;
     flex-wrap: wrap;
-    margin: 20px 0;
 }
 
 .page-btn {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    background: var(--color-white);
+    cursor: pointer;
     text-decoration: none;
     color: #1a1a1a;
-    transition: all 0.2s;
+    transition: 0.2s;
 }
 
 .page-btn:hover {
-    background: #f5f3ff;
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
 .page-btn.active {
-    background: #7c3aed;
-    color: #fff;
-    border: none;
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
 }
 
 .page-btn.disabled {
-    opacity: 0.5;
-    pointer-events: none;
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
-.page-select-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-/* ================================
-   🪄 OVERLAY (Add Specialization)
-================================ */
+/* ===========================================================
+    OVERLAY (Modal)
+=========================================================== */
+
 .overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    padding: 20px;
 }
 
 .overlay.active {
@@ -283,45 +302,29 @@ body {
 }
 
 .overlay-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 70%;
-    max-width: 800px;
-    max-height: 90%;
-    overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    animation: fadeIn 0.3s ease;
+    background: var(--color-white);
+    width: 650px;
+    max-width: 95%;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    animation: fadeIn 0.25s ease;
 }
 
-/* ================================
-   🧱 FORM SECTIONS
-================================ */
-.win11-panel {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.panel-header {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    color: #4c1d95;
-}
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
+/* ===========================================================
+    FORMS
+=========================================================== */
 
 .grid-2 {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
 }
 
 .form-row {
@@ -331,52 +334,42 @@ body {
 }
 
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
     margin-top: 20px;
+    display: flex;
+    gap: 14px;
 }
 
-.text-danger {
-    color: #dc2626;
-    font-size: 13px;
-    margin-top: -4px;
+
+/* ===========================================================
+    ERROR TEXT
+=========================================================== */
+
+.error-text {
+    font-size: 14px;
+    color: var(--color-danger);
+    margin-top: 2px;
 }
 
-/* ================================
-   🌈 ANIMATIONS
-================================ */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.text-center {
+    text-align: center;
 }
 
-/* ================================
-   📱 RESPONSIVE
-================================ */
-@media (max-width: 992px) {
+
+/* ===========================================================
+    RESPONSIVE
+=========================================================== */
+
+@media (max-width: 768px) {
     .grid-2 {
         grid-template-columns: 1fr;
     }
-    .toolbar-center {
-        flex-direction: column;
-    }
-    .toolbar-right {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
 
-@media (max-width: 768px) {
-    .search-toolbar {
-        flex-direction: column;
-        align-items: flex-start;
+    .toolbar-right {
+        width: 100%;
+        justify-content: space-between;
     }
-    .win11-container {
-        padding: 10px;
-    }
-    .page-select-form {
+
+    .form-actions {
         flex-direction: column;
-        align-items: flex-start;
     }
 }

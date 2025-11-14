@@ -1,77 +1,92 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Edit Campus</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .form-container {
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/EditRooms.css}">
 </head>
+
 <body>
-<div class="container mt-4">
-    <h1 class="text-center text-primary">
-        <i class="fas fa-university"></i> Edit Campus
-    </h1>
+<div class="win11-container">
 
-    <!-- Success or Error Message -->
-    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${message}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+    <!-- Title -->
+    <header class="win11-title-bar">
+        <h1><i class="fas fa-university"></i> Edit Campus</h1>
+    </header>
 
-    <!-- Edit Campus Form -->
-    <div class="form-container">
-        <form method="post" th:action="@{/admin-home/campuses-list/edit-campus}" th:object="${campus}" enctype="multipart/form-data">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="campusId" class="form-label">Campus ID:</label>
-                    <input id="campusId" class="form-control" th:field="*{campusId}" type="text" readonly />
-                    <small class="form-text text-muted">Cannot change Campus ID</small>
-                    <div class="text-danger" th:if="${#fields.hasErrors('campusId')}" th:errors="*{campusId}"></div>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Campus ID')}" th:text="${error}"></div>
+    <div class="win11-content">
+
+        <section class="win11-panel">
+
+            <!-- Message -->
+            <div th:if="${message}" class="win11-alert success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${message}"></span>
+            </div>
+
+            <div th:if="${error}" class="win11-alert error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Form -->
+            <form method="post"
+                  th:action="@{/admin-home/campuses-list/edit-campus}"
+                  th:object="${campus}"
+                  enctype="multipart/form-data"
+                  class="form-group">
+
+                <div class="grid-2">
+
+                    <!-- Campus ID -->
+                    <div class="form-row">
+                        <label for="campusId"><i class="fas fa-id-card"></i> Campus ID:</label>
+                        <input id="campusId" class="input" type="text" th:field="*{campusId}" readonly>
+                        <small class="text-muted">Cannot modify Campus ID</small>
+                        <div class="error-text" th:if="${#fields.hasErrors('campusId')}" th:errors="*{campusId}"></div>
+                    </div>
+
+                    <!-- Campus Name -->
+                    <div class="form-row">
+                        <label for="campusName"><i class="fas fa-font"></i> Campus Name:</label>
+                        <input id="campusName" class="input" type="text" th:field="*{campusName}" required>
+                        <div class="error-text" th:if="${#fields.hasErrors('campusName')}" th:errors="*{campusName}"></div>
+                    </div>
+
+                    <!-- Opening Day -->
+                    <div class="form-row">
+                        <label for="openingDay"><i class="fas fa-calendar-day"></i> Opening Day:</label>
+                        <input id="openingDay" class="input" type="date" th:field="*{openingDay}">
+                        <div class="error-text" th:if="${#fields.hasErrors('openingDay')}" th:errors="*{openingDay}"></div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-row">
+                        <label for="description"><i class="fas fa-pen"></i> Description:</label>
+                        <input id="description" class="input" type="text" th:field="*{description}">
+                        <div class="error-text" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                    </div>
+
                 </div>
-                <div class="col-md-3">
-                    <label for="campusName" class="form-label">Campus Name:</label>
-                    <input id="campusName" class="form-control" th:field="*{campusName}" type="text" required />
-                    <div class="text-danger" th:if="${#fields.hasErrors('campusName')}" th:errors="*{campusName}"></div>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Campus Name')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-3">
-                    <label for="openingDay" class="form-label">Opening Day:</label>
-                    <input id="openingDay" class="form-control" th:field="*{openingDay}" type="date" />
-                    <div class="text-danger" th:if="${#fields.hasErrors('openingDay')}" th:errors="*{openingDay}"></div>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Opening Day')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-3">
-                    <label for="description" class="form-label">Description:</label>
-                    <input id="description" class="form-control" th:field="*{description}" type="text" />
-                    <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-                    <div class="text-danger" th:each="error : ${errors}" th:if="${error.contains('Description')}" th:text="${error}"></div>
-                </div>
-                <div class="col-md-12 text-end">
-                    <a class="btn btn-secondary" th:href="@{/admin-home/campuses-list}">
-                        <i class="fas fa-arrow-left"></i> Back to List
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a class="btn" th:href="@{/admin-home/campuses-list}">
+                        <i class="fas fa-arrow-left"></i> Back
                     </a>
-                    <button class="btn btn-success" type="submit">
+                    <button class="btn primary" type="submit">
                         <i class="fas fa-save"></i> Save Changes
                     </button>
                 </div>
-            </div>
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        </form>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            </form>
+
+        </section>
+    </div>
+
+</div>
 </body>
+
 </html>

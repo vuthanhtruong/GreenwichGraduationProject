@@ -1,266 +1,259 @@
-/* ============================
-   Base Layout & Typography
-============================ */
+/* ===========================================================
+   LISTROOMS.CSS — Windows 11 Fluent Design (2025)
+   Hoàn chỉnh cho module Rooms (Add + Edit popup)
+=========================================================== */
+
+:root {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+
+    --color-bg: #f3f4f6;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text: #1f2937;
+    --color-text-muted: #6b7280;
+
+    --shadow-card: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 12px 28px rgba(0,0,0,0.16);
+    --shadow-overlay: 0 20px 60px rgba(0,0,0,0.35);
+
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===========================================================
+   RESET & BASE
+=========================================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: #f3f4f6;
     margin: 0;
-    color: #1a1a1a;
+    padding: 0;
+    background: var(--color-bg);
+    font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
     line-height: 1.5;
+    color: var(--color-text);
+    min-height: 100vh;
 }
 
+/* ===========================================================
+   LAYOUT
+=========================================================== */
 .win11-container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px;
 }
 
-/* ============================
-   Title Bar
-============================ */
-.win11-title-bar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    text-align: center;
-}
+/* ===========================================================
+   TOOLBAR
+=========================================================== */
+.search-toolbar {
+    background: var(--color-surface);
+    padding: 20px 28px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 32px;
 
-.win11-title-bar h1 {
-    font-size: 22px;
-    margin: 0;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    color: #0284c7; /* xanh chủ đạo Rooms */
-}
-
-/* ============================
-   Panels
-============================ */
-.win11-panel {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-.panel-header {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    color: #075985;
-}
-
-/* ============================
-   Forms & Inputs
-============================ */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.input {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-.input:focus {
-    border-color: #0284c7;
-    background: #f0f9ff;
-    outline: none;
-}
-
-/* Two-column grid for add/edit forms */
-.grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    flex-wrap: wrap;
     gap: 16px;
 }
 
-/* ============================
-   Alerts
-============================ */
-.win11-alert {
-    padding: 12px 16px;
-    border-radius: 10px;
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-size: 14px;
+    gap: 16px;
 }
 
-.win11-alert.success {
-    background: #f0fdf4;
-    color: #065f46;
-    border-left: 4px solid #16a34a;
+.page-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text);
 }
 
-.win11-alert.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border-left: 4px solid #dc2626;
-}
-
-/* ============================
-   Buttons
-============================ */
+/* ===========================================================
+   BUTTONS
+=========================================================== */
 .btn {
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background: #fff;
-    cursor: pointer;
-    font-size: 14px;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition);
     text-decoration: none;
-    color: #1a1a1a;
-    transition: all 0.25s ease;
+    min-height: 40px;
 }
 
 .btn:hover {
-    background: #e0f2fe;
-    border-color: #0284c7;
-    color: #0369a1;
+    transform: translateY(-2px);
 }
 
 .btn.primary {
-    background: #0284c7;
-    color: #fff;
-    border: none;
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .btn.primary:hover {
-    background: #0369a1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+    background: var(--color-primary-hover);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn.danger {
-    background: #dc2626;
-    color: #fff;
-    border: none;
+    background: #fee2e2;
+    color: var(--color-danger);
+    border: 1px solid #fecaca;
 }
 
 .btn.danger:hover {
-    background: #b91c1c;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    background: #fecaca;
+    border-color: var(--color-danger);
 }
 
-/* ============================
-   Room Grid & Cards
-============================ */
+/* Edit button trong card */
+.btn.edit-online-btn,
+.btn.edit-offline-btn {
+    background: #f0f9ff;
+    color: var(--color-primary);
+    border: 1px solid #bae6fd;
+}
+
+.btn.edit-online-btn:hover,
+.btn.edit-offline-btn:hover {
+    background: #dbeafe;
+    border-color: var(--color-primary);
+}
+
+/* ===========================================================
+   PANELS & CARDS
+=========================================================== */
+.win11-panel {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 28px;
+    margin-bottom: 32px;
+}
+
+.panel-header {
+    font-size: 21px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text);
+}
+
+/* Room Grid */
 .room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
 }
 
 .room-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    text-align: center;
-    transition: 0.25s ease;
-    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition);
+    border: 1px solid var(--color-border);
 }
 
 .room-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+    border-color: transparent;
 }
 
-/* Online Rooms */
-.room-card.online {
-    border-top: 4px solid #22d3ee;
-}
-
-.room-card.online:hover {
-    box-shadow: 0 6px 14px rgba(34, 211, 238, 0.25);
-}
-
-/* Offline Rooms */
-.room-card.offline {
-    border-top: 4px solid #0ea5e9;
-}
-
-.room-card.offline:hover {
-    box-shadow: 0 6px 14px rgba(14, 165, 233, 0.25);
-}
-
-/* ============================
-   Avatar Styling
-============================ */
+/* Avatar */
 .avatar-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    height: 200px;
     overflow: hidden;
-    border-radius: 10px;
-    background: #f9fafc;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
 }
 
 .room-avatar {
     width: 100%;
-    max-height: 150px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 10px;
+    transition: transform 0.4s ease;
 }
 
-/* ============================
-   Text Styling
-============================ */
+.room-card:hover .room-avatar {
+    transform: scale(1.05);
+}
+
 .room-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #075985;
-}
-
-.error-text {
-    color: #dc2626;
-    font-size: 13px;
-    margin-top: -6px;
-}
-
-.text-center {
     text-align: center;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 16px 0 12px;
+    padding: 0 12px;
 }
 
-/* ============================
-   Overlay Styling
-============================ */
+/* Info */
+.room-card p {
+    margin: 8px 0;
+    padding: 0 16px;
+    font-size: 14.5px;
+    color: var(--color-text-muted);
+}
+
+.room-card p strong {
+    color: var(--color-text);
+}
+
+/* Actions */
+.form-actions {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    background: #f9fafb;
+    border-top: 1px solid var(--color-border);
+    margin-top: 16px;
+}
+
+/* ===========================================================
+   OVERLAY (Popup Modal)
+=========================================================== */
 .overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9999;
+    padding: 20px;
 }
 
 .overlay.active {
@@ -268,52 +261,103 @@ body {
 }
 
 .overlay-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 70%;
-    max-width: 800px;
-    max-height: 90%;
+    width: 100%;
+    max-width: 680px;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-overlay);
+    padding: 32px;
+    max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1);
 }
 
-/* Overlay Animation */
-.overlay.active .overlay-content {
-    animation: fadeIn 0.3s ease;
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.overlay-content h2 {
+    margin: 0 0 28px 0;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
-/* ============================
-   Responsive Design
-============================ */
+/* Form Grid */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row label {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-text);
+}
+
+.input {
+    padding: 12px 16px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    transition: var(--transition);
+    background: white;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.error-text {
+    color: var(--color-danger);
+    font-size: 13.5px;
+    margin-top: 4px;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+/* ===========================================================
+   RESPONSIVE
+=========================================================== */
 @media (max-width: 768px) {
-    .grid-2 {
-        grid-template-columns: 1fr;
-    }
+    .win11-container { padding: 20px 16px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .search-toolbar { flex-direction: column; text-align: center; }
+    .toolbar-left, .toolbar-right { justify-content: center; width: 100%; }
+    .room-grid { grid-template-columns: 1fr; }
+    .form-actions { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+}
 
-    .room-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .win11-container {
-        padding: 10px;
-    }
-
-    .win11-title-bar h1 {
-        font-size: 18px;
-    }
-
-    .btn {
-        font-size: 13px;
-        padding: 7px 12px;
-    }
-
-    .panel-header {
-        font-size: 16px;
-    }
+@media (max-width: 480px) {
+    .overlay-content { padding: 24px 20px; }
+    .page-title { font-size: 20px; }
 }

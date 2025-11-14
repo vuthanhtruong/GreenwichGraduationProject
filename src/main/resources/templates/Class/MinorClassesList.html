@@ -220,15 +220,17 @@
                             <span th:if="${serviceErrors?.containsKey('slotQuantity')}" th:text="${serviceErrors.get('slotQuantity')}" class="error-text"></span>
                         </div>
 
-                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('minorSubject')} ? 'error'">
+                        <div class="form-row" th:classappend="${serviceErrors?.containsKey('subject')} ? 'error'">
                             <label>Subject:</label>
                             <select name="subjectId" class="input" required>
                                 <option value="">Select subject</option>
-                                <option th:each="s : ${subjects}"
-                                        th:value="${ neuenClass?.minorSubject?.subjectId == s.subjectId}">
+                                <option th:each="sub : ${subjects}"
+                                        th:value="${sub.subjectId}"
+                                        th:text="${sub.subjectName}"
+                                        th:selected="${newClass?.minorSubject?.subjectId == sub.subjectId}">
                                 </option>
                             </select>
-                            <span th:if="${serviceErrors?.containsKey('minorSubject')}" th:text="${serviceErrors.get('minorSubject')}" class="error-text"></span>
+                            <span th:if="${serviceErrors?.containsKey('subject')}" th:text="${serviceErrors.get('subject')}" class="error-text"></span>
                         </div>
 
                         <div class="form-row" th:classappend="${serviceErrors?.containsKey('session')} ? 'error'">

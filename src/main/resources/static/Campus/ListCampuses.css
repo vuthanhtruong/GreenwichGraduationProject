@@ -1,58 +1,291 @@
-/* Base */
+/* ===========================================================
+   WINDOWS 11 FLUENT DESIGN – GLOBAL STYLES
+   =========================================================== */
+
+:root {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-danger: #dc2626;
+    --color-bg: #f3f3f3;
+    --color-white: #ffffff;
+
+    --shadow-soft: 0 3px 10px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 18px rgba(0,0,0,0.15);
+
+    --pad-sm: 8px;
+    --pad-md: 14px;
+    --pad-lg: 20px;
+}
+
+/* ===========================================================
+   BASE
+=========================================================== */
+
 body {
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: #f3f4f6;
+    background: var(--color-bg);
     margin: 0;
     color: #1a1a1a;
-    line-height: 1.5;
+    font-size: 16px;
 }
 
 .win11-container {
-    max-width: 1200px;
+    padding: 24px;
+    max-width: 1400px;
     margin: auto;
-    padding: 20px;
 }
 
-/* Title Bar */
-.win11-title-bar {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    text-align: center;
+/* ===========================================================
+   TOOLBAR
+=========================================================== */
+
+.search-toolbar {
+    background: var(--color-white);
+    padding: var(--pad-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 18px;
 }
 
-.win11-title-bar h1 {
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-title {
+    display: flex;
+    gap: 10px;
+    align-items: center;
     font-size: 22px;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    color: #2563eb;
 }
 
-/* Panel */
+.toolbar-center {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* ===========================================================
+    BUTTONS
+=========================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: var(--pad-sm) var(--pad-md);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: 0.2s;
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 15px;
+}
+
+.btn:hover {
+    background: #f0f6ff;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn.small {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.btn.primary {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.btn.danger {
+    background: #fee2e2;
+    color: var(--color-danger);
+    border: 1px solid #fca5a5;
+}
+
+.btn.danger:hover {
+    background: #fecaca;
+}
+
+/* ===========================================================
+    INPUTS
+=========================================================== */
+
+.input {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: var(--radius-md);
+    min-height: 40px;
+    font-size: 15px;
+}
+
+.input.small {
+    width: 100px;
+}
+
+/* ===========================================================
+    PANEL
+=========================================================== */
+
 .win11-panel {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    background: var(--color-white);
+    padding: var(--pad-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 25px;
 }
 
 .panel-header {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 14px;
+    font-size: 20px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Form */
-.form-group {
+/* ===========================================================
+   CAMPUS GRID
+=========================================================== */
+
+.campus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 22px;
+}
+
+.campus-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    padding: 18px;
+    transition: 0.25s;
+}
+
+.campus-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.campus-title {
+    text-align: center;
+    margin-top: 12px;
+    margin-bottom: 14px;
+    font-size: 18px;
+}
+
+/* ===========================================================
+   CAMPUS AVATAR
+=========================================================== */
+
+.avatar-container {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+}
+
+.campus-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===========================================================
+   LIST COUNT
+=========================================================== */
+
+.counts-list {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0;
+    font-size: 14px;
+    color: #374151;
+}
+
+.counts-list li {
+    margin: 4px 0;
+}
+
+/* ===========================================================
+    CARD ACTIONS
+=========================================================== */
+
+.form-actions {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* ===========================================================
+    OVERLAY (ADD CAMPUS)
+=========================================================== */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    background: var(--color-white);
+    width: 650px;
+    max-width: 98%;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-hover);
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================================================
+    FORM GRID
+=========================================================== */
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
 }
 
 .form-row {
@@ -61,134 +294,26 @@ body {
     gap: 6px;
 }
 
-.input {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+.error-text {
     font-size: 14px;
-    transition: 0.2s;
+    color: var(--color-danger);
+    margin-top: 2px;
 }
 
-.input:focus {
-    border-color: #2563eb;
-    background: #f0f6ff;
-    outline: none;
-}
+/* ===========================================================
+    TEXT CENTER
+=========================================================== */
 
-/* Grid Layout */
-.grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-/* Alerts */
-.win11-alert {
-    padding: 12px 16px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.win11-alert.success {
-    background: #ecfdf5;
-    color: #065f46;
-    border-left: 4px solid #16a34a;
-}
-
-.win11-alert.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border-left: 4px solid #dc2626;
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background: #fff;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: none;
-    color: #1a1a1a;
-    transition: 0.2s;
-}
-
-.btn:hover {
-    background: #f0f6ff;
-    border-color: #2563eb;
-    color: #2563eb;
-}
-
-.btn.primary {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-}
-
-.btn.primary:hover {
-    background: #1e4fd6;
-}
-
-.btn.danger {
-    background: #dc2626;
-    color: #fff;
-    border: none;
-}
-
-.btn.danger:hover {
-    background: #b91c1c;
-}
-
-/* Campus Cards */
-.campus-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.campus-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+.text-center {
     text-align: center;
-    transition: 0.25s ease;
 }
 
-.campus-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-}
+/* ===========================================================
+    RESPONSIVE
+=========================================================== */
 
-.campus-avatar {
-    width: 100%;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 12px;
-}
-
-.campus-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.counts-list {
-    list-style: none;
-    padding: 0;
-    margin: 12px 0;
-    font-size: 14px;
-    color: #374151;
-    text-align: left;
-}
-.counts-list li {
-    margin-bottom: 4px;
+@media (max-width: 700px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
 }

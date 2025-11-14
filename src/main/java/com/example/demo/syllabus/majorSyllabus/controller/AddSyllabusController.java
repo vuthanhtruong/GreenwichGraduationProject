@@ -187,7 +187,7 @@ public class AddSyllabusController {
         }
     }
     // Add this method to ListSyllabusesController for delete functionality
-    @PostMapping("/delete-syllabus")
+    @DeleteMapping("/delete-syllabus")
     public String deleteSyllabus(
             @RequestParam("syllabusId") String syllabusId,
             RedirectAttributes redirectAttributes,

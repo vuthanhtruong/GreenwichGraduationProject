@@ -8,8 +8,6 @@ import com.example.demo.room.model.Rooms;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +25,7 @@ import java.util.Map;
 @Transactional
 @PreAuthorize("hasRole('ADMIN')")
 public class RoomsDAOImpl implements RoomsDAO {
-    private static final Logger logger = LoggerFactory.getLogger(RoomsDAOImpl.class);
+
     private final AdminsService adminsService;
 
     @PersistenceContext
@@ -38,20 +36,58 @@ public class RoomsDAOImpl implements RoomsDAO {
     }
 
     @Override
-    public Rooms getRoomById(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Room ID cannot be null");
+    public Rooms updateOfflineRoom(String id, OfflineRooms room, MultipartFile avatarFile) throws IOException {
+        OfflineRooms existingRoom = entityManager.find(OfflineRooms.class, id);
+        if (existingRoom == null) {
+            throw new IllegalArgumentException("Offline room with ID " + id + " not found");
         }
-        return entityManager.find(Rooms.class, id);
+
+        existingRoom.setRoomName(room.getRoomName());
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            existingRoom.setAvatar(avatarFile.getBytes());
+        }
+
+        existingRoom.setAddress(room.getAddress());
+        existingRoom.setFloor(room.getFloor());
+
+        return entityManager.merge(existingRoom);
+    }
+
+    @Override
+    public Rooms updateOnlineRoom(String id, OnlineRooms room, MultipartFile avatarFile) throws IOException {
+        OnlineRooms existingRoom = entityManager.find(OnlineRooms.class, id);
+        if (existingRoom == null) {
+            throw new IllegalArgumentException("Online room with ID " + id + " not found");
+        }
+
+        existingRoom.setRoomName(room.getRoomName());
+
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            existingRoom.setAvatar(avatarFile.getBytes());
+        }
+
+        existingRoom.setLink(room.getLink());
+
+        return entityManager.merge(existingRoom);
+    }
+
+    @Override
+    public Rooms getRoomById(String id) {
+        if (id == null) throw new IllegalArgumentException("Room ID cannot be null");
+
+        OfflineRooms offline = entityManager.find(OfflineRooms.class, id);
+        if (offline != null) return offline;
+
+        return entityManager.find(OnlineRooms.class, id);
     }
 
     @Override
     public Rooms getByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return null;
-        }
+        if (name == null || name.trim().isEmpty()) return null;
+
         List<Rooms> rooms = entityManager.createQuery(
-                        "SELECT s FROM Rooms s WHERE s.roomName = :name", Rooms.class)
+                        "SELECT r FROM Rooms r WHERE r.roomName = :name", Rooms.class)
                 .setParameter("name", name.trim())
                 .getResultList();
         return rooms.isEmpty() ? null : rooms.get(0);
@@ -59,65 +95,26 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public boolean existsByRoomExcludingName(String roomName, String roomId) {
-        if (roomName == null || roomName.trim().isEmpty()) {
-            return false;
-        }
-        List<Rooms> rooms = entityManager.createQuery(
-                        "SELECT s FROM Rooms s WHERE s.roomName = :name AND s.roomId != :roomId", Rooms.class)
+        if (roomName == null || roomName.trim().isEmpty()) return false;
+
+        String jpql = "SELECT COUNT(r) > 0 FROM Rooms r WHERE r.roomName = :name AND r.roomId != :roomId";
+        return entityManager.createQuery(jpql, Boolean.class)
                 .setParameter("name", roomName.trim())
                 .setParameter("roomId", roomId != null ? roomId : "")
-                .getResultList();
-        return !rooms.isEmpty();
-    }
-
-    @Override
-    public Rooms updateOfflineRoom(String id, OfflineRooms room, MultipartFile avatarFile) throws IOException {
-        Rooms existingRoom = entityManager.find(Rooms.class, id);
-        if (existingRoom == null) {
-            throw new IllegalArgumentException("Room with ID " + id + " not found");
-        }
-        existingRoom.setRoomName(room.getRoomName());
-        if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
-        if (room.getCampus() != null) existingRoom.setCampus(room.getCampus());
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            existingRoom.setAvatar(avatarFile.getBytes());
-        } else if (room.getAvatar() != null) {
-            existingRoom.setAvatar(room.getAvatar());
-        }
-        ((OfflineRooms) existingRoom).setAddress(room.getAddress());
-        ((OfflineRooms) existingRoom).setFloor(room.getFloor());
-        return entityManager.merge(existingRoom);
-    }
-
-    @Override
-    public Rooms updateOnlineRoom(String id, OnlineRooms room, MultipartFile avatarFile) throws IOException {
-        Rooms existingRoom = entityManager.find(Rooms.class, id);
-        if (existingRoom == null) {
-            throw new IllegalArgumentException("Room with ID " + id + " not found");
-        }
-        existingRoom.setRoomName(room.getRoomName());
-        if (room.getCreator() != null) existingRoom.setCreator(room.getCreator());
-        if (room.getCampus() != null) existingRoom.setCampus(room.getCampus());
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            existingRoom.setAvatar(avatarFile.getBytes());
-        } else if (room.getAvatar() != null) {
-            existingRoom.setAvatar(room.getAvatar());
-        }
-        ((OnlineRooms) existingRoom).setLink(room.getLink());
-        return entityManager.merge(existingRoom);
+                .getSingleResult();
     }
 
     @Override
     public String generateUniqueJitsiMeetLink(String roomId) {
         String baseUrl = "https://meet.jit.si/";
         String jitsiRoomName = (roomId != null && !roomId.trim().isEmpty()) ? roomId.trim() : "Room" + System.currentTimeMillis();
-        String uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
-        String jitsiLink = baseUrl + uniqueRoomName;
+        String uniqueRoomName;
+        String jitsiLink;
 
-        while (isJitsiLinkExists(jitsiLink)) {
+        do {
             uniqueRoomName = jitsiRoomName + "-" + generateRandomString(4);
             jitsiLink = baseUrl + uniqueRoomName;
-        }
+        } while (isJitsiLinkExists(jitsiLink));
 
         String password = generateRandomPassword(8);
         return jitsiLink + "#config.roomPassword=" + password;
@@ -127,29 +124,27 @@ public class RoomsDAOImpl implements RoomsDAO {
     public String generateRandomPassword(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            password.append(characters.charAt(random.nextInt(characters.length())));
+            sb.append(characters.charAt(random.nextInt(characters.length())));
         }
-        return password.toString();
+        return sb.toString();
     }
 
     @Override
     public String generateRandomString(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         SecureRandom random = new SecureRandom();
-        StringBuilder randomString = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            randomString.append(characters.charAt(random.nextInt(characters.length())));
+            sb.append(characters.charAt(random.nextInt(characters.length())));
         }
-        return randomString.toString();
+        return sb.toString();
     }
 
     @Override
     public boolean isJitsiLinkExists(String link) {
-        if (link == null) {
-            return false;
-        }
+        if (link == null) return false;
         Long count = entityManager.createQuery(
                         "SELECT COUNT(r) FROM OnlineRooms r WHERE r.link = :link", Long.class)
                 .setParameter("link", link)
@@ -159,79 +154,63 @@ public class RoomsDAOImpl implements RoomsDAO {
 
     @Override
     public Boolean existsOfflineRoomsById(String id) {
-        if (id == null) {
-            return false;
-        }
-        return entityManager.find(OfflineRooms.class, id) != null;
-    }
-
-    @Override
-    public void deleteOnlineRoom(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Room ID cannot be null");
-        }
-        OnlineRooms room = entityManager.find(OnlineRooms.class, id);
-        if (room != null) {
-            entityManager.remove(room);
-            logger.info("Deleted online room with ID: {}", id);
-        }
-    }
-
-    @Override
-    public void deleteOfflineRoom(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Room ID cannot be null");
-        }
-        OfflineRooms room = entityManager.find(OfflineRooms.class, id);
-        if (room != null) {
-            entityManager.remove(room);
-            logger.info("Deleted offline room with ID: {}", id);
-        }
+        return id != null && entityManager.find(OfflineRooms.class, id) != null;
     }
 
     @Override
     public Boolean existsOnlineRoomsById(String id) {
-        if (id == null) {
-            return false;
-        }
-        return entityManager.find(OnlineRooms.class, id) != null;
+        return id != null && entityManager.find(OnlineRooms.class, id) != null;
+    }
+
+    @Override
+    public void deleteOnlineRoom(String id) {
+        if (id == null) return;
+        OnlineRooms room = entityManager.find(OnlineRooms.class, id);
+        if (room != null) entityManager.remove(room);
+    }
+
+    @Override
+    public void deleteOfflineRoom(String id) {
+        if (id == null) return;
+        OfflineRooms room = entityManager.find(OfflineRooms.class, id);
+        if (room != null) entityManager.remove(room);
     }
 
     @Override
     public void addOnlineRoom(OnlineRooms room, MultipartFile avatarFile) throws IOException {
         Admins admin = adminsService.getAdmin();
-        if (admin == null) {
-            throw new IllegalArgumentException("Authenticated admin not found");
-        }
+        if (admin == null) throw new IllegalArgumentException("Authenticated admin not found");
+
         room.setCreator(admin);
         room.setCampus(admin.getCampus());
         room.setCreatedAt(LocalDateTime.now());
+
         if (room.getLink() == null || room.getLink().isEmpty()) {
             room.setLink(generateUniqueJitsiMeetLink(room.getRoomId()));
         }
+
         if (avatarFile != null && !avatarFile.isEmpty()) {
             room.setAvatar(avatarFile.getBytes());
         }
+
         entityManager.persist(room);
-        logger.info("Added online room with ID: {} for campus: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null");
     }
 
     @Override
     public void addOfflineRoom(OfflineRooms room, MultipartFile avatarFile) throws IOException {
         Admins admin = adminsService.getAdmin();
-        if (admin == null) {
-            throw new IllegalArgumentException("Authenticated admin not found");
-        }
+        if (admin == null) throw new IllegalArgumentException("Authenticated admin not found");
+
         room.setRoomName(room.getRoomName() != null ? room.getRoomName().toUpperCase() : null);
         room.setCreator(admin);
         room.setCampus(admin.getCampus());
         room.setCreatedAt(LocalDateTime.now());
+
         if (avatarFile != null && !avatarFile.isEmpty()) {
             room.setAvatar(avatarFile.getBytes());
         }
-        room.setFloor(room.getFloor());
+
         entityManager.persist(room);
-        logger.info("Added offline room with ID: {} for campus: {}, floor: {}", room.getRoomId(), room.getCampus() != null ? room.getCampus().getCampusId() : "null", room.getFloor());
     }
 
     @Override
@@ -283,12 +262,13 @@ public class RoomsDAOImpl implements RoomsDAO {
         LocalDate currentDate = LocalDate.now();
         String datePart = currentDate.format(DateTimeFormatter.ofPattern("yMMdd"));
         String prefix = isOffline ? "GWOFF" : "GWONL";
-
         String roomId;
+
         do {
             String randomDigits = String.format("%02d", random.nextInt(100));
             roomId = prefix + datePart + randomDigits;
         } while (existsOnlineRoomsById(roomId) || existsOfflineRoomsById(roomId));
+
         return roomId;
     }
 
@@ -318,10 +298,6 @@ public class RoomsDAOImpl implements RoomsDAO {
             if (avatarFile.getSize() > 5 * 1024 * 1024) {
                 errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
-        }
-
-        if (room.getCampus() == null) {
-            errors.put("campus", "Campus cannot be null.");
         }
 
         if (room.getFloor() != null && room.getFloor() < 0) {
@@ -358,20 +334,11 @@ public class RoomsDAOImpl implements RoomsDAO {
                 errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
             }
         }
-
-        if (room.getCampus() == null) {
-            errors.put("campus", "Campus cannot be null.");
-        }
-
         return errors;
     }
 
     private boolean isValidName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return false;
-        }
-        String nameRegex = "^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$";
-        return name.matches(nameRegex);
+        return name != null && name.trim().matches("^[\\p{L}0-9][\\p{L}0-9 .'-]{0,49}$");
     }
 
     private boolean isValidLink(String link) {

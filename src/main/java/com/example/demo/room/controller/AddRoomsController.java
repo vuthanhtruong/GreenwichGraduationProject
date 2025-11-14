@@ -22,7 +22,9 @@ import java.util.Map;
 @Controller
 @RequestMapping("/admin-home")
 public class AddRoomsController {
+
     private static final Logger logger = LoggerFactory.getLogger(AddRoomsController.class);
+
     private final RoomsService roomsService;
     private final AdminsService adminsService;
 
@@ -31,6 +33,7 @@ public class AddRoomsController {
         this.adminsService = adminsService;
     }
 
+    // ==================== ADD ONLINE ROOM ====================
     @PostMapping("/rooms-list/add-online-room")
     public String addOnlineRoom(
             @ModelAttribute("onlineRoom") OnlineRooms onlineRoom,
@@ -38,48 +41,54 @@ public class AddRoomsController {
             @RequestParam(value = "link", required = false) String link,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        Admins currentAdmin = adminsService.getAdmin();
+        onlineRoom.setCreator(currentAdmin);
+        onlineRoom.setCampus(currentAdmin.getCampus());
+
+        // Validate
         Map<String, String> errors = roomsService.validateOnlineRoom(onlineRoom, link, avatarFile);
 
+        // Tạo roomId nếu chưa có
         if (onlineRoom.getRoomId() == null || onlineRoom.getRoomId().isBlank()) {
             onlineRoom.setRoomId(roomsService.generateUniqueRoomId(false));
         }
 
+        // Nếu có lỗi → trả lại trang với dữ liệu đã nhập
         if (!errors.isEmpty()) {
             model.addAttribute("openOnlineOverlay", true);
-            model.addAttribute("onlineRoom", onlineRoom);
+            model.addAttribute("onlineRoom", onlineRoom);                    // giữ lại dữ liệu người dùng nhập
+            model.addAttribute("offlineRoom", new OfflineRooms());          // bắt buộc phải có để form offline không lỗi
             model.addAttribute("errors", errors);
             model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
             model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
             return "ListRooms";
         }
 
+        // Thành công
         try {
-            Admins currentAdmin = adminsService.getAdmin();
-            onlineRoom.setCreator(currentAdmin);
             roomsService.addOnlineRoom(onlineRoom, avatarFile);
             redirectAttributes.addFlashAttribute("message", "Online room added successfully!");
             return "redirect:/admin-home/rooms-list";
         } catch (IOException e) {
             logger.error("Failed to process avatar: {}", e.getMessage());
-            errors.put("avatarFile", "Failed to process avatar: " + e.getMessage());
-            model.addAttribute("openOnlineOverlay", true);
-            model.addAttribute("onlineRoom", onlineRoom);
-            model.addAttribute("errors", errors);
-            model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
-            model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
-            return "ListRooms";
+            errors.put("avatarFile", "Failed to upload avatar image.");
         } catch (Exception e) {
             logger.error("Error adding online room: {}", e.getMessage());
-            errors.put("general", "An error occurred while adding the online room: " + e.getMessage());
-            model.addAttribute("openOnlineOverlay", true);
-            model.addAttribute("onlineRoom", onlineRoom);
-            model.addAttribute("errors", errors);
-            model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
-            model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
-            return "ListRooms";
+            errors.put("general", "An unexpected error occurred.");
         }
+
+        // Nếu có exception → vẫn trả lại trang với lỗi
+        model.addAttribute("openOnlineOverlay", true);
+        model.addAttribute("onlineRoom", onlineRoom);
+        model.addAttribute("offlineRoom", new OfflineRooms());
+        model.addAttribute("errors", errors);
+        model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
+        model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
+        return "ListRooms";
     }
 
+    // ==================== ADD OFFLINE ROOM ====================
     @PostMapping("/rooms-list/add-offline-room")
     public String addOfflineRoom(
             @ModelAttribute("offlineRoom") OfflineRooms offlineRoom,
@@ -87,45 +96,50 @@ public class AddRoomsController {
             @RequestParam(value = "address", required = false) String address,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        Admins currentAdmin = adminsService.getAdmin();
+        offlineRoom.setCampus(currentAdmin.getCampus());
+        offlineRoom.setCreator(currentAdmin);
+
+        // Validate
         Map<String, String> errors = roomsService.validateOfflineRoom(offlineRoom, address, avatarFile);
 
+        // Tạo roomId nếu chưa có
         if (offlineRoom.getRoomId() == null || offlineRoom.getRoomId().isBlank()) {
             offlineRoom.setRoomId(roomsService.generateUniqueRoomId(true));
         }
 
+        // Nếu có lỗi → trả lại trang với dữ liệu đã nhập
         if (!errors.isEmpty()) {
             model.addAttribute("openOfflineOverlay", true);
-            model.addAttribute("offlineRoom", offlineRoom);
+            model.addAttribute("offlineRoom", offlineRoom);                   // giữ lại dữ liệu người dùng nhập
+            model.addAttribute("onlineRoom", new OnlineRooms());             // bắt buộc phải có để form online không lỗi
             model.addAttribute("errors", errors);
             model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
             model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
             return "ListRooms";
         }
 
+        // Thành công
         try {
-            Admins currentAdmin = adminsService.getAdmin();
-            offlineRoom.setCreator(currentAdmin);
             roomsService.addOfflineRoom(offlineRoom, avatarFile);
             redirectAttributes.addFlashAttribute("message", "Offline room added successfully!");
             return "redirect:/admin-home/rooms-list";
         } catch (IOException e) {
             logger.error("Failed to process avatar: {}", e.getMessage());
-            errors.put("avatarFile", "Failed to process avatar: " + e.getMessage());
-            model.addAttribute("openOfflineOverlay", true);
-            model.addAttribute("offlineRoom", offlineRoom);
-            model.addAttribute("errors", errors);
-            model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
-            model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
-            return "ListRooms";
+            errors.put("avatarFile", "Failed to upload avatar image.");
         } catch (Exception e) {
             logger.error("Error adding offline room: {}", e.getMessage());
-            errors.put("general", "An error occurred while adding the offline room: " + e.getMessage());
-            model.addAttribute("openOfflineOverlay", true);
-            model.addAttribute("offlineRoom", offlineRoom);
-            model.addAttribute("errors", errors);
-            model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
-            model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
-            return "ListRooms";
+            errors.put("general", "An unexpected error occurred.");
         }
+
+        // Nếu có exception → vẫn trả lại trang với lỗi
+        model.addAttribute("openOfflineOverlay", true);
+        model.addAttribute("offlineRoom", offlineRoom);
+        model.addAttribute("onlineRoom", new OnlineRooms());
+        model.addAttribute("errors", errors);
+        model.addAttribute("onlineRooms", roomsService.getOnlineRooms());
+        model.addAttribute("offlineRooms", roomsService.getOfflineRooms());
+        return "ListRooms";
     }
 }

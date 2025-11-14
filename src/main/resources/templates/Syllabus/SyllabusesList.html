@@ -90,17 +90,6 @@
                 <td>
                     <div class="actions">
                         <form method="post"
-                              th:action="@{/staff-home/major-subjects-list/syllabuses-list/edit-syllabus-form}"
-                              class="inline-form">
-                            <input type="hidden" name="syllabusId"
-                                   th:value="${syllabus.syllabusId}" />
-                            <input type="hidden"
-                                   th:name="${_csrf.parameterName}"
-                                   th:value="${_csrf.token}" />
-                            <button type="submit" class="btn small"><i
-                                    class="fas fa-edit"></i> Edit</button>
-                        </form>
-                        <form method="post"
                               th:action="@{/staff-home/major-subjects-list/syllabuses-list/delete-syllabus}"
                               class="inline-form">
                             <input type="hidden" name="_method"
