@@ -48,9 +48,6 @@
                 <th><i class="fas fa-id-card"></i> Specialization ID</th>
                 <th><i class="fas fa-book-open"></i> Specialization Name</th>
                 <th><i class="fas fa-calendar-plus"></i> Created At</th>
-
-                <!-- Cột Actions: Chỉ hiện khi xem theo Major (cho phép Assign) -->
-                <th th:if="${!isLecturerView}"><i class="fas fa-cogs"></i> Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -58,24 +55,6 @@
                 <td th:text="${spec.specialization.specializationId}"></td>
                 <td th:text="${spec.specialization.specializationName}"></td>
                 <td th:text="${spec.createdAt != null ? #temporals.format(spec.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
-
-                <!-- Actions: Chỉ hiện khi xem theo Major -->
-                <td th:if="${!isLecturerView}">
-                    <div class="actions">
-                        <form th:action="@{/staff-home/lecturer-specialization/assign-lecturer}" method="post" class="inline-form">
-                            <input type="hidden" name="specializationId" th:value="${spec.specializationId}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <button type="submit" class="btn small primary">
-                                <i class="fas fa-user-plus"></i> Assign Lecturer
-                            </button>
-                        </form>
-                    </div>
-                </td>
-
-                <!-- Khi xem theo Lecturer → hiện icon tick -->
-                <td th:if="${isLecturerView}" class="text-center text-success">
-                    <i class="fas fa-check-circle"></i> Assigned
-                </td>
             </tr>
 
             <!-- Empty State -->

@@ -15,4 +15,5 @@ public interface MajorLecturersSpecializationsService {
     List<MajorLecturers> getLecturersNotAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults);
     List<MajorLecturers_Specializations> getLecturersAssignedToSpecialization(Specialization specialization, int firstResult, int maxResults);
     List<MajorLecturers_Specializations> getSpecializationsByLecturer(MajorLecturers lecturer);
+    List<String> getSpecializationAssignmentNotifications(String lecturerId);
 }

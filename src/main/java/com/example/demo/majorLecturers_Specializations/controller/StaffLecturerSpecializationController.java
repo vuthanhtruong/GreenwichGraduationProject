@@ -21,14 +21,11 @@ import java.util.List;
 @PreAuthorize("hasRole('STAFF')")
 public class StaffLecturerSpecializationController {
 
-    private final SpecializationService specializationService;
     private final MajorLecturersService lecturersService;
     private final MajorLecturersSpecializationsService majorLecturersSpecializationsService;
 
     public StaffLecturerSpecializationController(
-            SpecializationService specializationService,
             MajorLecturersService lecturersService, MajorLecturersSpecializationsService majorLecturersSpecializationsService) {
-        this.specializationService = specializationService;
         this.lecturersService = lecturersService;
         this.majorLecturersSpecializationsService = majorLecturersSpecializationsService;
     }
@@ -58,7 +55,7 @@ public class StaffLecturerSpecializationController {
         model.addAttribute("pageTitle", "Specializations of: " + lecturer.getFullName());
         model.addAttribute("isLecturerView", true);
         model.addAttribute("backUrl", "/staff-home/lecturers-list");
-        model.addAttribute("isOwnView", "/staff-home/");
+        model.addAttribute("isOwnView", "/staff-home");
 
         if (specializations.isEmpty()) {
             model.addAttribute("message", "This lecturer has no assigned specializations.");

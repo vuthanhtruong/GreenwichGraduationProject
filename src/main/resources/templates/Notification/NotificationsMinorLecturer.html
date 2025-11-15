@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Class Notifications</title>
+
+    <!-- FontAwesome + Win11 CSS reused -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- ============================= TOOLBAR ============================= -->
+    <div class="search-toolbar unified-bar">
+
+        <!-- LEFT -->
+        <div class="toolbar-left">
+            <a th:href="@{/minor-lecturer-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-bell"></i> Minor Class Notifications
+            </h2>
+        </div>
+
+        <!-- RIGHT: Total notifications -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-bell"></i>
+                <span><strong>Total:</strong> <span th:text="${notifications.size()}"></span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================= TABLE ============================= -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-hashtag"></i> #</th>
+                <th><i class="fas fa-comment"></i> Notification</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="note, i : ${notifications}">
+                <td th:text="${i.index + 1}"></td>
+                <td style="white-space: pre-line;" th:text="${note}"></td>
+            </tr>
+
+            <tr th:if="${notifications.size() == 0}">
+                <td colspan="2" class="text-center">
+                    <i class="fas fa-inbox"></i> No notifications available.
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

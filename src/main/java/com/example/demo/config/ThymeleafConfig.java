@@ -344,4 +344,14 @@ public class ThymeleafConfig {
         resolver.setCheckExistence(true);
         return resolver;
     }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver34() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/Notification/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(34);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
 }

@@ -17,6 +17,23 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpecializationsDAO {
+
+    @Override
+    public List<String> getSpecializationAssignmentNotifications(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT('You have been assigned to specialization: ', 
+                      s.specialization.specializationName, 
+                      ' (', s.specialization.specializationId, ') on ', s.createdAt)
+        FROM MajorLecturers_Specializations s
+        WHERE s.majorLecturer.id = :lecturerId
+          AND s.notificationType = 'NOTIFICATION_001'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
     @Override
     public List<MajorLecturers_Specializations> getSpecializationsByLecturer(MajorLecturers lecturer) {
         return entityManager.createQuery("from MajorLecturers_Specializations ms where ms.majorLecturer=:lecturer",MajorLecturers_Specializations.class).setParameter("lecturer",lecturer).
