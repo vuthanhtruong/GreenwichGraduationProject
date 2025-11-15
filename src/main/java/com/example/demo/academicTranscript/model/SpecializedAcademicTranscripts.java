@@ -2,6 +2,7 @@ package com.example.demo.academicTranscript.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.entity.Enums.YourNotification;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class SpecializedAcademicTranscripts extends AcademicTranscripts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
     @Override
     public String getSubjectName() {
         return specializedClass != null ? specializedClass.getSpecializedSubject().getSubjectName() : "N/A";
@@ -40,7 +45,9 @@ public class SpecializedAcademicTranscripts extends AcademicTranscripts {
                 : "N/A";
     }
 
-    public SpecializedAcademicTranscripts() {}
+    public SpecializedAcademicTranscripts() {
+        this.notificationType = YourNotification.NOTIFICATION_009;
+    }
 
     public SpecializedAcademicTranscripts(String transcriptId, Students student, SpecializedClasses specializedClass,
                                           Grades grade, LocalDateTime createdAt, Staffs creator) {
@@ -50,5 +57,6 @@ public class SpecializedAcademicTranscripts extends AcademicTranscripts {
             throw new IllegalArgumentException("Creator cannot be null");
         }
         this.creator = creator;
+        this.notificationType = YourNotification.NOTIFICATION_009;
     }
 }

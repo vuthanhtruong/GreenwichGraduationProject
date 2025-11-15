@@ -18,6 +18,6 @@ public interface StudentsMajorClassesService {
     boolean existsByStudentAndClass(String studentId, String classId);
 
     List<Students> getStudentsNotInClassAndSubject(String classId, String subjectId);
-
     List<Students_MajorClasses> getStudentsInClassByStudent(String studentId);
+    List<String> getClassNotificationsForStudent(String studentId);
 }

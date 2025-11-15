@@ -18,6 +18,33 @@ import java.util.Map;
 @Repository
 @Transactional
 public class AssignmentSubmitSlotsDAOImpl implements AssignmentSubmitSlotsDAO {
+
+    @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        String jpql = """
+        SELECT CONCAT('New assignment in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '... (Deadline: ', p.deadline, ')')
+        FROM AssignmentSubmitSlots p
+        JOIN p.classEntity c
+        JOIN Students_MajorClasses smc ON smc.majorClass.classId = c.classId
+        JOIN smc.student s
+        WHERE s.id = :memberId
+          AND p.notificationType = 'MAJOR_ASSIGNMENT_SLOT_CREATED'
+        UNION ALL
+        SELECT CONCAT('New assignment in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '... (Deadline: ', p.deadline, ')')
+        FROM AssignmentSubmitSlots p
+        JOIN p.classEntity c
+        JOIN MajorLecturers_MajorClasses lmc ON lmc.majorClass.classId = c.classId
+        JOIN lmc.lecturer l
+        WHERE l.id = :memberId
+          AND p.notificationType = 'MAJOR_ASSIGNMENT_SLOT_CREATED'
+        ORDER BY 5 DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("memberId", memberId)
+                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+    }
+
     @Override
     public List<AssignmentSubmitSlots> getAssignmentSubmitSlotsByClass(String majorClass) {
         return entityManager.createQuery("from AssignmentSubmitSlots a where a.classEntity.classId=:majorClass").setParameter("majorClass", majorClass).getResultList();

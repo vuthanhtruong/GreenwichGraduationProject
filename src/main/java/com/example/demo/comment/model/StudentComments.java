@@ -1,6 +1,7 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
@@ -28,7 +29,13 @@ public class StudentComments extends Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ClassPosts post;
 
-    public StudentComments() {}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtherNotification notificationType;
+
+    public StudentComments() {
+        this.notificationType = OtherNotification.STUDENT_COMMENTED_ON_POST;
+    }
 
     public StudentComments(String commentId, Students commenter, ClassPosts post,
                            Notifications notification, String content, LocalDateTime createdAt) {

@@ -10,6 +10,10 @@ import java.util.Map;
 
 @Service
 public class MinorClassPostsServiceImpl implements MinorClassPostsService {
+    @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        return minorClassPostsDAO.getNotificationsForMemberId(memberId);
+    }
 
     private final MinorClassPostsDAO minorClassPostsDAO;
 

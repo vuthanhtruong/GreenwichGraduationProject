@@ -7,6 +7,7 @@ import com.example.demo.email_service.dto.UserEmailContext;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class EmailServiceForUserDAOImpl implements EmailServiceForUserDAO {
 
     @Autowired
@@ -32,6 +34,24 @@ public class EmailServiceForUserDAOImpl implements EmailServiceForUserDAO {
 
     @Value("${app.reset-token.expiry-hours:24}")
     private int tokenExpiryHours;
+
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultUserTemplate() {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        template.setSalutation("Reset Your Password");
+        template.setGreeting("Password Reset Request");
+        template.setBody("You have requested to reset your password. Use the verification code below to proceed.");
+        template.setSupport("support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
 
     private String generateEmailTemplate(
             UserEmailContext context,
@@ -113,14 +133,21 @@ public class EmailServiceForUserDAOImpl implements EmailServiceForUserDAO {
                 // Verification code block
                 .append("<div style='margin:20px 0;padding:16px 16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;'>")
                 .append("<div style='font-weight:700;color:#001A4C;margin-bottom:8px;font-family:sans-serif;'>Your Verification Code</div>")
-                .append("<div style='font-size:18px;color:#374151;line-height:1.7;font-weight:600;font-family:sans-serif;'>")
+                .append("<div style='font-size:24px;color:#001A4C;line-height:1.7;font-weight:700;text-align:center;letter-spacing:4px;font-family:monospace;padding:12px;background:#ffffff;border-radius:6px;'>")
                 .append(safe.apply(verificationCode))
                 .append("</div>")
-                .append("<div style='margin-top:6px;color:#6b7280;font-family:sans-serif;'>This code is valid for ").append(tokenExpiryHours).append(" hours. Do not share this code with anyone.</div>")
+                .append("<div style='margin-top:10px;color:#6b7280;font-size:13px;font-family:sans-serif;'>This code is valid for <strong>").append(tokenExpiryHours).append(" hours</strong>. Do not share this code with anyone.</div>")
+                .append("</div>")
+
+                // Security warning
+                .append("<div style='margin:16px 0;padding:12px;background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;'>")
+                .append("<div style='font-size:13px;color:#92400e;line-height:1.6;font-family:sans-serif;'>")
+                .append("<strong>⚠️ Security Note:</strong> If you did not request this password reset, please ignore this email and contact our support team immediately.")
+                .append("</div>")
                 .append("</div>")
 
                 // Support line
-                .append("<p style='margin:6px 0 0 0;font-size:13px;line-height:1.7;color:#6b7280;text-align:center;font-family:sans-serif;'>")
+                .append("<p style='margin:16px 0 0 0;font-size:13px;line-height:1.7;color:#6b7280;text-align:center;font-family:sans-serif;'>")
                 .append("Need help? Contact our support team at ")
                 .append("<a href='mailto:").append(supportEmail).append("' style='color:#001A4C;text-decoration:none;font-family:sans-serif;'>").append(supportEmail).append("</a>.")
                 .append("</p>")
@@ -156,10 +183,26 @@ public class EmailServiceForUserDAOImpl implements EmailServiceForUserDAO {
     @Async("emailTaskExecutor")
     @Override
     public void sendEmailForVerificationCode(String to, String subject, UserEmailContext context, String verificationCode) throws MessagingException {
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.USER_FORGOT_PASSWORD);
-        if (templateOpt.isEmpty()) throw new RuntimeException("Template not found");
+        log.info("Preparing to send password reset verification code email to: {}", to);
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(EmailTemplateTypes.USER_FORGOT_PASSWORD);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template USER_FORGOT_PASSWORD not found in database. Using default template.");
+                templateDTO = createDefaultUserTemplate();
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template USER_FORGOT_PASSWORD from database");
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template USER_FORGOT_PASSWORD from database: {}", e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultUserTemplate();
+        }
+
         String htmlMessage = generateEmailTemplate(context, templateDTO, verificationCode);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -175,11 +218,14 @@ public class EmailServiceForUserDAOImpl implements EmailServiceForUserDAO {
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
 
         mailSender.send(message);
+        log.info("Successfully sent password reset verification code email to: {}", to);
     }
 }

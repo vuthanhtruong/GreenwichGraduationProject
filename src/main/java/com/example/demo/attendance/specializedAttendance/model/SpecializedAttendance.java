@@ -3,7 +3,7 @@ package com.example.demo.attendance.specializedAttendance.model;
 import com.example.demo.attendance.majorAttendance.model.Attendance;
 import com.example.demo.timetable.specializedTimetable.model.SpecializedTimetable;
 import com.example.demo.user.employe.model.MajorEmployes;
-import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.entity.Enums.YourNotification;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +27,11 @@ public class SpecializedAttendance extends Attendance {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorEmployes markedBy;
 
-    public SpecializedAttendance() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
 
+    public SpecializedAttendance() {
+        this.notificationType = YourNotification.NOTIFICATION_013;
+    }
 }

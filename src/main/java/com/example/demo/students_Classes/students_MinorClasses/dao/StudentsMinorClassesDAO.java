@@ -28,4 +28,5 @@ public interface StudentsMinorClassesDAO {
 
     // Lấy danh sách lớp của sinh viên (dùng cho service tổng hợp)
     List<Students_MinorClasses> getStudentsInClassByStudent(String studentId);
+    List<String> getClassNotificationsForStudent(String studentId);
 }

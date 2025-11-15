@@ -18,4 +18,5 @@ public interface SpecializedAssignmentSubmitSlotsDAO {
     void deleteByPostId(String postId);
     Map<String, String> validateSlot(SpecializedAssignmentSubmitSlots slot);
     List<SpecializedAssignmentSubmitSlots> getAllSpecializedAssignmentSubmitSlotsByClass(String classId);
+    List<String> getNotificationsForMemberId(String memberId);
 }

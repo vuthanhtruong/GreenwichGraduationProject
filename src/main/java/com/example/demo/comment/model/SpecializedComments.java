@@ -1,6 +1,7 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
 import jakarta.persistence.*;
@@ -28,7 +29,13 @@ public class SpecializedComments extends Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private SpecializedClassPosts post;
 
-    public SpecializedComments() {}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtherNotification notificationType;
+
+    public SpecializedComments() {
+        this.notificationType = OtherNotification.COMMENT_MADE_ON_SPECIALIZED_POST;
+    }
 
     public SpecializedComments(String commentId, MajorEmployes commenter, SpecializedClassPosts post,
                                Notifications notification, String content, LocalDateTime createdAt) {

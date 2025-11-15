@@ -4,6 +4,7 @@ import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
+import com.example.demo.entity.Enums.YourNotification;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,12 +33,19 @@ public class Students_MajorClasses extends Students_Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorClasses majorClass;
 
-    public Students_MajorClasses() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
+    public Students_MajorClasses() {
+        this.notificationType = YourNotification.NOTIFICATION_002;
+    }
 
     public Students_MajorClasses(Students student, MajorClasses majorClass,
                                  LocalDateTime createdAt, Staffs addedBy) {
         super(student, majorClass, createdAt);
         this.addedBy = addedBy;
+        this.notificationType = YourNotification.NOTIFICATION_002;
     }
 
     @Override

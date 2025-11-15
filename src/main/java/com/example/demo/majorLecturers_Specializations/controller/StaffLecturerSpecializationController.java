@@ -58,7 +58,7 @@ public class StaffLecturerSpecializationController {
         model.addAttribute("pageTitle", "Specializations of: " + lecturer.getFullName());
         model.addAttribute("isLecturerView", true);
         model.addAttribute("backUrl", "/staff-home/lecturers-list");
-        model.addAttribute("isOwnView", false);
+        model.addAttribute("isOwnView", "/staff-home/");
 
         if (specializations.isEmpty()) {
             model.addAttribute("message", "This lecturer has no assigned specializations.");

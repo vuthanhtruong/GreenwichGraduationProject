@@ -12,4 +12,5 @@ public interface SpecializedClassPostsService {
     SpecializedClassPosts getSpecializedClassPost(String postId);
     Map<String, String> validatePost(SpecializedClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
+    List<String> getNotificationsForMemberId(String memberId);;
 }

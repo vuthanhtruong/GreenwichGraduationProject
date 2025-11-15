@@ -12,4 +12,5 @@ public interface MinorClassPostsDAO {
     List<MinorClassPosts> getClassPostByClass(String classId);
     Map<String, String> validatePost(MinorClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
+    List<String> getNotificationsForMemberId(String memberId);
 }

@@ -47,7 +47,6 @@
             <tr>
                 <th><i class="fas fa-id-card"></i> Specialization ID</th>
                 <th><i class="fas fa-book-open"></i> Specialization Name</th>
-                <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-calendar-plus"></i> Created At</th>
 
                 <!-- Cột Actions: Chỉ hiện khi xem theo Major (cho phép Assign) -->
@@ -56,9 +55,8 @@
             </thead>
             <tbody>
             <tr th:each="spec : ${specializations}">
-                <td th:text="${spec.specializationId}"></td>
-                <td th:text="${spec.specializationName}"></td>
-                <td th:text="${spec.creator?.firstName + ' ' + spec.creator?.lastName ?: 'N/A'}"></td>
+                <td th:text="${spec.specialization.specializationId}"></td>
+                <td th:text="${spec.specialization.specializationName}"></td>
                 <td th:text="${spec.createdAt != null ? #temporals.format(spec.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"></td>
 
                 <!-- Actions: Chỉ hiện khi xem theo Major -->

@@ -1,6 +1,6 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.majorClassPosts.model.MajorClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
 import jakarta.persistence.*;
@@ -28,13 +28,12 @@ public class MajorComments extends Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorClassPosts post;
 
-    public MajorComments() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", nullable = false, length = 50)
+    private OtherNotification notificationType;
 
-    public MajorComments(String commentId, MajorEmployes commenter, MajorClassPosts post,
-                         Notifications notification, String content, LocalDateTime createdAt) {
-        super(commentId, notification, content, createdAt);
-        this.commenter = commenter;
-        this.post = post;
+    public MajorComments() {
+        this.notificationType = OtherNotification.COMMENT_MADE_ON_MAJOR_POST;
     }
 
     @Override

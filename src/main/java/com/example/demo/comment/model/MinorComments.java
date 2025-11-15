@@ -1,6 +1,7 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
 import com.example.demo.user.employe.model.MinorEmployes;
 import jakarta.persistence.*;
@@ -28,7 +29,13 @@ public class MinorComments extends Comments {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorClassPosts post;
 
-    public MinorComments() {}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtherNotification notificationType;
+
+    public MinorComments() {
+        this.notificationType = OtherNotification.COMMENT_MADE_ON_MINOR_POST;
+    }
 
     public MinorComments(String commentId, MinorEmployes commenter, MinorClassPosts post,
                          Notifications notification, String content, LocalDateTime createdAt) {

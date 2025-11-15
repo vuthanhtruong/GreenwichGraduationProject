@@ -16,4 +16,5 @@ public interface AssignmentSubmitSlotsDAO {
     void save(AssignmentSubmitSlots slot);
     Map<String, String> validateSlot(AssignmentSubmitSlots slot);
     List<AssignmentSubmitSlots> getAssignmentSubmitSlotsByClass(String majorClass);
+    List<String> getNotificationsForMemberId(String memberId);
 }

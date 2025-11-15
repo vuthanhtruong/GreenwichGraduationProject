@@ -3,6 +3,7 @@ package com.example.demo.attendance.majorAttendance.model;
 import com.example.demo.timetable.majorTimetable.model.MajorTimetable;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.example.demo.entity.Enums.AttendanceStatus;
+import com.example.demo.entity.Enums.YourNotification;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,9 +30,18 @@ public class MajorAttendance extends Attendance {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorEmployes markedBy;
 
-    public MajorAttendance() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
 
-    public MajorAttendance(String attendanceId, Students student, MajorEmployes markedBy, MajorTimetable timetable, AttendanceStatus status, String note, LocalDateTime createdAt) {
+    public MajorAttendance() {
+        this.notificationType = YourNotification.NOTIFICATION_011;
+    }
+
+    public MajorAttendance(String attendanceId, Students student, MajorEmployes markedBy,
+                           MajorTimetable timetable, AttendanceStatus status,
+                           String note, LocalDateTime createdAt) {
+
         super.setAttendanceId(attendanceId);
         super.setStudent(student);
         this.markedBy = markedBy;
@@ -39,5 +49,6 @@ public class MajorAttendance extends Attendance {
         super.setStatus(status);
         super.setNote(note);
         super.setCreatedAt(createdAt != null ? createdAt : LocalDateTime.now());
+        this.notificationType = YourNotification.NOTIFICATION_011;
     }
 }

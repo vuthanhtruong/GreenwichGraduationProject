@@ -14,4 +14,5 @@ public interface StudentsSpecializedClassesDAO {
     List<Students> getStudentsByClass(SpecializedClasses specializedClass);
     boolean existsByStudentAndClass(String studentId, String classId);
     List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId);
+    List<String> getClassNotificationsForStudent(String studentId);
 }

@@ -12,6 +12,16 @@ import java.util.List;
 @Service
 public class StudentsSpecializedClassesServiceImpl implements StudentsSpecializedClassesService {
     @Override
+    public boolean existsByStudentAndClass(String studentId, String classId) {
+        return studentsSpecializedClassesDAO.existsByStudentAndClass(studentId, classId);
+    }
+
+    @Override
+    public List<String> getClassNotificationsForStudent(String studentId) {
+        return studentsSpecializedClassesDAO.getClassNotificationsForStudent(studentId);
+    }
+
+    @Override
     public List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId) {
         return studentsSpecializedClassesDAO.getStudentsInClassByStudent(studentId);
     }
@@ -61,13 +71,5 @@ public class StudentsSpecializedClassesServiceImpl implements StudentsSpecialize
             throw new IllegalArgumentException("Class cannot be null");
         }
         return studentsSpecializedClassesDAO.getStudentsByClass(specializedClass);
-    }
-
-    @Override
-    public boolean isStudentAlreadyRequiredForClass(String studentId, String classId) {
-        if (studentId == null || classId == null) {
-            throw new IllegalArgumentException("Student ID and Class ID cannot be null");
-        }
-        return studentsSpecializedClassesDAO.existsByStudentAndClass(studentId, classId);
     }
 }

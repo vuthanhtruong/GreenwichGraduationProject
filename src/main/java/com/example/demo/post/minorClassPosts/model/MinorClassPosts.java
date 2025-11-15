@@ -4,15 +4,13 @@ import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.MinorComments;
 import com.example.demo.comment.model.StudentComments;
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MinorEmployes;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -26,7 +24,6 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@OnDelete(action = OnDeleteAction.CASCADE)
 public class MinorClassPosts extends ClassPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,13 +37,20 @@ public class MinorClassPosts extends ClassPosts {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MinorComments> minorComments;
 
-    public MinorClassPosts() {}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtherNotification notificationType;
+
+    public MinorClassPosts() {
+        this.notificationType = OtherNotification.MINOR_POST_CREATED;
+    }
 
     public MinorClassPosts(String postId, MinorEmployes creator, MinorClasses minorClass,
-                           Notifications notification, String content, LocalDateTime createdAt) {
-        super(postId, notification, content, createdAt);
+                           String content, LocalDateTime createdAt, OtherNotification notificationType) {
+        super(postId, null, content, createdAt);
         this.creator = creator;
         this.minorClass = minorClass;
+        this.notificationType = notificationType;
     }
 
     @Override
@@ -61,12 +65,9 @@ public class MinorClassPosts extends ClassPosts {
 
     @Override
     public long getTotalComments() {
-        List<StudentComments> students = getStudentComments();
-        List<MinorComments> minors = minorComments;
-        if (students == null && minors == null) return 0;
         return Stream.concat(
-                minors != null ? minors.stream() : Stream.empty(),
-                students != null ? students.stream() : Stream.empty()
+                minorComments != null ? minorComments.stream() : Stream.empty(),
+                getStudentComments() != null ? getStudentComments().stream() : Stream.empty()
         ).count();
     }
 

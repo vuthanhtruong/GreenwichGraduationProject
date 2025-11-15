@@ -2,6 +2,8 @@ package com.example.demo.majorLecturers_Specializations.model;
 
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.entity.Enums.YourNotification;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,8 +35,13 @@ public class MajorLecturers_Specializations {
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50)
+    private YourNotification notificationType;
+
     public MajorLecturers_Specializations() {
         this.createdAt = LocalDateTime.now();
+        this.notificationType = YourNotification.NOTIFICATION_001;
     }
 
     public MajorLecturers_Specializations(MajorLecturers majorLecturer, Specialization specialization) {
@@ -42,5 +49,6 @@ public class MajorLecturers_Specializations {
         this.majorLecturer = majorLecturer;
         this.specialization = specialization;
         this.createdAt = LocalDateTime.now();
+        this.notificationType = YourNotification.NOTIFICATION_001;
     }
 }

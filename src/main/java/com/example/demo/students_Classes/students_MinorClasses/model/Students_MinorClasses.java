@@ -1,10 +1,10 @@
 package com.example.demo.students_Classes.students_MinorClasses.model;
 
-import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.student.model.Students;
+import com.example.demo.entity.Enums.YourNotification;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,12 +33,19 @@ public class Students_MinorClasses extends Students_Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MinorClasses minorClass;
 
-    public Students_MinorClasses() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
+    public Students_MinorClasses() {
+        this.notificationType = YourNotification.NOTIFICATION_003;
+    }
 
     public Students_MinorClasses(Students student, MinorClasses minorClass,
                                  LocalDateTime createdAt, DeputyStaffs addedBy) {
         super(student, minorClass, createdAt);
         this.addedBy = addedBy;
+        this.notificationType = YourNotification.NOTIFICATION_003;
     }
 
     @Override

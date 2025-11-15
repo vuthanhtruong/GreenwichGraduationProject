@@ -38,7 +38,7 @@ import java.util.*;
 @SpringBootApplication
 public class DemoApplication {
 
-    private static final String DEFAULT_PASSWORD = "Anhnam123";
+    private static final String DEFAULT_PASSWORD = "123456";
     private static final double INITIAL_DEPOSIT_AMOUNT = 10000.0;
 
     public static void main(String[] args) {
@@ -320,7 +320,11 @@ public class DemoApplication {
         int lecturerIndex = 1;
         for (int m = 0; m < 10; m++) {
             Majors major = find(em, Majors.class, "majorId", majorIds[m]);
+            if (major == null) continue;
+
             Staffs creator = findStaffByMajorId(em, major.getMajorId());
+            if (creator == null) continue; // nếu không có staff cho major này thì bỏ qua
+
             Campuses campus = creator.getCampus(); // LẤY CAMPUS TỪ STAFF → BẢO MẬT
 
             for (int i = 0; i < 10; i++) {
@@ -365,7 +369,11 @@ public class DemoApplication {
         int studentIndex = 1;
         for (int s = 0; s < 10; s++) {
             Specialization spec = find(em, Specialization.class, "specializationId", specIds[s]);
+            if (spec == null) continue;
+
             Staffs creator = findStaffByMajorId(em, spec.getMajor().getMajorId());
+            if (creator == null) continue;
+
             Campuses campus = creator.getCampus();
 
             for (int i = 0; i < 10; i++) {
@@ -413,7 +421,10 @@ public class DemoApplication {
             if (exists(em, MajorSubjects.class, "subjectId", id)) continue;
 
             Majors major = find(em, Majors.class, "majorId", majorIds[i]);
+            if (major == null) continue;
+
             Staffs creator = findStaffByMajorId(em, majorIds[i]);
+            if (creator == null) continue;
 
             MajorSubjects s = new MajorSubjects();
             s.setSubjectId(id);
@@ -440,6 +451,7 @@ public class DemoApplication {
             if (exists(em, MinorSubjects.class, "subjectId", id)) continue;
 
             DeputyStaffs creator = find(em, DeputyStaffs.class, "id", "deputy" + String.format("%03d", i + 1));
+            if (creator == null) continue;
 
             MinorSubjects s = new MinorSubjects();
             s.setSubjectId(id);
@@ -467,7 +479,10 @@ public class DemoApplication {
             if (exists(em, SpecializedSubject.class, "subjectId", id)) continue;
 
             Specialization spec = find(em, Specialization.class, "specializationId", specIds[i]);
+            if (spec == null) continue;
+
             Staffs creator = findStaffByMajorId(em, spec.getMajor().getMajorId());
+            if (creator == null) continue;
 
             SpecializedSubject s = new SpecializedSubject();
             s.setSubjectId(id);
@@ -635,47 +650,50 @@ public class DemoApplication {
         em.persist(auth);
     }
 
+    /**
+     * exists: an toàn, không dùng getSingleResult nên không bao giờ NonUniqueResultException.
+     */
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
-        try {
-            String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
-            em.createQuery(jpql, Integer.class).setParameter("id", idValue).getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
+        String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+        List<Integer> results = em.createQuery(jpql, Integer.class)
+                .setParameter("id", idValue)
+                .setMaxResults(1)
+                .getResultList();
+        return !results.isEmpty();
     }
 
     private static boolean existsTuitionByYear(EntityManager em, TuitionByYearId id) {
-        try {
-            String jpql = "SELECT 1 FROM TuitionByYear t WHERE t.id.subjectId = :subjectId AND t.id.admissionYear = :admissionYear AND t.id.campusId = :campusId";
-            em.createQuery(jpql, Integer.class)
-                    .setParameter("subjectId", id.getSubjectId())
-                    .setParameter("admissionYear", id.getAdmissionYear())
-                    .setParameter("campusId", id.getCampusId())
-                    .getSingleResult();
-            return true;
-        } catch (NoResultException e) {
-            return false;
-        }
+        String jpql = "SELECT 1 FROM TuitionByYear t " +
+                "WHERE t.id.subjectId = :subjectId " +
+                "AND t.id.admissionYear = :admissionYear " +
+                "AND t.id.campusId = :campusId";
+        List<Integer> results = em.createQuery(jpql, Integer.class)
+                .setParameter("subjectId", id.getSubjectId())
+                .setParameter("admissionYear", id.getAdmissionYear())
+                .setParameter("campusId", id.getCampusId())
+                .setMaxResults(1)
+                .getResultList();
+        return !results.isEmpty();
     }
 
     private static <T> T find(EntityManager em, Class<T> clazz, String idField, String idValue) {
-        try {
-            String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
-            return em.createQuery(jpql, clazz).setParameter("id", idValue).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        String jpql = "SELECT e FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+        List<T> results = em.createQuery(jpql, clazz)
+                .setParameter("id", idValue)
+                .setMaxResults(1)
+                .getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 
+    /**
+     * Lấy 1 Staff theo majorId, nếu có nhiều record thì lấy record đầu tiên, tránh NonUniqueResultException.
+     */
     private static Staffs findStaffByMajorId(EntityManager em, String majorId) {
-        try {
-            String jpql = "SELECT s FROM Staffs s WHERE s.majorManagement.majorId = :majorId";
-            return em.createQuery(jpql, Staffs.class)
-                    .setParameter("majorId", majorId)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
+        String jpql = "SELECT s FROM Staffs s WHERE s.majorManagement.majorId = :majorId ORDER BY s.id";
+        List<Staffs> results = em.createQuery(jpql, Staffs.class)
+                .setParameter("majorId", majorId)
+                .setMaxResults(1)
+                .getResultList();
+        return results.isEmpty() ? null : results.get(0);
     }
 }

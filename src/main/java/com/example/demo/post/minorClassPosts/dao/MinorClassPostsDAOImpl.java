@@ -17,6 +17,32 @@ import java.util.Map;
 @Transactional
 public class MinorClassPostsDAOImpl implements MinorClassPostsDAO {
 
+    @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        String jpql = """
+        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        FROM MinorClassPosts p
+        JOIN p.minorClass c
+        JOIN Students_MinorClasses smc ON smc.minorClass.classId = c.classId
+        JOIN smc.student s
+        WHERE s.id = :memberId
+          AND p.notificationType = 'MINOR_POST_CREATED'
+        UNION ALL
+        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        FROM MinorClassPosts p
+        JOIN p.minorClass c
+        JOIN MinorLecturers_MinorClasses lmc ON lmc.minorClass.classId = c.classId
+        JOIN lmc.lecturer l
+        WHERE l.id = :memberId
+          AND p.notificationType = 'MINOR_POST_CREATED'
+        ORDER BY 5 DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("memberId", memberId)
+                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN NGÀY, KHÔNG GIỚI HẠN SỐ LƯỢNG
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

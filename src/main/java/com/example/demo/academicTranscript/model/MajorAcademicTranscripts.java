@@ -2,6 +2,7 @@ package com.example.demo.academicTranscript.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.entity.Enums.YourNotification;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
     @Override
     public String getSubjectName() {
         return majorClass != null && majorClass.getSubject() != null
@@ -42,7 +47,9 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
                 : "N/A";
     }
 
-    public MajorAcademicTranscripts() {}
+    public MajorAcademicTranscripts() {
+        this.notificationType = YourNotification.NOTIFICATION_008;
+    }
 
     public MajorAcademicTranscripts(String transcriptId, Students student, MajorClasses majorClass,
                                     Grades grade, LocalDateTime createdAt, Staffs creator) {
@@ -52,5 +59,6 @@ public class MajorAcademicTranscripts extends AcademicTranscripts {
             throw new IllegalArgumentException("Creator cannot be null");
         }
         this.creator = creator;
+        this.notificationType = YourNotification.NOTIFICATION_008;
     }
 }

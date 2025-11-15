@@ -17,6 +17,32 @@ import java.util.Map;
 @Transactional
 public class SpecializedClassPostsDAOImpl implements SpecializedClassPostsDAO {
 
+    @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        String jpql = """
+        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        FROM SpecializedClassPosts p
+        JOIN p.specializedClass c
+        JOIN Students_SpecializedClasses smc ON smc.specializedClass.classId = c.classId
+        JOIN smc.student s
+        WHERE s.id = :memberId
+          AND p.notificationType = 'SPECIALIZED_POST_CREATED'
+        UNION ALL
+        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        FROM SpecializedClassPosts p
+        JOIN p.specializedClass c
+        JOIN MajorLecturers_SpecializedClasses lmc ON lmc.specializedClass.classId = c.classId
+        JOIN lmc.lecturer l
+        WHERE l.id = :memberId
+          AND p.notificationType = 'SPECIALIZED_POST_CREATED'
+        ORDER BY 5 DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("memberId", memberId)
+                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

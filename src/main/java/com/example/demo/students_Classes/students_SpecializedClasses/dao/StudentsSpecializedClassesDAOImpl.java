@@ -15,6 +15,22 @@ import java.util.List;
 @Transactional
 public class StudentsSpecializedClassesDAOImpl implements StudentsSpecializedClassesDAO {
 
+    @Override
+    public List<String> getClassNotificationsForStudent(String studentId) {
+        String jpql = """
+        SELECT CONCAT('You have been added to specialized class: ', c.nameClass, ' (', c.specializedSubject.subjectName, ')')
+        FROM Students_SpecializedClasses ssc
+        JOIN ssc.specializedClass c
+        WHERE ssc.student.id = :studentId
+          AND ssc.notificationType = 'NOTIFICATION_004'
+        ORDER BY ssc.createdAt DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("studentId", studentId)
+                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -10,6 +10,10 @@ import java.util.List;
 
 @Service
 public class StudentsMinorClassesServiceImpl implements StudentsMinorClassesService {
+    @Override
+    public List<String> getClassNotificationsForStudent(String studentId) {
+        return dao.getClassNotificationsForStudent(studentId);
+    }
 
     private final StudentsMinorClassesDAO dao;
 

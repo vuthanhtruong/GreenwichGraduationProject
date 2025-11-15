@@ -11,6 +11,11 @@ import java.util.Map;
 @Service
 public class MajorClassPostsServiceImpl implements MajorClassPostsService {
     @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        return majorClassPostsDAO.getNotificationsForMemberId(memberId);
+    }
+
+    @Override
     public String generateUniquePostId(String classId, LocalDate createdDate) {
         return majorClassPostsDAO.generateUniquePostId(classId, createdDate);
     }

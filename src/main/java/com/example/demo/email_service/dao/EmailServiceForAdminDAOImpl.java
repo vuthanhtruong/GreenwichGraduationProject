@@ -27,11 +27,50 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
     private JavaMailSender mailSender;
 
     @Autowired
-    @Lazy  // ⭐ Thêm @Lazy annotation
+    @Lazy
     private EmailTemplatesService emailTemplatesService;
 
     @Value("${app.base-url}")
     private String baseUrl;
+
+    /**
+     * Tạo default template khi không tìm thấy template trong database
+     */
+    private EmailTemplateDTO createDefaultAdminTemplate(EmailTemplateTypes type) {
+        EmailTemplateDTO template = new EmailTemplateDTO();
+
+        switch (type) {
+            case ADMIN_ADD:
+                template.setSalutation("Access Your Admin Account");
+                template.setGreeting("Welcome to University Administration");
+                template.setBody("Your administrator account has been successfully created. Below are your account details.");
+                break;
+            case ADMIN_EDIT:
+                template.setSalutation("Admin Account Updated");
+                template.setGreeting("Your Information Has Been Updated");
+                template.setBody("Your administrator account information has been updated. Please review the details below to ensure everything is correct.");
+                break;
+            case USER_FORGOT_PASSWORD:
+                template.setSalutation("Password Reset Confirmation");
+                template.setGreeting("Your Password Has Been Reset");
+                template.setBody("Your password has been reset successfully. Below are your new login credentials.");
+                break;
+            default:
+                template.setSalutation("Admin Account Information");
+                template.setGreeting("Important Update");
+                template.setBody("Please review your administrator account information below.");
+        }
+
+        // Set default values
+        template.setLinkCta(baseUrl != null ? baseUrl + "/admin/login" : "http://localhost:8080/admin/login");
+        template.setSupport("admin-support@university.example.com");
+        template.setCampusAddress("123 University Avenue, City, Country");
+        template.setCopyrightNotice("University Name. All rights reserved.");
+        template.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        template.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+
+        return template;
+    }
 
     private String generateEmailTemplate(
             AdminEmailContext context,
@@ -55,7 +94,7 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
 
         String campus = safe.apply(context.campusName());
 
-        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : baseUrl + "/admin/login";
+        String loginUrl = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl != null ? baseUrl + "/admin/login" : "/admin/login");
         String supportEmail = template.getSupport() != null ? template.getSupport() : "admin-support@university.example.com";
         String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
         String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
@@ -117,7 +156,7 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
                 .append(mainMessage)
                 .append("</p>");
 
-        // Info table - Admin có ít field hơn (không có Created Date, Created By)
+        // Info table
         html.append("<table class='info-table' role='presentation' width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>")
                 .append("<tr style='background:#f8fafc;'>")
                 .append("<td style='padding:12px 14px;font-size:14px;color:#1f2937;width:40%;font-weight:600;border-bottom:1px solid #e5e7eb;font-family:sans-serif;'>Admin ID</td>")
@@ -194,13 +233,12 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
 
                 .append("</td></tr>")
 
-                // Footer
+                // Footer - Fixed: Removed duplicate separator
                 .append("<tr><td style='background:#f8fafc;padding:18px 24px;text-align:center;border-top:1px solid #eef2f7;'>")
                 .append("<p style='margin:0 0 6px 0;font-size:12px;color:#9ca3af;font-family:sans-serif;'>&copy; ").append(year).append(" ").append(copyrightNotice).append("</p>")
                 .append("<p style='margin:0 0 10px 0;font-size:12px;color:#9ca3af;font-family:sans-serif;'>").append(addressLine).append("</p>")
                 .append("<p style='margin:0;font-size:12px;'>")
                 .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
-                .append("<span style='color:#d1d5db;'>|</span>")
                 .append("<span style='color:#d1d5db;'>|</span>")
                 .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
                 .append("</p>")
@@ -233,13 +271,24 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
     ) throws MessagingException {
         log.info("Preparing to send {} email to admin: {}", templateType, to);
 
-        Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
-        if (templateOpt.isEmpty()) {
-            log.error("Template not found: {}", templateType);
-            throw new RuntimeException("Template not found: " + templateType);
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> templateOpt = emailTemplatesService.findByType(templateType);
+
+            if (templateOpt.isEmpty()) {
+                log.warn("Template {} not found in database. Using default template.", templateType);
+                templateDTO = createDefaultAdminTemplate(templateType);
+            } else {
+                templateDTO = new EmailTemplateDTO(templateOpt.get());
+                log.info("Successfully loaded template {} from database", templateType);
+            }
+        } catch (Exception e) {
+            log.error("ERROR: Failed to fetch template {} from database: {}", templateType, e.getMessage());
+            log.info("Using default template as fallback");
+            templateDTO = createDefaultAdminTemplate(templateType);
         }
 
-        EmailTemplateDTO templateDTO = new EmailTemplateDTO(templateOpt.get());
         String htmlMessage = generateEmailTemplate(context, templateDTO, includeCredentials, adminId, password, isPasswordReset);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -261,9 +310,11 @@ public class EmailServiceForAdminDAOImpl implements EmailServiceForAdminDAO {
 
         if (hasHeaderImage) {
             helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+            log.debug("Attached header image to email");
         }
         if (hasBannerImage) {
             helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+            log.debug("Attached banner image to email");
         }
     }
 

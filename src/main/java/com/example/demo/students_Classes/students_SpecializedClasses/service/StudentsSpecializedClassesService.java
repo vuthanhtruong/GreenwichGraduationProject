@@ -12,6 +12,7 @@ public interface StudentsSpecializedClassesService {
     void removeStudentFromClass(String studentId, String classId);
     List<Students_SpecializedClasses> getStudentsInClass(String classId);
     List<Students> getStudentsByClass(SpecializedClasses specializedClass);
-    boolean isStudentAlreadyRequiredForClass(String studentId, String classId);
+    boolean existsByStudentAndClass(String studentId, String classId);
     List<Students_SpecializedClasses> getStudentsInClassByStudent(String studentId);
+    List<String> getClassNotificationsForStudent(String studentId);
 }

@@ -1,7 +1,7 @@
 package com.example.demo.students_Classes.students_SpecializedClasses.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
-import com.example.demo.entity.Enums.Notifications;
+import com.example.demo.entity.Enums.YourNotification;
 import com.example.demo.students_Classes.abstractStudents_Class.model.Students_Classes;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
@@ -33,16 +33,21 @@ public class Students_SpecializedClasses extends Students_Classes {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private SpecializedClasses specializedClass;
 
-    public Students_SpecializedClasses() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
+    public Students_SpecializedClasses() {
+        this.notificationType = YourNotification.NOTIFICATION_004;
+    }
 
     public Students_SpecializedClasses(Students student,
                                        SpecializedClasses specializedClass,
-                                       Notifications notification,
                                        Staffs addedBy,
                                        LocalDateTime createdAt) {
         super(student, specializedClass, createdAt);
-        this.setNotification(notification);
         this.addedBy = addedBy;
+        this.notificationType = YourNotification.NOTIFICATION_004;
     }
 
     @Override

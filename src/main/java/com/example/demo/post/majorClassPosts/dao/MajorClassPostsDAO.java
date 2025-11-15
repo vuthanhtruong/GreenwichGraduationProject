@@ -12,4 +12,5 @@ public interface MajorClassPostsDAO {
     MajorClassPosts getMajorClassPost(String majorClassPostsId);
     Map<String, String> validatePost(MajorClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
+    List<String> getNotificationsForMemberId(String memberId);
 }

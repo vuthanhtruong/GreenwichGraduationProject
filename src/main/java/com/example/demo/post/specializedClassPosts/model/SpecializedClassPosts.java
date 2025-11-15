@@ -4,15 +4,15 @@ import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.SpecializedComments;
 import com.example.demo.comment.model.StudentComments;
+import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,21 +23,38 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@OnDelete(action = OnDeleteAction.CASCADE)
 public class SpecializedClassPosts extends ClassPosts {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ClassID")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private SpecializedClasses specializedClass;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CreatorID")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private MajorEmployes creator;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SpecializedComments> specializedComments;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtherNotification notificationType;
+
+    public SpecializedClassPosts() {
+        this.notificationType = OtherNotification.SPECIALIZED_POST_CREATED;
+    }
+
+    public SpecializedClassPosts(String postId, MajorEmployes creator,
+                                 SpecializedClasses specializedClass,
+                                 String content, LocalDateTime createdAt,
+                                 OtherNotification notificationType) {
+
+        super(postId, null, content, createdAt);
+        this.creator = creator;
+        this.specializedClass = specializedClass;
+        this.notificationType = notificationType;
+    }
 
     @Override
     public String getCreatorId() {
@@ -51,12 +68,9 @@ public class SpecializedClassPosts extends ClassPosts {
 
     @Override
     public long getTotalComments() {
-        List<StudentComments> students = getStudentComments();
-        List<SpecializedComments> specs = specializedComments;
-        if (students == null && specs == null) return 0;
         return Stream.concat(
-                specs != null ? specs.stream() : Stream.empty(),
-                students != null ? students.stream() : Stream.empty()
+                specializedComments != null ? specializedComments.stream() : Stream.empty(),
+                getStudentComments() != null ? getStudentComments().stream() : Stream.empty()
         ).count();
     }
 

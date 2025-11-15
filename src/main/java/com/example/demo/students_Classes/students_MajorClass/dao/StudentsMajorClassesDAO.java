@@ -18,4 +18,5 @@ public interface StudentsMajorClassesDAO {
 
     List<Students> getStudentsNotInClassAndSubject(String classId, String subjectId);
     List<Students_MajorClasses> getStudentsInClassByStudent(String studentId);
+    List<String> getClassNotificationsForStudent(String studentId);
 }
