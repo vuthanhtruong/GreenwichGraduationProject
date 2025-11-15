@@ -4,41 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Academic Transcript</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/EnterTranscript.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
+
 <div class="win11-container">
 
-    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
+
+        <!-- Left -->
         <div class="toolbar-left">
             <a th:href="@{${home}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-            <a th:href="@{${list}}" class="btn list-btn" th:if="${list != null}">
-                Students List
+
+            <a th:href="@{${list}}" th:if="${list != null}" class="btn small">
+                <i class="fas fa-users"></i> Students List
             </a>
         </div>
+
+        <!-- Center -->
         <div class="toolbar-center">
             <h2 class="page-title">
-                <i class="fas fa-file-alt"></i> Your Academic Transcript
+                <i class="fas fa-file-alt"></i>
+                Your Academic Transcript
             </h2>
         </div>
+
+        <!-- Right -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-layer-group"></i>
                 <span>
-                    <strong>Total Subjects:</strong>
-                    <span th:text="${totalSubjects}">0</span>
+                    <strong>Total Subjects: </strong>
+                    <span th:text="${totalSubjects}"></span>
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- ===== MAJOR SUBJECTS ===== -->
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Major Subjects</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Major Subjects
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -47,25 +58,28 @@
                     <th><i class="fas fa-book-open"></i> Name</th>
                     <th><i class="fas fa-calendar"></i> Semester</th>
                     <th><i class="fas fa-star"></i> Score</th>
-                    <th><i class="fas fa-clipboard-list"></i> C1</th>
-                    <th><i class="fas fa-clipboard-list"></i> C2</th>
-                    <th><i class="fas fa-clipboard-list"></i> C3</th>
+                    <th>C1</th>
+                    <th>C2</th>
+                    <th>C3</th>
                     <th><i class="fas fa-award"></i> Grade</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <!-- Đã học -->
                 <tr th:each="t : ${majorAcademicTranscripts}" class="grade-row">
-                    <td th:text="${t.getSubjectId()}"></td>
-                    <td th:text="${t.getSubjectName()}"></td>
-                    <td th:text="${t.getMajorClass().getSubject().getSemester()}"></td>
-                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3, 1, 2) : '-'}"></td>
-                    <td class="grade-cell" th:text="${t.grade} ?: 'Not Graded'"></td>
+                    <td th:text="${t.subjectId}"></td>
+                    <td th:text="${t.subjectName}"></td>
+                    <td th:text="${t.majorClass.subject.semester}"></td>
+
+                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3,1,2) : '-'}"></td>
+
+                    <td class="grade-cell" th:text="${t.grade != null ? t.grade : 'Not Graded'}"></td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(majorAcademicTranscripts) and #lists.isEmpty(majorSubjects)}">
+
+                <tr th:if="${#lists.isEmpty(majorAcademicTranscripts)}">
                     <td colspan="8" class="text-center">No major subjects assigned.</td>
                 </tr>
                 </tbody>
@@ -73,9 +87,12 @@
         </div>
     </section>
 
-    <!-- ===== MINOR SUBJECTS ===== -->
+
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Minor Subjects</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Minor Subjects
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -90,18 +107,22 @@
                     <th>Grade</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="t : ${minorAcademicTranscripts}" class="grade-row">
-                    <td th:text="${t.getSubjectId()}"></td>
-                    <td th:text="${t.getSubjectName()}"></td>
-                    <td th:text="${t.getMinorClass().getMinorSubject().getSemester()}"></td>
-                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3, 1, 2) : '-'}"></td>
-                    <td class="grade-cell" th:text="${t.grade} ?: 'Not Graded'"></td>
+                    <td th:text="${t.subjectId}"></td>
+                    <td th:text="${t.subjectName}"></td>
+                    <td th:text="${t.minorClass.minorSubject.semester}"></td>
+
+                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3,1,2) : '-'}"></td>
+
+                    <td class="grade-cell" th:text="${t.grade != null ? t.grade : 'Not Graded'}"></td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(minorAcademicTranscripts) and #lists.isEmpty(minorSubjects)}">
+
+                <tr th:if="${#lists.isEmpty(minorAcademicTranscripts)}">
                     <td colspan="8" class="text-center">No minor subjects assigned.</td>
                 </tr>
                 </tbody>
@@ -109,9 +130,11 @@
         </div>
     </section>
 
-    <!-- ===== SPECIALIZED SUBJECTS ===== -->
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Specialized Subjects</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Specialized Subjects
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -127,19 +150,23 @@
                     <th>Grade</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="t : ${specializedAcademicTranscripts}" class="grade-row">
-                    <td th:text="${t.getSubjectId()}"></td>
-                    <td th:text="${t.getSubjectName()}"></td>
-                    <td th:text="${t.getSpecializedClass().specializedSubject.getSemester()}"></td>
-                    <td th:text="${t.getSpecializedClass().specializedSubject.getSpecialization().getSpecializationName()}"></td>
-                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2, 1, 2) : '-'}"></td>
-                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3, 1, 2) : '-'}"></td>
-                    <td class="grade-cell" th:text="${t.grade} ?: 'Not Graded'"></td>
+                    <td th:text="${t.subjectId}"></td>
+                    <td th:text="${t.subjectName}"></td>
+                    <td th:text="${t.specializedClass.specializedSubject.semester}"></td>
+                    <td th:text="${t.specializedClass.specializedSubject.specialization.specializationName}"></td>
+
+                    <td th:text="${t.score != null ? #numbers.formatDecimal(t.score,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2,1,2) : '-'}"></td>
+                    <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3,1,2) : '-'}"></td>
+
+                    <td class="grade-cell" th:text="${t.grade != null ? t.grade : 'Not Graded'}"></td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(specializedAcademicTranscripts) and #lists.isEmpty(specializedSubjects)}">
+
+                <tr th:if="${#lists.isEmpty(specializedAcademicTranscripts)}">
                     <td colspan="9" class="text-center">No specialized subjects assigned.</td>
                 </tr>
                 </tbody>
@@ -148,5 +175,6 @@
     </section>
 
 </div>
+
 </body>
 </html>

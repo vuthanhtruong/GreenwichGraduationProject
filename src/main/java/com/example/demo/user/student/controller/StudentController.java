@@ -22,7 +22,7 @@ public class StudentController {
     public String getStaffHomeInfo(Model model) {
         model.addAttribute("major", studentsService.getStudentMajor().getMajorName());
         model.addAttribute("student", studentsService.getStudent());
-        model.addAttribute("accountBalancesService",accountBalancesService.findByStudentId(studentsService.getStudent().getId()));
+        model.addAttribute("accountBalance",accountBalancesService.findByStudentId(studentsService.getStudent().getId()));
         model.addAttribute("campus",studentsService.getStudent().getCampus().getCampusName());
         return "StudentHome";
     }

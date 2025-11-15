@@ -5,42 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/FinancialHistories.css}">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Toolbar -->
+    <!-- ===================== Toolbar ===================== -->
     <div class="search-toolbar unified-bar">
+
         <!-- Left -->
         <div class="toolbar-left">
             <a th:href="@{/student-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-        </div>
-
-        <!-- Center -->
-        <div class="toolbar-center">
             <h2 class="page-title">
                 <i class="fas fa-receipt"></i> Financial History
             </h2>
         </div>
 
+        <!-- Center: empty (giống giao diện gốc) -->
+        <div class="toolbar-center"></div>
+
         <!-- Right -->
         <div class="toolbar-right">
-            <a th:href="@{/student-home/deposit}" class="btn primary">
+            <a th:href="@{/student-home/deposit}" class="btn primary small">
                 <i class="fas fa-wallet"></i> Deposit
             </a>
+
             <div class="total">
                 <i class="fas fa-coins"></i>
                 <span><strong>Current Balance:</strong>
-                <span th:text="${accountBalances.balance} + ' USD'"></span>
-            </span>
+                    <span th:text="${accountBalances.balance} + ' USD'"></span>
+                </span>
             </div>
         </div>
+
     </div>
 
-    <!-- Table -->
+    <!-- ===================== Table ===================== -->
     <div class="table-container">
         <table class="win11-table">
             <thead>
@@ -51,14 +53,17 @@
                 <th><i class="fas fa-cogs"></i> Status / Action</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="h : ${histories}">
-                <td th:text="${#temporals.format(h.createdAt, 'dd MMM yyyy HH:mm')}"></td>
+                <td th:text="${#temporals.format(h.createdAt,'dd MMM yyyy HH:mm')}"></td>
+
                 <td th:text="${h.historyType}"></td>
 
-                <td th:text="${#numbers.formatDecimal(h.currentAmount, 1, 'COMMA', 2, 'POINT')} + ' USD'"></td>
+                <td th:text="${#numbers.formatDecimal(h.currentAmount,1,'COMMA',2,'POINT')} + ' USD'"></td>
 
                 <td>
+                    <!-- Status -->
                     <span th:if="${h.status.name() == 'PROCESSING'}">
                         <form th:action="@{/student-home/deposit/retry}" method="post" class="inline-form">
                             <input type="hidden" name="studentId" th:value="${student.id}" />
@@ -67,32 +72,41 @@
                             </button>
                         </form>
                     </span>
-                    <span th:unless="${h.status.name() == 'PROCESSING'}"
-                          th:text="${h.status}" class="status"></span>
+
+                    <span class="status"
+                          th:unless="${h.status.name() == 'PROCESSING'}"
+                          th:text="${h.status}">
+                    </span>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- ===================== Pagination ===================== -->
     <div class="pagination" th:if="${totalPages > 1}">
-        <a th:href="@{/student-home/financial-history(page=1, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
+        <a th:href="@{/student-home/financial-history(page=1,pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">First</a>
 
-        <a th:href="@{/student-home/financial-history(page=${currentPage - 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+        <a th:href="@{/student-home/financial-history(page=${currentPage - 1},pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">Prev</a>
 
-        <span th:each="i : ${#numbers.sequence(1, totalPages)}">
-            <a th:href="@{/student-home/financial-history(page=${i}, pageSize=${pageSize})}"
-               th:text="${i}" th:classappend="${i == currentPage} ? 'active'" class="page-btn number"></a>
+        <span th:each="i : ${#numbers.sequence(1,totalPages)}">
+            <a th:href="@{/student-home/financial-history(page=${i},pageSize=${pageSize})}"
+               th:text="${i}"
+               th:classappend="${i == currentPage} ? 'active'"
+               class="page-btn number"></a>
         </span>
 
-        <a th:href="@{/student-home/financial-history(page=${currentPage + 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
+        <a th:href="@{/student-home/financial-history(page=${currentPage + 1},pageSize=${pageSize})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Next</a>
 
-        <a th:href="@{/student-home/financial-history(page=${totalPages}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+        <a th:href="@{/student-home/financial-history(page=${totalPages},pageSize=${pageSize})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Last</a>
     </div>
 
 </div>

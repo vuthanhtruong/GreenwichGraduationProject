@@ -27,48 +27,6 @@
             </h2>
         </div>
     </div>
-
-
-    <!-- Lecturers Not Yet Assigned -->
-    <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-user-plus"></i> Lecturers Not Yet Assigned</h2>
-        <form id="addForm" method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/add}" th:if="${specialization != null}">
-            <input type="hidden" name="specializationId" th:value="${specialization.specializationId}" />
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-            <div class="table-container">
-                <table class="win11-table">
-                    <thead>
-                    <tr>
-                        <th><i class="fas fa-check-square"></i> Select</th>
-                        <th><i class="fas fa-user"></i> Name</th>
-                        <th><i class="fas fa-envelope"></i> Email</th>
-                        <th><i class="fas fa-id-card"></i> ID</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="lecturer : ${lecturersNotAssigned}" th:if="${lecturersNotAssigned != null}">
-                        <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}"></td>
-                        <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
-                        <td th:text="${lecturer.email}"></td>
-                        <td th:text="${lecturer.id}"></td>
-                    </tr>
-                    <tr th:if="${lecturersNotAssigned == null or lecturersNotAssigned.isEmpty()}">
-                        <td colspan="4" class="text-center">No lecturers available to assign.</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn primary"
-                        th:disabled="${lecturersNotAssigned == null or lecturersNotAssigned.isEmpty()}">
-                    <i class="fas fa-plus"></i> Add Selected Lecturers
-                </button>
-            </div>
-        </form>
-    </section>
-
     <!-- Lecturers Already Assigned -->
     <section class="win11-panel">
         <h2 class="panel-header"><i class="fas fa-user-check"></i> Assigned Lecturers</h2>
@@ -106,6 +64,46 @@
                 <button type="submit" class="btn danger"
                         th:disabled="${lecturersAssigned == null or lecturersAssigned.isEmpty()}">
                     <i class="fas fa-trash"></i> Remove Selected Lecturers
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Lecturers Not Yet Assigned -->
+    <section class="win11-panel">
+        <h2 class="panel-header"><i class="fas fa-user-plus"></i> Lecturers Not Yet Assigned</h2>
+        <form id="addForm" method="post" th:action="@{/staff-home/lecturer-specialization/assign-lecturer/add}" th:if="${specialization != null}">
+            <input type="hidden" name="specializationId" th:value="${specialization.specializationId}" />
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="table-container">
+                <table class="win11-table">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-check-square"></i> Select</th>
+                        <th><i class="fas fa-user"></i> Name</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-id-card"></i> ID</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="lecturer : ${lecturersNotAssigned}" th:if="${lecturersNotAssigned != null}">
+                        <td><input type="checkbox" name="lecturerIds" th:value="${lecturer.id}"></td>
+                        <td th:text="${lecturer.firstName + ' ' + lecturer.lastName}"></td>
+                        <td th:text="${lecturer.email}"></td>
+                        <td th:text="${lecturer.id}"></td>
+                    </tr>
+                    <tr th:if="${lecturersNotAssigned == null or lecturersNotAssigned.isEmpty()}">
+                        <td colspan="4" class="text-center">No lecturers available to assign.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn primary"
+                        th:disabled="${lecturersNotAssigned == null or lecturersNotAssigned.isEmpty()}">
+                    <i class="fas fa-plus"></i> Add Selected Lecturers
                 </button>
             </div>
         </form>

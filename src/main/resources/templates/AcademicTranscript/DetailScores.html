@@ -4,38 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Scores</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/DetailScores.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
+
 <div class="win11-container">
-    <!-- Title Bar -->
     <div class="search-toolbar unified-bar">
-        <!-- Left: Navigation -->
+
+        <!-- Left -->
         <div class="toolbar-left">
             <a th:href="@{/student-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
+
             <a th:href="@{/student-home/learning-process}" class="btn small">
-                <i class="fas fa-arrow-left"></i> Back to Learning Process
+                <i class="fas fa-arrow-left"></i> Back
             </a>
         </div>
 
-        <!-- Center: Page Title -->
+        <!-- Center -->
         <div class="toolbar-center">
             <h2 class="page-title">
-                <i class="fas fa-star"></i> Scores for Class:
-                <span style="color:#2563eb;" th:text="${className}"></span>
+                <i class="fas fa-star"></i>
+                Scores — <span style="color:#2563eb;" th:text="${className}"></span>
             </h2>
         </div>
+
+        <!-- Right -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-layer-group"></i>
+                <span>
+                    <strong>Total Rows:</strong>
+                    <span th:text="${#lists.size(transcripts)}"></span>
+                </span>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Transcripts Table -->
     <div class="table-container">
         <table class="win11-table">
+
             <thead>
             <tr>
-                <th><i class="fas fa-book"></i> Subject Name</th>
+                <th><i class="fas fa-book"></i> Subject</th>
                 <th><i class="fas fa-clipboard-list"></i> Process 1</th>
                 <th><i class="fas fa-clipboard-check"></i> Midterm</th>
                 <th><i class="fas fa-flask"></i> Practice</th>
@@ -46,48 +61,54 @@
                 <th><i class="fas fa-check-circle"></i> Status</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="transcript : ${transcripts}">
-                <!-- Subject Name (Polymorphic) -->
-                <td th:text="${transcript.getSubjectName()}"></td>
 
-                <!-- Score Component 1 -->
-                <td th:text="${transcript.scoreComponent1 != null} ? ${#numbers.formatDecimal(transcript.scoreComponent1, 1, 2)} : 'N/A'"></td>
+                <td th:text="${transcript.subjectName}"></td>
 
-                <!-- Score Component 2 -->
-                <td th:text="${transcript.scoreComponent2 != null} ? ${#numbers.formatDecimal(transcript.scoreComponent2, 1, 2)} : 'N/A'"></td>
+                <td th:text="${transcript.scoreComponent1 != null ?
+                                #numbers.formatDecimal(transcript.scoreComponent1,1,2) : 'N/A'}"></td>
 
-                <!-- Score Component 3 -->
-                <td th:text="${transcript.scoreComponent3 != null} ? ${#numbers.formatDecimal(transcript.scoreComponent3, 1, 2)} : 'N/A'"></td>
+                <td th:text="${transcript.scoreComponent2 != null ?
+                                #numbers.formatDecimal(transcript.scoreComponent2,1,2) : 'N/A'}"></td>
 
-                <!-- Final Score -->
-                <td th:text="${transcript.score != null} ? ${#numbers.formatDecimal(transcript.score, 1, 2)} : 'N/A'"></td>
+                <td th:text="${transcript.scoreComponent3 != null ?
+                                #numbers.formatDecimal(transcript.scoreComponent3,1,2) : 'N/A'}"></td>
 
-                <!-- Grade -->
-                <td th:text="${transcript.grade != null} ? ${transcript.grade} : 'N/A'"></td>
+                <td th:text="${transcript.score != null ?
+                                #numbers.formatDecimal(transcript.score,1,2) : 'N/A'}"></td>
 
-                <!-- Creator ID -->
-                <td th:text="${transcript.creator != null} ? ${transcript.creator.id} : 'N/A'"></td>
+                <td class="grade-cell"
+                    th:text="${transcript.grade != null ? transcript.grade : 'N/A'}"></td>
 
-                <!-- Created At -->
-                <td th:text="${#temporals.format(transcript.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${transcript.creator != null ? transcript.creator.id : 'N/A'}"></td>
 
-                <!-- Status: Pass / Fail -->
+                <td th:text="${#temporals.format(transcript.createdAt,'dd/MM/yyyy HH:mm')}"></td>
+
                 <td>
-                    <span th:if="${transcript.grade != null and transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
+                    <span th:if="${transcript.grade != null &&
+                                transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
                           class="badge pass">Pass</span>
-                    <span th:unless="${transcript.grade != null and transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
+
+                    <span th:unless="${transcript.grade != null &&
+                                transcript.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
                           class="badge fail">Fail</span>
+                </td>
+
+            </tr>
+
+            <tr th:if="${transcripts == null or #lists.isEmpty(transcripts)}">
+                <td colspan="9" class="text-center">
+                    No transcripts found for this class.
                 </td>
             </tr>
 
-            <!-- Empty State -->
-            <tr th:if="${transcripts == null or #lists.isEmpty(transcripts)}">
-                <td colspan="9" class="text-center">No transcripts found for this class.</td>
-            </tr>
             </tbody>
         </table>
     </div>
+
 </div>
+
 </body>
 </html>

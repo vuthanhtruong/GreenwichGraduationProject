@@ -65,12 +65,6 @@
                                 </div>
                             </div>
                             <p><strong>Subject ID:</strong> <span th:text="${transcript.getSubjectId()}">N/A</span></p>
-                            <p><strong>Re-study Fee:</strong>
-                                <span class="tuition"
-                                      th:text="${#numbers.formatCurrency(feeMap[transcript.getSubjectId()])}">
-                                    $0.00
-                                </span>
-                            </p>
                         </div>
                     </label>
                 </div>

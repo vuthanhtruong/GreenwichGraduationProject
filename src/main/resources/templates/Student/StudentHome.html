@@ -17,6 +17,10 @@
             <h2>
                 Welcome, <span th:text="${student.lastName} + ' ' + ${student.firstName}+ ' at '+${campus}"></span>
             </h2>
+            <h3 class="balance-line">
+                <i class="fas fa-wallet"></i> Current Balance:
+                <span th:text="${accountBalance.balance} + ' USD'"></span>
+            </h3>
         </div>
 
         <!-- ===== Navigation Bar ===== -->

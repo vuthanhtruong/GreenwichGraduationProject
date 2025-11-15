@@ -3,32 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scores - [[${className}]]</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/DetailScores.css}">
+    <title>Scores</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
+
 <div class="win11-container">
 
-    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
-            <a th:href="@{/staff-home}" class="btn home-btn">Home</a>
-            <a th:href="@{/staff-home/students-list}" class="btn small">Students List</a>
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <a th:href="@{/staff-home/students-list}" class="btn small">
+                <i class="fas fa-users"></i> Students List
+            </a>
+
             <form method="post" th:action="@{/staff-learning-process}" class="inline-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" th:name="studentId" th:value="${studentId}" />
-                <button type="submit" class="btn small">Back to Classes</button>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="studentId" th:value="${studentId}">
+                <button type="submit" class="btn small">
+                    <i class="fas fa-arrow-left"></i> Back to Classes
+                </button>
             </form>
         </div>
+
         <div class="toolbar-center">
             <h2 class="page-title">
-                Scores for Class: <span style="color:#2563eb;" th:text="${className}"></span>
+                <i class="fas fa-star"></i>
+                Scores — <span style="color:#2563eb;" th:text="${className}"></span>
             </h2>
         </div>
     </div>
 
-    <!-- Table -->
     <div class="table-container">
         <table class="win11-table">
             <thead>
@@ -44,23 +54,32 @@
                 <th>Status</th>
             </tr>
             </thead>
+
             <tbody>
             <tr th:each="t : ${transcripts}">
-                <td th:text="${t.getSubjectName()}"></td>
-                <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1, 1, 2) : 'N/A'}"></td>
-                <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2, 1, 2) : 'N/A'}"></td>
-                <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3, 1, 2) : 'N/A'}"></td>
-                <td th:text="${t.score != null ? #numbers.formatDecimal(t.score, 1, 2) : 'N/A'}"></td>
+                <td th:text="${t.subjectName}"></td>
+
+                <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1,1,2) : 'N/A'}"></td>
+                <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2,1,2) : 'N/A'}"></td>
+                <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3,1,2) : 'N/A'}"></td>
+
+                <td th:text="${t.score != null ? #numbers.formatDecimal(t.score,1,2) : 'N/A'}"></td>
+
                 <td th:text="${t.grade != null ? t.grade : 'N/A'}"></td>
-                <td th:text="${t.creator?.id ?: 'N/A'}"></td>
-                <td th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+
+                <td th:text="${t.creator != null ? t.creator.id : 'N/A'}"></td>
+
+                <td th:text="${#temporals.format(t.createdAt,'dd/MM/yyyy HH:mm')}"></td>
+
                 <td>
                     <span th:if="${t.grade != null and t.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
                           class="badge pass">Pass</span>
+
                     <span th:unless="${t.grade != null and t.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
                           class="badge fail">Fail</span>
                 </td>
             </tr>
+
             <tr th:if="${#lists.isEmpty(transcripts)}">
                 <td colspan="9" class="text-center">No scores found.</td>
             </tr>
@@ -69,5 +88,6 @@
     </div>
 
 </div>
+
 </body>
 </html>

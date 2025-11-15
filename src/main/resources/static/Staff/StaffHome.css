@@ -273,3 +273,13 @@ body {
     border-radius: 50%;
     font-weight: bold;
 }
+.balance-line {
+    margin-top: 5px;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.balance-line i {
+    color: #0a84ff;
+    margin-right: 5px;
+}

@@ -13,5 +13,5 @@ public interface StudentScholarshipDAO {
     List<String> validateScholarshipAward(String studentId, String scholarshipId, Integer admissionYear);
     ScholarshipByYear getScholarshipByYear(String scholarshipId, Integer admissionYear);
     Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship);
-
+    Map<String, Object> getScholarshipByStudentId(String studentId);
 }

@@ -22,6 +22,47 @@ import java.util.Map;
 @Repository
 @Transactional
 public class StudentScholarshipDAOImpl implements StudentScholarshipDAO {
+
+    @Override
+    public Map<String, Object> getScholarshipByStudentId(String studentId) {
+        if (studentId == null || studentId.trim().isEmpty()) {
+            return null;
+        }
+
+        Object[] row = entityManager.createQuery(
+                        "SELECT ss, sby " +
+                                "FROM Students_Scholarships ss " +
+                                "JOIN ScholarshipByYear sby " +
+                                "  ON sby.id.scholarshipId = ss.scholarship.scholarshipId " +
+                                " AND sby.id.admissionYear = ss.admissionYear " +
+                                "WHERE ss.student.id = :studentId " +
+                                "  AND ss.status = 'ACTIVATED'",
+                        Object[].class)
+                .setParameter("studentId", studentId)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        if (row == null) {
+            return null;
+        }
+
+        Students_Scholarships ss = (Students_Scholarships) row[0];
+        ScholarshipByYear sby = (ScholarshipByYear) row[1];
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("scholarshipId", ss.getScholarship().getScholarshipId());
+        details.put("scholarshipName", ss.getScholarship().getTypeName());
+        details.put("admissionYear", ss.getAdmissionYear());
+        details.put("awardDate", ss.getAwardDate());
+        details.put("discountPercentage", sby.getDiscountPercentage());
+        details.put("status", ss.getStatus().name());
+        details.put("createdAt", ss.getCreatedAt());
+
+        return details;
+    }
+
     @Override
     public Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship) {
         if (admissionYear == null || scholarship == null) {

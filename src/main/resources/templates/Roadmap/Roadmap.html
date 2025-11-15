@@ -4,29 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Study Roadmap</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/Roadmap.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Unified Toolbar -->
     <div class="search-toolbar unified-bar">
-        <!-- Left: Navigation -->
         <div class="toolbar-left">
             <a th:href="@{/student-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
         </div>
 
-        <!-- Center: Page Title -->
         <div class="toolbar-center">
             <h2 class="page-title">
                 <i class="fas fa-route"></i> Your Study Roadmap
             </h2>
         </div>
 
-        <!-- Right: Total Subjects -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-layer-group"></i>
@@ -37,34 +34,40 @@
     </div>
 
 
-    <!-- ===== Student Info ===== -->
-    <section class="win11-panel">
+    <div class="win11-panel">
         <h2 class="panel-header"><i class="fas fa-user"></i> Student Information</h2>
+
         <div class="info-grid">
             <div class="info-item">
-                <strong><i class="fas fa-user"></i> Name:</strong>
+                <strong>Name:</strong>
                 <span th:text="${student != null ? student.firstName + ' ' + student.lastName : 'N/A'}"></span>
             </div>
+
             <div class="info-item">
-                <strong><i class="fas fa-id-card"></i> Student ID:</strong>
+                <strong>Student ID:</strong>
                 <span th:text="${student != null ? student.id : 'N/A'}"></span>
             </div>
+
             <div class="info-item">
-                <strong><i class="fas fa-book"></i> Curriculum:</strong>
+                <strong>Curriculum:</strong>
                 <span th:text="${curriculum}"></span>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- ===== Error Message ===== -->
+
     <div th:if="${errorMessage}" class="win11-alert error">
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="fas fa-exclamation-circle"></i>
         <span th:text="${errorMessage}"></span>
     </div>
 
-    <!-- ===== Major Subjects ===== -->
+
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Major Subjects (<span th:text="${totalMajorSubjects}"></span>)</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Major Subjects
+            (<span th:text="${totalMajorSubjects}"></span>)
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -74,23 +77,29 @@
                     <th><i class="fas fa-calendar"></i> Semester</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr th:each="subject : ${majorSubjects}">
-                    <td th:text="${subject.subjectId}"></td>
-                    <td th:text="${subject.subjectName}"></td>
-                    <td th:text="${subject.semester}"></td>
+                <tr th:each="s : ${majorSubjects}">
+                    <td th:text="${s.subjectId}"></td>
+                    <td th:text="${s.subjectName}"></td>
+                    <td th:text="${s.semester}"></td>
                 </tr>
+
                 <tr th:if="${#lists.isEmpty(majorSubjects)}">
-                    <td colspan="4" class="text-center">No major subjects assigned.</td>
+                    <td colspan="3" class="text-center">No major subjects assigned.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <!-- ===== Minor Subjects ===== -->
+
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Minor Subjects (<span th:text="${totalMinorSubjects}"></span>)</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Minor Subjects
+            (<span th:text="${totalMinorSubjects}"></span>)
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -100,23 +109,29 @@
                     <th><i class="fas fa-calendar"></i> Semester</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr th:each="subject : ${minorSubjects}">
-                    <td th:text="${subject.subjectId}"></td>
-                    <td th:text="${subject.subjectName}"></td>
-                    <td th:text="${subject.semester}"></td>
+                <tr th:each="s : ${minorSubjects}">
+                    <td th:text="${s.subjectId}"></td>
+                    <td th:text="${s.subjectName}"></td>
+                    <td th:text="${s.semester}"></td>
                 </tr>
+
                 <tr th:if="${#lists.isEmpty(minorSubjects)}">
-                    <td colspan="4" class="text-center">No minor subjects assigned.</td>
+                    <td colspan="3" class="text-center">No minor subjects assigned.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <!-- ===== Specialized Subjects ===== -->
+
     <section class="subjects-section win11-panel">
-        <h2 class="panel-header"><i class="fas fa-book"></i> Specialized Subjects (<span th:text="${totalSpecializedSubjects}"></span>)</h2>
+        <h2 class="panel-header">
+            <i class="fas fa-book"></i> Specialized Subjects
+            (<span th:text="${totalSpecializedSubjects}"></span>)
+        </h2>
+
         <div class="table-container">
             <table class="win11-table">
                 <thead>
@@ -127,13 +142,15 @@
                     <th><i class="fas fa-info-circle"></i> Specialization</th>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr th:each="subject : ${specializedSubjects}">
-                    <td th:text="${subject.subjectId}"></td>
-                    <td th:text="${subject.subjectName}"></td>
-                    <td th:text="${subject.semester}"></td>
-                    <td th:text="${subject.getSpecialization()}"></td>
+                <tr th:each="s : ${specializedSubjects}">
+                    <td th:text="${s.subjectId}"></td>
+                    <td th:text="${s.subjectName}"></td>
+                    <td th:text="${s.semester}"></td>
+                    <td th:text="${s.specialization}"></td>
                 </tr>
+
                 <tr th:if="${#lists.isEmpty(specializedSubjects)}">
                     <td colspan="4" class="text-center">No specialized subjects assigned.</td>
                 </tr>

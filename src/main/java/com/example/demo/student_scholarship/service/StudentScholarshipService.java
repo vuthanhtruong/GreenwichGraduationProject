@@ -13,4 +13,5 @@ public interface StudentScholarshipService {
     List<String> validateScholarshipAward(String studentId, String scholarshipId, Integer admissionYear);
     ScholarshipByYear getScholarshipByYear(String id, Integer admissionYear);
     Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship);
+    Map<String, Object> getScholarshipByStudentId(String studentId);
 }
