@@ -1,6 +1,7 @@
 package com.example.demo.messages.controller;
 
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
+import com.example.demo.comment.service.MajorCommentsService;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.service.MajorLecturers_MajorClassesService;
 import com.example.demo.majorLecturers_Specializations.service.MajorLecturersSpecializationsService;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
@@ -27,17 +28,22 @@ public class NotificationMajorLecturerController {
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
     private final AcademicTranscriptsService academicTranscriptsService;
     private final MajorLecturersSpecializationsService majorLecturersSpecializationsService;
+    private final MajorCommentsService majorCommentsService; // THIẾU: BÌNH LUẬN
 
     public NotificationMajorLecturerController(
             MajorLecturers_MajorClassesService majorLecturersMajorClassesService,
             MajorClassPostsService majorClassPostsService,
             AssignmentSubmitSlotsService assignmentSubmitSlotsService,
-            AcademicTranscriptsService academicTranscriptsService, MajorLecturersSpecializationsService majorLecturersSpecializationsService) {
+            AcademicTranscriptsService academicTranscriptsService,
+            MajorLecturersSpecializationsService majorLecturersSpecializationsService,
+            MajorCommentsService majorCommentsService // THÊM VÀO CONSTRUCTOR
+    ) {
         this.majorLecturersMajorClassesService = majorLecturersMajorClassesService;
         this.majorClassPostsService = majorClassPostsService;
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
         this.academicTranscriptsService = academicTranscriptsService;
         this.majorLecturersSpecializationsService = majorLecturersSpecializationsService;
+        this.majorCommentsService = majorCommentsService;
     }
 
     @PostMapping
@@ -45,13 +51,16 @@ public class NotificationMajorLecturerController {
         List<String> notifications = Stream.of(
                         // 1. Được thêm vào lớp Major
                         majorLecturersMajorClassesService.getClassNotificationsForLecturer(lecturerId),
-                        // 2. Bài đăng trong lớp Major
+                        // 2. Bài đăng mới trong lớp Major (của chính mình hoặc người khác)
                         majorClassPostsService.getNotificationsForMemberId(lecturerId),
-                        // 3. Bài tập trong lớp Major
+                        // 3. Bài tập mới trong lớp Major
                         assignmentSubmitSlotsService.getNotificationsForMemberId(lecturerId),
                         // 4. Cập nhật điểm (Major)
                         academicTranscriptsService.getNotificationsForMemberId(lecturerId),
-                majorLecturersSpecializationsService.getSpecializationAssignmentNotifications(lecturerId)
+                        // 5. Được gán vào chuyên ngành
+                        majorLecturersSpecializationsService.getSpecializationAssignmentNotifications(lecturerId),
+                        // 6. Có người bình luận vào bài đăng của mình
+                        majorCommentsService.getCommentNotificationsForLecturer(lecturerId)
                 )
                 .flatMap(List::stream)
                 .filter(notif -> notif != null && notif.contains(" on "))

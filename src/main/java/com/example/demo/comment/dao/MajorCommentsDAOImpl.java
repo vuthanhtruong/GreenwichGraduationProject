@@ -17,6 +17,28 @@ import java.util.Map;
 @Transactional
 public class MajorCommentsDAOImpl implements MajorCommentsDAO {
 
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT(c.commenter.id, 
+                      ' commented on your post in ', 
+                      p.majorClass.nameClass, 
+                      ': "', 
+                      SUBSTRING(c.content, 1, 50), 
+                      CASE WHEN LENGTH(c.content) > 50 THEN '...' ELSE '' END, 
+                      '" on ', c.createdAt)
+        FROM MajorComments c
+        JOIN c.post p
+        WHERE p.creator.id = :lecturerId
+          AND c.notificationType = 'COMMENT_MADE_ON_MAJOR_POST'
+        ORDER BY c.createdAt DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

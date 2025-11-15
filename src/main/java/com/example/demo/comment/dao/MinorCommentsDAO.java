@@ -12,4 +12,5 @@ public interface MinorCommentsDAO {
     List<MinorComments> getCommentsByPostId(String postId);
     Map<String, String> validateComment(MinorComments comment);
     String generateUniqueCommentId(String postId, LocalDate createdDate);
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
 }

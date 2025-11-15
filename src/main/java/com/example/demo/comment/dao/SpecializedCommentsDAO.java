@@ -24,5 +24,6 @@ public interface SpecializedCommentsDAO {
     String generateUniqueCommentId(String postId, LocalDate createdDate);
 
     Map<String, String> validateComment(SpecializedComments comment);
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
 
 }

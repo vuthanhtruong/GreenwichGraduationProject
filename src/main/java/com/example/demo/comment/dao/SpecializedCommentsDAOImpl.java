@@ -17,6 +17,28 @@ import java.util.Map;
 @Transactional
 public class SpecializedCommentsDAOImpl implements SpecializedCommentsDAO {
 
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT(c.commenter.fullName, 
+                      ' commented on your post in ', 
+                      p.specializedClass.nameClass, 
+                      ': "', 
+                      SUBSTRING(c.content, 1, 50), 
+                      CASE WHEN LENGTH(c.content) > 50 THEN '...' ELSE '' END, 
+                      '" on ', c.createdAt)
+        FROM SpecializedComments c
+        JOIN c.post p
+        WHERE p.creator.id = :lecturerId
+          AND c.notificationType = 'COMMENT_MADE_ON_SPECIALIZED_POST'
+        ORDER BY c.createdAt DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

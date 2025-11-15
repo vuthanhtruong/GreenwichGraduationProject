@@ -24,4 +24,5 @@ public interface MajorCommentsService {
     String generateUniqueCommentId(String postId, LocalDate createdDate);
 
     Map<String, String> validateComment(MajorComments comment);
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
 }
