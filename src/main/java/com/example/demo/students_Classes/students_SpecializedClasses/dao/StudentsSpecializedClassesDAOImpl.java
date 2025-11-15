@@ -18,17 +18,19 @@ public class StudentsSpecializedClassesDAOImpl implements StudentsSpecializedCla
     @Override
     public List<String> getClassNotificationsForStudent(String studentId) {
         String jpql = """
-        SELECT CONCAT('You have been added to specialized class: ', c.nameClass, ' (', c.specializedSubject.subjectName, ')')
+        SELECT CONCAT('You have been added to specialized class: ', 
+                      c.nameClass, ' (', 
+                      COALESCE(c.specializedSubject.subjectName, 'N/A'), 
+                      ') on ', ssc.createdAt)
         FROM Students_SpecializedClasses ssc
         JOIN ssc.specializedClass c
         WHERE ssc.student.id = :studentId
           AND ssc.notificationType = 'NOTIFICATION_004'
-        ORDER BY ssc.createdAt DESC
         """;
 
         return entityManager.createQuery(jpql, String.class)
                 .setParameter("studentId", studentId)
-                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+                .getResultList();
     }
 
     @PersistenceContext

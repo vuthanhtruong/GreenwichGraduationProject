@@ -22,4 +22,5 @@ public interface StudentRequiredMinorSubjectsDAO {
 
     // Xóa phân môn
     boolean removeStudentRequiredMinorSubject(String studentId, String subjectId);
+    List<String> getRequiredSubjectNotificationsForStudent(String studentId);
 }

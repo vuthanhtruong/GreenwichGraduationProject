@@ -16,4 +16,5 @@ public interface MinorLecturers_MinorClassesService {
     List<MinorLecturers> listLecturersInClass(MinorClasses minorClass);
 
     List<MinorLecturers> listLecturersNotInClass(MinorClasses minorClass);
+    List<String> getClassNotificationsForLecturer(String lecturerId);
 }

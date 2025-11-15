@@ -17,6 +17,25 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorClassesDAO {
+
+    @Override
+    public List<String> getClassNotificationsForLecturer(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT('You have been added to major class: ', 
+                      c.nameClass, ' (', 
+                      COALESCE(c.subject.subjectName, 'N/A'), 
+                      ') on ', lmc.createdAt)
+        FROM MajorLecturers_MajorClasses lmc
+        JOIN lmc.majorClass c
+        WHERE lmc.lecturer.id = :lecturerId
+          AND lmc.notificationType = 'NOTIFICATION_002'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
     @Override
     public List<MajorLecturers_MajorClasses> getClassByLecturer(MajorLecturers lecturers) {
         return entityManager.createQuery("from MajorLecturers_MajorClasses m where m.lecturer=:lecturer",MajorLecturers_MajorClasses.class)

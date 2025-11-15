@@ -19,6 +19,11 @@ import java.util.List;
 @Service
 public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsService {
     @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        return academicTranscriptsDAO.getNotificationsForMemberId(memberId);
+    }
+
+    @Override
     public List<Students> getStudentsWithScoresByMajorClass(MajorClasses majorClass) {
         return academicTranscriptsDAO.getStudentsWithScoresByMajorClass(majorClass);
     }

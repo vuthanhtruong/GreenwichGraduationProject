@@ -16,6 +16,21 @@ import java.util.List;
 @Transactional
 public class StudentRequiredMinorSubjectsDAOImpl implements StudentRequiredMinorSubjectsDAO {
 
+    @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        String jpql = """
+        SELECT CONCAT('You are required to take minor subject: ', 
+                      s.minorSubject.subjectName, ' (', s.minorSubject.subjectId, ') on ', s.createdAt)
+        FROM StudentRequiredMinorSubjects s
+        WHERE s.student.id = :studentId
+          AND s.notificationType = 'NOTIFICATION_015'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -183,7 +183,7 @@ public class SpecializedClassesMemberArrangementController {
 
         String subjectId = clazz.getSpecializedSubject().getSubjectId();
         for (String sid : studentIds) {
-            if (studentsSpecializedClassesService.isStudentAlreadyRequiredForClass(sid, classId)) {
+            if (studentsSpecializedClassesService.existsByStudentAndClass(sid, classId)) {
                 studentsSpecializedClassesService.removeStudentFromClass(sid, classId);
             }
 
@@ -250,7 +250,7 @@ public class SpecializedClassesMemberArrangementController {
                 continue;
             }
 
-            if (studentsSpecializedClassesService.isStudentAlreadyRequiredForClass(sid, classId)) {
+            if (studentsSpecializedClassesService.existsByStudentAndClass(sid, classId)) {
                 errors.add(s.getFullName() + " already in class");
                 continue;
             }

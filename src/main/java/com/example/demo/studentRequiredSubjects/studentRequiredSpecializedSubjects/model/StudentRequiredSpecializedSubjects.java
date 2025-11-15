@@ -1,5 +1,6 @@
 package com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.model;
 
+import com.example.demo.entity.Enums.YourNotification;
 import com.example.demo.subject.specializedSubject.model.SpecializedSubject;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
@@ -26,9 +27,15 @@ public class StudentRequiredSpecializedSubjects extends StudentRequiredSubjects 
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Staffs assignedBy;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", length = 50, nullable = false)
+    private YourNotification notificationType;
+
     public StudentRequiredSpecializedSubjects() {
         super();
+        this.notificationType = YourNotification.NOTIFICATION_016;
     }
+
 
     public StudentRequiredSpecializedSubjects(Students student, SpecializedSubject specializedSubject, String requiredReason, Staffs assignedBy) {
         super(student, specializedSubject, requiredReason);

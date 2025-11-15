@@ -19,13 +19,9 @@ public interface AcademicTranscriptsService {
     List<MajorAcademicTranscripts> getTranscriptsByClass(MajorClasses majorClass);
     MajorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MajorClasses majorClass, Staffs creator);
     void saveOrUpdateTranscript(MajorAcademicTranscripts transcript);
-
-    // === SPECIALIZED ===
     List<SpecializedAcademicTranscripts> getTranscriptsByClass(SpecializedClasses specializedClass);
     SpecializedAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, SpecializedClasses specializedClass, Staffs creator);
     void saveOrUpdateTranscript(SpecializedAcademicTranscripts transcript);
-
-    // === MINOR ===
     List<MinorAcademicTranscripts> getTranscriptsByClass(MinorClasses minorClass);
     MinorAcademicTranscripts findOrCreateTranscript(String transcriptId, Students student, MinorClasses minorClass, DeputyStaffs creator);
     void saveOrUpdateTranscript(MinorAcademicTranscripts transcript);
@@ -39,4 +35,5 @@ public interface AcademicTranscriptsService {
     List<MinorAcademicTranscripts> getAcademicTranscriptsByMinorClass(Students student, MinorClasses classes);
     List<SpecializedAcademicTranscripts> getAcademicTranscriptsBySpecializedClass(Students student, SpecializedClasses classes);
     List<AcademicTranscripts> getFailSubjectsByStudent(Students student);
+    List<String> getNotificationsForMemberId(String memberId);
 }

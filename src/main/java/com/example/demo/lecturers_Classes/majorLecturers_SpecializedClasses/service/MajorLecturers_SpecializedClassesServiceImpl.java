@@ -12,6 +12,11 @@ import java.util.List;
 @Service
 public class MajorLecturers_SpecializedClassesServiceImpl implements MajorLecturers_SpecializedClassesService {
     @Override
+    public List<String> getClassNotificationsForLecturer(String lecturerId) {
+        return majorLecturersSpecializedClassesDAO.getClassNotificationsForLecturer(lecturerId);
+    }
+
+    @Override
     public List<MajorLecturers_SpecializedClasses> getClassByLecturer(MajorLecturers lecturers) {
         return majorLecturersSpecializedClassesDAO.getClassByLecturer(lecturers);
     }

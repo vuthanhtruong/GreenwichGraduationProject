@@ -33,4 +33,5 @@ public interface AcademicTranscriptsDAO {
     List<MinorAcademicTranscripts> getAcademicTranscriptsByMinorClass(Students student, MinorClasses classes);
     List<SpecializedAcademicTranscripts> getAcademicTranscriptsBySpecializedClass(Students student, SpecializedClasses classes);
     List<AcademicTranscripts> getFailSubjectsByStudent(Students student);
+    List<String> getNotificationsForMemberId(String memberId);
 }

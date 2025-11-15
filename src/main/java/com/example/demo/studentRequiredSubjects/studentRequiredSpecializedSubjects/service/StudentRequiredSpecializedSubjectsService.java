@@ -16,4 +16,5 @@ public interface StudentRequiredSpecializedSubjectsService {
     void addStudentRequiredSpecializedSubject(StudentRequiredSpecializedSubjects srs);
     boolean removeStudentRequiredSpecializedSubject(String studentId, String subjectId);
     boolean isStudentAlreadyRequiredForSpecializedSubject(String studentId, String subjectId);
+    List<String> getRequiredSubjectNotificationsForStudent(String studentId);
 }

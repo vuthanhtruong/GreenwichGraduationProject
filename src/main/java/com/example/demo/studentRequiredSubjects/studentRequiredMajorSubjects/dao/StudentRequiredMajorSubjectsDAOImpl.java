@@ -16,6 +16,22 @@ import java.util.List;
 @Repository
 @Transactional
 public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajorSubjectsDAO {
+
+    @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        String jpql = """
+        SELECT CONCAT('You are required to take major subject: ', 
+                      s.majorSubject.subjectName, ' (', s.majorSubject.subjectId, ') on ', s.createdAt)
+        FROM StudentRequiredMajorSubjects s
+        WHERE s.student.id = :studentId
+          AND s.notificationType = 'NOTIFICATION_014'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

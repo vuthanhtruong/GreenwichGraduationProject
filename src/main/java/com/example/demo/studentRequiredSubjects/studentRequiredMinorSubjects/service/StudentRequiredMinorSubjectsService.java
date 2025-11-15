@@ -17,4 +17,5 @@ public interface StudentRequiredMinorSubjectsService {
     void addStudentRequiredMinorSubject(StudentRequiredMinorSubjects srm);
 
     boolean removeStudentRequiredMinorSubject(String studentId, String subjectId);
+    List<String> getRequiredSubjectNotificationsForStudent(String studentId);
 }

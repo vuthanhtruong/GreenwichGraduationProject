@@ -11,6 +11,11 @@ import java.util.List;
 @Service
 public class StudentRequiredSpecializedSubjectsServiceImpl implements StudentRequiredSpecializedSubjectsService{
     @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        return studentRequiredSpecializedSubjectsDAO.getRequiredSubjectNotificationsForStudent(studentId);
+    }
+
+    @Override
     public List<Students> getStudentNotRequiredSpecializedSubjects(SpecializedSubject subject, Integer admissionYear) {
         return studentRequiredSpecializedSubjectsDAO.getStudentNotRequiredSpecializedSubjects(subject,admissionYear);
     }

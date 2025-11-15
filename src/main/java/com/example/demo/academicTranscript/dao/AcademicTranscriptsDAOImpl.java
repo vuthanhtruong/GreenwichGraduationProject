@@ -24,6 +24,140 @@ import java.util.List;
 @Transactional
 public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
 
+    @Override
+    public List<String> getNotificationsForMemberId(String memberId) {
+        List<String> allNotifications = new ArrayList<>();
+
+        // === MAJOR GRADES ===
+        String jpqlMajorStudent = """
+        SELECT CONCAT('Your major subject grade has been updated to ', 
+                      t.grade, 
+                      ' in ', 
+                      COALESCE(c.subject.subjectName, c.nameClass), 
+                      ' by ', 
+                      COALESCE(staff.firstName, 'Staff'), ' ', COALESCE(staff.lastName, ''), 
+                      ' on ', t.createdAt)
+        FROM MajorAcademicTranscripts t
+        JOIN t.student s
+        JOIN t.majorClass c
+        LEFT JOIN c.subject subj
+        LEFT JOIN t.creator staff
+        WHERE s.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        String jpqlMajorStaff = """
+        SELECT CONCAT('You updated grade for ', 
+                      stu.firstName, ' ', stu.lastName, 
+                      ' to ', t.grade, 
+                      ' in ', COALESCE(c.subject.subjectName, c.nameClass), 
+                      ' on ', t.createdAt)
+        FROM MajorAcademicTranscripts t
+        JOIN t.creator staff
+        JOIN t.student stu
+        JOIN t.majorClass c
+        LEFT JOIN c.subject subj
+        WHERE staff.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        // === MINOR GRADES ===
+        String jpqlMinorStudent = """
+        SELECT CONCAT('Your minor subject grade has been updated to ', 
+                      t.grade, 
+                      ' in ', 
+                      COALESCE(c.minorSubject.subjectName, c.nameClass), 
+                      ' by ', 
+                      COALESCE(staff.firstName, 'Deputy'), ' ', COALESCE(staff.lastName, ''), 
+                      ' on ', t.createdAt)
+        FROM MinorAcademicTranscripts t
+        JOIN t.student s
+        JOIN t.minorClass c
+        LEFT JOIN c.minorSubject subj
+        LEFT JOIN t.creator staff
+        WHERE s.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        String jpqlMinorStaff = """
+        SELECT CONCAT('You updated grade for ', 
+                      stu.firstName, ' ', stu.lastName, 
+                      ' to ', t.grade, 
+                      ' in ', COALESCE(c.minorSubject.subjectName, c.nameClass), 
+                      ' on ', t.createdAt)
+        FROM MinorAcademicTranscripts t
+        JOIN t.creator staff
+        JOIN t.student stu
+        JOIN t.minorClass c
+        LEFT JOIN c.minorSubject subj
+        WHERE staff.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        // === SPECIALIZED GRADES ===
+        String jpqlSpecStudent = """
+        SELECT CONCAT('Your specialized subject grade has been updated to ', 
+                      t.grade, 
+                      ' in ', 
+                      COALESCE(c.specializedSubject.subjectName, c.nameClass), 
+                      ' by ', 
+                      COALESCE(staff.firstName, 'Staff'), ' ', COALESCE(staff.lastName, ''), 
+                      ' on ', t.createdAt)
+        FROM SpecializedAcademicTranscripts t
+        JOIN t.student s
+        JOIN t.specializedClass c
+        LEFT JOIN c.specializedSubject subj
+        LEFT JOIN t.creator staff
+        WHERE s.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        String jpqlSpecStaff = """
+        SELECT CONCAT('You updated grade for ', 
+                      stu.firstName, ' ', stu.lastName, 
+                      ' to ', t.grade, 
+                      ' in ', COALESCE(c.specializedSubject.subjectName, c.nameClass), 
+                      ' on ', t.createdAt)
+        FROM SpecializedAcademicTranscripts t
+        JOIN t.creator staff
+        JOIN t.student stu
+        JOIN t.specializedClass c
+        LEFT JOIN c.specializedSubject subj
+        WHERE staff.id = :memberId
+          AND t.grade IS NOT NULL
+        """;
+
+        // === THỰC THI 6 TRUY VẤN ===
+        allNotifications.addAll(entityManager.createQuery(jpqlMajorStudent, String.class)
+                .setParameter("memberId", memberId).getResultList());
+        allNotifications.addAll(entityManager.createQuery(jpqlMajorStaff, String.class)
+                .setParameter("memberId", memberId).getResultList());
+        allNotifications.addAll(entityManager.createQuery(jpqlMinorStudent, String.class)
+                .setParameter("memberId", memberId).getResultList());
+        allNotifications.addAll(entityManager.createQuery(jpqlMinorStaff, String.class)
+                .setParameter("memberId", memberId).getResultList());
+        allNotifications.addAll(entityManager.createQuery(jpqlSpecStudent, String.class)
+                .setParameter("memberId", memberId).getResultList());
+        allNotifications.addAll(entityManager.createQuery(jpqlSpecStaff, String.class)
+                .setParameter("memberId", memberId).getResultList());
+
+        // === SẮP XẾP THEO createdAt MỚI NHẤT TRƯỚC ===
+        return allNotifications.stream()
+                .distinct()
+                .sorted((a, b) -> {
+                    try {
+                        String timeA = a.substring(a.lastIndexOf(" on ") + 4).trim();
+                        String timeB = b.substring(b.lastIndexOf(" on ") + 4).trim();
+                        LocalDateTime dtA = LocalDateTime.parse(timeA);
+                        LocalDateTime dtB = LocalDateTime.parse(timeB);
+                        return dtB.compareTo(dtA);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
+                .toList();
+    }
+
     private static final Logger log = LoggerFactory.getLogger(AcademicTranscriptsDAOImpl.class);
 
     @PersistenceContext

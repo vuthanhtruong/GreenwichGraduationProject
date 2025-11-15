@@ -18,17 +18,19 @@ public class StudentsMajorClassesDAOImpl implements StudentsMajorClassesDAO {
     @Override
     public List<String> getClassNotificationsForStudent(String studentId) {
         String jpql = """
-        SELECT CONCAT('You have been added to major class: ', c.nameClass, ' (', c.subject.subjectName, ')')
+        SELECT CONCAT('You have been added to major class: ', 
+                      c.nameClass, ' (', 
+                      COALESCE(c.subject.subjectName, 'N/A'), 
+                      ') on ', smc.createdAt)
         FROM Students_MajorClasses smc
         JOIN smc.majorClass c
         WHERE smc.student.id = :studentId
           AND smc.notificationType = 'NOTIFICATION_002'
-        ORDER BY smc.createdAt DESC
         """;
 
         return entityManager.createQuery(jpql, String.class)
                 .setParameter("studentId", studentId)
-                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+                .getResultList();
     }
 
     private final StaffsService staffsService;

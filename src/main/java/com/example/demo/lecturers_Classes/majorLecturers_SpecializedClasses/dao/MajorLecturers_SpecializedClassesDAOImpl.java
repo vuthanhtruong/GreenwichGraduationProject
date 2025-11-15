@@ -17,6 +17,26 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_SpecializedClassesDAO {
+
+    @Override
+    public List<String> getClassNotificationsForLecturer(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT('You have been added to specialized class: ', 
+                      c.nameClass, ' (', 
+                      COALESCE(c.specializedSubject.subjectName, 'N/A'), 
+                      ') on ', lmc.createdAt)
+        FROM MajorLecturers_SpecializedClasses lmc
+        JOIN lmc.specializedClass c
+        WHERE lmc.lecturer.id = :lecturerId
+          AND lmc.notificationType = 'NOTIFICATION_004'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
+
     @Override
     public List<MajorLecturers_SpecializedClasses> getClassByLecturer(MajorLecturers lecturers) {
         return entityManager.createQuery("from MajorLecturers_SpecializedClasses ms where ms.lecturer=:lecturers",MajorLecturers_SpecializedClasses.class).

@@ -10,6 +10,10 @@ import java.util.List;
 
 @Service
 public class StudentRequiredMinorSubjectsServiceImpl implements StudentRequiredMinorSubjectsService {
+    @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        return dao.getRequiredSubjectNotificationsForStudent(studentId);
+    }
 
     private final StudentRequiredMinorSubjectsDAO dao;
 

@@ -17,4 +17,5 @@ public interface StudentRequiredMajorSubjectsDAO {
     boolean isStudentAlreadyRequiredForSubject(String studentId, String subjectId);
     void addStudentRequiredMajorSubject(StudentRequiredMajorSubjects srm);
     boolean removeStudentRequiredMajorSubject(String studentId, String subjectId);
+    List<String> getRequiredSubjectNotificationsForStudent(String studentId);
 }

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Repository
 @Transactional
@@ -21,28 +22,57 @@ public class AssignmentSubmitSlotsDAOImpl implements AssignmentSubmitSlotsDAO {
 
     @Override
     public List<String> getNotificationsForMemberId(String memberId) {
-        String jpql = """
-        SELECT CONCAT('New assignment in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '... (Deadline: ', p.deadline, ')')
+        // Query 1: Student in Major Class
+        String jpqlStudent = """
+        SELECT CONCAT('New assignment in ', c.nameClass, 
+                      ' by ', p.creator.id, 
+                      ': ', SUBSTRING(p.content, 1, 50), 
+                      '... (Deadline: ', p.deadline, ') on ', p.createdAt)
         FROM AssignmentSubmitSlots p
         JOIN p.classEntity c
         JOIN Students_MajorClasses smc ON smc.majorClass.classId = c.classId
         JOIN smc.student s
         WHERE s.id = :memberId
           AND p.notificationType = 'MAJOR_ASSIGNMENT_SLOT_CREATED'
-        UNION ALL
-        SELECT CONCAT('New assignment in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '... (Deadline: ', p.deadline, ')')
+        """;
+
+        // Query 2: Lecturer in Major Class
+        String jpqlLecturer = """
+        SELECT CONCAT('New assignment in ', c.nameClass, 
+                      ' by ', p.creator.id, 
+                      ': ', SUBSTRING(p.content, 1, 50), 
+                      '... (Deadline: ', p.deadline, ') on ', p.createdAt)
         FROM AssignmentSubmitSlots p
         JOIN p.classEntity c
         JOIN MajorLecturers_MajorClasses lmc ON lmc.majorClass.classId = c.classId
         JOIN lmc.lecturer l
         WHERE l.id = :memberId
           AND p.notificationType = 'MAJOR_ASSIGNMENT_SLOT_CREATED'
-        ORDER BY 5 DESC
         """;
 
-        return entityManager.createQuery(jpql, String.class)
+        List<String> studentNotifs = entityManager.createQuery(jpqlStudent, String.class)
                 .setParameter("memberId", memberId)
-                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN
+                .getResultList();
+
+        List<String> lecturerNotifs = entityManager.createQuery(jpqlLecturer, String.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+
+        // === GỘP + SẮP XẾP THEO THỜI GIAN MỚI NHẤT ===
+        return Stream.concat(studentNotifs.stream(), lecturerNotifs.stream())
+                .distinct()
+                .sorted((a, b) -> {
+                    try {
+                        String timeA = a.substring(a.lastIndexOf(" on ") + 4).trim();
+                        String timeB = b.substring(b.lastIndexOf(" on ") + 4).trim();
+                        LocalDateTime dtA = LocalDateTime.parse(timeA);
+                        LocalDateTime dtB = LocalDateTime.parse(timeB);
+                        return dtB.compareTo(dtA); // mới nhất trước
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
+                .toList();
     }
 
     @Override

@@ -20,6 +20,24 @@ import java.util.List;
 @Transactional
 public class MinorLecturers_MinorClassesDAOImpl implements MinorLecturers_MinorClassesDAO {
 
+    @Override
+    public List<String> getClassNotificationsForLecturer(String lecturerId) {
+        String jpql = """
+        SELECT CONCAT('You have been added to minor class: ', 
+                      c.nameClass, ' (', 
+                      COALESCE(c.minorSubject.subjectName, 'N/A'), 
+                      ') on ', lmc.createdAt)
+        FROM MinorLecturers_MinorClasses lmc
+        JOIN lmc.minorClass c
+        WHERE lmc.lecturer.id = :lecturerId
+          AND lmc.notificationType = 'NOTIFICATION_003'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .getResultList();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -17,4 +17,6 @@ public interface MinorLecturers_MinorClassesDAO {
     List<MinorLecturers> listLecturersInClass(MinorClasses minorClass);
 
     List<MinorLecturers> listLecturersNotInClass(MinorClasses minorClass);
+
+    List<String> getClassNotificationsForLecturer(String lecturerId);
 }

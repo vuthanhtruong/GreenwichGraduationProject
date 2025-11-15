@@ -11,6 +11,11 @@ import java.util.List;
 @Service
 public class StudentRequiredMajorSubjectsServiceImpl implements StudentRequiredMajorSubjectsService {
     @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        return studentRequiredSubjectsDAO.getRequiredSubjectNotificationsForStudent(studentId);
+    }
+
+    @Override
     public List<Students> getStudentNotRequiredMajorSubjects(MajorSubjects subjects, Integer admissionYear) {
         return studentRequiredSubjectsDAO.getStudentNotRequiredMajorSubjects(subjects, admissionYear);
     }

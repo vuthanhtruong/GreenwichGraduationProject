@@ -12,4 +12,5 @@ public interface MajorLecturers_MajorClassesDAO {
     void addLecturersToClass(MajorClasses classes, List<String> lecturerIds);
     void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds);
     List<MajorLecturers_MajorClasses> getClassByLecturer(MajorLecturers lecturers);
+    List<String> getClassNotificationsForLecturer(String lecturerId);
 }

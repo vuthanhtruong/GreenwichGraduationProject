@@ -14,7 +14,12 @@ public enum YourNotification {
     NOTIFICATION_010("Your minor subject grade has been updated"),
     NOTIFICATION_011("Your major class attendance has been updated"),
     NOTIFICATION_012("Your minor class attendance has been updated"),
-    NOTIFICATION_013("Your specialization class attendance has been updated");
+    NOTIFICATION_013("Your specialization class attendance has been updated"),
+
+    // --- New required-subject notifications ---
+    NOTIFICATION_014("You have been assigned a required major subject"),
+    NOTIFICATION_015("You have been assigned a required minor subject"),
+    NOTIFICATION_016("You have been assigned a required specialized subject");
 
     private final String description;
 

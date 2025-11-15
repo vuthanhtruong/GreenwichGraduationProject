@@ -9,9 +9,11 @@ import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Repository
 @Transactional
@@ -19,28 +21,56 @@ public class MinorClassPostsDAOImpl implements MinorClassPostsDAO {
 
     @Override
     public List<String> getNotificationsForMemberId(String memberId) {
-        String jpql = """
-        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        // Query 1: Student in Minor Class
+        String jpqlStudent = """
+        SELECT CONCAT('New post in ', c.nameClass, 
+                      ' by ', p.creator.id, 
+                      ': ', SUBSTRING(p.content, 1, 50), 
+                      '... on ', p.createdAt)
         FROM MinorClassPosts p
         JOIN p.minorClass c
         JOIN Students_MinorClasses smc ON smc.minorClass.classId = c.classId
         JOIN smc.student s
         WHERE s.id = :memberId
           AND p.notificationType = 'MINOR_POST_CREATED'
-        UNION ALL
-        SELECT CONCAT('New post in ', c.nameClass, ' by ', p.creator.id, ': ', SUBSTRING(p.content, 1, 50), '...')
+        """;
+
+        // Query 2: Lecturer in Minor Class
+        String jpqlLecturer = """
+        SELECT CONCAT('New post in ', c.nameClass, 
+                      ' by ', p.creator.id, 
+                      ': ', SUBSTRING(p.content, 1, 50), 
+                      '... on ', p.createdAt)
         FROM MinorClassPosts p
         JOIN p.minorClass c
         JOIN MinorLecturers_MinorClasses lmc ON lmc.minorClass.classId = c.classId
         JOIN lmc.lecturer l
         WHERE l.id = :memberId
           AND p.notificationType = 'MINOR_POST_CREATED'
-        ORDER BY 5 DESC
         """;
 
-        return entityManager.createQuery(jpql, String.class)
+        List<String> studentNotifs = entityManager.createQuery(jpqlStudent, String.class)
                 .setParameter("memberId", memberId)
-                .getResultList();  // LẤY TẤT CẢ – KHÔNG GIỚI HẠN NGÀY, KHÔNG GIỚI HẠN SỐ LƯỢNG
+                .getResultList();
+
+        List<String> lecturerNotifs = entityManager.createQuery(jpqlLecturer, String.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+
+        return Stream.concat(studentNotifs.stream(), lecturerNotifs.stream())
+                .distinct()
+                .sorted((a, b) -> {
+                    try {
+                        String timeA = a.substring(a.lastIndexOf(" on ") + 4).trim();
+                        String timeB = b.substring(b.lastIndexOf(" on ") + 4).trim();
+                        LocalDateTime dtA = LocalDateTime.parse(timeA);
+                        LocalDateTime dtB = LocalDateTime.parse(timeB);
+                        return dtB.compareTo(dtA);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
+                .toList();
     }
 
     @PersistenceContext

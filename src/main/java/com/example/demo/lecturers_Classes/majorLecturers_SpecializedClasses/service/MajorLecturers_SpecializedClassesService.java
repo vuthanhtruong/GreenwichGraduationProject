@@ -12,4 +12,5 @@ public interface MajorLecturers_SpecializedClassesService {
     void addLecturersToClass(SpecializedClasses classes, List<String> lecturerIds);
     void removeLecturerFromClass(SpecializedClasses classes, List<String> lecturerIds);
     List<MajorLecturers_SpecializedClasses>  getClassByLecturer(MajorLecturers lecturers);
+    List<String> getClassNotificationsForLecturer(String lecturerId);
 }

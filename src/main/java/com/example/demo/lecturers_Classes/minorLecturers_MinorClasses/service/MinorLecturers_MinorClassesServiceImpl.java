@@ -10,6 +10,10 @@ import java.util.List;
 
 @Service
 public class MinorLecturers_MinorClassesServiceImpl implements MinorLecturers_MinorClassesService {
+    @Override
+    public List<String> getClassNotificationsForLecturer(String lecturerId) {
+        return dao.getClassNotificationsForLecturer(lecturerId);
+    }
 
     private final MinorLecturers_MinorClassesDAO dao;
 

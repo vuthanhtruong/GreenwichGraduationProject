@@ -15,6 +15,22 @@ import java.util.List;
 @Repository
 @Transactional
 public class StudentRequiredSpecializedSubjectsDAOImpl implements StudentRequiredSpecializedSubjectsDAO {
+
+    @Override
+    public List<String> getRequiredSubjectNotificationsForStudent(String studentId) {
+        String jpql = """
+        SELECT CONCAT('You are required to take specialized subject: ', 
+                      s.specializedSubject.subjectName, ' (', s.specializedSubject.subjectId, ') on ', s.createdAt)
+        FROM StudentRequiredSpecializedSubjects s
+        WHERE s.student.id = :studentId
+          AND s.notificationType = 'NOTIFICATION_016'
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("studentId", studentId)
+                .getResultList();
+    }
+
     @Override
     public boolean isStudentAlreadyRequiredForSpecializedSubject(String studentId, String subjectId) {
         if (studentId == null || subjectId == null) {
