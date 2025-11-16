@@ -60,4 +60,6 @@ public interface RoomsService {
     Map<String, String> validateOfflineRoom(OfflineRooms room, String address, MultipartFile avatarFile);
 
     Map<String, String> validateOnlineRoom(OnlineRooms room, String link, MultipartFile avatarFile);
+
+    List<Rooms> getRoomByCampusId(String campusId);
 }

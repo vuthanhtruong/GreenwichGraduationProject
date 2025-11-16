@@ -1,7 +1,7 @@
 // File: SupportTicketRequestsDocumentDAOImpl.java
-package com.example.demo.supportTickets.dao;
+package com.example.demo.document.dao;
 
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

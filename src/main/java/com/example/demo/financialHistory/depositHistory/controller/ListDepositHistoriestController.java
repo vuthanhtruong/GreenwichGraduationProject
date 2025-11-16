@@ -17,10 +17,4 @@ public class ListDepositHistoriestController {
         this.depositHistoriesService = depositHistoriesService;
         this.studentsService = studentsService;
     }
-
-    @GetMapping("")
-    public String listDepositHistories(Model model) {
-        model.addAttribute("DepositHistories", depositHistoriesService.getStudentDepositHistories(studentsService.getStudent()));
-        return "ListDepositHistories";
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.room.dao;
 
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.room.model.OfflineRooms;
 import com.example.demo.room.model.OnlineRooms;
 import com.example.demo.room.model.Rooms;
@@ -60,4 +61,6 @@ public interface RoomsDAO {
     Map<String, String> validateOfflineRoom(OfflineRooms room, String address, MultipartFile avatarFile);
 
     Map<String, String> validateOnlineRoom(OnlineRooms room, String link, MultipartFile avatarFile);
+
+    List<Rooms> getRoomByCampusId(String campusId);
 }

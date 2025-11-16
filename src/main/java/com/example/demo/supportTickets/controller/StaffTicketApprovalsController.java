@@ -3,8 +3,8 @@ package com.example.demo.supportTickets.controller;
 
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.supportTickets.model.SupportTicketRequests;
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
-import com.example.demo.supportTickets.service.SupportTicketRequestsDocumentService;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
+import com.example.demo.document.service.SupportTicketRequestsDocumentService;
 import com.example.demo.supportTickets.service.SupportTicketRequestsService;
 import com.example.demo.supportTickets.service.SupportTicketsService;
 import com.example.demo.user.staff.service.StaffsService;
@@ -160,7 +160,6 @@ public class StaffTicketApprovalsController {
                 history.setCreatedAt(LocalDateTime.now());
                 history.setStatus(Status.COMPLETED);
                 history.setSupportTicket(ticket);
-                history.setTicketTime(LocalDateTime.now());
                 history.setDescription(
                         "Refund for cancelled support request: " + ticket.getTicketName() +
                                 " | Amount: " + String.format("%,.0f", cost) + " VNĐ" +

@@ -446,7 +446,7 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
     private List<Rooms> getAvailableRoomsInCampus(String slotId, DaysOfWeek day, Integer weekOfYear, Integer year, String campusId) {
         String jpql = """
                 SELECT r FROM Rooms r
-                WHERE r.campus.campusId = :campusId
+                WHERE r.campus.campusId = :campusId And r.campus.campusId=:campusId
                   AND r.roomId NOT IN (
                     SELECT t.room.roomId FROM SpecializedTimetable t
                     JOIN t.specializedClass c

@@ -59,7 +59,6 @@ public class FinancialHistoryController {
                 model.addAttribute("continueDepositUrl", pendingUrl);
             }
         }
-
         return "FinancialHistories";
     }
 }

@@ -2,11 +2,11 @@
 package com.example.demo.supportTickets.controller;
 
 import com.example.demo.entity.Enums.Status;
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
+import com.example.demo.document.model.SupportTicketDocuments;
 import com.example.demo.supportTickets.model.SupportTicketRequests;
 import com.example.demo.supportTickets.model.SupportTickets;
-import com.example.demo.supportTickets.service.SupportTicketDocumentsService;
-import com.example.demo.supportTickets.service.SupportTicketRequestsDocumentService;
+import com.example.demo.document.service.SupportTicketDocumentsService;
+import com.example.demo.document.service.SupportTicketRequestsDocumentService;
 import com.example.demo.supportTickets.service.SupportTicketRequestsService;
 import com.example.demo.supportTickets.service.SupportTicketsService;
 import com.example.demo.user.student.service.StudentsService;

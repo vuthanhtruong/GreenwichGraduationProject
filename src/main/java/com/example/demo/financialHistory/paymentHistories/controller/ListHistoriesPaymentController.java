@@ -18,10 +18,4 @@ public class ListHistoriesPaymentController {
         PaymentHistories = paymentHistories;
         Students = students;
     }
-
-    @GetMapping("")
-    public String listPaymentHistories(Model model) {
-        model.addAttribute("PaymentHistories",PaymentHistories.getStudentHistoriesPaymentDAO(Students.getStudent()));
-        return "PaymentHistories";
-    }
 }

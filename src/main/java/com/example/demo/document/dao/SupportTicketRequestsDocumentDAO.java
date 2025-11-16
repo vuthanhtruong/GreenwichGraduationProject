@@ -1,7 +1,7 @@
 // File: SupportTicketRequestsDocumentDAO.java
-package com.example.demo.supportTickets.dao;
+package com.example.demo.document.dao;
 
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import java.util.List;
 
 public interface SupportTicketRequestsDocumentDAO {

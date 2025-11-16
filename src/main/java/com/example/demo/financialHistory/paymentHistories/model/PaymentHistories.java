@@ -26,15 +26,11 @@ public class PaymentHistories extends FinancialHistories {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Subjects subject;
 
-    @Column(name = "PaymentTime", nullable = false)
-    private LocalDateTime paymentTime;
-
     public PaymentHistories() {}
 
     public PaymentHistories(String historyId, Students student, Subjects subject, AccountBalances accountBalance,
-                            LocalDateTime paymentTime, BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
+                             BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
         super(historyId, student, accountBalance, currentAmount,createdAt, status);
         this.subject = subject;
-        this.paymentTime = paymentTime;
     }
 }

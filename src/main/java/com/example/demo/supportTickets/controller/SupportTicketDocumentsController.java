@@ -1,8 +1,8 @@
 // SupportTicketDocumentsController.java
 package com.example.demo.supportTickets.controller;
 
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
-import com.example.demo.supportTickets.service.SupportTicketDocumentsService;
+import com.example.demo.document.model.SupportTicketDocuments;
+import com.example.demo.document.service.SupportTicketDocumentsService;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

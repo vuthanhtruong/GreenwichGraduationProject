@@ -2,9 +2,9 @@
 package com.example.demo.supportTickets.controller;
 
 import com.example.demo.supportTickets.model.SupportTicketRequests;
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import com.example.demo.supportTickets.service.SupportTicketRequestsService;
-import com.example.demo.supportTickets.service.SupportTicketRequestsDocumentService;
+import com.example.demo.document.service.SupportTicketRequestsDocumentService;
 import com.example.demo.user.student.service.StudentsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

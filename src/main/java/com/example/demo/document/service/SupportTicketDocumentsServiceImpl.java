@@ -1,7 +1,7 @@
-package com.example.demo.supportTickets.service;
+package com.example.demo.document.service;
 
-import com.example.demo.supportTickets.dao.SupportTicketDocumentsDAO;
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
+import com.example.demo.document.dao.SupportTicketDocumentsDAO;
+import com.example.demo.document.model.SupportTicketDocuments;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

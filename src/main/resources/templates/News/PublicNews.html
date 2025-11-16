@@ -23,24 +23,6 @@
         </div>
     </header>
 
-    <!-- ==== Search Section ==== -->
-    <section class="win11-panel search-section">
-        <form method="get" th:action="@{/check-news}" class="search-form">
-            <div class="input-group">
-                <input type="text" name="keyword" th:value="${keyword}"
-                       placeholder="Search news..." class="input" />
-                <div class="search-buttons">
-                    <button type="submit" class="btn primary">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                    <a th:if="${keyword}" th:href="@{/check-news}" class="btn danger">
-                        <i class="fas fa-times"></i> Clear
-                    </a>
-                </div>
-            </div>
-        </form>
-    </section>
-
     <!-- ==== News Section ==== -->
     <section class="win11-panel">
         <h2 class="panel-header">

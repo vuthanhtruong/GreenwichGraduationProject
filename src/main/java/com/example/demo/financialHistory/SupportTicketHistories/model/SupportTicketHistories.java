@@ -26,19 +26,15 @@ public class SupportTicketHistories extends FinancialHistories {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private SupportTickets supportTicket;
 
-    @Column(name = "TicketTime", nullable = false)
-    private LocalDateTime ticketTime;
-
     @Column(name = "Description", nullable = true, length = 1000)
     private String description;
 
     public SupportTicketHistories() {}
 
     public SupportTicketHistories(String historyId, Students student, SupportTickets supportTicket, AccountBalances accountBalance,
-                                  LocalDateTime ticketTime, BigDecimal currentAmount, LocalDateTime createdAt, Status status, String description) {
+                                  BigDecimal currentAmount, LocalDateTime createdAt, Status status, String description) {
         super(historyId, student, accountBalance, currentAmount,createdAt, status);
         this.supportTicket = supportTicket;
-        this.ticketTime = ticketTime;
         this.description = description;
     }
 }

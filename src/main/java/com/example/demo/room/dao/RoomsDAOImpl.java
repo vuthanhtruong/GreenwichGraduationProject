@@ -23,8 +23,11 @@ import java.util.Map;
 
 @Repository
 @Transactional
-@PreAuthorize("hasRole('ADMIN')")
 public class RoomsDAOImpl implements RoomsDAO {
+    @Override
+    public List<Rooms> getRoomByCampusId(String campusId) {
+        return entityManager.createQuery("from Rooms r where r.campus.campusId=:campusId", Rooms.class).setParameter("campusId", campusId).getResultList();
+    }
 
     private final AdminsService adminsService;
 

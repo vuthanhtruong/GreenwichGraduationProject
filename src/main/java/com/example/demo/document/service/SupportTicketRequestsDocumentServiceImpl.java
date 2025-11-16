@@ -1,10 +1,10 @@
 // File: SupportTicketRequestsDocumentServiceImpl.java
-package com.example.demo.supportTickets.service;
+package com.example.demo.document.service;
 
 import com.example.demo.supportTickets.dao.SupportTicketRequestsDAO;
-import com.example.demo.supportTickets.dao.SupportTicketRequestsDocumentDAO;
+import com.example.demo.document.dao.SupportTicketRequestsDocumentDAO;
 import com.example.demo.supportTickets.model.SupportTicketRequests;
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

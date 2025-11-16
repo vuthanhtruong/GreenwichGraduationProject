@@ -2,6 +2,7 @@
 package com.example.demo.supportTickets.service;
 
 import com.example.demo.accountBalance.service.AccountBalancesService;
+import com.example.demo.document.service.SupportTicketRequestsDocumentService;
 import com.example.demo.financialHistory.SupportTicketHistories.model.SupportTicketHistories;
 import com.example.demo.financialHistory.SupportTicketHistories.service.SupportTicketHistoriesService;
 import com.example.demo.supportTickets.dao.SupportTicketRequestsDAO;
@@ -102,7 +103,6 @@ public class SupportTicketRequestsServiceImpl implements SupportTicketRequestsSe
         history.setCreatedAt(LocalDateTime.now());
         history.setStatus(Status.COMPLETED);
         history.setSupportTicket(ticket);
-        history.setTicketTime(LocalDateTime.now());
         history.setDescription(
                 "Support Request: " + ticket.getTicketName() +
                         " | Cost: " + String.format("%,.0f", cost) + " VNĐ" +

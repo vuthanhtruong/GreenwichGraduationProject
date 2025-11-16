@@ -1,8 +1,8 @@
 package com.example.demo.supportTickets.controller;
 
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
+import com.example.demo.document.model.SupportTicketDocuments;
 import com.example.demo.supportTickets.model.SupportTickets;
-import com.example.demo.supportTickets.service.SupportTicketDocumentsService;
+import com.example.demo.document.service.SupportTicketDocumentsService;
 import com.example.demo.supportTickets.service.SupportTicketsService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

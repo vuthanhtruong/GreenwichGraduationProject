@@ -70,7 +70,14 @@ public abstract class FinancialHistories {
     }
 
 
-    public FinancialHistories() {}
+    public FinancialHistories() {
+        if (this.accountBalance != null) {
+            this.currentAmount = BigDecimal.valueOf(accountBalance.getBalance());
+        } else {
+            this.currentAmount = BigDecimal.ZERO;
+        }
+    }
+
 
     public FinancialHistories(String historyId, Students student, AccountBalances accountBalance, BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
         this.historyId = historyId;

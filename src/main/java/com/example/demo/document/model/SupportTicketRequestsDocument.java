@@ -1,6 +1,7 @@
 // File: SupportTicketRequestsDocument.java
-package com.example.demo.supportTickets.model;
+package com.example.demo.document.model;
 
+import com.example.demo.supportTickets.model.SupportTicketRequests;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

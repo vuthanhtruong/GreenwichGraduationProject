@@ -73,7 +73,6 @@ public class DepositController {
         deposit.setStudent(student);
         deposit.setAccountBalance(account);
         deposit.setAmount(amount);
-        deposit.setDepositTime(LocalDateTime.now());
         deposit.setCreatedAt(LocalDateTime.now());
         deposit.setStatus(Status.PROCESSING);
         deposit.setDescription("Stripe new deposit initiated for student " + studentId);
@@ -156,12 +155,7 @@ public class DepositController {
     public String depositSuccess(@RequestParam("session_id") String sessionId, Model model) throws StripeException {
 
         Session session = Session.retrieve(sessionId);
-        String studentId = session.getMetadata().get("studentId"); // ✅ lấy lại ID an toàn
-
-        if (studentId == null) {
-            model.addAttribute("message", "Invalid session data");
-            return "DepositError";
-        }
+        String studentId = session.getMetadata().get("studentId");
 
         if ("complete".equalsIgnoreCase(session.getStatus())) {
             Students student = studentService.findById(studentId);
@@ -180,7 +174,6 @@ public class DepositController {
             if (deposit != null) {
                 deposit.setStatus(Status.COMPLETED);
                 deposit.setDescription("Stripe deposit completed for student " + studentId);
-                deposit.setDepositTime(LocalDateTime.now());
                 depositHistoryService.save(deposit);
             }
 

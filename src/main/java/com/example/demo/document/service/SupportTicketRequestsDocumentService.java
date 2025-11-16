@@ -1,6 +1,6 @@
-package com.example.demo.supportTickets.service;
+package com.example.demo.document.service;
 
-import com.example.demo.supportTickets.model.SupportTicketRequestsDocument;
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;

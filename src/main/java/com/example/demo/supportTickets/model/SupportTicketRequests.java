@@ -1,6 +1,7 @@
 // File: SupportTicketRequests.java
 package com.example.demo.supportTickets.model;
 
+import com.example.demo.document.model.SupportTicketRequestsDocument;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.staff.model.Staffs;

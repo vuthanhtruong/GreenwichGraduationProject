@@ -1,11 +1,10 @@
-package com.example.demo.supportTickets.dao;
+package com.example.demo.document.service;
 
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
-
+import com.example.demo.document.model.SupportTicketDocuments;
 import java.util.List;
 import java.util.Map;
 
-public interface SupportTicketDocumentsDAO {
+public interface SupportTicketDocumentsService {
     List<SupportTicketDocuments> getDocumentsByTicketId(String ticketId);
     SupportTicketDocuments getDocumentById(Long id);
     SupportTicketDocuments saveDocument(SupportTicketDocuments doc);

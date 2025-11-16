@@ -13,6 +13,10 @@ import java.util.Map;
 
 @Service
 public class RoomsServiceImpl implements RoomsService {
+    @Override
+    public List<Rooms> getRoomByCampusId(String campusId) {
+        return roomsDAO.getRoomByCampusId(campusId);
+    }
 
     private final RoomsDAO roomsDAO;
 

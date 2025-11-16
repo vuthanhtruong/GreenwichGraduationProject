@@ -56,12 +56,6 @@ public class DepositHistoriesDAOImpl implements DepositHistoriesDAO {
     public void createDepositHistory(DepositHistories depositHistory) {
         depositHistory.setHistoryId(generateHistoryId());
         depositHistory.setCreatedAt(LocalDateTime.now());
-
-        // ĐẢM BẢO currentAmount KHÔNG NULL
-        if (depositHistory.getCurrentAmount() == null) {
-            depositHistory.setCurrentAmount(BigDecimal.ZERO);
-        }
-
         entityManager.persist(depositHistory);
     }
     private String generateHistoryId() {

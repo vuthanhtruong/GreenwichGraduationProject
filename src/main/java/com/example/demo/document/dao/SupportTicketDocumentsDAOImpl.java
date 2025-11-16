@@ -1,6 +1,6 @@
-package com.example.demo.supportTickets.dao;
+package com.example.demo.document.dao;
 
-import com.example.demo.supportTickets.model.SupportTicketDocuments;
+import com.example.demo.document.model.SupportTicketDocuments;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;

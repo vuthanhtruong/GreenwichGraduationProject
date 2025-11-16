@@ -1,5 +1,6 @@
 package com.example.demo.supportTickets.model;
 
+import com.example.demo.document.model.SupportTicketDocuments;
 import com.example.demo.user.admin.model.Admins;
 import jakarta.persistence.*;
 import lombok.Getter;
