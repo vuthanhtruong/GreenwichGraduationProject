@@ -44,10 +44,6 @@ public class MajorSubmissionsController {
         try {
             submissionsService.submitAssignment(student, postId, files);
             ra.addFlashAttribute("message", "Assignment submitted successfully!");
-
-            // LƯU VÀO SESSION
-            session.setAttribute("currentClassId", classId);
-            session.setAttribute("currentPostId", postId);
         } catch (Exception e) {
             ra.addFlashAttribute("errors", List.of(e.getMessage()));
         }
@@ -58,8 +54,7 @@ public class MajorSubmissionsController {
     @PostMapping("/delete-submission")
     public String deleteSubmission(
             @RequestParam String studentId,
-            @RequestParam String slotId,
-            HttpSession session) {
+            @RequestParam String slotId) {
 
         submissionsService.deleteByStudentAndSlot(studentId, slotId);
         return "redirect:/classroom/assignment-detail"; // SẠCH

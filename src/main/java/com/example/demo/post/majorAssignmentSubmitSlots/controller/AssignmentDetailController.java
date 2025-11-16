@@ -43,11 +43,9 @@ public class AssignmentDetailController {
 
     @GetMapping("/assignment-detail")
     public String getAssignmentDetail(
-            @RequestParam("postId") String postId,
-            @RequestParam("classId") String classId,
             HttpSession session,
             Model model) {
-        return handleAssignmentDetail(postId, classId, session, model);
+        return handleAssignmentDetail(session.getAttribute("postId").toString(), session.getAttribute("classId").toString(), session, model);
     }
 
     @PostMapping("/assignment-detail")
@@ -61,7 +59,7 @@ public class AssignmentDetailController {
 
     private String handleAssignmentDetail(String postId, String classId, HttpSession session, Model model) {
         session.setAttribute("classId", classId);
-
+        session.setAttribute("postId", postId);
         AssignmentSubmitSlots assignment = assignmentSubmitSlotsService.findByPostId(postId);
         if (assignment == null) {
             model.addAttribute("errors", List.of("Assignment not found"));

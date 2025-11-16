@@ -56,12 +56,12 @@ public class SpecializedAssignmentDetailController {
             @RequestParam("classId") String classId,
             HttpSession session,
             Model model) {
-        return handleDetail(postId, classId, session, model);
+        return handleDetail(session.getAttribute("postId").toString(), session.getAttribute("classId").toString(), session, model);
     }
 
     private String handleDetail(String postId, String classId, HttpSession session, Model model) {
         session.setAttribute("classId", classId);
-
+        session.setAttribute("postId", postId);
         SpecializedAssignmentSubmitSlots assignment = slotService.findByPostId(postId);
         if (assignment == null) {
             model.addAttribute("errors", List.of("Assignment not found"));

@@ -162,19 +162,23 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
             throw new IllegalStateException("You have already submitted this assignment");
         }
 
-        // 4. Tạo submission
+        // === TẠO VÀ LƯU SUBMISSION TRƯỚC ===
         Submissions submission = new Submissions();
         submission.setId(new SubmissionsId(student.getId(), postId));
         submission.setSubmittedBy(student);
         submission.setAssignmentSubmitSlot(slot);
         submission.setCreatedAt(LocalDateTime.now());
 
-        // 5. Xử lý từng file
+        // LƯU SUBMISSION TRƯỚC → CÓ ID TRONG DB
+        em.persist(submission); // hoặc save(submission)
+        em.flush(); // Đảm bảo ID được sinh ra ngay lập tức
+
+        // === BÂY GIỜ MỚI LƯU TÀI LIỆU ===
         for (MultipartFile file : files) {
             if (file.isEmpty()) continue;
 
             SubmissionDocuments doc = new SubmissionDocuments();
-            doc.setSubmission(submission);
+            doc.setSubmission(submission); // BÂY GIỜ submission đã có ID
             doc.setCreator(student);
             doc.setFilePath(file.getOriginalFilename());
 
@@ -184,24 +188,17 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
                 throw new RuntimeException("Failed to read file: " + file.getOriginalFilename());
             }
 
-            // DÙNG SERVICE ĐỂ SINH ID VÀ VALIDATE
             String docId = submissionDocumentsService.generateUniqueDocumentId(student.getId(), postId);
             doc.setSubmissionDocumentId(docId);
 
             Map<String, String> errors = submissionDocumentsService.validateDocument(doc);
             if (!errors.isEmpty()) {
-                throw new IllegalArgumentException("Invalid document: " + errors);
+                throw new IllegalArgumentException("Invalid document: " + errors.values());
             }
 
-            // GỌI SERVICE ĐỂ LƯU
             submissionDocumentsService.saveDocument(doc);
-
-            // Thêm vào danh sách (nếu cần hiển thị)
-            submission.getSubmissionDocuments().add(doc);
+            submission.getSubmissionDocuments().add(doc); // An toàn
         }
-
-        // 6. Lưu submission
-        save(submission);
     }
 
     @Override

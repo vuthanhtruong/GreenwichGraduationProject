@@ -96,19 +96,23 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
             throw new IllegalStateException("You have already submitted this assignment");
         }
 
-        // 4. Tạo submission
+        // === 4. TẠO VÀ LƯU SUBMISSION TRƯỚC ===
         SpecializedSubmissions submission = new SpecializedSubmissions();
         submission.setId(new SpecializedSubmissionsId(student.getId(), postId));
         submission.setSubmittedBy(student);
         submission.setAssignmentSubmitSlot(slot);
         submission.setCreatedAt(LocalDateTime.now());
 
-        // 5. Xử lý từng file
+        // LƯU SUBMISSION TRƯỚC → CÓ KHÓA CHÍNH TRONG DB
+        save(submission);           // hoặc em.persist(submission)
+        em.flush();                 // BẮT BUỘC: ép insert ngay lập tức
+
+        // === 5. BÂY GIỜ MỚI XỬ LÝ FILE ===
         for (MultipartFile file : files) {
             if (file.isEmpty()) continue;
 
             SpecializedSubmissionDocuments doc = new SpecializedSubmissionDocuments();
-            doc.setSubmission(submission);
+            doc.setSubmission(submission);  // BÂY GIỜ submission đã có ID
             doc.setCreator(student);
             doc.setFilePath(file.getOriginalFilename());
 
@@ -118,25 +122,18 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
                 throw new RuntimeException("Failed to read file: " + file.getOriginalFilename());
             }
 
-            // DÙNG SERVICE ĐỂ SINH ID
             String docId = documentsService.generateUniqueDocumentId(student.getId(), postId);
             doc.setSubmissionDocumentId(docId);
 
-            // DÙNG SERVICE ĐỂ VALIDATE
             Map<String, String> errors = documentsService.validateDocument(doc);
             if (!errors.isEmpty()) {
-                throw new IllegalArgumentException("Invalid document: " + errors);
+                throw new IllegalArgumentException("Invalid document: " + String.join(", ", errors.values()));
             }
 
-            // DÙNG SERVICE ĐỂ LƯU
             documentsService.saveDocument(doc);
-
-            // Thêm vào danh sách (nếu cần hiển thị)
-            submission.addDocument(doc);
+            submission.addDocument(doc);  // An toàn vì submission đã persist
         }
 
-        // 6. Lưu submission
-        save(submission);
     }
 
     @Override
