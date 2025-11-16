@@ -21,6 +21,26 @@ import java.util.List;
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
 
     @Override
+    public List<MajorTimetable> getMajorTimetableByStudentAndClassId(String studentId, String classId) {
+        String jpql = """
+        SELECT t FROM MajorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.classEntity c
+        JOIN Students_MajorClasses smc ON c.classId = smc.majorClass.classId
+        WHERE smc.student.id = :studentId
+          AND c.classId = :classId
+        ORDER BY t.year DESC, t.weekOfYear DESC, t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MajorTimetable.class)
+                .setParameter("studentId", studentId)
+                .setParameter("classId", classId)
+                .getResultList();
+    }
+
+    @Override
     public List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId) {
         LocalDate today = LocalDate.now();
         int currentWeek = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);

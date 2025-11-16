@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance</title>
+
+    <!-- Shared Windows 11 CSS -->
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<div class="win11-container">
+
+    <!-- ================= HEADER TOOLBAR ================= -->
+    <div class="search-toolbar unified-bar">
+
+        <div class="toolbar-left">
+            <a th:href="@{/student-home/student-classes-list}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-clipboard-check"></i>
+                Attendance – Class <span th:text="${classId}"></span>
+            </h2>
+        </div>
+
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-info-circle"></i>
+                <strong>Total Sessions:</strong>
+                <span th:text="${#lists.size(timetables)}"></span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= EMPTY STATE ================= -->
+    <div th:if="${#lists.isEmpty(timetables)}" class="win11-panel">
+        <h2 class="panel-header">
+            <i class="fas fa-calendar-times"></i> No Attendance Records
+        </h2>
+
+        <div class="no-session">
+            <i class="fas fa-calendar-xmark" style="font-size: 3rem; color:#ccc;"></i>
+            <p>No attendance records found for this class.</p>
+        </div>
+    </div>
+
+
+    <!-- ================= ATTENDANCE TABLE ================= -->
+    <div class="table-container" th:if="${!#lists.isEmpty(timetables)}">
+
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-calendar-day"></i> Date</th>
+                <th><i class="fas fa-clock"></i> Session Time</th>
+                <th><i class="fas fa-door-open"></i> Room</th>
+                <th><i class="fas fa-user-tie"></i> Lecturer</th>
+                <th><i class="fas fa-clipboard"></i> Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="t : ${timetables}" th:with="status=${t.getAttendanceByStudentId(student.id)}">
+
+                <!-- DATE -->
+                <td th:text="${#temporals.format(t.getCreatedAt(), 'EEE, dd/MM/yyyy')}"></td>
+
+                <!-- SESSION -->
+                <td>
+                    <strong th:text="${t.slot.slotName}"></strong>
+                    <span>
+                        (<span th:text="${#temporals.format(t.slot.startTime,'HH:mm')}"></span>
+                         -
+                        <span th:text="${#temporals.format(t.slot.endTime,'HH:mm')}"></span>)
+                    </span>
+                </td>
+
+                <!-- ROOM -->
+                <td th:text="${t.room.roomName}"></td>
+
+                <!-- CREATOR -->
+                <td th:text="${t.creator != null ? t.creator.fullName : 'Unknown'}"></td>
+
+                <!-- ATTENDANCE STATUS -->
+                <td>
+                    <span class="badge"
+                          th:classappend="${status == 'ATTENDED'} ? ' badge-success' :
+                                          (${status == 'ABSENT'} ? ' badge-danger' : ' badge-warning')">
+
+                        <i th:if="${status == 'ATTENDED'}" class="fas fa-check-circle"></i>
+                        <i th:if="${status == 'ABSENT'}" class="fas fa-times-circle"></i>
+                        <i th:if="${status != 'ATTENDED' and status != 'ABSENT'}" class="fas fa-question-circle"></i>
+
+                        <span th:text="${status != null ? status : 'Not Marked'}"></span>
+                    </span>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

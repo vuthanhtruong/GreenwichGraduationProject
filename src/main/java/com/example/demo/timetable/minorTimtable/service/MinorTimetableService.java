@@ -27,4 +27,6 @@ public interface MinorTimetableService {
     List<MinorTimetable> getMinorTimetablesByMinorLecturer(String lecturerId, Integer week, Integer year);
     MinorTimetable getMinorTimetableById(String timetableId);
     List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId);
+    List<MinorTimetable> getMinorTimetableByStudentAndClassId(
+            String studentId, String classId);
 }

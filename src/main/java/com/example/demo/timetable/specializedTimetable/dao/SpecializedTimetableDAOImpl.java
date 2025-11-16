@@ -21,6 +21,26 @@ import java.util.List;
 public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
 
     @Override
+    public List<SpecializedTimetable> getSpecializedTimetableByStudentAndClassId(String studentId, String classId) {
+        String jpql = """
+        SELECT t FROM SpecializedTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.specializedClass c
+        JOIN Students_SpecializedClasses ssc ON c.classId = ssc.specializedClass.classId
+        WHERE ssc.student.id = :studentId
+          AND c.classId = :classId
+        ORDER BY t.year DESC, t.weekOfYear DESC, t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, SpecializedTimetable.class)
+                .setParameter("studentId", studentId)
+                .setParameter("classId", classId)
+                .getResultList();
+    }
+
+    @Override
     public List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId) {
         LocalDate today = LocalDate.now();
         int currentWeek = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);

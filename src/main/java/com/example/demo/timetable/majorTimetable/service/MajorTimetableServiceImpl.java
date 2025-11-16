@@ -13,6 +13,11 @@ import java.util.List;
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
     @Override
+    public List<MajorTimetable> getMajorTimetableByStudentAndClassId(String studentId, String classId) {
+        return majorTimetableDAO.getMajorTimetableByStudentAndClassId(studentId, classId);
+    }
+
+    @Override
     public List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId) {
         return majorTimetableDAO.getMajorTimetableTodayByLecturer(lecturerId);
     }

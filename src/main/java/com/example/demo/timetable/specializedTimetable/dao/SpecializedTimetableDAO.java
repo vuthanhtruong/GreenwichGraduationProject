@@ -49,4 +49,6 @@ public interface SpecializedTimetableDAO {
     SpecializedTimetable getTimetableById(String timetableId);
     List<SpecializedClasses> getSpecializedClassesBySpecializedTimetable(Integer week, Integer year, String campusId);
     List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId);
+    List<SpecializedTimetable> getSpecializedTimetableByStudentAndClassId(
+            String studentId, String classId);
 }

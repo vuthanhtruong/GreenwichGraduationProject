@@ -20,6 +20,26 @@ import java.util.List;
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
 
     @Override
+    public List<MinorTimetable> getMinorTimetableByStudentAndClassId(String studentId, String classId) {
+        String jpql = """
+        SELECT t FROM MinorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.minorClass c
+        JOIN Students_MinorClasses smc ON c.classId = smc.minorClass.classId
+        WHERE smc.student.id = :studentId
+          AND c.classId = :classId
+        ORDER BY t.year DESC, t.weekOfYear DESC, t.dayOfWeek, t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MinorTimetable.class)
+                .setParameter("studentId", studentId)
+                .setParameter("classId", classId)
+                .getResultList();
+    }
+
+    @Override
     public List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId) {
         if (week == null || year == null || campusId == null || campusId.trim().isEmpty()) {
             return List.of();
