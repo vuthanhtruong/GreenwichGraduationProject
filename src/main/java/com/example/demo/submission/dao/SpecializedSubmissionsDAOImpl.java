@@ -1,6 +1,7 @@
 package com.example.demo.submission.dao;
 
 import com.example.demo.document.model.SpecializedSubmissionDocuments;
+import com.example.demo.document.service.SpecializedSubmissionDocumentsService;
 import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.post.specializedAssignmentSubmitSlots.service.SpecializedAssignmentSubmitSlotsService;
 import com.example.demo.submission.model.SpecializedSubmissions;
@@ -14,18 +15,21 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
 public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO {
 
     private final SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService;
+    private final SpecializedSubmissionDocumentsService documentsService; // THÊM
 
     @PersistenceContext
     private EntityManager em;
 
-    public SpecializedSubmissionsDAOImpl(SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService) {
+    public SpecializedSubmissionsDAOImpl(SpecializedAssignmentSubmitSlotsService specializedAssignmentSubmitSlotsService, SpecializedSubmissionDocumentsService documentsService) {
         this.specializedAssignmentSubmitSlotsService = specializedAssignmentSubmitSlotsService;
+        this.documentsService = documentsService;
     }
 
     @Override
@@ -76,25 +80,30 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
 
     @Override
     public void submit(Students student, String postId, List<MultipartFile> files) {
+        // 1. Kiểm tra slot
         SpecializedAssignmentSubmitSlots slot = specializedAssignmentSubmitSlotsService.findByPostId(postId);
         if (slot == null) {
             throw new IllegalArgumentException("Assignment not found");
         }
 
+        // 2. Kiểm tra deadline
         if (slot.getDeadline() != null && LocalDateTime.now().isAfter(slot.getDeadline())) {
             throw new IllegalStateException("Submission deadline has passed");
         }
 
+        // 3. Kiểm tra đã nộp chưa
         if (exists(student.getId(), postId)) {
             throw new IllegalStateException("You have already submitted this assignment");
         }
 
+        // 4. Tạo submission
         SpecializedSubmissions submission = new SpecializedSubmissions();
         submission.setId(new SpecializedSubmissionsId(student.getId(), postId));
         submission.setSubmittedBy(student);
         submission.setAssignmentSubmitSlot(slot);
         submission.setCreatedAt(LocalDateTime.now());
 
+        // 5. Xử lý từng file
         for (MultipartFile file : files) {
             if (file.isEmpty()) continue;
 
@@ -109,14 +118,27 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
                 throw new RuntimeException("Failed to read file: " + file.getOriginalFilename());
             }
 
-            // DÙNG UUID TỰ ĐỘNG
-            doc.setSubmissionDocumentId(java.util.UUID.randomUUID().toString());
+            // DÙNG SERVICE ĐỂ SINH ID
+            String docId = documentsService.generateUniqueDocumentId(student.getId(), postId);
+            doc.setSubmissionDocumentId(docId);
 
+            // DÙNG SERVICE ĐỂ VALIDATE
+            Map<String, String> errors = documentsService.validateDocument(doc);
+            if (!errors.isEmpty()) {
+                throw new IllegalArgumentException("Invalid document: " + errors);
+            }
+
+            // DÙNG SERVICE ĐỂ LƯU
+            documentsService.saveDocument(doc);
+
+            // Thêm vào danh sách (nếu cần hiển thị)
             submission.addDocument(doc);
         }
 
+        // 6. Lưu submission
         save(submission);
     }
+
     @Override
     public SpecializedSubmissions findById(SpecializedSubmissionsId id) {
         return em.find(SpecializedSubmissions.class, id);
@@ -158,6 +180,14 @@ public class SpecializedSubmissionsDAOImpl implements SpecializedSubmissionsDAO 
                     .getResultList();
         } catch (Exception e) {
             return Collections.emptyList();
+        }
+    }
+    // Trong SpecializedSubmissionsDAOImpl.java
+    @Override
+    public void deleteByStudentAndSlot(String studentId, String slotId) {
+        SpecializedSubmissions submission = getByStudentAndSlot(studentId, slotId);
+        if (submission != null) {
+            em.remove(submission); // Cascade tự xóa documents
         }
     }
 }

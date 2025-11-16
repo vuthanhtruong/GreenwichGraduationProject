@@ -15,6 +15,10 @@ import java.util.Map;
 @Service
 @Transactional
 public class ClassDocumentsServiceImpl implements ClassDocumentsService {
+    @Override
+    public ClassDocuments getDocumentById(String id) {
+        return classDocumentsDAO.getDocumentById(id);
+    }
 
     private final ClassDocumentsDAO classDocumentsDAO;
 

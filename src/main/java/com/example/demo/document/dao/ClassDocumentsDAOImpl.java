@@ -14,6 +14,10 @@ import java.util.Map;
 @Repository
 @Transactional
 public class ClassDocumentsDAOImpl implements ClassDocumentsDAO {
+    @Override
+    public ClassDocuments getDocumentById(String id) {
+        return entityManager.find(ClassDocuments.class, id);
+    }
 
     @PersistenceContext
     private EntityManager entityManager;

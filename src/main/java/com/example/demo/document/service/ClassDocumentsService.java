@@ -10,4 +10,5 @@ public interface ClassDocumentsService {
     List<String> saveDocuments(ClassPosts post, MultipartFile[] files);
     List<ClassDocuments> getDocumentsByPostId(String postId);
     boolean isValidFileType(String contentType);
+    ClassDocuments getDocumentById(String id);
 }

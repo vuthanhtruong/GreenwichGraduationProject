@@ -12,6 +12,11 @@ import java.util.List;
 @Service
 public class SubmissionsServiceImpl implements SubmissionsService {
     @Override
+    public void deleteByStudentAndSlot(String studentId, String slotId) {
+        submissionsDAO.deleteByStudentAndSlot(studentId, slotId);
+    }
+
+    @Override
     public Submissions findById(SubmissionsId id) {
         return submissionsDAO.findById(id);
     }

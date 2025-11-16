@@ -1,6 +1,7 @@
 package com.example.demo.submission.dao;
 
 import com.example.demo.document.model.SubmissionDocuments;
+import com.example.demo.document.service.SubmissionDocumentsService;
 import com.example.demo.post.majorAssignmentSubmitSlots.model.AssignmentSubmitSlots;
 import com.example.demo.post.majorAssignmentSubmitSlots.service.AssignmentSubmitSlotsService;
 import com.example.demo.submission.model.Submissions;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -26,9 +28,11 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
     private EntityManager em;
 
     private final AssignmentSubmitSlotsService assignmentSubmitSlotsService;
+    private final SubmissionDocumentsService submissionDocumentsService; // THÊM
 
-    public SubmissionsDAOImpl(AssignmentSubmitSlotsService assignmentSubmitSlotsService) {
+    public SubmissionsDAOImpl(AssignmentSubmitSlotsService assignmentSubmitSlotsService, SubmissionDocumentsService submissionDocumentsService) {
         this.assignmentSubmitSlotsService = assignmentSubmitSlotsService;
+        this.submissionDocumentsService = submissionDocumentsService;
     }
     @Override
     public List<Students> getStudentsNotSubmitted(String classId, String assignmentId) {
@@ -144,23 +148,28 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
     }
     @Override
     public void submitAssignment(Students student, String postId, List<MultipartFile> files) {
+        // 1. Kiểm tra slot
         AssignmentSubmitSlots slot = assignmentSubmitSlotsService.findByPostId(postId);
         if (slot == null) throw new IllegalArgumentException("Assignment not found");
 
+        // 2. Kiểm tra deadline
         if (slot.getDeadline() != null && LocalDateTime.now().isAfter(slot.getDeadline())) {
             throw new IllegalStateException("Submission deadline has passed");
         }
 
+        // 3. Kiểm tra đã nộp chưa
         if (exists(student.getId(), postId)) {
             throw new IllegalStateException("You have already submitted this assignment");
         }
 
+        // 4. Tạo submission
         Submissions submission = new Submissions();
         submission.setId(new SubmissionsId(student.getId(), postId));
         submission.setSubmittedBy(student);
         submission.setAssignmentSubmitSlot(slot);
         submission.setCreatedAt(LocalDateTime.now());
 
+        // 5. Xử lý từng file
         for (MultipartFile file : files) {
             if (file.isEmpty()) continue;
 
@@ -175,15 +184,38 @@ public class SubmissionsDAOImpl implements SubmissionsDAO {
                 throw new RuntimeException("Failed to read file: " + file.getOriginalFilename());
             }
 
-            // DÙNG UUID – AN TOÀN, KHÔNG LỖI
-            doc.setSubmissionDocumentId(UUID.randomUUID().toString());
+            // DÙNG SERVICE ĐỂ SINH ID VÀ VALIDATE
+            String docId = submissionDocumentsService.generateUniqueDocumentId(student.getId(), postId);
+            doc.setSubmissionDocumentId(docId);
 
+            Map<String, String> errors = submissionDocumentsService.validateDocument(doc);
+            if (!errors.isEmpty()) {
+                throw new IllegalArgumentException("Invalid document: " + errors);
+            }
+
+            // GỌI SERVICE ĐỂ LƯU
+            submissionDocumentsService.saveDocument(doc);
+
+            // Thêm vào danh sách (nếu cần hiển thị)
             submission.getSubmissionDocuments().add(doc);
         }
+
+        // 6. Lưu submission
         save(submission);
     }
+
     @Override
     public Submissions findById(SubmissionsId id) {
         return em.find(Submissions.class, id);
+    }
+
+    // Trong SubmissionsDAOImpl.java
+    @Override
+    public void deleteByStudentAndSlot(String studentId, String slotId) {
+        Submissions submission = getSubmissionByStudentAndAssignment(studentId, slotId);
+        if (submission != null) {
+            // Xóa cascade: documents sẽ tự xóa nhờ @OnDelete(action = OnDeleteAction.CASCADE)
+            em.remove(submission);
+        }
     }
 }

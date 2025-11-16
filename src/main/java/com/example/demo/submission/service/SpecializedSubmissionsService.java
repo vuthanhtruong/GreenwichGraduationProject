@@ -16,4 +16,5 @@ public interface SpecializedSubmissionsService {
     SpecializedSubmissions findById(SpecializedSubmissionsId id);
     List<SpecializedSubmissions> getSubmissionsByAssignment(String assignmentId);
     List<Students> getStudentsNotSubmitted(String classId, String assignmentId);
+    void deleteByStudentAndSlot(String studentId, String slotId);
 }

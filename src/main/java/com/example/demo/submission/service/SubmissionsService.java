@@ -17,4 +17,5 @@ public interface SubmissionsService {
     void submitAssignment(Students student, String postId, List<MultipartFile> files);
     List<Students> getStudentsNotSubmitted(String classId, String assignmentId);
     Submissions findById(SubmissionsId id);
+    void deleteByStudentAndSlot(String studentId, String slotId);
 }

@@ -59,7 +59,6 @@
                 <th><i class="fas fa-calendar-day"></i> Date</th>
                 <th><i class="fas fa-clock"></i> Session Time</th>
                 <th><i class="fas fa-door-open"></i> Room</th>
-                <th><i class="fas fa-user-tie"></i> Lecturer</th>
                 <th><i class="fas fa-clipboard"></i> Status</th>
             </tr>
             </thead>
@@ -82,9 +81,6 @@
 
                 <!-- ROOM -->
                 <td th:text="${t.room.roomName}"></td>
-
-                <!-- CREATOR -->
-                <td th:text="${t.creator != null ? t.creator.fullName : 'Unknown'}"></td>
 
                 <!-- ATTENDANCE STATUS -->
                 <td>

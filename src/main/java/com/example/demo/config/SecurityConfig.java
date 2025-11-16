@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/deputy-staff-home/**", "/api/deputy-staff-home/**").hasRole("DEPUTY")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
                         .requestMatchers("/major-timetable/**","/specialized-timetable/**").hasAnyRole("LECTURER", "STAFF", "ADMIN")
-                        .requestMatchers("/classroom/**", "/messages/**","/check-news/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
+                        .requestMatchers("/classroom/**", "/messages/**","/check-news/**", "/documents/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
                         .requestMatchers(
                                 "/login",
                                 "/resources/**",

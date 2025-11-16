@@ -16,4 +16,6 @@ public interface SpecializedSubmissionsDAO {
     SpecializedSubmissions findById(SpecializedSubmissionsId id);
     List<SpecializedSubmissions> getSubmissionsByAssignment(String assignmentId);
     List<Students> getStudentsNotSubmitted(String classId, String assignmentId);
+    // Trong interface
+    void deleteByStudentAndSlot(String studentId, String slotId);
 }

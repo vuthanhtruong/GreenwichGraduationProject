@@ -1,7 +1,7 @@
+// src/main/java/com/example/demo/submission/controller/MajorSubmissionsController.java
+
 package com.example.demo.submission.controller;
 
-import com.example.demo.entity.Enums.Grades;
-import com.example.demo.submissionFeedback.service.SubmissionFeedbacksService;
 import com.example.demo.submission.service.SubmissionsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
@@ -18,6 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/classroom")
 public class MajorSubmissionsController {
+
     private final StudentsService studentsService;
     private final SubmissionsService submissionsService;
 
@@ -43,12 +44,24 @@ public class MajorSubmissionsController {
         try {
             submissionsService.submitAssignment(student, postId, files);
             ra.addFlashAttribute("message", "Assignment submitted successfully!");
+
+            // LƯU VÀO SESSION
+            session.setAttribute("currentClassId", classId);
+            session.setAttribute("currentPostId", postId);
         } catch (Exception e) {
             ra.addFlashAttribute("errors", List.of(e.getMessage()));
         }
 
-        ra.addAttribute("postId", postId);
-        ra.addAttribute("classId", classId);
-        return "redirect:/classroom/assignment-detail";
+        return "redirect:/classroom/assignment-detail"; // SẠCH
+    }
+
+    @PostMapping("/delete-submission")
+    public String deleteSubmission(
+            @RequestParam String studentId,
+            @RequestParam String slotId,
+            HttpSession session) {
+
+        submissionsService.deleteByStudentAndSlot(studentId, slotId);
+        return "redirect:/classroom/assignment-detail"; // SẠCH
     }
 }

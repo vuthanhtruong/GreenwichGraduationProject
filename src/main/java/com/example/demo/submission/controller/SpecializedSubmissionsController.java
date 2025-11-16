@@ -1,3 +1,5 @@
+// src/main/java/com/example/demo/submission/controller/SpecializedSubmissionsController.java
+
 package com.example.demo.submission.controller;
 
 import com.example.demo.submission.service.SpecializedSubmissionsService;
@@ -18,11 +20,11 @@ import java.util.List;
 public class SpecializedSubmissionsController {
 
     private final StudentsService studentsService;
-    private final SpecializedSubmissionsService submissionsService;
+    private final SpecializedSubmissionsService specializedSubmissionsService;
 
-    public SpecializedSubmissionsController(StudentsService studentsService, SpecializedSubmissionsService submissionsService) {
+    public SpecializedSubmissionsController(StudentsService studentsService, SpecializedSubmissionsService specializedSubmissionsService) {
         this.studentsService = studentsService;
-        this.submissionsService = submissionsService;
+        this.specializedSubmissionsService = specializedSubmissionsService;
     }
 
     @PostMapping("/submit-specialized-assignment")
@@ -40,14 +42,26 @@ public class SpecializedSubmissionsController {
         }
 
         try {
-            submissionsService.submit(student, postId, files);
+            specializedSubmissionsService.submit(student, postId, files);
             ra.addFlashAttribute("message", "Assignment submitted successfully!");
+
+            // LƯU VÀO SESSION
+            session.setAttribute("specializedClassId", classId);
+            session.setAttribute("specializedPostId", postId);
         } catch (Exception e) {
             ra.addFlashAttribute("errors", List.of(e.getMessage()));
         }
 
-        ra.addAttribute("postId", postId);
-        ra.addAttribute("classId", classId);
-        return "redirect:/classroom/specialized-assignment-detail";
+        return "redirect:/classroom/specialized-assignment-detail"; // SẠCH
+    }
+
+    @PostMapping("/delete-specialized-submission")
+    public String deleteSpecializedSubmission(
+            @RequestParam String studentId,
+            @RequestParam String slotId,
+            HttpSession session) {
+
+        specializedSubmissionsService.deleteByStudentAndSlot(studentId, slotId);
+        return "redirect:/classroom/specialized-assignment-detail"; // SẠCH
     }
 }

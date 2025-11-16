@@ -4,8 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Assignment Submission</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudentAssignmentDetail.css}">
+    <style>
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            font-size: 0.9em;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .delete-btn:hover { background: #ffe6e6; color: #c82333; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal h4 { margin: 0 0 12px; color: #dc3545; }
+        .modal p { margin: 0 0 20px; color: #555; }
+        .modal-actions button {
+            padding: 8px 16px;
+            margin: 0 6px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-cancel { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-cancel:hover { background: #5a6268; }
+        .btn-danger:hover { background: #c82333; }
+    </style>
 </head>
 <body>
 <div class="win11-container">
@@ -16,7 +62,7 @@
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" name="classId" th:value="${classId}" />
                 <button type="submit" class="btn">
-                    <i class="fas fa-arrow-left"></i> Back to Classroom
+                    Back to Classroom
                 </button>
             </form>
         </div>
@@ -25,25 +71,14 @@
         </div>
     </div>
 
-    <!-- Assignment Info Panel -->
+    <!-- Assignment Info -->
     <div class="panel">
-        <h3><i class="fas fa-clipboard-list"></i> Assignment Details</h3>
-
+        <h3>Assignment Details</h3>
         <div class="info-grid">
-            <div>
-                <strong>Title:</strong>
-                <p th:text="${assignment.content} ?: 'No title'"></p>
-            </div>
-            <div>
-                <strong>Created by:</strong>
-                <p th:text="${assignment.getCreatorId()}"></p>
-            </div>
-            <div>
-                <strong>Created at:</strong>
-                <p th:text="${#temporals.format(assignment.createdAt, 'dd MMM yyyy HH:mm')}"></p>
-            </div>
-            <div>
-                <strong>Deadline:</strong>
+            <div><strong>Title:</strong> <p th:text="${assignment.content} ?: 'No title'"></p></div>
+            <div><strong>Created by:</strong> <p th:text="${assignment.getCreatorId()}"></p></div>
+            <div><strong>Created at:</strong> <p th:text="${#temporals.format(assignment.createdAt, 'dd MMM yyyy HH:mm')}"></p></div>
+            <div><strong>Deadline:</strong>
                 <p>
                     <span th:text="${#temporals.format(assignment.deadline, 'dd MMM yyyy HH:mm')}"></span>
                     <span th:if="${isPastDeadline}" class="deadline-passed"> (Deadline Passed)</span>
@@ -51,105 +86,101 @@
             </div>
         </div>
 
-        <!-- Attached Files from Lecturer -->
         <th:block th:if="${assignment.documents != null and !assignment.documents.isEmpty()}">
             <div class="documents" style="margin-top: 16px;">
-                <strong><i class="fas fa-paperclip"></i> Attached Files:</strong>
+                <strong>Attached Files:</strong>
                 <ul style="margin: 8px 0; padding-left: 20px;">
                     <li th:each="doc : ${assignment.documents}" class="file-item">
-                        <i class="fas fa-file-alt"></i>
-                        <a th:href="@{'/documents/' + ${doc.documentId}}" th:text="${doc.documentTitle} ?: 'File'"></a>
+                        <a th:href="@{'/documents/' + ${doc.documentId}}"
+                           th:text="${doc.documentTitle} ?: 'File'"
+                           class="text-primary">
+                        </a>
                     </li>
                 </ul>
             </div>
         </th:block>
     </div>
 
-    <!-- 1. CHƯA NỘP + CHƯA QUÁ HẠN → HIỂN THỊ FORM NỘP -->
+    <!-- 1. CHƯA NỘP + CHƯA QUÁ HẠN -->
     <div class="panel" th:if="${submission == null and !isPastDeadline}">
-        <h3><i class="fas fa-upload"></i> Submit Your Assignment</h3>
-        <form method="post"
-              th:action="@{/classroom/submit-assignment}"
-              enctype="multipart/form-data"
-              onsubmit="return validateFiles(this)">
-
+        <h3>Submit Your Assignment</h3>
+        <form method="post" th:action="@{/classroom/submit-assignment}" enctype="multipart/form-data" onsubmit="return validateFiles(this)">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="postId" th:value="${assignment.postId}" />
             <input type="hidden" name="classId" th:value="${classId}" />
-
             <div class="form-group">
-                <label for="files"><i class="fas fa-file-upload"></i> Upload Files (max 5, 10MB each):</label>
-                <input type="file"
-                       id="files"
-                       name="files"
-                       multiple
-                       required
-                       class="input"
-                       accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" />
+                <label for="files">Upload Files (max 5, 10MB each):</label>
+                <input type="file" id="files" name="files" multiple required class="input" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.zip" />
                 <small class="text-muted">Supported: PDF, DOC, DOCX, TXT, PPT, PPTX, ZIP</small>
             </div>
-
             <div class="form-actions">
-                <button type="submit" class="btn primary">
-                    <i class="fas fa-paper-plane"></i> Submit Assignment
-                </button>
+                <button type="submit" class="btn primary">Submit Assignment</button>
             </div>
         </form>
     </div>
 
-    <!-- 2. ĐÃ NỘP → HIỂN THỊ FILE -->
+    <!-- 2. ĐÃ NỘP → HIỂN THỊ + NÚT XÓA -->
     <div class="panel" th:if="${submission != null}">
-        <h3 class="submit-success"><i class="fas fa-check-circle"></i> You have submitted</h3>
-        <p><strong>Submitted at:</strong>
-            <span th:text="${#temporals.format(submission.createdAt, 'dd MMM yyyy HH:mm')}"></span>
-        </p>
+        <!-- MAJOR -->
+        <form th:if="${!isPastDeadline}"
+              method="post"
+              th:action="@{/classroom/delete-submission}"
+              onsubmit="return confirm('Are you sure you want to delete your submission? This cannot be undone.')"
+              style="display: inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="studentId" th:value="${submission.id.submittedBy}" />
+            <input type="hidden" name="slotId" th:value="${submission.id.assignmentSubmitSlotId}" />
+            <input type="hidden" name="classId" th:value="${classId}" />
+            <input type="hidden" name="postId" th:value="${assignment.postId}" />
+            <button type="submit" class="delete-btn">Delete Submission</button>
+        </form>
+        <p><strong>Submitted at:</strong> <span th:text="${#temporals.format(submission.createdAt, 'dd MMM yyyy HH:mm')}"></span></p>
 
         <div class="documents" th:if="${submission.submissionDocuments != null and !submission.submissionDocuments.isEmpty()}">
             <strong>Your Files:</strong>
             <ul style="margin: 8px 0; padding-left: 20px;">
                 <li th:each="doc : ${submission.submissionDocuments}" class="file-item">
-                    <i class="fas fa-file-check"></i>
-                    <span th:text="${doc.filePath}"></span>
+                    <a th:href="@{'/classroom/download-submission-file?docId=' + ${doc.submissionDocumentId}}"
+                       th:attr="data-filename=${doc.filePath}"
+                       class="text-primary submission-file-link"
+                       title="Download">
+                    </a>
                 </li>
             </ul>
         </div>
+        <div class="text-muted small" th:if="${submission.submissionDocuments == null or submission.submissionDocuments.isEmpty()}">
+            No files were submitted.
+        </div>
     </div>
 
-    <!-- 3. QUÁ HẠN + CHƯA NỘP → CẢNH BÁO -->
+    <!-- 3. QUÁ HẠN + CHƯA NỘP -->
     <div class="panel" th:if="${submission == null and isPastDeadline}">
         <p class="text-danger" style="font-weight: 600;">
-            <i class="fas fa-exclamation-triangle"></i>
             The submission deadline has passed. You can no longer submit this assignment.
         </p>
     </div>
-    <!-- 4. HIỂN THỊ ĐIỂM & PHẢN HỒI (nếu có) -->
-    <div class="panel" th:if="${submission.feedback != null}">
-        <h3 class="grade-title">
-            <i class="fas fa-star"></i> Your Grade & Feedback
-        </h3>
 
+    <!-- 4. ĐIỂM & FEEDBACK -->
+    <div class="panel" th:if="${submission != null and submission.feedback != null}">
+        <h3 class="grade-title">Your Grade & Feedback</h3>
         <div class="grade-info">
             <div class="grade-badge">
-                <i class="fas fa-trophy"></i>
                 <strong>Grade:</strong>
                 <span class="grade-value" th:text="${submission.feedback.grade} ?: 'Not graded yet'"></span>
             </div>
-
             <div class="feedback-content" th:if="${submission.feedback.content != null and !#strings.isEmpty(submission.feedback.content)}">
-                <strong>Feedback from lecturer:</strong>
+                <strong>Feedback:</strong>
                 <p class="feedback-text" th:text="${submission.feedback.content}"></p>
             </div>
-
             <div class="text-muted small" th:if="${submission.feedback.content == null or #strings.isEmpty(submission.feedback.content)}">
-                <i class="fas fa-comment-slash"></i> No feedback provided.
+                No feedback provided.
             </div>
         </div>
     </div>
 
-    <!-- Comments Section -->
+    <!-- Comments -->
     <div class="panel">
-        <h3><i class="fas fa-comments"></i> Comments (<span th:text="${assignment.getTotalComments()}"></span>)</h3>
-
+        <h3>Comments (<span th:text="${assignment.getTotalComments()}"></span>)</h3>
         <th:block th:if="${assignment.getAllCommentsSorted() != null and !assignment.getAllCommentsSorted().isEmpty()}">
             <div class="comments-list">
                 <div th:each="comment : ${assignment.getAllCommentsSorted()}" class="comment-item">
@@ -161,45 +192,63 @@
                 </div>
             </div>
         </th:block>
-
         <th:block th:if="${assignment.getAllCommentsSorted() == null or assignment.getAllCommentsSorted().isEmpty()}">
             <p class="text-muted">No comments yet.</p>
         </th:block>
 
-        <!-- Add Comment -->
         <form method="post" th:action="@{/classroom/add-comment}" class="mt-3">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" name="postId" th:value="${assignment.postId}" />
             <input type="hidden" name="classId" th:value="${classId}" />
             <div class="form-group">
-                <textarea name="content"
-                          rows="3"
-                          class="input"
-                          placeholder="Add a comment..."
-                          required></textarea>
+                <textarea name="content" rows="3" class="input" placeholder="Add a comment..." required></textarea>
             </div>
-            <button type="submit" class="btn primary">
-                <i class="fas fa-paper-plane"></i> Post Comment
-            </button>
+            <button type="submit" class="btn primary">Post Comment</button>
         </form>
     </div>
 </div>
 
+<!-- MODAL XÓA -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h4>Delete Submission?</h4>
+        <p>This action will permanently remove your submission and all attached files.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button type="button" class="btn-danger" onclick="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    let studentIdToDelete = '';
+    let slotIdToDelete = '';
+
+    function openDeleteModal(studentId, slotId) {
+        studentIdToDelete = studentId;
+        slotIdToDelete = slotId;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
     function validateFiles(form) {
         const files = form.files.files;
-        if (files.length > 5) {
-            alert("You can upload a maximum of 5 files.");
-            return false;
-        }
+        if (files.length > 5) { alert("Max 5 files."); return false; }
         for (let file of files) {
-            if (file.size > 10 * 1024 * 1024) {
-                alert("File '" + file.name + "' exceeds 10MB limit.");
-                return false;
-            }
+            if (file.size > 10 * 1024 * 1024) { alert(`File "${file.name}" exceeds 10MB.`); return false; }
         }
         return true;
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.submission-file-link').forEach(link => {
+            const path = link.getAttribute('data-filename');
+            link.textContent = path ? path.split(/[\\/]/).pop() : 'file';
+        });
+    });
 </script>
 </body>
 </html>

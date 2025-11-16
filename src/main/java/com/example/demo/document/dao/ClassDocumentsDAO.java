@@ -12,4 +12,5 @@ public interface ClassDocumentsDAO {
     void saveDocument(ClassDocuments document);
     Map<String, String> validateDocument(ClassDocuments document);
     String generateUniqueDocumentId(String postId);
+    ClassDocuments getDocumentById(String id);
 }
