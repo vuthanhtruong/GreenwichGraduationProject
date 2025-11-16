@@ -1,5 +1,6 @@
 package com.example.demo.timetable.specializedTimetable.service;
 
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -43,4 +44,6 @@ public interface SpecializedTimetableService {
     List<SpecializedTimetable> getSpecializedTimetableByStudent(String studentId, Integer week, Integer year);
     List<SpecializedTimetable> getSpecializedTimetablesByMajorLecturer(String lecturerId, Integer week, Integer year);
     SpecializedTimetable getTimetableById(String timetableId);
+    List<SpecializedClasses> getSpecializedClassesBySpecializedTimetable(Integer week, Integer year, String campusId);
+    List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId);
 }

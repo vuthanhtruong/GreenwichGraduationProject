@@ -2,7 +2,7 @@ package com.example.demo.user.parentAccount.service;
 
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
-import com.example.demo.entity.Student_ParentAccounts;
+import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 
 import java.util.List;
 import java.util.Map;

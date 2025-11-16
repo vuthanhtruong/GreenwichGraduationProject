@@ -50,6 +50,8 @@ public abstract class Timetable {
     public abstract String getClassName();      // Tên lớp
     public abstract String getClassType();      // "Major", "Minor", "Specialized"
     public abstract String getCreatorName();    // Tên người tạo
+    public abstract String getDetailUrl();
+    public abstract String getAttendanceByStudentId(String id);
 
     public Timetable() {}
 

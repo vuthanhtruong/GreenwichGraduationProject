@@ -1,7 +1,7 @@
 package com.example.demo.user.student.controller;
 
 import com.example.demo.curriculum.service.CurriculumService;
-import com.example.demo.entity.Student_ParentAccounts;
+import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.Enums.RelationshipToStudent;

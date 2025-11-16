@@ -1,6 +1,7 @@
 // src/main/java/com/example/demo/timtable/minorTimetable/service/MinorTimetableService.java
 package com.example.demo.timetable.minorTimtable.service;
 
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -25,4 +26,5 @@ public interface MinorTimetableService {
     List<MinorTimetable> getMinorTimetableByStudent(String studentId, Integer week, Integer year);
     List<MinorTimetable> getMinorTimetablesByMinorLecturer(String lecturerId, Integer week, Integer year);
     MinorTimetable getMinorTimetableById(String timetableId);
+    List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId);
 }

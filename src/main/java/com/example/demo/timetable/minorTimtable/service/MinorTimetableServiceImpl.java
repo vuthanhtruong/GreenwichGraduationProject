@@ -1,6 +1,7 @@
 // src/main/java/com/example/demo/timtable/minorTimetable/service/MinorTimetableServiceImpl.java
 package com.example.demo.timetable.minorTimtable.service;
 
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -12,6 +13,11 @@ import java.util.List;
 
 @Service
 public class MinorTimetableServiceImpl implements MinorTimetableService {
+    @Override
+    public List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId) {
+        return dao.getMinorClassesByMinorTimetable(week, year, campusId);
+    }
+
     @Override
     public MinorTimetable getMinorTimetableById(String timetableId) {
         return dao.getMinorTimetableById(timetableId);

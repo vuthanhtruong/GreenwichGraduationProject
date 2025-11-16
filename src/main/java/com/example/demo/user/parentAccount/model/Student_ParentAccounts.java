@@ -1,8 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.user.parentAccount.model;
 
 import com.example.demo.entity.Enums.RelationshipToStudent;
+import com.example.demo.entity.StudentParentAccountsId;
 import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;

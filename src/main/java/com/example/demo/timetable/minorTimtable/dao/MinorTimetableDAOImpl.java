@@ -1,6 +1,7 @@
 // src/main/java/com/example/demo/timtable/minorTimetable/dao/MinorTimetableDAOImpl.java
 package com.example.demo.timetable.minorTimtable.dao;
 
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -17,6 +18,29 @@ import java.util.List;
 @Repository
 @Transactional
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
+
+    @Override
+    public List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId) {
+        if (week == null || year == null || campusId == null || campusId.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String jpql = """
+        SELECT DISTINCT c FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+          AND c.creator.campus.campusId = :campusId
+        ORDER BY c.classId
+        """;
+
+        return em.createQuery(jpql, MinorClasses.class)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
     @Override
     public MinorTimetable getMinorTimetableById(String timetableId) {
         return em.find(MinorTimetable.class, timetableId);

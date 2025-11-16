@@ -14,13 +14,8 @@
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
             <!-- Nút Home: Tự động về đúng trang chủ -->
-            <a th:href="@{${isOwnView}}" class="btn home-btn">
+            <a th:href="@{${backUrl}}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
-            </a>
-
-            <!-- Nút Back: Chỉ hiện khi Staff xem chi tiết -->
-            <a th:href="@{${backUrl}}" class="btn secondary small" th:if="${backUrl != null}">
-                <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
 

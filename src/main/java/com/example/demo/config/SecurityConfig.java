@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/minor-lecturer-home/**", "/api/minor-lecturer-home/**").hasRole("MINOR")
                         .requestMatchers("/deputy-staff-home/**", "/api/deputy-staff-home/**").hasRole("DEPUTY")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
-                        // === COMMON ACCESS ===
+                        .requestMatchers("/major-timetable/**","/specialized-timetable/**").hasAnyRole("LECTURER", "STAFF", "ADMIN")
                         .requestMatchers("/classroom/**", "/messages/**","/check-news/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
                         .requestMatchers(
                                 "/login",

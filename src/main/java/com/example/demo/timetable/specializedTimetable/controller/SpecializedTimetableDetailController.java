@@ -118,6 +118,12 @@ public class SpecializedTimetableDetailController {
             }
             studentAttendanceList.add(new Object[]{student, attendance});
         }
+        if(staff instanceof MajorLecturers){
+            model.addAttribute("before", "/major-lecturer-home/major-timetable");
+        }
+        else{
+            model.addAttribute("before", "/staff-home/classes-list");
+        }
 
         // Pass data to view
         model.addAttribute("timetable", timetable);

@@ -1,6 +1,7 @@
 // src/main/java/com/example/demo/timtable/minorTimetable/dao/MinorTimetableDAO.java
 package com.example.demo.timetable.minorTimtable.dao;
 
+import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -9,6 +10,8 @@ import com.example.demo.timetable.minorTimtable.model.MinorTimetable;
 import java.util.List;
 
 public interface MinorTimetableDAO {
+
+    List<MinorClasses> getMinorClassesByMinorTimetable(Integer week, Integer year, String campusId);
 
     List<MinorTimetable> getAllSchedulesByClass(String classId);
 

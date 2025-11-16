@@ -15,7 +15,7 @@
         <div class="title-left">
             <h1><i class="fas fa-chalkboard-teacher"></i> Major Lecturer Home - <span th:text="${specialization}"></span></h1>
             <h2>
-                Welcome, <span th:text="${lecturer.lastName} + ' ' + ${lecturer.firstName}+ ' at '+${currentCampusName}"></span>>
+                Welcome, <span th:text="${lecturer.lastName} + ' ' + ${lecturer.firstName}+ ' at '+${lecturer.getCampus().getCampusName()}"></span>
             </h2>
         </div>
 

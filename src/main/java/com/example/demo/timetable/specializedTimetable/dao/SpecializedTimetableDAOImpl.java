@@ -1,5 +1,6 @@
 package com.example.demo.timetable.specializedTimetable.dao;
 
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -10,12 +11,66 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.IsoFields;
 import java.util.List;
 
 @Repository
 @Transactional
 public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
+
+    @Override
+    public List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId) {
+        LocalDate today = LocalDate.now();
+        int currentWeek = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        int currentYear = today.getYear();
+        DaysOfWeek currentDayOfWeek = DaysOfWeek.valueOf(today.getDayOfWeek().name());
+
+        String jpql = """
+        SELECT DISTINCT t FROM SpecializedTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.specializedClass c
+        JOIN MajorLecturers_SpecializedClasses lmc ON c.classId = lmc.specializedClass.classId
+        WHERE lmc.lecturer.id = :lecturerId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+          AND t.dayOfWeek = :dayOfWeek
+        ORDER BY t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, SpecializedTimetable.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("week", currentWeek)
+                .setParameter("year", currentYear)
+                .setParameter("dayOfWeek", currentDayOfWeek)
+                .getResultList();
+    }
+
+    @Override
+    public List<SpecializedClasses> getSpecializedClassesBySpecializedTimetable(Integer week, Integer year, String campusId) {
+        if (week == null || year == null || campusId == null || campusId.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String jpql = """
+        SELECT DISTINCT c FROM SpecializedTimetable t
+        JOIN t.specializedClass c
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+          AND c.creator.campus.campusId = :campusId
+        ORDER BY c.classId
+        """;
+
+        return em.createQuery(jpql, SpecializedClasses.class)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
     @Override
     public SpecializedTimetable getTimetableById(String timetableId) {
         return em.find(SpecializedTimetable.class, timetableId);

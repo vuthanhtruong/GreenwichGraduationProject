@@ -6,6 +6,21 @@
     <title>Timetable - [[${student.fullName}]]</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/MajorTimetable.css}">
+    <style>
+        .attendance-status {
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-attended { background: #d4edda; color: #155724; }
+        .status-absent   { background: #f8d7da; color: #721c24; }
+        .status-not-marked { background: #e2e3e5; color: #6c757d; }
+    </style>
 </head>
 <body>
 <div class="timetable-container">
@@ -112,6 +127,22 @@
                             <div class="created-at">
                                 <i class="fas fa-clock"></i>
                                 <span th:text="${#temporals.format(matrix[dayIdx][slotStat.index].createdAt, 'dd/MM HH:mm')}"></span>
+                            </div>
+                            <div th:with="status=${matrix[dayIdx][slotStat.index].getAttendanceByStudentId(student.id)}"
+                                 class="attendance-status"
+                                 th:classappend="${status != null} ? (${status == 'ATTENDED'} ? 'status-attended' : 'status-absent') : 'status-not-marked'">
+
+                                <i th:switch="${status}">
+                                    <i th:case="'ATTENDED'" class="fas fa-check-circle"></i>
+                                    <i th:case="'ABSENT'" class="fas fa-times-circle"></i>
+                                    <i th:case="*" class="fas fa-question-circle"></i>
+                                </i>
+
+                                <span th:switch="${status}">
+                                    <span th:case="'ATTENDED'">ATTENDED</span>
+                                    <span th:case="'ABSENT'">ABSENT</span>
+                                    <span th:case="*">Not Marked</span>
+                                </span>
                             </div>
                         </div>
                     </div>

@@ -17,10 +17,18 @@ import java.util.List;
 @Transactional
 public class TimetableDAOImpl implements TimetableDAO {
     @Override
+    public List<Timetable> getTimetableTodayByLecturer(String lecturerId) {
+        List<Timetable> timetableList = new ArrayList<>();
+        timetableList.addAll(majorTimetableService.getMajorTimetableTodayByLecturer(lecturerId));
+        timetableList.addAll(specializedTimetableService.getSpecializedTimetableTodayByLecturer(lecturerId));
+        return timetableList;
+    }
+
+    @Override
     public List<Timetable> getMajorLecturerTimetable(String lecturerId, Integer week, Integer year) {
         List<Timetable> timetables = new ArrayList<>();
-        timetables.addAll(majorTimetableService.getMajorTimetableByStudent(lecturerId, week, year));
-        timetables.addAll(specializedTimetableService.getSpecializedTimetableByStudent(lecturerId, week, year));
+        timetables.addAll(majorTimetableService.getMajorTimetablesByLecturer(lecturerId, week, year));
+        timetables.addAll(specializedTimetableService.getSpecializedTimetablesByMajorLecturer(lecturerId, week, year));
         return timetables;
     }
 

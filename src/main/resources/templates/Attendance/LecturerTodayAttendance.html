@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Teaching Schedule</title>
+
+    <!-- Shared Windows 11 CSS -->
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body>
+
+<div class="win11-container">
+
+    <!-- ==================== Unified Toolbar (IDENTICAL to Staff HTML) ==================== -->
+    <div class="search-toolbar unified-bar">
+
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/major-lecturer-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-calendar-check"></i>
+                Today's Teaching Schedule
+            </h2>
+        </div>
+
+        <!-- Center -->
+        <div class="toolbar-center">
+            <div class="date-display">
+                <i class="fas fa-calendar-day"></i>
+                <span th:text="${today}"></span>
+            </div>
+        </div>
+
+        <!-- Right -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-info-circle"></i>
+                <span>
+                    <strong th:text="${totalSessions}"></strong> sessions today
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== TABLE (IDENTICAL STRUCTURE TO STAFFS TABLE) ==================== -->
+    <div class="table-container" th:if="${!#lists.isEmpty(todayTimetables)}">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-book"></i> Class</th>
+                <th><i class="fas fa-tag"></i> Type</th>
+                <th><i class="fas fa-clock"></i> Time</th>
+                <th><i class="fas fa-door-open"></i> Room</th>
+                <th><i class="fas fa-cogs"></i> Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="tt : ${todayTimetables}">
+                <td th:text="${tt.getClassName()}"></td>
+
+                <td>
+                    <span class="badge-class-type"
+                          th:classappend="${tt.getClassType()} == 'Major' ? ' type-major' : ' type-specialized'"
+                          th:text="${tt.getClassType()}">
+                    </span>
+                </td>
+
+                <td>
+                    <strong th:text="${tt.slot.slotName}"></strong>
+                    <span>:</span>
+                    <span th:text="${#temporals.format(tt.slot.startTime, 'HH:mm')}"></span>
+                    -
+                    <span th:text="${#temporals.format(tt.slot.endTime, 'HH:mm')}"></span>
+                </td>
+
+                <td th:text="${tt.room.roomName ?: tt.room.roomId}"></td>
+
+                <td>
+                    <div class="actions">
+                        <form th:action="@{${tt.getDetailUrl()}}" method="post" class="inline-form">
+                            <input type="hidden" name="timetableId" th:value="${tt.timetableId}">
+                            <input type="hidden" name="classId" th:value="${tt.getClassId()}">
+
+                            <button type="submit" class="btn small primary">
+                                <i class="fas fa-clipboard-check"></i> Take Attendance
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- ==================== NO SESSION PANEL (IDENTICAL PANEL STYLE) ==================== -->
+    <section class="win11-panel" th:if="${#lists.isEmpty(todayTimetables)}">
+        <h2 class="panel-header">
+            <i class="fas fa-calendar-times"></i> No Classes Today
+        </h2>
+
+        <div class="no-session">
+            <i class="fas fa-calendar-xmark" style="font-size: 3rem; color: #ccc;"></i>
+            <p>You have <strong>no scheduled classes</strong> today.</p>
+
+            <a th:href="@{/major-lecturer-home}" class="btn primary">
+                <i class="fas fa-home"></i> Return to Home
+            </a>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

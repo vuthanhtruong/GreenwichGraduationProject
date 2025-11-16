@@ -1,5 +1,6 @@
 package com.example.demo.timetable.majorTimetable.dao;
 
+import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.MajorTimetable;
@@ -10,12 +11,61 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.IsoFields;
 import java.util.List;
 
 @Repository
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
+
+    @Override
+    public List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId) {
+        LocalDate today = LocalDate.now();
+        int currentWeek = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        int currentYear = today.getYear();
+        DaysOfWeek currentDayOfWeek = DaysOfWeek.valueOf(today.getDayOfWeek().name());
+
+        String jpql = """
+        SELECT DISTINCT t FROM MajorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.classEntity c
+        JOIN MajorLecturers_MajorClasses lmc ON c.classId = lmc.majorClass.classId
+        WHERE lmc.lecturer.id = :lecturerId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+          AND t.dayOfWeek = :dayOfWeek
+        ORDER BY t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MajorTimetable.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("week", currentWeek)
+                .setParameter("year", currentYear)
+                .setParameter("dayOfWeek", currentDayOfWeek)
+                .getResultList();
+    }
+
+    @Override
+    public List<MajorClasses> getMajorClassesByMajorTimetable(Integer week, Integer year, String campusId) {
+        String jpql = """
+        SELECT DISTINCT c FROM MajorTimetable t
+        JOIN t.classEntity c
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+          AND c.creator.campus.campusId = :campusId
+        """;
+
+        return em.createQuery(jpql, MajorClasses.class)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
     @Override
     public MajorTimetable getMajorTimetableById(String timetableId) {
         return em.find(MajorTimetable.class, timetableId);

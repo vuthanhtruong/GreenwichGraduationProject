@@ -82,11 +82,6 @@ public class MajorTimetableDetailController {
         }
 
         MajorTimetable timetable = timetableService.getMajorTimetableById(timetableId);
-        if (timetable == null || !timetable.getClassEntity().getClassId().equals(classId)) {
-            model.addAttribute("error", "Invalid timetable or class access.");
-            return "redirect:/staff-home/classes-list";
-        }
-
         MajorClasses majorClass = timetable.getClassEntity();
 
         // Get lecturers teaching this class
@@ -112,6 +107,12 @@ public class MajorTimetableDetailController {
             }
             studentAttendanceList.add(new Object[]{student, attendance});
         }
+        if(staff instanceof MajorLecturers){
+            model.addAttribute("before", "/major-lecturer-home/major-timetable");
+        }
+        else{
+            model.addAttribute("before", "/staff-home/classes-list");
+        }
 
         // Pass data to view
         model.addAttribute("timetable", timetable);
@@ -119,7 +120,6 @@ public class MajorTimetableDetailController {
         model.addAttribute("lecturers", lecturers);
         model.addAttribute("studentAttendanceList", studentAttendanceList);
         model.addAttribute("staff", staff);
-
         return "MajorTimetableDetail";
     }
 }

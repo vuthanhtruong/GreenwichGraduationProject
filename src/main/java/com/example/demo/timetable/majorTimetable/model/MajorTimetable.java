@@ -1,6 +1,7 @@
 // src/main/java/com/example/demo/timetable/majorTimetable/model/MajorTimetable.java
 package com.example.demo.timetable.majorTimetable.model;
 
+import com.example.demo.attendance.majorAttendance.model.MajorAttendance;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
@@ -8,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "MajorTimetable")
@@ -25,6 +29,9 @@ public class MajorTimetable extends Timetable {
     @JoinColumn(name = "Creator", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Staffs creator;
+
+    @OneToMany(mappedBy = "timetable", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MajorAttendance> attendances = new ArrayList<>();
 
     @Override
     public String getClassId() {
@@ -44,6 +51,21 @@ public class MajorTimetable extends Timetable {
     @Override
     public String getCreatorName() {
         return creator != null ? creator.getFullName() : "N/A";
+    }
+
+    // src/main/java/com/example/demo/timetable/majorTimetable/model/MajorTimetable.java
+    @Override
+    public String getDetailUrl() {
+        return "/major-timetable/detail";
+    }
+    @Override
+    public String getAttendanceByStudentId(String id) {
+        for (MajorAttendance attendance : attendances) {
+            if (attendance.getStudent().getId().equals(id)) {
+                return attendance.getStatus().toString();
+            }
+        }
+        return null;
     }
 
     public MajorTimetable() {}

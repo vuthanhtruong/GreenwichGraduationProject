@@ -1,7 +1,7 @@
 package com.example.demo.user.parentAccount.dao;
 
 import com.example.demo.user.parentAccount.model.ParentAccounts;
-import com.example.demo.entity.Student_ParentAccounts;
+import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.user.person.service.PersonsService;

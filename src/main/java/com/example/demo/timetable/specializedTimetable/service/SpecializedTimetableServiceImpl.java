@@ -1,5 +1,6 @@
 package com.example.demo.timetable.specializedTimetable.service;
 
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.specializedTimetable.dao.SpecializedTimetableDAO;
@@ -15,6 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class SpecializedTimetableServiceImpl implements SpecializedTimetableService {
+    @Override
+    public List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId) {
+        return dao.getSpecializedTimetableTodayByLecturer(lecturerId);
+    }
+
+    @Override
+    public List<SpecializedClasses> getSpecializedClassesBySpecializedTimetable(Integer week, Integer year, String campusId) {
+        return dao.getSpecializedClassesBySpecializedTimetable(week, year, campusId);
+    }
+
     @Override
     public SpecializedTimetable getTimetableById(String timetableId) {
         return dao.getTimetableById(timetableId);

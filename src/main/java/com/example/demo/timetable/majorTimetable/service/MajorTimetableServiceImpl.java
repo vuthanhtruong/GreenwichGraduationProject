@@ -1,5 +1,6 @@
 package com.example.demo.timetable.majorTimetable.service;
 
+import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.dao.MajorTimetableDAO;
@@ -11,6 +12,16 @@ import java.util.List;
 
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
+    @Override
+    public List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId) {
+        return majorTimetableDAO.getMajorTimetableTodayByLecturer(lecturerId);
+    }
+
+    @Override
+    public List<MajorClasses> getMajorClassesByMajorTimetable(Integer week, Integer year, String campusId) {
+        return majorTimetableDAO.getMajorClassesByMajorTimetable(week, year, campusId);
+    }
+
     @Override
     public MajorTimetable getMajorTimetableById(String timetableId) {
         return majorTimetableDAO.getMajorTimetableById(timetableId);

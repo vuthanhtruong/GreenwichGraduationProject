@@ -1,5 +1,6 @@
 package com.example.demo.timetable.specializedTimetable.dao;
 
+import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
 import com.example.demo.timetable.majorTimetable.model.Slots;
@@ -46,4 +47,6 @@ public interface SpecializedTimetableDAO {
     List<SpecializedTimetable> getSpecializedTimetablesByMajorLecturer(String lecturerId, Integer week, Integer year);
     // Add this method to the interface
     SpecializedTimetable getTimetableById(String timetableId);
+    List<SpecializedClasses> getSpecializedClassesBySpecializedTimetable(Integer week, Integer year, String campusId);
+    List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId);
 }
