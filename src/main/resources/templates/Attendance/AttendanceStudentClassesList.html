@@ -51,12 +51,12 @@
                 <td th:text="${class.getClassEntity().getSession()}"></td>
                 <td th:text="${class.getClassEntity().getSlotQuantity()}"></td>
                 <td>
-                    <form th:action="@{/student-home/student-classes-list/evaluation}" method="get" class="inline-form">
+                    <form th:action="@{/student-home/student-classes-list/attendance}" method="get" class="inline-form">
                         <input type="hidden" th:name="classId" th:value="${class.getClassEntity().getClassId()}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                         <button type="submit" class="btn small success">
-                            <i class="fas fa-clipboard-check"></i> My Evaluation
+                            <i class="fas fa-clipboard-check"></i> My Attendance
                         </button>
                     </form>
                 </td>

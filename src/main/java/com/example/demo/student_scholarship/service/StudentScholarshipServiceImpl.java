@@ -12,6 +12,11 @@ import java.util.Map;
 @Service
 public class StudentScholarshipServiceImpl implements StudentScholarshipService {
     @Override
+    public Students_Scholarships getActiveScholarshipByStudentIdAndYear(String studentId, Integer admissionYear) {
+        return studentScholarshipDAO.getActiveScholarshipByStudentIdAndYear(studentId, admissionYear);
+    }
+
+    @Override
     public Map<String, Object> getScholarshipByStudentId(String studentId) {
         return studentScholarshipDAO.getScholarshipByStudentId(studentId);
     }

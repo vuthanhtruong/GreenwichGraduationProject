@@ -26,104 +26,155 @@
 
     <!-- Flash Messages -->
     <div class="alert error" th:if="${errorMessage != null}">
-        <i class="fas fa-times-circle"></i> <span th:text="${errorMessage}"></span>
+        <i class="fas fa-times-circle"></i>
+        <span th:text="${errorMessage}"></span>
     </div>
     <div class="alert success" th:if="${successMessage != null}">
-        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
     </div>
 
     <!-- Student Info -->
     <div class="info-box" th:if="${student != null}">
-        <p><strong>Full Name:</strong> <span th:text="${student.firstName + ' ' + student.lastName}"></span></p>
-        <p><strong>Student ID:</strong> <span th:text="${student.id}"></span></p>
-        <p><strong>Account Balance:</strong>
-            <span th:text="${#numbers.formatCurrency(currentBalance)}">$0.00</span>
+        <p>
+            <strong>Full Name:</strong>
+            <span th:text="${student.fullName}">Student Name</span>
+        </p>
+        <p>
+            <strong>Student ID:</strong>
+            <span th:text="${student.id}">N/A</span>
+        </p>
+        <p>
+            <strong>Account Balance:</strong>
+            <span th:if="${currentBalance != null}"
+                  th:text="${#numbers.formatDecimal(currentBalance, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                0 VND
+            </span>
+            <span th:unless="${currentBalance != null}">
+                N/A
+            </span>
+        </p>
+        <p>
+            <strong>Total Failed Subjects:</strong>
+            <span th:text="${totalFail}">0</span>
         </p>
     </div>
 
-    <!-- Form -->
-    <form th:action="@{/student-home/re-study-request/pay}" method="post"
+    <!-- Form chọn môn học lại -->
+    <form th:action="@{/student-home/re-study-request/pay}"
+          method="post"
           th:if="${failTranscripts != null and not #lists.isEmpty(failTranscripts)}"
           onsubmit="return validateSelection()">
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div class="table-container">
             <h3><i class="fas fa-list-alt"></i> Select Subjects to Re-study</h3>
 
-            <div th:each="transcript : ${failTranscripts}">
+            <!-- Danh sách môn trượt -->
+            <div th:each="transcript : ${failTranscripts}"
+                 th:with="fee=${reStudyFeeMap[transcript.subjectId]}">
                 <div class="subject-card">
                     <label class="checkbox-label">
                         <input type="checkbox"
+                               class="subject-checkbox"
                                th:name="selectedSubjects"
-                               th:value="${transcript.getSubjectId()}"
-                               th:onclick="updateTotal()"
-                               class="subject-checkbox">
+                               th:value="${transcript.subjectId}"
+                               th:attr="data-fee=${fee}"
+                               onclick="updateTotal()">
                         <div style="flex: 1;">
                             <div class="subject-header">
                                 <div>
-                                    <span class="subject-name" th:text="${transcript.getSubjectName()}">N/A</span>
+                                    <span class="subject-name"
+                                          th:text="${transcript.subjectName}">Subject Name</span>
                                     <span class="fail-badge">FAILED</span>
                                 </div>
                             </div>
-                            <p><strong>Subject ID:</strong> <span th:text="${transcript.getSubjectId()}">N/A</span></p>
+                            <p>
+                                <strong>Subject ID:</strong>
+                                <span th:text="${transcript.subjectId}">N/A</span>
+                            </p>
+                            <p>
+                                <strong>Re-study Fee:</strong>
+                                <span class="subject-fee"
+                                      th:text="${fee != null} ? ${#numbers.formatDecimal(fee, 0, 'COMMA', 0, 'POINT')} + ' VND' : 'N/A'">
+                                    0 VND
+                                </span>
+                            </p>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <!-- Total & Pay Button -->
+            <!-- Tổng tiền + nút thanh toán -->
             <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                 <p class="total-cost">
-                    Total Cost: <span id="totalCost">$0.00</span>
+                    Total Cost:
+                    <span id="totalCost">0 VND</span>
                 </p>
                 <button type="submit" class="pay-btn" id="payBtn" disabled>
-                    <i class="fas fa-credit-card"></i> Confirm & Pay
+                    <i class="fas fa-credit-card"></i> Confirm &amp; Pay
                 </button>
             </div>
         </div>
     </form>
 
-    <!-- No Failed Subjects -->
-    <div class="info-box success" th:if="${failTranscripts == null or #lists.isEmpty(failTranscripts)}">
+    <!-- Không có môn trượt -->
+    <div class="info-box success"
+         th:if="${failTranscripts == null or #lists.isEmpty(failTranscripts)}">
         <i class="fas fa-check-circle"></i>
         <strong>Congratulations!</strong> You have no failed subjects.
     </div>
 
 </div>
 
-<!-- JavaScript -->
-<script th:inline="javascript">
-    const feeMap = /*[[${feeMap}]]*/ {};
-    const currentBalance = /*[[${currentBalance}]]*/ 0;
-
+<!-- JS tính tổng tiền & validate -->
+<script type="text/javascript">
     function updateTotal() {
+        const checkboxes = document.querySelectorAll('.subject-checkbox');
         let total = 0;
-        document.querySelectorAll('.subject-checkbox:checked').forEach(cb => {
-            const fee = feeMap[cb.value];
-            if (fee) total += parseFloat(fee);
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const feeAttr = cb.getAttribute('data-fee');
+                const fee = feeAttr ? parseFloat(feeAttr) : 0;
+                if (!isNaN(fee)) {
+                    total += fee;
+                }
+            }
         });
-        const totalEl = document.getElementById('totalCost');
-        totalEl.textContent = '$' + total.toFixed(2);
+
+        const totalSpan = document.getElementById('totalCost');
+        if (totalSpan) {
+            // Format theo VND
+            try {
+                totalSpan.textContent = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(total);
+            } catch (e) {
+                // Fallback nếu Intl không hỗ trợ
+                totalSpan.textContent = total.toLocaleString('vi-VN') + ' VND';
+            }
+        }
 
         const payBtn = document.getElementById('payBtn');
-        payBtn.disabled = total === 0 || total > currentBalance;
+        if (payBtn) {
+            payBtn.disabled = total <= 0;
+        }
     }
 
     function validateSelection() {
-        const checked = document.querySelectorAll('.subject-checkbox:checked').length;
-        if (checked === 0) {
-            alert('Please select at least one subject.');
-            return false;
-        }
-        const total = parseFloat(document.getElementById('totalCost').textContent.replace('$', ''));
-        if (total > currentBalance) {
-            alert('Insufficient balance! You need $' + total.toFixed(2));
+        const anyChecked = Array.from(document.querySelectorAll('.subject-checkbox'))
+            .some(cb => cb.checked);
+
+        if (!anyChecked) {
+            alert('Please select at least one subject to re-study.');
             return false;
         }
         return true;
     }
-
-    // Init
-    updateTotal();
 </script>
+
 </body>
 </html>

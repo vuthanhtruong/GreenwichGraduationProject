@@ -1,7 +1,8 @@
-package com.example.demo.academicTranscript.controller;
+package com.example.demo.retakeSubjects.controller;
 
 import com.example.demo.academicTranscript.model.AcademicTranscripts;
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.user.student.model.Students;
@@ -24,14 +25,17 @@ public class ReStudyRequestController {
     private final StudentsService studentsService;
     private final AcademicTranscriptsService academicTranscriptsService;
     private final TuitionByYearService tuitionByYearService;
+    private final RetakeSubjectsService retakeSubjectsService;
 
     public ReStudyRequestController(
             StudentsService studentsService,
             AcademicTranscriptsService academicTranscriptsService,
-            TuitionByYearService tuitionByYearService) {
+            TuitionByYearService tuitionByYearService,
+            RetakeSubjectsService retakeSubjectsService) {
         this.studentsService = studentsService;
         this.academicTranscriptsService = academicTranscriptsService;
         this.tuitionByYearService = tuitionByYearService;
+        this.retakeSubjectsService = retakeSubjectsService;
     }
 
     @GetMapping("/re-study-request")
@@ -55,22 +59,40 @@ public class ReStudyRequestController {
         }
 
         // 1. Get all failed subjects (REFER)
-        List<AcademicTranscripts> failTranscripts = academicTranscriptsService.getFailSubjectsByStudent(student);
+        List<AcademicTranscripts> failTranscripts =
+                academicTranscriptsService.getFailSubjectsByStudent(student);
 
         // 2. Get all TuitionByYear with reStudyTuition > 0 for this year + campus
-        List<TuitionByYear> tuitionsWithReStudyFee = tuitionByYearService
-                .getTuitionsWithReStudyFeeByYear(admissionYear, student.getCampus());
+        List<TuitionByYear> tuitionsWithReStudyFee =
+                tuitionByYearService.getTuitionsWithReStudyFeeByYear(admissionYear, student.getCampus());
 
         // 3. Build Map<subjectId, reStudyTuition>
         Map<String, Double> reStudyFeeMap = new HashMap<>();
         for (TuitionByYear t : tuitionsWithReStudyFee) {
-            reStudyFeeMap.put(t.getSubject().getSubjectId(), t.getReStudyTuition());
+            if (t.getSubject() != null && t.getSubject().getSubjectId() != null) {
+                reStudyFeeMap.put(t.getSubject().getSubjectId(), t.getReStudyTuition());
+            }
         }
 
-        // 4. Filter only failed subjects that have re-study fee
+        // 4. Filter:
+        //    - chỉ giữ môn có học phí học lại
+        //    - và CHƯA nằm trong bảng RetakeSubjects
         failTranscripts.removeIf(transcript -> {
             String subjectId = transcript.getSubjectId();
-            return !reStudyFeeMap.containsKey(subjectId);
+            if (subjectId == null) {
+                return true; // không có subjectId → loại luôn
+            }
+
+            // Không có cấu hình học phí học lại → loại
+            if (!reStudyFeeMap.containsKey(subjectId)) {
+                return true;
+            }
+
+            // Nếu đã có record trong RetakeSubjects → không hiện nữa
+            boolean alreadyInRetake =
+                    retakeSubjectsService.existsByStudentAndSubject(student.getId(), subjectId);
+
+            return alreadyInRetake;
         });
 
         model.addAttribute("student", student);

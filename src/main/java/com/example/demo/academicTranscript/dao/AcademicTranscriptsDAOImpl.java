@@ -317,6 +317,40 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
             return new ArrayList<>();
         }
     }
+    @Override
+    public boolean hasPassedSubject(Students student, String subjectId) {
+        if (student == null || subjectId == null) return false;
+
+        // Major transcripts
+        for (MajorAcademicTranscripts t : getMajorAcademicTranscripts(student)) {
+            if (subjectId.equals(t.getSubjectId())
+                    && t.getGrade() != null
+                    && t.getGrade() != Grades.REFER) {
+                return true;
+            }
+        }
+
+        // Minor transcripts
+        for (MinorAcademicTranscripts t : getMinorAcademicTranscripts(student)) {
+            if (subjectId.equals(t.getSubjectId())
+                    && t.getGrade() != null
+                    && t.getGrade() != Grades.REFER) {
+                return true;
+            }
+        }
+
+        // Specialized transcripts
+        for (SpecializedAcademicTranscripts t : getSpecializedAcademicTranscripts(student)) {
+            if (subjectId.equals(t.getSubjectId())
+                    && t.getGrade() != null
+                    && t.getGrade() != Grades.REFER) {
+                return true;
+            }
+        }
+
+        // Không thấy bản ghi PASS/MERIT/DISTINCTION nào cho môn này
+        return false;
+    }
 
     @Override
     public List<MajorAcademicTranscripts> getAcademicTranscriptsByMajorClass(Students student, MajorClasses majorClass) {

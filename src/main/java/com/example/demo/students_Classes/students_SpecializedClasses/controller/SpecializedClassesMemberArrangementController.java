@@ -1,14 +1,20 @@
 package com.example.demo.students_Classes.students_SpecializedClasses.controller;
 
+import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.retakeSubjects.model.RetakeSubjects;
+import com.example.demo.retakeSubjects.model.TemporaryRetakeSubjects;
 import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
+import com.example.demo.retakeSubjects.service.TemporaryRetakeSubjectsService;
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
 import com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.service.MajorLecturers_SpecializedClassesService;
-import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
+import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
+import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
 import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.model.StudentRequiredSpecializedSubjects;
 import com.example.demo.studentRequiredSubjects.studentRequiredSpecializedSubjects.service.StudentRequiredSpecializedSubjectsService;
+import com.example.demo.student_scholarship.model.Students_Scholarships;
+import com.example.demo.student_scholarship.service.StudentScholarshipService;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
@@ -43,9 +49,13 @@ public class SpecializedClassesMemberArrangementController {
     private final StudentsService studentsService;
     private final ClassesService classesService;
     private final RetakeSubjectsService retakeSubjectsService;
+    private final TemporaryRetakeSubjectsService temporaryRetakeSubjectsService;
     private final AccountBalancesService accountBalancesService;
     private final TuitionByYearService tuitionByYearService;
     private final StudentRequiredSpecializedSubjectsService studentRequiredSpecializedSubjectsService;
+    private final StudentScholarshipService studentScholarshipService;
+    private final ScholarshipByYearService scholarshipByYearService;
+    private final AcademicTranscriptsService academicTranscriptsService;
 
     @Autowired
     public SpecializedClassesMemberArrangementController(
@@ -56,9 +66,12 @@ public class SpecializedClassesMemberArrangementController {
             StudentsService studentsService,
             ClassesService classesService,
             RetakeSubjectsService retakeSubjectsService,
+            TemporaryRetakeSubjectsService temporaryRetakeSubjectsService,
             AccountBalancesService accountBalancesService,
             TuitionByYearService tuitionByYearService,
-            StudentRequiredSpecializedSubjectsService studentRequiredSpecializedSubjectsService) {
+            StudentRequiredSpecializedSubjectsService studentRequiredSpecializedSubjectsService,
+            StudentScholarshipService studentScholarshipService,
+            ScholarshipByYearService scholarshipByYearService, AcademicTranscriptsService academicTranscriptsService) {
         this.studentsSpecializedClassesService = studentsSpecializedClassesService;
         this.specializedClassesService = specializedClassesService;
         this.lecturersClassesService = lecturersClassesService;
@@ -66,9 +79,13 @@ public class SpecializedClassesMemberArrangementController {
         this.studentsService = studentsService;
         this.classesService = classesService;
         this.retakeSubjectsService = retakeSubjectsService;
+        this.temporaryRetakeSubjectsService = temporaryRetakeSubjectsService;
         this.accountBalancesService = accountBalancesService;
         this.tuitionByYearService = tuitionByYearService;
         this.studentRequiredSpecializedSubjectsService = studentRequiredSpecializedSubjectsService;
+        this.studentScholarshipService = studentScholarshipService;
+        this.scholarshipByYearService = scholarshipByYearService;
+        this.academicTranscriptsService = academicTranscriptsService;
     }
 
     @PostMapping("/member-arrangement")
@@ -97,7 +114,7 @@ public class SpecializedClassesMemberArrangementController {
 
         String subjectId = clazz.getSpecializedSubject().getSubjectId();
 
-        // 1. Danh sách sinh viên đang trong lớp
+        // 1. Students in class (entities)
         List<Students_SpecializedClasses> studentsInClassEntities = studentsSpecializedClassesService.getStudentsInClass(classId);
         List<Students> studentsInClass = studentsInClassEntities.stream()
                 .map(Students_SpecializedClasses::getStudent)
@@ -107,50 +124,63 @@ public class SpecializedClassesMemberArrangementController {
                 .map(Students::getId)
                 .collect(Collectors.toSet());
 
-        // 2. Danh sách giảng viên
+        // 2. Lecturers
         List<MajorLecturers> lecturersInClass = lecturersClassesService.listLecturersInClass(clazz);
         List<MajorLecturers> lecturersNotInClass = lecturersClassesService.listLecturersNotInClass(clazz);
 
-        // 3. Sinh viên bắt buộc học môn này (Required)
+        // 3. Required students for this specialized subject (not in class)
         List<StudentRequiredSpecializedSubjects> requiredList = studentRequiredSpecializedSubjectsService
                 .getStudentRequiredSpecializedSubjects(clazz.getSpecializedSubject(), null);
 
         List<Students> requiredStudents = requiredList.stream()
                 .map(StudentRequiredSpecializedSubjects::getStudent)
                 .filter(Objects::nonNull)
-                .filter(s -> !studentsInClassIds.contains(s.getId())) // Loại bỏ SV đã có lớp
+                .filter(s -> !studentsInClassIds.contains(s.getId()))
                 .toList();
 
-        // 4. Danh sách retake
-        List<RetakeSubjects> retakeList = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId);
-        Set<String> retakeStudentIds = retakeList.stream()
+        // 4. Retake (paid) list for subject
+        List<RetakeSubjects> retakeListAll = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId);
+        Set<String> retakeStudentIds = retakeListAll.stream()
                 .map(r -> r.getStudent().getId())
                 .collect(Collectors.toSet());
 
-        // Loại bỏ SV đã ở retakeList khỏi requiredStudents
+        // 5. Temporary retake list
+        List<TemporaryRetakeSubjects> temporaryRetakeList = temporaryRetakeSubjectsService.getAllPending().stream()
+                .filter(t -> t.getSubject() != null
+                        && subjectId.equals(t.getSubject().getSubjectId()))
+                .filter(t -> !studentsInClassIds.contains(t.getStudent().getId()))
+                .toList();
+        Set<String> tempStudentIds = temporaryRetakeList.stream()
+                .map(t -> t.getStudent().getId())
+                .collect(Collectors.toSet());
+
+        // 6. Eligible required students (not in retake, not in temp, chưa pass)
         List<Students> eligibleRequiredStudents = requiredStudents.stream()
                 .filter(s -> !retakeStudentIds.contains(s.getId()))
+                .filter(s -> !tempStudentIds.contains(s.getId()))
+                .filter(s -> !academicTranscriptsService.hasPassedSubject(s, subjectId)) // <-- LỌC PASS
                 .toList();
 
-        // 5. Chia theo số dư
+        // 7. Split by balance
         List<Students> studentsWithEnoughMoney = retakeSubjectsService
                 .getStudentsWithSufficientBalance(subjectId, eligibleRequiredStudents);
 
         List<Students> studentsDoNotHaveEnoughMoney = retakeSubjectsService
                 .getStudentsWithInsufficientBalance(subjectId, eligibleRequiredStudents);
 
-        // 6. Lọc retakeList: chỉ giữ SV KHÔNG có trong lớp
-        List<RetakeSubjects> filteredRetakeList = retakeList.stream()
+        // 8. Retake list only for students not in class
+        List<RetakeSubjects> filteredRetakeList = retakeListAll.stream()
                 .filter(r -> !studentsInClassIds.contains(r.getStudent().getId()))
                 .toList();
 
         model.addAttribute("class", clazz);
-        model.addAttribute("studentsInClass", studentsInClassEntities); // Giữ entity để hiển thị
+        model.addAttribute("studentsInClass", studentsInClassEntities);
         model.addAttribute("lecturersInClass", lecturersInClass);
         model.addAttribute("lecturersNotInClass", lecturersNotInClass);
         model.addAttribute("studentsWithEnoughMoney", studentsWithEnoughMoney);
         model.addAttribute("studentsDoNotHaveEnoughMoney", studentsDoNotHaveEnoughMoney);
-        model.addAttribute("retakeList", filteredRetakeList); // ĐÃ LỌC
+        model.addAttribute("retakeList", filteredRetakeList);
+        model.addAttribute("temporaryRetakeList", temporaryRetakeList);
 
         return "SpecializedClassMemberArrangement";
     }
@@ -164,10 +194,11 @@ public class SpecializedClassesMemberArrangementController {
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
         model.addAttribute("retakeList", new ArrayList<>());
+        model.addAttribute("temporaryRetakeList", new ArrayList<>());
         return "SpecializedClassMemberArrangement";
     }
 
-    // ——— XÓA SINH VIÊN KHỎI LỚP → THÊM VÀO RETAKE (NẾU CHƯA CÓ) ———
+    // REMOVE → add Temporary
     @PostMapping("/remove-student-from-class")
     public String removeStudent(@RequestParam("classId") String classId,
                                 @RequestParam(value = "studentIds", required = false) List<String> studentIds,
@@ -184,7 +215,6 @@ public class SpecializedClassesMemberArrangementController {
             return "redirect:/staff-home/specialized-classes-list/member-arrangement";
         }
 
-        String subjectId = clazz.getSpecializedSubject().getSubjectId();
         int removedCount = 0;
 
         for (String sid : studentIds) {
@@ -192,37 +222,35 @@ public class SpecializedClassesMemberArrangementController {
                 continue;
             }
 
-            // Xóa khỏi lớp
             studentsSpecializedClassesService.removeStudentFromClass(sid, classId);
             removedCount++;
 
-            // Chỉ thêm vào retake nếu chưa có
-            if (!retakeSubjectsService.existsByStudentAndSubject(sid, subjectId)) {
-                Students s = studentsService.getStudentById(sid);
-                if (s != null) {
-                    RetakeSubjects r = new RetakeSubjects();
-                    r.setId(new StudentRetakeSubjectsId(sid, subjectId));
-                    r.setStudent(s);
-                    r.setSubject(clazz.getSpecializedSubject());
-                    r.setRetakeReason("Removed from specialized class");
-                    r.setCreatedAt(LocalDateTime.now());
-                    retakeSubjectsService.save(r);
-                }
+            Students s = studentsService.getStudentById(sid);
+            if (s != null) {
+                temporaryRetakeSubjectsService.addToTemporary(
+                        s,
+                        clazz.getSpecializedSubject(),
+                        "Removed from specialized class " + classId
+                );
             }
         }
 
-        ra.addFlashAttribute("successMessage", removedCount + " student(s) removed and added to retake list if needed.");
+        ra.addFlashAttribute("successMessage",
+                removedCount + " student(s) removed and added to temporary retake list.");
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/specialized-classes-list/member-arrangement";
     }
 
-    // ——— THÊM SINH VIÊN VÀO LỚP → KHÔNG TRỪ TIỀN NẾU ĐÃ Ở RETAKE ———
+    // ADD → clean Retake / Temporary khi đã vào lớp
     @PostMapping("/add-student-to-class")
-    public String addStudent(@RequestParam("classId") String classId,
-                             @RequestParam(value = "studentIds", required = false) List<String> studentIds,
-                             Model model, RedirectAttributes ra, HttpSession session) {
+    public String addStudentToClass(
+            @RequestParam("classId") String classId,
+            @RequestParam(value = "studentIds", required = false) List<String> studentIds,
+            Model model, RedirectAttributes ra, HttpSession session) {
+
         List<String> errors = new ArrayList<>();
         SpecializedClasses clazz = specializedClassesService.getClassById(classId);
+
         if (clazz == null) {
             errors.add("Class not found");
             populateError(model, null, errors);
@@ -231,7 +259,7 @@ public class SpecializedClassesMemberArrangementController {
 
         Staffs staff = staffsService.getStaff();
         if (staff == null) {
-            errors.add("Staff not found");
+            errors.add("Staff information not found");
             populateError(model, clazz, errors);
             return "SpecializedClassMemberArrangement";
         }
@@ -243,52 +271,88 @@ public class SpecializedClassesMemberArrangementController {
         }
 
         String subjectId = clazz.getSpecializedSubject().getSubjectId();
-        int added = 0;
+        int addedCount = 0;
 
-        for (String sid : studentIds) {
-            Students s = studentsService.getStudentById(sid);
-            if (s == null) continue;
-
-            if (studentsSpecializedClassesService.existsByStudentAndClass(sid, classId)) {
-                errors.add(s.getFullName() + " already in class");
+        for (String studentId : studentIds) {
+            Students student = studentsService.getStudentById(studentId);
+            if (student == null) {
+                errors.add("Student ID " + studentId + " does not exist");
                 continue;
             }
 
-            // Kiểm tra đã ở retake chưa → nếu có, không trừ tiền
-            boolean isInRetake = retakeSubjectsService.existsByStudentAndSubject(sid, subjectId);
+            if (studentsSpecializedClassesService.existsByStudentAndClass(studentId, classId)) {
+                errors.add(student.getFullName() + " is already enrolled in this class");
+                continue;
+            }
 
-            if (!isInRetake) {
-                Double fee = getReStudyFee(subjectId, s);
-                if (fee == null || fee <= 0) {
-                    errors.add("Fee not defined for subject");
+            boolean isInRetake = retakeSubjectsService.existsByStudentAndSubject(studentId, subjectId);
+            boolean isInTemporary = temporaryRetakeSubjectsService.exists(studentId, subjectId);
+
+            Double finalFeeToDeduct = 0.0;
+            Double originalFee = null;
+
+            if (!isInRetake && !isInTemporary) {
+                originalFee = getReStudyFee(subjectId, student);
+                if (originalFee == null || originalFee <= 0) {
+                    errors.add("Re-study fee not configured for subject: " + subjectId);
                     continue;
                 }
-                if (!accountBalancesService.hasSufficientBalance(sid, fee)) {
-                    errors.add(s.getFullName() + " does not have enough money");
+
+                finalFeeToDeduct = originalFee;
+
+                Integer admissionYear = student.getAdmissionYear();
+                if (admissionYear != null) {
+                    Students_Scholarships activeScholarship = studentScholarshipService
+                            .getActiveScholarshipByStudentIdAndYear(studentId, admissionYear);
+
+                    if (activeScholarship != null) {
+                        ScholarshipByYear scholarshipByYear = scholarshipByYearService
+                                .getFinalizedScholarshipByIdAndYear(
+                                        activeScholarship.getScholarship().getScholarshipId(),
+                                        admissionYear);
+
+                        if (scholarshipByYear != null
+                                && scholarshipByYear.getDiscountPercentage() != null
+                                && scholarshipByYear.getDiscountPercentage() > 0
+                                && scholarshipByYear.getDiscountPercentage() <= 100) {
+
+                            double discount = scholarshipByYear.getDiscountPercentage();
+                            finalFeeToDeduct = originalFee * (100.0 - discount) / 100.0;
+                            finalFeeToDeduct = Math.round(finalFeeToDeduct * 100.0) / 100.0;
+                        }
+                    }
+                }
+
+                if (!accountBalancesService.hasSufficientBalance(studentId, finalFeeToDeduct)) {
+                    errors.add(student.getFullName() + " has insufficient balance (required: "
+                            + String.format("%,.0f", finalFeeToDeduct) + " VND)");
                     continue;
                 }
             }
 
-            // Thêm vào lớp
-            Students_SpecializedClasses ssc = new Students_SpecializedClasses();
-            StudentsClassesId id = new StudentsClassesId();
-            id.setStudentId(sid);
-            id.setClassId(classId);
-            ssc.setId(id);
-            ssc.setStudent(s);
-            ssc.setSpecializedClass(clazz);
-            ssc.setClassEntity(classesService.findClassById(classId));
-            ssc.setAddedBy(staff);
-            ssc.setCreatedAt(LocalDateTime.now());
-            studentsSpecializedClassesService.addStudentToClass(ssc);
-            added++;
+            // ENROLL
+            Students_SpecializedClasses enrollment = new Students_SpecializedClasses();
+            StudentsClassesId id = new StudentsClassesId(studentId, classId);
+            enrollment.setId(id);
+            enrollment.setStudent(student);
+            enrollment.setSpecializedClass(clazz);
+            enrollment.setClassEntity(classesService.findClassById(classId));
+            enrollment.setAddedBy(staff);
+            enrollment.setCreatedAt(LocalDateTime.now());
 
-            // Chỉ trừ tiền nếu chưa ở retake
-            if (!isInRetake) {
-                Double fee = getReStudyFee(subjectId, s);
-                if (fee != null && fee > 0) {
-                    retakeSubjectsService.deductAndLogPayment(s, subjectId, fee);
-                }
+            studentsSpecializedClassesService.addStudentToClass(enrollment);
+            addedCount++;
+
+            if (!isInRetake && !isInTemporary && finalFeeToDeduct > 0) {
+                retakeSubjectsService.deductAndLogPayment(student, subjectId, finalFeeToDeduct);
+            }
+
+            // CLEAN-UP: đã vào lớp rồi → xóa Retake / Temporary
+            if (isInRetake) {
+                retakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
+            }
+            if (isInTemporary) {
+                temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
             }
         }
 
@@ -297,12 +361,12 @@ public class SpecializedClassesMemberArrangementController {
             return "SpecializedClassMemberArrangement";
         }
 
-        ra.addFlashAttribute("successMessage", added + " student(s) added successfully.");
+        ra.addFlashAttribute("successMessage",
+                "Successfully added " + addedCount + " student(s) to the specialized class.");
         session.setAttribute("currentClassId", classId);
         return "redirect:/staff-home/specialized-classes-list/member-arrangement";
     }
 
-    // ——— THÊM GIẢNG VIÊN ———
     @PostMapping("/add-lecturer-to-class")
     public String addLecturers(@RequestParam("classId") String classId,
                                @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
@@ -318,7 +382,6 @@ public class SpecializedClassesMemberArrangementController {
         return "redirect:/staff-home/specialized-classes-list/member-arrangement";
     }
 
-    // ——— XÓA GIẢNG VIÊN ———
     @PostMapping("/remove-lecturer-from-class")
     public String removeLecturers(@RequestParam("classId") String classId,
                                   @RequestParam(value = "lecturerIds", required = false) List<String> lecturerIds,
@@ -334,7 +397,6 @@ public class SpecializedClassesMemberArrangementController {
         return "redirect:/staff-home/specialized-classes-list/member-arrangement";
     }
 
-    // ——— HELPER: HIỂN THỊ LỖI ———
     private void populateError(Model model, SpecializedClasses clazz, List<String> errors) {
         model.addAttribute("errorMessage", String.join("; ", errors));
         model.addAttribute("class", clazz != null ? clazz : new SpecializedClasses());
@@ -348,22 +410,31 @@ public class SpecializedClassesMemberArrangementController {
                     .map(ssc -> ssc.getStudent().getId())
                     .collect(Collectors.toSet());
             String subjectId = clazz.getSpecializedSubject().getSubjectId();
+
             List<RetakeSubjects> retakeList = retakeSubjectsService.getRetakeSubjectsBySubjectId(subjectId)
                     .stream()
                     .filter(r -> !inClassIds.contains(r.getStudent().getId()))
                     .toList();
+
+            List<TemporaryRetakeSubjects> temporaryRetakeList = temporaryRetakeSubjectsService.getAllPending().stream()
+                    .filter(t -> t.getSubject() != null
+                            && subjectId.equals(t.getSubject().getSubjectId()))
+                    .filter(t -> !inClassIds.contains(t.getStudent().getId()))
+                    .toList();
+
             model.addAttribute("retakeList", retakeList);
+            model.addAttribute("temporaryRetakeList", temporaryRetakeList);
         } else {
             model.addAttribute("studentsInClass", new ArrayList<>());
             model.addAttribute("lecturersInClass", new ArrayList<>());
             model.addAttribute("lecturersNotInClass", new ArrayList<>());
             model.addAttribute("retakeList", new ArrayList<>());
+            model.addAttribute("temporaryRetakeList", new ArrayList<>());
         }
         model.addAttribute("studentsWithEnoughMoney", new ArrayList<>());
         model.addAttribute("studentsDoNotHaveEnoughMoney", new ArrayList<>());
     }
 
-    // ——— HELPER: LẤY PHÍ HỌC LẠI ———
     private Double getReStudyFee(String subjectId, Students student) {
         Integer year = student.getAdmissionYear();
         if (year == null || student.getCampus() == null) return null;

@@ -79,7 +79,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(studentsInClass)}">
+                <button type="submit" class="btn danger"
+                        th:disabled="${#lists.isEmpty(studentsInClass)}">
                     <i class="fas fa-user-minus"></i> Remove Selected
                 </button>
             </div>
@@ -124,7 +125,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn danger" th:disabled="${#lists.isEmpty(lecturersInClass)}">
+                <button type="submit" class="btn danger"
+                        th:disabled="${#lists.isEmpty(lecturersInClass)}">
                     <i class="fas fa-user-minus"></i> Remove Selected
                 </button>
             </div>
@@ -169,7 +171,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(lecturersNotInClass)}">
+                <button type="submit" class="btn primary"
+                        th:disabled="${#lists.isEmpty(lecturersNotInClass)}">
                     <i class="fas fa-user-plus"></i> Add Selected
                 </button>
             </div>
@@ -193,15 +196,19 @@
                 <tbody>
                 <tr th:each="s : ${studentsDoNotHaveEnoughMoney}">
                     <td class="center">
-                        <img th:if="${s.avatar}" th:src="@{'/staff-home/students-list/avatar/' + ${s.id}}" class="avatar">
-                        <img th:unless="${s.avatar}" th:src="${s.defaultAvatarPath}" class="avatar">
+                        <img th:if="${s.avatar}"
+                             th:src="@{'/staff-home/students-list/avatar/' + ${s.id}}" class="avatar">
+                        <img th:unless="${s.avatar}"
+                             th:src="${s.defaultAvatarPath}" class="avatar">
                     </td>
                     <td th:text="${s.id}"></td>
                     <td th:text="${s.fullName}"></td>
                     <td th:text="${s.email}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(studentsDoNotHaveEnoughMoney)}">
-                    <td colspan="4" class="text-center">All retake students have enough balance.</td>
+                    <td colspan="4" class="text-center">
+                        All required students have enough balance or are in retake/temporary lists.
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -231,8 +238,10 @@
                     <tr th:each="s : ${studentsWithEnoughMoney}">
                         <td><input type="checkbox" name="studentIds" th:value="${s.id}"></td>
                         <td class="center">
-                            <img th:if="${s.avatar}" th:src="@{'/staff-home/students-list/avatar/' + ${s.id}}" class="avatar">
-                            <img th:unless="${s.avatar}" th:src="${s.defaultAvatarPath}" class="avatar">
+                            <img th:if="${s.avatar}"
+                                 th:src="@{'/staff-home/students-list/avatar/' + ${s.id}}" class="avatar">
+                            <img th:unless="${s.avatar}"
+                                 th:src="${s.defaultAvatarPath}" class="avatar">
                         </td>
                         <td th:text="${s.id}"></td>
                         <td th:text="${s.fullName}"></td>
@@ -246,17 +255,21 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(studentsWithEnoughMoney)}">
-                    <i class="fas fa-money-bill-wave"></i> Add & Deduct Payment
+                <button type="submit" class="btn primary"
+                        th:disabled="${#lists.isEmpty(studentsWithEnoughMoney)}">
+                    <i class="fas fa-money-bill-wave"></i> Add &amp; Deduct Payment
                 </button>
             </div>
         </form>
     </section>
 
-    <!-- ==== 6. Students Paid Tuition But Not Yet in Class ==== -->
+    <!-- ==== 6. Students Paid Tuition But Not Yet in Class (RetakeSubjects) ==== -->
     <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-user-plus"></i> Students Paid Tuition But Not Yet in Class</h2>
+        <h2 class="panel-header"><i class="fas fa-user-plus"></i>
+            Students Paid Tuition But Not Yet in Class
+        </h2>
 
+        <!-- retakeList: List<RetakeSubjects> -->
         <form method="post" th:action="@{/staff-home/specialized-classes-list/add-student-to-class}">
             <input type="hidden" name="classId" th:value="${class.classId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -273,15 +286,17 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="s : ${retakeList}">
-                        <td><input type="checkbox" name="studentIds" th:value="${s.student.id}"></td>
+                    <tr th:each="r : ${retakeList}">
+                        <td><input type="checkbox" name="studentIds" th:value="${r.student.id}"></td>
                         <td class="center">
-                            <img th:if="${s.student.avatar}" th:src="@{'/staff-home/students-list/avatar/' + ${s.student.id}}" class="avatar">
-                            <img th:unless="${s.student.avatar}" th:src="${s.student.defaultAvatarPath}" class="avatar">
+                            <img th:if="${r.student.avatar}"
+                                 th:src="@{'/staff-home/students-list/avatar/' + ${r.student.id}}" class="avatar">
+                            <img th:unless="${r.student.avatar}"
+                                 th:src="${r.student.defaultAvatarPath}" class="avatar">
                         </td>
-                        <td th:text="${s.student.id}"></td>
-                        <td th:text="${s.student.fullName}"></td>
-                        <td th:text="${s.student.email}"></td>
+                        <td th:text="${r.student.id}"></td>
+                        <td th:text="${r.student.fullName}"></td>
+                        <td th:text="${r.student.email}"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(retakeList)}">
                         <td colspan="5" class="text-center">No students in this list.</td>
@@ -291,8 +306,65 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn primary" th:disabled="${#lists.isEmpty(retakeList)}">
+                <button type="submit" class="btn primary"
+                        th:disabled="${#lists.isEmpty(retakeList)}">
                     <i class="fas fa-user-plus"></i> Add Selected
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- ==== 7. Students in Temporary Retake List (No Extra Payment) ==== -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            <i class="fas fa-clock-rotate-left"></i>
+            Students in Temporary Retake List (No Extra Payment)
+        </h2>
+
+        <!-- temporaryRetakeList: List<TemporaryRetakeSubjects> -->
+        <form method="post" th:action="@{/staff-home/specialized-classes-list/add-student-to-class}">
+            <input type="hidden" name="classId" th:value="${class.classId}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <div class="table-container">
+                <table class="win11-table">
+                    <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Avatar</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Reason</th>
+                        <th>Created At</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${temporaryRetakeList}">
+                        <td><input type="checkbox" name="studentIds" th:value="${t.student.id}"></td>
+                        <td class="center">
+                            <img th:if="${t.student.avatar}"
+                                 th:src="@{'/staff-home/students-list/avatar/' + ${t.student.id}}" class="avatar">
+                            <img th:unless="${t.student.avatar}"
+                                 th:src="${t.student.defaultAvatarPath}" class="avatar">
+                        </td>
+                        <td th:text="${t.student.id}"></td>
+                        <td th:text="${t.student.fullName}"></td>
+                        <td th:text="${t.student.email}"></td>
+                        <td th:text="${t.reason}">Removed from specialized class</td>
+                        <td th:text="${#temporals.format(t.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(temporaryRetakeList)}">
+                        <td colspan="7" class="text-center">No students in temporary retake list.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn primary"
+                        th:disabled="${#lists.isEmpty(temporaryRetakeList)}">
+                    <i class="fas fa-user-plus"></i> Add Selected (No Charge)
                 </button>
             </div>
         </form>

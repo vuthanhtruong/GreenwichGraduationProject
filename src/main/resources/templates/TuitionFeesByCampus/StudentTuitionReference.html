@@ -76,7 +76,7 @@
                 <!-- Tuition Fee -->
                 <td class="price">
                     <span th:if="${t.tuition != null and t.tuition > 0}"
-                          th:text="${#numbers.formatInteger(t.tuition.longValue(), 0, 'COMMA')} + ' ₫'"
+                          th:text="${#numbers.formatInteger(t.tuition.longValue(), 0, 'COMMA')} + ' USD'"
                           class="text-success"></span>
                     <span th:unless="${t.tuition != null and t.tuition > 0}" class="text-muted">—</span>
                 </td>

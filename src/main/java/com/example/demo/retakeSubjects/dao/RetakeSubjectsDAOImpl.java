@@ -7,6 +7,7 @@ import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.financialHistory.paymentHistories.model.PaymentHistories;
 import com.example.demo.financialHistory.paymentHistories.service.PaymentHistoriesService;
+import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
@@ -130,13 +131,49 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
 
     @Override
     public void processReStudyPayment(Students student, List<String> selectedSubjectIds) {
+        if (student == null || selectedSubjectIds == null || selectedSubjectIds.isEmpty()) {
+            return;
+        }
+
         for (String subjectId : selectedSubjectIds) {
             Double fee = getReStudyFee(subjectId, student);
-            if (fee != null && fee > 0) {
-                deductAndLogPayment(student, subjectId, fee);
+            if (fee == null || fee <= 0) {
+                continue;
+            }
+
+            // 1. Trừ tiền + ghi payment history
+            boolean paid = deductAndLogPayment(student, subjectId, fee);
+            if (!paid) {
+                // Không trừ được tiền thì bỏ qua môn này
+                continue;
+            }
+
+            // 2. Nếu chưa có trong RetakeSubjects thì tạo mới
+            if (!existsByStudentAndSubject(student.getId(), subjectId)) {
+                Subjects subject = entityManager.find(Subjects.class, subjectId);
+
+                RetakeSubjects retake = new RetakeSubjects();
+                // dùng key ghép studentId + subjectId
+                retake.setId(new StudentRetakeSubjectsId(student.getId(), subjectId));
+                retake.setStudent(student);
+                retake.setSubject(subject);
+                retake.setCreatedAt(LocalDateTime.now());
+                retake.setRetakeReason("Student re-study payment"); // lý do tùy bạn
+
+                save(retake); // hoặc entityManager.persist(retake);
             }
         }
     }
+
+    @Override
+    public void deleteByStudentAndSubject(String studentId, String subjectId) {
+        entityManager.createQuery(
+                        "DELETE FROM RetakeSubjects r WHERE r.student.id = :studentId AND r.subject.subjectId = :subjectId")
+                .setParameter("studentId", studentId)
+                .setParameter("subjectId", subjectId)
+                .executeUpdate();
+    }
+
 
     // === HỖ TRỢ: LẤY HỌC PHÍ HỌC LẠI ===
     private Double getReStudyFee(String subjectId, Students student) {

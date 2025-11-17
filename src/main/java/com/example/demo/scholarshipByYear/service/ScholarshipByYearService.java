@@ -16,4 +16,6 @@ public interface ScholarshipByYearService {
     List<Integer> getAllAdmissionYears();
     void saveOrUpdate(ScholarshipByYear scholarshipByYear);
     void finalizeScholarshipContracts(Integer admissionYear);
+    List<ScholarshipByYear> getAllFinalizedScholarshipsByAdmissionYear(Integer admissionYear);
+    ScholarshipByYear getFinalizedScholarshipByIdAndYear(String scholarshipId, Integer admissionYear);
 }

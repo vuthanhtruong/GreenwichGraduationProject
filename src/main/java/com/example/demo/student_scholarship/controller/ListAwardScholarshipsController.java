@@ -83,8 +83,14 @@ public class ListAwardScholarshipsController {
                     .sorted(Comparator.reverseOrder())
                     .collect(Collectors.toList());
 
-            // Lấy danh sách học bổng
-            List<Scholarships> availableScholarships = scholarshipsService.getAllScholarships();
+            // Lấy học bổng đã chốt hợp đồng theo admissionYear cụ thể
+            List<ScholarshipByYear> finalizedScholarships = scholarshipByYearService
+                    .getAllFinalizedScholarshipsByAdmissionYear(selectedYear); // selectedYear ví dụ: 2025
+
+// Nếu chỉ cần danh sách Scholarships (không cần thông tin amount, discount, creator...)
+            List<Scholarships> availableScholarships = finalizedScholarships.stream()
+                    .map(ScholarshipByYear::getScholarship)
+                    .toList();
 
             // Tính toán số lượng còn lại cho mỗi học bổng
             Map<String, Long> remainingCounts = new HashMap<>();

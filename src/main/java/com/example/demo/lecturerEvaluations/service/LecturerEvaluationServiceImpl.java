@@ -18,6 +18,11 @@ import java.util.List;
 @Transactional
 public class LecturerEvaluationServiceImpl implements LecturerEvaluationService {
     @Override
+    public List<LecturerEvaluations> findByClassIdByStudentId(String classId, String studentId) {
+        return dao.findByClassIdByStudentId(classId, studentId);
+    }
+
+    @Override
     public List<MajorLecturerEvaluations> findAllMajorLecturerEvaluationsByCampus(String campus) {
         return dao.findAllMajorLecturerEvaluationsByCampus(campus);
     }
@@ -63,10 +68,6 @@ public class LecturerEvaluationServiceImpl implements LecturerEvaluationService 
         return dao.findByStudentId(studentId);
     }
 
-    @Override
-    public List<LecturerEvaluations> findByClassId(String classId) {
-        return dao.findByClassId(classId);
-    }
 
     @Override
     public List<MajorLecturerEvaluations> findMajorByLecturerId(String lecturerId) {

@@ -12,6 +12,10 @@ import java.util.Map;
 
 @Service
 public class RetakeSubjectsServiceImpl implements RetakeSubjectsService {
+    @Override
+    public void deleteByStudentAndSubject(String studentId, String subjectId) {
+        retakeSubjectsDAO.deleteByStudentAndSubject(studentId, subjectId);
+    }
 
     private final RetakeSubjectsDAO retakeSubjectsDAO;
 

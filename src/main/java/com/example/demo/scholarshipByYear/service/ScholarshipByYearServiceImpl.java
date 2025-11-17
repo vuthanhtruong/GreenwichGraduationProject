@@ -11,6 +11,16 @@ import java.util.List;
 @Service
 public class ScholarshipByYearServiceImpl implements ScholarshipByYearService {
     @Override
+    public ScholarshipByYear getFinalizedScholarshipByIdAndYear(String scholarshipId, Integer admissionYear) {
+        return scholarshipByYearDAO.getFinalizedScholarshipByIdAndYear(scholarshipId, admissionYear);
+    }
+
+    @Override
+    public List<ScholarshipByYear> getAllFinalizedScholarshipsByAdmissionYear(Integer admissionYear) {
+        return scholarshipByYearDAO.getAllFinalizedScholarshipsByAdmissionYear(admissionYear);
+    }
+
+    @Override
     public void updateScholarshipByYear(ScholarshipByYear scholarshipByYear) {
         scholarshipByYearDAO.updateScholarshipByYear(scholarshipByYear);
     }

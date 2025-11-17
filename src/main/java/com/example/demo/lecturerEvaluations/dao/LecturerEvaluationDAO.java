@@ -20,7 +20,7 @@ public interface LecturerEvaluationDAO {
     LecturerEvaluations findById(String evaluationId);
     List<LecturerEvaluations> findAll();
     List<LecturerEvaluations> findByStudentId(String studentId);
-    List<LecturerEvaluations> findByClassId(String classId);
+    List<LecturerEvaluations> findByClassIdByStudentId(String classId, String studentId);
 
     // Theo loại giảng viên
     List<MajorLecturerEvaluations> findMajorByLecturerId(String lecturerId);

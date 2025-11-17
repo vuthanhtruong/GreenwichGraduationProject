@@ -94,7 +94,7 @@ public class LecturerEvaluationController {
             lecturersInClass.addAll(majorLecturersSpecializedClassesService.listLecturersInClass(specClass));
         }
 
-        List<LecturerEvaluations> evaluations = evaluationService.findByClassId(classId);
+        List<LecturerEvaluations> evaluations = evaluationService.findByClassIdByStudentId(classId, student.getId());
 
         model.addAttribute("classEntity", classEntity);
         model.addAttribute("lecturersInClass", lecturersInClass);
@@ -148,5 +148,29 @@ public class LecturerEvaluationController {
         }
 
         return "redirect:/student-home/student-classes-list/evaluation"; // URL đẹp, không lộ ID
+    }
+    @PostMapping("/delete")
+    public String deleteEvaluation(
+            @RequestParam String evaluationId,
+            @RequestParam String classId,
+            RedirectAttributes ra) {  // hoặc dùng studentsService.getStudent()
+
+        Students currentStudent = studentsService.getStudent();
+
+        try {
+            LecturerEvaluations eval = evaluationService.findById(evaluationId);
+            if (eval == null) {
+                ra.addFlashAttribute("error", "Review not found.");
+            } else if (!eval.getReviewer().getId().equals(currentStudent.getId())) {
+                ra.addFlashAttribute("error", "You can only delete your own reviews.");
+            } else {
+                evaluationService.deleteById(evaluationId);
+                ra.addFlashAttribute("message", "Your review has been deleted.");
+            }
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Failed to delete review.");
+        }
+
+        return "redirect:/student-home/student-classes-list/evaluation";
     }
 }

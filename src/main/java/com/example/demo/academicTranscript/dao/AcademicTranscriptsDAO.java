@@ -34,4 +34,6 @@ public interface AcademicTranscriptsDAO {
     List<SpecializedAcademicTranscripts> getAcademicTranscriptsBySpecializedClass(Students student, SpecializedClasses classes);
     List<AcademicTranscripts> getFailSubjectsByStudent(Students student);
     List<String> getNotificationsForMemberId(String memberId);
+    boolean hasPassedSubject(Students student, String subjectId);
+
 }

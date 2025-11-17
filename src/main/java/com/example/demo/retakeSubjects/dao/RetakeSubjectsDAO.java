@@ -15,4 +15,6 @@ public interface RetakeSubjectsDAO {
     List<Students> getStudentsWithSufficientBalance(String subjectId, List<Students> candidates);
     List<Students> getStudentsWithInsufficientBalance(String subjectId, List<Students> candidates);
     boolean deductAndLogPayment(Students student, String subjectId, Double amount);
+    void deleteByStudentAndSubject(String studentId, String subjectId);
+
 }

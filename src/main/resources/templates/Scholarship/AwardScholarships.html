@@ -47,33 +47,52 @@
 
 
     <!-- Form cấp học bổng -->
+    <!-- Form cấp học bổng (đã thêm nút Submit đẹp) -->
     <section class="win11-panel">
-        <h2 class="panel-header"><i class="fas fa-award"></i> Award New Scholarship</h2>
+        <h2 class="panel-header">Award New Scholarship</h2>
         <form method="post" th:action="@{/staff-home/award-scholarships/assign}" id="awardForm">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
             <div class="form-group grid-2">
                 <div class="form-row">
-                    <label for="studentId"><i class="fas fa-id-card"></i> Student ID:</label>
+                    <label for="studentId">Student ID:</label>
                     <input id="studentId" name="studentId" required type="text"
                            class="input form-control" th:value="${studentId}"
                            placeholder="Enter Student ID">
                     <div th:each="error : ${errors}"
                          th:if="${#strings.toLowerCase(error).contains('student id')}"
-                         class="text-danger" th:text="${error}"></div>
+                         class="text-danger mt-1" th:text="${error}"></div>
                 </div>
+
                 <div class="form-row">
-                    <label for="scholarshipId"><i class="fas fa-award"></i> Scholarship ID:</label>
+                    <label for="scholarshipId">Scholarship:</label>
                     <select id="scholarshipId" name="scholarshipId" required class="form-select">
                         <option value="" disabled selected>Select Scholarship</option>
                         <option th:each="scholarship : ${availableScholarships}"
                                 th:value="${scholarship.getScholarshipId()}"
                                 th:text="${scholarship.getTypeName() + ' (' + scholarship.getScholarshipId() + ') - Remaining: ' + (remainingCounts[scholarship.getScholarshipId()] ?: 0)}"
-                                th:selected="${scholarship.getScholarshipId() == scholarshipId}"></option>
+                                th:selected="${scholarship.getScholarshipId() == scholarshipId}">
+                        </option>
                     </select>
                     <div th:each="error : ${errors}"
                          th:if="${#strings.toLowerCase(error).contains('scholarship id')}"
-                         class="text-danger" th:text="${error}"></div>
+                         class="text-danger mt-1" th:text="${error}"></div>
                 </div>
+            </div>
+
+            <!-- NÚT SUBMIT ĐẸP ĐẬY ĐÂY -->
+            <div class="form-actions text-center mt-4">
+                <button type="submit" class="btn primary large" style="min-width: 220px;">
+                    Award Scholarship
+                </button>
+            </div>
+
+            <!-- Flash message (nếu có) -->
+            <div th:if="${message}" class="alert alert-success mt-3" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${message}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-danger mt-3" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
             </div>
         </form>
     </section>

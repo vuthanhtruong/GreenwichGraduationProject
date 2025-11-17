@@ -148,12 +148,13 @@ public class LecturerEvaluationDAOImpl implements LecturerEvaluationDAO {
     }
 
     @Override
-    public List<LecturerEvaluations> findByClassId(String classId) {
+    public List<LecturerEvaluations> findByClassIdByStudentId(String classId, String studentId) {
         return em.createQuery(
                         "SELECT e FROM LecturerEvaluations e " +
-                                "WHERE e.classEntity.classId = :classId " +
+                                "WHERE e.classEntity.classId = :classId And e.reviewer.id = :studentId " +
                                 "ORDER BY e.createdAt DESC", LecturerEvaluations.class)
                 .setParameter("classId", classId)
+                .setParameter("studentId", studentId)
                 .getResultList();
     }
 
@@ -161,7 +162,7 @@ public class LecturerEvaluationDAOImpl implements LecturerEvaluationDAO {
     public List<MajorLecturerEvaluations> findMajorByLecturerId(String lecturerId) {
         return em.createQuery(
                         "SELECT e FROM MajorLecturerEvaluations e " +
-                                "WHERE e.lecturer.lecturerId = :lecturerId " +
+                                "WHERE e.lecturer.id = :lecturerId " +
                                 "ORDER BY e.createdAt DESC", MajorLecturerEvaluations.class)
                 .setParameter("lecturerId", lecturerId)
                 .getResultList();
@@ -171,7 +172,7 @@ public class LecturerEvaluationDAOImpl implements LecturerEvaluationDAO {
     public List<MinorLecturerEvaluations> findMinorByLecturerId(String lecturerId) {
         return em.createQuery(
                         "SELECT e FROM MinorLecturerEvaluations e " +
-                                "WHERE e.lecturer.lecturerId = :lecturerId " +
+                                "WHERE e.lecturer.id = :lecturerId " +
                                 "ORDER BY e.createdAt DESC", MinorLecturerEvaluations.class)
                 .setParameter("lecturerId", lecturerId)
                 .getResultList();
@@ -190,12 +191,12 @@ public class LecturerEvaluationDAOImpl implements LecturerEvaluationDAO {
     @Override
     public long countByLecturerId(String lecturerId) {
         Long majorCount = em.createQuery(
-                        "SELECT COUNT(e) FROM MajorLecturerEvaluations e WHERE e.lecturer.lecturerId = :id", Long.class)
+                        "SELECT COUNT(e) FROM MajorLecturerEvaluations e WHERE e.lecturer.id = :id", Long.class)
                 .setParameter("id", lecturerId)
                 .getSingleResult();
 
         Long minorCount = em.createQuery(
-                        "SELECT COUNT(e) FROM MinorLecturerEvaluations e WHERE e.lecturer.lecturerId = :id", Long.class)
+                        "SELECT COUNT(e) FROM MinorLecturerEvaluations e WHERE e.lecturer.id = :id", Long.class)
                 .setParameter("id", lecturerId)
                 .getSingleResult();
 

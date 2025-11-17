@@ -24,6 +24,30 @@ import java.util.Map;
 public class StudentScholarshipDAOImpl implements StudentScholarshipDAO {
 
     @Override
+    public Students_Scholarships getActiveScholarshipByStudentIdAndYear(String studentId, Integer admissionYear) {
+        if (studentId == null || admissionYear == null) {
+            return null;
+        }
+
+        return entityManager.createQuery("""
+            SELECT ss FROM Students_Scholarships ss
+            LEFT JOIN FETCH ss.student
+            LEFT JOIN FETCH ss.scholarship
+            LEFT JOIN FETCH ss.creator
+            WHERE ss.studentId = :studentId
+              AND ss.admissionYear = :admissionYear
+              AND ss.status = :activated
+            """, Students_Scholarships.class)
+                .setParameter("studentId", studentId)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("activated", ActivityStatus.ACTIVATED)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public Map<String, Object> getScholarshipByStudentId(String studentId) {
         if (studentId == null || studentId.trim().isEmpty()) {
             return null;

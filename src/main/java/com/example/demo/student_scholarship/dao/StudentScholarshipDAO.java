@@ -14,4 +14,5 @@ public interface StudentScholarshipDAO {
     ScholarshipByYear getScholarshipByYear(String scholarshipId, Integer admissionYear);
     Long getCountStudentScholarshipByYear(Integer admissionYear, Scholarships scholarship);
     Map<String, Object> getScholarshipByStudentId(String studentId);
+    Students_Scholarships getActiveScholarshipByStudentIdAndYear(String studentId, Integer admissionYear);
 }

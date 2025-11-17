@@ -1,5 +1,6 @@
 package com.example.demo.scholarshipByYear.dao;
 
+import com.example.demo.student_scholarship.model.Students_Scholarships;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.entity.Enums.ActivityStatus;
@@ -19,6 +20,49 @@ import java.util.List;
 @Repository
 @Transactional
 public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
+
+    @Override
+    public ScholarshipByYear getFinalizedScholarshipByIdAndYear(String scholarshipId, Integer admissionYear) {
+        if (scholarshipId == null || admissionYear == null) return null;
+
+        return entityManager.createQuery("""
+            SELECT sby FROM ScholarshipByYear sby
+            LEFT JOIN FETCH sby.scholarship
+            LEFT JOIN FETCH sby.creator
+            WHERE sby.id.scholarshipId = :scholarshipId
+              AND sby.id.admissionYear = :admissionYear
+              AND sby.contractStatus = 'ACTIVE'
+              AND sby.status = 'ACTIVATED'
+            """, ScholarshipByYear.class)
+                .setParameter("scholarshipId", scholarshipId)
+                .setParameter("admissionYear", admissionYear)
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public List<ScholarshipByYear> getAllFinalizedScholarshipsByAdmissionYear(Integer admissionYear) {
+        if (admissionYear == null) {
+            return List.of();
+        }
+
+        return entityManager.createQuery("""
+            SELECT sby FROM ScholarshipByYear sby
+            LEFT JOIN FETCH sby.scholarship s
+            LEFT JOIN FETCH sby.creator
+            WHERE sby.id.admissionYear = :admissionYear
+              AND sby.contractStatus = :active
+              AND sby.status = :activated
+            ORDER BY s.scholarshipId
+            """, ScholarshipByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("active", ContractStatus.ACTIVE)
+                .setParameter("activated", ActivityStatus.ACTIVATED)
+                .getResultList();
+    }
+
     @Override
     public void updateScholarshipByYear(ScholarshipByYear scholarshipByYear) {
         if (scholarshipByYear == null || scholarshipByYear.getId() == null) {
