@@ -17,6 +17,11 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus) {
+        return tuitionByYearDAO.tuitionReferenceForStudentsByCampus(admissionYear, campus);
+    }
+
+    @Override
     public List<MajorSubjects> getMajorSubjectsWithTuitionByYearAndCurriculum(Integer admissionYear, Curriculum curriculum, Majors major, Campuses campus) {
         return tuitionByYearDAO.getMajorSubjectsWithTuitionByYearAndCurriculum(admissionYear, curriculum, major, campus);
     }

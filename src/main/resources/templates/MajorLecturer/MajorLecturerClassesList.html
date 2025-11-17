@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Taught Classes</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Dùng chung CSS -->
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudentClassesList.css}">
 </head>
+
 <body>
 <div class="win11-container">
 
     <!-- ===== Toolbar ===== -->
     <div class="search-toolbar unified-bar">
-        <!-- Left: Home + Title -->
+
         <div class="toolbar-left">
             <a th:href="@{/major-lecturer-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
@@ -23,7 +25,6 @@
             </h2>
         </div>
 
-        <!-- Right: Total -->
         <div class="toolbar-right">
             <div class="total">
                 <i class="fas fa-layer-group"></i>
@@ -31,11 +32,15 @@
                 <span th:text="${totalClasses}"></span>
             </div>
         </div>
+
     </div>
+
 
     <!-- ===== Classes Table ===== -->
     <div class="table-container">
+
         <table class="win11-table">
+
             <thead>
             <tr>
                 <th><i class="fas fa-id-card"></i> Class ID</th>
@@ -49,7 +54,10 @@
                 <th><i class="fas fa-file-alt"></i> Syllabus</th>
             </tr>
             </thead>
+
             <tbody>
+
+            <!-- Row -->
             <tr th:each="lc : ${lecturerClasses}">
                 <td th:text="${lc.classId}"></td>
                 <td th:text="${lc.className}"></td>
@@ -59,20 +67,27 @@
                 <td th:text="${lc.slotQuantity != null ? lc.slotQuantity : '-'}"></td>
                 <td th:text="${#temporals.format(lc.createdAt, 'dd MMM yyyy')}"></td>
 
+                <!-- Action: Access -->
                 <td>
                     <form th:action="@{/classroom}" method="post" class="inline-form">
                         <input type="hidden" name="classId" th:value="${lc.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                         <button type="submit" class="btn primary small">
                             <i class="fas fa-door-open"></i> Access
                         </button>
                     </form>
                 </td>
 
+                <!-- Syllabus Button -->
                 <td>
-                    <form th:action="@{/major-lecturer-home/classes-list/syllabus}" method="get" class="inline-form">
+                    <form th:action="@{/major-lecturer-home/classes-list/syllabus}"
+                          method="get"
+                          class="inline-form">
+
                         <input type="hidden" name="classId" th:value="${lc.classId}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                         <button type="submit" class="btn secondary small">
                             <i class="fas fa-file-alt"></i> View Syllabus
                         </button>
@@ -80,45 +95,71 @@
                 </td>
             </tr>
 
-            <!-- Empty State -->
+            <!-- Empty -->
             <tr th:if="${lecturerClasses == null or lecturerClasses.isEmpty()}">
-                <td colspan="9" class="text-center">No classes assigned.</td>
+                <td colspan="9" class="text-center">
+                    No classes assigned.
+                </td>
             </tr>
+
             </tbody>
         </table>
     </div>
 
+
     <!-- ===== Pagination ===== -->
     <div class="pagination" th:if="${totalClasses > 0}">
-        <a th:href="@{/major-lecturer-home/classes-list(page=1, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
-        <a th:href="@{/major-lecturer-home/classes-list(page=${currentPage - 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
 
+        <a th:href="@{/major-lecturer-home/classes-list(page=1, pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">First</a>
+
+        <a th:href="@{/major-lecturer-home/classes-list(page=${currentPage - 1}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == 1} ? 'disabled'"
+           class="page-btn">Prev</a>
+
+        <!-- Page Numbers -->
         <span th:if="${totalPages > 1}">
             <a th:each="i : ${#numbers.sequence(
-                (currentPage - 2 > 1 ? currentPage - 2 : 1),
-                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
-            )}"
+                    (currentPage - 2 > 1 ? currentPage - 2 : 1),
+                    (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
+                )}"
                th:if="${i >= 1 and i <= totalPages}"
                th:href="@{/major-lecturer-home/classes-list(page=${i}, pageSize=${pageSize})}"
                th:classappend="${i == currentPage} ? 'active'"
                class="page-btn number"
-               th:text="${i}"></a>
+               th:text="${i}">
+            </a>
         </span>
 
         <a th:href="@{/major-lecturer-home/classes-list(page=${currentPage + 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
-        <a th:href="@{/major-lecturer-home/classes-list(page=${totalPages}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Next</a>
 
-        <form method="get" th:action="@{/major-lecturer-home/classes-list}" class="page-select-form">
+        <a th:href="@{/major-lecturer-home/classes-list(page=${totalPages}, pageSize=${pageSize})}"
+           th:classappend="${currentPage == totalPages} ? 'disabled'"
+           class="page-btn">Last</a>
+
+        <!-- Go to page -->
+        <form method="get"
+              th:action="@{/major-lecturer-home/classes-list}"
+              class="page-select-form">
+
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
             <label for="pageSelect">Go to page:</label>
-            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
+            <select id="pageSelect"
+                    name="page"
+                    class="input small"
+                    onchange="this.form.submit()">
+
                 <option th:each="i : ${#numbers.sequence(1, totalPages)}"
-                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
+                        th:value="${i}"
+                        th:text="${i}"
+                        th:selected="${i == currentPage}">
+                </option>
             </select>
+
             <input type="hidden" name="pageSize" th:value="${pageSize}" />
         </form>
     </div>

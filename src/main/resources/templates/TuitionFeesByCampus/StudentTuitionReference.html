@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuition Fees [[${admissionYear}]]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+    <style>
+        .page-title { margin: 0; font-size: 1.6rem; }
+        .info { margin: 1rem 0; color: #555; font-size: 1.1rem; }
+        th { background: #f8f9fa; }
+        .price { font-weight: 600; text-align: right; white-space: nowrap; }
+        .type-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .type-major    { background: #e3f2fd; color: #1976d2; }
+        .type-minor    { background: #e8f5e8; color: #2e7d32; }
+        .type-specialized { background: #fff3e0; color: #ef6c00; }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <h2 class="page-title">
+                <i class="fas fa-money-check-alt"></i> Tuition Fees
+            </h2>
+        </div>
+    </div>
+
+    <!-- Info Line -->
+    <div class="info">
+        Intake Year: <strong th:text="${admissionYear}"></strong> •
+        Campus: <strong th:text="${campusName}"></strong>
+    </div>
+
+    <!-- Tuition Table -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Subject Name</th>
+                <th>Semester</th>
+                <th>Type</th>
+                <th>Major / Specialization</th>
+                <th class="price">Tuition Fee</th>
+                <th class="price">Re-study Fee</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${tuitions}">
+                <td th:text="${t.subject.subjectId}"></td>
+                <td th:text="${t.subject.subjectName}"></td>
+                <td th:text="${t.subject.semester ?: '—'}"></td>
+
+                <!-- Dùng abstract method getSubjectType() -->
+                <td>
+                    <span th:class="'type-badge type-' + ${t.subject.subjectType.toLowerCase()}"
+                          th:text="${t.subject.subjectType}">
+                    </span>
+                </td>
+
+                <!-- Dùng abstract method getSubjectMajor() -->
+                <td th:text="${t.subject.subjectMajor}"></td>
+
+                <!-- Tuition Fee -->
+                <td class="price">
+                    <span th:if="${t.tuition != null and t.tuition > 0}"
+                          th:text="${#numbers.formatInteger(t.tuition.longValue(), 0, 'COMMA')} + ' ₫'"
+                          class="text-success"></span>
+                    <span th:unless="${t.tuition != null and t.tuition > 0}" class="text-muted">—</span>
+                </td>
+
+                <!-- Re-study Fee -->
+                <td class="price">
+                    <span th:if="${t.reStudyTuition != null and t.reStudyTuition > 0}"
+                          th:text="${#numbers.formatInteger(t.reStudyTuition.longValue(), 0, 'COMMA')} + ' ₫'"></span>
+                    <span th:unless="${t.reStudyTuition != null and t.reStudyTuition > 0}" class="text-muted">—</span>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(tuitions)}">
+                <td colspan="7" class="text-center text-muted" style="padding: 4rem;">
+                    <i class="fas fa-info-circle fa-2x"></i><br><br>
+                    No tuition fees have been published for your intake year.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

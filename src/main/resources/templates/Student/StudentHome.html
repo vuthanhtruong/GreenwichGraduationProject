@@ -66,6 +66,11 @@
             <span class="meta"><strong>Timetable</strong><small>Weekly schedule</small></span>
         </a>
 
+        <a class="dashboard-card" th:href="@{/student-home/attendance}">
+            <span class="icon"><i class="fas fa-check-circle"></i></span>
+            <span class="meta"><strong>Your Attendance</strong><small>Attendance</small></span>
+        </a>
+
         <a class="dashboard-card" th:href="@{/student-home/roadmap}">
             <span class="icon"><i class="fas fa-route"></i></span>
             <span class="meta"><strong>Roadmap</strong><small>Study plan & subjects</small></span>
@@ -118,6 +123,19 @@
             <span class="icon"><i class="fas fa-redo"></i></span>
             <span class="meta"><strong>Re-study Request</strong><small>Request to retake a course</small></span>
         </a>
+
+        <!-- TUITION REFERENCE -->
+        <a class="dashboard-card" th:href="@{/student-home/tuition-reference}">
+            <span class="icon"><i class="fas fa-money-check-alt"></i></span>
+            <span class="meta"><strong>Tuition Reference</strong><small>Fee structure & details</small></span>
+        </a>
+
+        <!-- FEEDBACK -->
+        <a class="dashboard-card" th:href="@{/student-home/evaluations}">
+            <span class="icon"><i class="fas fa-comment-dots"></i></span>
+            <span class="meta"><strong>Your Evaluations</strong><small>Send us your thoughts</small></span>
+        </a>
+
     </section>
 </div>
 </body>

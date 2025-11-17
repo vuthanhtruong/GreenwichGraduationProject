@@ -24,6 +24,32 @@ import java.util.List;
 @Transactional
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
+    @Override
+    public List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus) {
+        if (admissionYear == null || campus == null) {
+            throw new IllegalArgumentException("Admission year and campus cannot be null");
+        }
+
+        String jpql = """
+        SELECT DISTINCT t 
+        FROM TuitionByYear t 
+        JOIN FETCH t.subject s 
+        LEFT JOIN FETCH s.acceptor 
+        WHERE t.id.admissionYear = :admissionYear 
+          AND t.campus = :campus 
+          AND t.tuition IS NOT NULL 
+          AND t.tuition > 0 
+        ORDER BY 
+          COALESCE(s.semester, 999), 
+          s.subjectName
+        """;
+
+        return entityManager.createQuery(jpql, TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campus", campus)
+                .getResultList();
+    }
+
 
     @PersistenceContext
     private EntityManager entityManager;

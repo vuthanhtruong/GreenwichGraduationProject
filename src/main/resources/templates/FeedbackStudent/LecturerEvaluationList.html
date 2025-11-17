@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Evaluations</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/student-home/evaluations}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back to Classes
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-star"></i> Lecturer Evaluations
+            </h2>
+        </div>
+
+        <div class="toolbar-right">
+            <button type="button" class="btn primary" onclick="openEvaluationOverlay()">
+                <i class="fas fa-edit"></i> Write Review
+            </button>
+        </div>
+    </div>
+
+    <!-- Evaluations List -->
+    <div class="table-container">
+        <div th:if="${evaluations != null and !#lists.isEmpty(evaluations)}">
+
+            <div th:each="e : ${evaluations}" class="win11-panel evaluation-item">
+
+                <div class="evaluation-header">
+                    <img th:if="${e.reviewer.avatar != null}"
+                         th:src="@{'/student-home/avatar/' + ${e.reviewer.id}}"
+                         class="avatar large" alt="avatar"/>
+
+                    <img th:if="${e.reviewer.avatar == null}"
+                         th:src="${e.reviewer.defaultAvatarPath}"
+                         class="avatar large" alt="default"/>
+
+                    <div class="evaluation-meta">
+                        <strong th:text="${e.reviewer.fullName}">Student Name</strong>
+
+                        <small class="evaluation-date">
+                            reviewed <strong th:text="${e.lecturerId}"></strong> •
+                            <span th:text="${#temporals.format(e.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </small>
+
+                        <div class="evaluation-text"
+                             th:utext="${e.text != null ? e.text.replace('\n', '<br>') : ''}">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div th:if="${evaluations == null or #lists.isEmpty(evaluations)}"
+             class="empty-state">
+            <i class="fas fa-comment-slash fa-3x"></i>
+            <h3>No reviews yet</h3>
+            <p>Be the first to share your thoughts about the lecturer!</p>
+        </div>
+    </div>
+
+    <!-- Overlay: Write Review -->
+    <div id="evaluationOverlay" class="overlay">
+        <div class="overlay-content">
+
+            <div class="overlay-header">
+                <h2><i class="fas fa-edit"></i> Write a Review</h2>
+                <span class="close-btn" onclick="closeEvaluationOverlay()">×</span>
+            </div>
+
+            <form method="post" th:action="@{/student-home/student-classes-list/evaluation/submit}"
+                  class="win11-form">
+
+                <input type="hidden" name="classId" th:value="${classEntity.classId}" />
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- Lecturer Select -->
+                <div class="form-row">
+                    <label><i class="fas fa-chalkboard-teacher"></i> Select Lecturer:</label>
+
+                    <select name="lecturerId" required class="input full-width">
+                        <option value="" disabled selected>-- Choose lecturer --</option>
+                        <option th:each="lec : ${lecturersInClass}"
+                                th:value="${lec.id}"
+                                th:text="${lec.fullName}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Review Text -->
+                <div class="form-row">
+                    <label><i class="fas fa-comment-dots"></i> Your Review:</label>
+
+                    <textarea name="text" rows="8" maxlength="1000" required
+                              class="input full-width"
+                              placeholder="Share your experience..."></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-paper-plane"></i> Submit Review
+                    </button>
+
+                    <button type="button" class="btn" onclick="closeEvaluationOverlay()">
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEvaluationOverlay() {
+        document.getElementById('evaluationOverlay').classList.add('active');
+    }
+
+    function closeEvaluationOverlay() {
+        document.getElementById('evaluationOverlay').classList.remove('active');
+    }
+</script>
+
+</body>
+</html>

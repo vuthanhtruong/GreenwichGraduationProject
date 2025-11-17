@@ -1,0 +1,88 @@
+<!-- src/main/resources/templates/staff/StaffStudentEvaluateMinorList.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Minor Lecturer Evaluations</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+
+<body>
+<div class="win11-container">
+
+    <!-- Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/staff-home}" class="btn home-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+
+            <h2 class="page-title">
+                <i class="fas fa-comments"></i> Minor Lecturer Evaluations
+            </h2>
+        </div>
+
+        <div class="toolbar-right">
+            <span class="badge large info">
+                Total: [[${total}]] evaluations
+            </span>
+        </div>
+    </div>
+
+    <!-- Evaluations List -->
+    <div class="table-container">
+
+        <!-- Empty State -->
+        <div th:if="${evaluations == null or #lists.isEmpty(evaluations)}"
+             class="empty-state">
+            <i class="fas fa-comment-slash fa-3x"></i>
+            <h3>No evaluations yet</h3>
+        </div>
+
+        <!-- Evaluations -->
+        <div th:each="e : ${evaluations}"
+             class="win11-panel evaluation-item">
+
+            <div class="evaluation-header">
+
+                <!-- Avatar -->
+                <img th:if="${e.reviewer.avatar != null}"
+                     th:src="@{'/student-home/avatar/' + ${e.reviewer.id}}"
+                     class="avatar large"
+                     alt="Student"/>
+
+                <img th:if="${e.reviewer.avatar == null}"
+                     th:src="${e.reviewer.defaultAvatarPath}"
+                     class="avatar large"
+                     alt="Default"/>
+
+                <!-- Info -->
+                <div class="evaluation-meta">
+                    <strong th:text="${e.reviewer.fullName}">Student Name</strong>
+
+                    <small class="evaluation-date">
+                        evaluated
+                        <strong th:text="${e.lecturer.fullName}">Lecturer Name</strong>
+                        • Class:
+                        <span th:text="${e.classEntity.className}"></span>
+                        •
+                        <span th:text="${#temporals.format(e.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </small>
+
+                    <div class="evaluation-text"
+                         th:utext="${e.text != null ? e.text.replace('\n','<br>') : 'No comment.'}">
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

@@ -517,7 +517,6 @@ public class DemoApplication {
             deposit.setStudent(student);
             deposit.setAccountBalance(balance);
             deposit.setAmount(INITIAL_DEPOSIT_AMOUNT);
-            deposit.setDepositTime(now);
             deposit.setCurrentAmount(BigDecimal.valueOf(INITIAL_DEPOSIT_AMOUNT));
             deposit.setCreatedAt(now);
             deposit.setStatus(Status.COMPLETED);
