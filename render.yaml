@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: greenwich-graduation
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
