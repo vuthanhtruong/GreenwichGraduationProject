@@ -22,13 +22,7 @@
             <a th:href="@{/staff-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
-            <h2 class="page-title">
-                <i class="fas fa-handshake"></i>
-                Your Colleagues at <span th:text="${currentStaff.campus?.campusName}">Campus</span>
-            </h2>
         </div>
-
-        <!-- Center: Search -->
         <form method="post" th:action="@{/staff-home/colleagues-list/search}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <select name="searchType" class="input small">
@@ -85,13 +79,19 @@
             <tr th:each="colleague : ${colleagues}">
                 <!-- Avatar (fixed empty string case + lazy load) -->
                 <td class="avatar-cell">
-                    <img th:src="@{(colleague.avatar != null && colleague.avatar.trim() != '')
-                        ? '/staff-home/colleagues-list/avatar/' + ${colleague.id}
-                        : ${colleague.getDefaultAvatarPath()}}"
+                    <img th:if="${colleague.avatar != null and colleague.avatar.trim() != ''}"
+                         th:src="@{'/staff-home/colleagues-list/avatar/' + ${colleague.id}}"
+                         class="avatar"
+                         loading="lazy"
+                         th:alt="${colleague.firstName + ' ' + colleague.lastName}" />
+
+                    <img th:unless="${colleague.avatar != null and colleague.avatar.trim() != ''}"
+                         th:src="@{${colleague.getDefaultAvatarPath()}}"
                          class="avatar"
                          loading="lazy"
                          th:alt="${colleague.firstName + ' ' + colleague.lastName}" />
                 </td>
+
 
                 <!-- ID -->
                 <td th:text="${colleague.id}"></td>
@@ -123,18 +123,6 @@
             </tbody>
         </table>
     </div>
-
-
-    <!-- ===== Empty State ===== -->
-    <div class="no-data" th:if="${totalColleagues == 0}">
-        <i class="fas fa-users-slash fa-3x"></i>
-        <p>No colleagues found at your campus.</p>
-        <a th:href="@{/staff-home}" class="btn secondary">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-    </div>
-
-
     <!-- ===== Pagination (giống hệt Your Managers) ===== -->
     <div class="pagination" th:if="${totalPages > 1}">
         <!-- First -->
