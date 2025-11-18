@@ -1,19 +1,23 @@
-# Stage 1: Build JAR
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# ------------ Stage 1: Build ------------
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn -q -DskipTests dependency:resolve
+# Copy toàn bộ project
+COPY . .
 
-COPY src ./src
-RUN mvn -q -DskipTests package
+# Build Maven (bỏ test cho nhanh)
+RUN ./mvnw -q -DskipTests package
 
-# Stage 2: Run JAR
-FROM eclipse-temurin:17-jdk
+
+# ------------ Stage 2: Run ------------
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
+
+# Copy file JAR từ stage build
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java","-jar","app.jar"]
