@@ -1,8 +1,6 @@
 package com.example.demo.messages.model;
 
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.entity.Enums.Notifications;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,10 +34,6 @@ public class Messages {
 
     @Column(name = "Datetime", nullable = false)
     private LocalDateTime datetime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification")
-    private Notifications notification;
 
     @Column(name = "Text", length = 1000)
     private String text;

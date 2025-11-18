@@ -1,6 +1,5 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.minorClassPosts.model.MinorClassPosts;
 import com.example.demo.user.employe.model.MinorEmployes;
@@ -38,8 +37,8 @@ public class MinorComments extends Comments {
     }
 
     public MinorComments(String commentId, MinorEmployes commenter, MinorClassPosts post,
-                         Notifications notification, String content, LocalDateTime createdAt) {
-        super(commentId, notification, content, createdAt);
+                         String content, LocalDateTime createdAt) {
+        super(commentId, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }

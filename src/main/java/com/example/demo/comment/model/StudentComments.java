@@ -1,6 +1,5 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
 import com.example.demo.user.student.model.Students;
@@ -37,9 +36,8 @@ public class StudentComments extends Comments {
         this.notificationType = OtherNotification.STUDENT_COMMENTED_ON_POST;
     }
 
-    public StudentComments(String commentId, Students commenter, ClassPosts post,
-                           Notifications notification, String content, LocalDateTime createdAt) {
-        super(commentId, notification, content, createdAt);
+    public StudentComments(String commentId, Students commenter, ClassPosts post, String content, LocalDateTime createdAt) {
+        super(commentId, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }

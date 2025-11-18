@@ -1,6 +1,5 @@
 package com.example.demo.lecturers_Classes.abstractLecturers_Classes.model;
 
-import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,9 +19,6 @@ public abstract class Lecturers_Classes {
     })
     private LecturersClassesId id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification")
-    private Notifications notification;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;

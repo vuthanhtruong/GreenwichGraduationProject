@@ -1,6 +1,5 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.Enums.Notifications;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,10 +17,6 @@ public abstract class Comments {
     @Column(name = "CommentID")
     private String commentId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification")
-    private Notifications notification;
-
     @Column(name = "Content", length = 1000)
     private String content;
 
@@ -30,9 +25,8 @@ public abstract class Comments {
 
     protected Comments() {}
 
-    protected Comments(String commentId, Notifications notification, String content, LocalDateTime createdAt) {
+    protected Comments(String commentId, String content, LocalDateTime createdAt) {
         this.commentId = commentId;
-        this.notification = notification;
         this.content = content;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }

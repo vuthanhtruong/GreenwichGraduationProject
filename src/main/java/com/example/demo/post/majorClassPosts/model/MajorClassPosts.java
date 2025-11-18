@@ -47,7 +47,7 @@ public class MajorClassPosts extends ClassPosts {
 
     public MajorClassPosts(String postId, MajorEmployes creator, MajorClasses majorClass,
                            String content, LocalDateTime createdAt, OtherNotification notificationType) {
-        super(postId, null, content, createdAt);
+        super(postId, content, createdAt);
         this.creator = creator;
         this.majorClass = majorClass;
         this.notificationType = notificationType;

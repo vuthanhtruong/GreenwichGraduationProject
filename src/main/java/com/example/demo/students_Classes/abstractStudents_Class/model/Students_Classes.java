@@ -1,7 +1,6 @@
 package com.example.demo.students_Classes.abstractStudents_Class.model;
 
 import com.example.demo.classes.abstractClasses.model.Classes;
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,10 +31,6 @@ public abstract class Students_Classes {
     @JoinColumn(name = "ClassID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Classes classEntity;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification")
-    private Notifications notification;
 
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

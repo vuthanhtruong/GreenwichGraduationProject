@@ -1,7 +1,6 @@
 package com.example.demo.academicTranscript.model;
 
 import com.example.demo.entity.Enums.Grades;
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,10 +25,6 @@ public abstract class AcademicTranscripts {
     @JoinColumn(name = "NumberID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Students student;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification", nullable = true)
-    private Notifications notification;
 
     // === ĐIỂM CHÍNH ===
     @Column(name = "Score", nullable = true)

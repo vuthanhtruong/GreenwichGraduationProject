@@ -2,7 +2,6 @@ package com.example.demo.post.classPost.model;
 
 import com.example.demo.comment.model.StudentComments;
 import com.example.demo.document.model.ClassDocuments;
-import com.example.demo.entity.Enums.Notifications;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,10 +22,6 @@ public abstract class ClassPosts {
     @Column(name = "PostID", nullable = false, updatable = false)
     private String postId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Notification")
-    private Notifications notification;
-
     @Column(name = "Content", length = 1000)
     private String content;
 
@@ -41,9 +36,8 @@ public abstract class ClassPosts {
 
     public ClassPosts() {}
 
-    public ClassPosts(String postId, Notifications notification, String content, LocalDateTime createdAt) {
+    public ClassPosts(String postId, String content, LocalDateTime createdAt) {
         this.postId = postId;
-        this.notification = notification;
         this.content = content;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }

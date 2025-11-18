@@ -1,7 +1,6 @@
 package com.example.demo.post.news.controller;
 
 import com.example.demo.comment.model.PublicComments;
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.post.news.model.News;
 import com.example.demo.post.news.service.NewsService;
 import com.example.demo.user.person.model.Persons;
@@ -71,7 +70,6 @@ public class PublicNewsDetailController {
             comment.setPost(news);
             comment.setContent(content.trim());
             comment.setCreatedAt(LocalDateTime.now());
-            comment.setNotification(Notifications.NOTIFICATION_006);
 
             news.addComment(comment);
             newsService.updateNews(news);

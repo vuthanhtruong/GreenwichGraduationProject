@@ -1,7 +1,6 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.AbstractClasses.PublicPosts;
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,8 +30,8 @@ public class PublicComments extends Comments {
     public PublicComments() {}
 
     public PublicComments(String commentId, Persons commenter, PublicPosts post,
-                          Notifications notification, String content, LocalDateTime createdAt) {
-        super(commentId, notification, content, createdAt);
+                           String content, LocalDateTime createdAt) {
+        super(commentId, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }

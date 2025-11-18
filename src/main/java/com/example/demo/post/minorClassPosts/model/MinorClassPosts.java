@@ -47,7 +47,7 @@ public class MinorClassPosts extends ClassPosts {
 
     public MinorClassPosts(String postId, MinorEmployes creator, MinorClasses minorClass,
                            String content, LocalDateTime createdAt, OtherNotification notificationType) {
-        super(postId, null, content, createdAt);
+        super(postId, content, createdAt);
         this.creator = creator;
         this.minorClass = minorClass;
         this.notificationType = notificationType;

@@ -1,6 +1,5 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.Enums.Notifications;
 import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
 import com.example.demo.user.employe.model.MajorEmployes;
@@ -38,8 +37,8 @@ public class SpecializedComments extends Comments {
     }
 
     public SpecializedComments(String commentId, MajorEmployes commenter, SpecializedClassPosts post,
-                               Notifications notification, String content, LocalDateTime createdAt) {
-        super(commentId, notification, content, createdAt);
+                               String content, LocalDateTime createdAt) {
+        super(commentId, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }

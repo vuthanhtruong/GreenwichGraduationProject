@@ -56,7 +56,7 @@ public class AssignmentSubmitSlots extends ClassPosts {
             LocalDateTime createdAt,
             OtherNotification notificationType
     ) {
-        super(postId, null, content, createdAt);
+        super(postId, content, createdAt);
         this.creator = creator;
         this.classEntity = classEntity;
         this.deadline = deadline;

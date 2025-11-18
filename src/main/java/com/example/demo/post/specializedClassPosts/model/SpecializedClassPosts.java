@@ -50,7 +50,7 @@ public class SpecializedClassPosts extends ClassPosts {
                                  String content, LocalDateTime createdAt,
                                  OtherNotification notificationType) {
 
-        super(postId, null, content, createdAt);
+        super(postId, content, createdAt);
         this.creator = creator;
         this.specializedClass = specializedClass;
         this.notificationType = notificationType;

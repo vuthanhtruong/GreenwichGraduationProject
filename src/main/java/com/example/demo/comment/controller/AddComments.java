@@ -167,7 +167,6 @@ public class AddComments {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setPost(post);
         comment.setCommenter(commenter);
-        comment.setNotification(null);
         return comment;
     }
 
