@@ -34,14 +34,6 @@
         <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
     </div>
 
-    <!-- Student Info nhỏ gọn như Total Lecturers -->
-    <div class="win11-alert info" style="margin: 15px 20px;">
-        <i class="fas fa-user-graduate"></i>
-        <strong th:text="${student?.fullName}">Student Name</strong>
-        (ID: <span th:text="${student?.id}">N/A</span>) |
-        Balance: <span th:text="${currentBalance != null ? #numbers.formatDecimal(currentBalance,0,'COMMA',0,'POINT') + ' VND' : 'N/A'}">0 VND</span>
-    </div>
-
     <!-- Table container giống hệt Lecturers List -->
     <div class="table-container">
         <form th:action="@{/student-home/re-study-request/pay}" method="post"

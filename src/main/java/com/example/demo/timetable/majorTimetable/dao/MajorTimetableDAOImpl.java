@@ -21,6 +21,39 @@ import java.util.List;
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
 
     @Override
+    public List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
+        if (weekOfYear == null || year == null) {
+            return List.of();
+        }
+
+        StringBuilder jpql = new StringBuilder("""
+        SELECT DISTINCT t FROM MajorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN FETCH t.classEntity c
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+        """);
+
+        if (campusId != null && !campusId.isBlank()) {
+            jpql.append(" AND c.creator.campus.campusId = :campusId");
+        }
+
+        jpql.append(" ORDER BY t.dayOfWeek, t.slot.startTime");
+
+        var query = em.createQuery(jpql.toString(), MajorTimetable.class)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year);
+
+        if (campusId != null && !campusId.isBlank()) {
+            query.setParameter("campusId", campusId);
+        }
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<MajorTimetable> getMajorTimetableByStudentAndClassId(String studentId, String classId) {
         String jpql = """
         SELECT t FROM MajorTimetable t

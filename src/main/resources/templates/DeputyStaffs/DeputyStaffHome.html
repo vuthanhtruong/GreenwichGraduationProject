@@ -26,6 +26,9 @@
             <a th:href="@{/messages}">
                 <i class="fas fa-envelope-open-text"></i> Messages
             </a>
+            <a th:href="@{/deputy-staff-home/minor-timetable-overview}">
+                <i class="fas fa-calendar-days"></i> Timetable Overview
+            </a>
             <a th:href="@{/deputy-staff-home/personal-page}">
                 <i class="fas fa-id-card"></i> Personal Page
             </a>
@@ -69,14 +72,6 @@
         <a class="dashboard-card" th:href="@{/deputy-staff-home/minor-study-plan}">
             <span class="icon"><i class="fas fa-diagram-project"></i></span>
             <span class="meta"><strong>Study Plan</strong><small>study management</small></span>
-        </a>
-
-        <a class="dashboard-card info" th:href="@{/deputy-staff-home/timetables}">
-            <span class="icon"><i class="fas fa-calendar-alt"></i></span>
-            <span class="meta">
-                <strong>Timetables</strong>
-                <small>Review daily schedules</small>
-            </span>
         </a>
 
         <a class="dashboard-card colleague" th:href="@{/deputy-staff-home/colleagues-list}">

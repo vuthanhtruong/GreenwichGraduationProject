@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Subjects Timetable Overview - [[${campusName}]]</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/MajorTimetable.css}">
+</head>
+<body>
+
+<div class="timetable-container">
+
+    <!-- HEADER -->
+    <header class="timetable-header">
+        <div class="header-main">
+            <h1>
+                <i class="fas fa-calendar-days"></i>
+                Minor & Soft Skills Timetable Overview – [[${campusName}]]
+            </h1>
+
+            <form th:action="@{/deputy-staff-home/minor-timetable-overview}" method="get" class="header-form">
+                <div class="select-group">
+                    <label><i class="fas fa-calendar-year"></i> Year</label>
+                    <select name="year" onchange="this.form.submit()">
+                        <option th:each="y : ${#numbers.sequence(currentYear - 5, currentYear + 5)}"
+                                th:value="${y}" th:text="${y}" th:selected="${y == year}"></option>
+                    </select>
+                </div>
+
+                <div class="select-group">
+                    <label><i class="fas fa-calendar-week"></i> Week</label>
+                    <select name="week" onchange="this.form.submit()">
+                        <option th:each="label, iter : ${weekLabels}"
+                                th:value="${iter.index + 1}" th:text="${label}" th:selected="${iter.index + 1 == week}"></option>
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-outline-primary" onclick="goToToday()">
+                    <i class="fas fa-calendar-day"></i> Today
+                </button>
+            </form>
+        </div>
+
+        <div>
+            <a th:href="@{/deputy-staff-home}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Deputy Staff Home
+            </a>
+        </div>
+    </header>
+
+    <!-- TIMETABLE GRID -->
+    <div class="table-wrapper">
+        <table class="timetable-table">
+            <thead>
+            <tr>
+                <th class="slot-header">Slot</th>
+                <th th:each="dayLabel, i : ${dayLabels}" class="day-header">
+                    <div th:text="${dayNames[i.index]}"></div>
+                    <small th:text="${dayLabel}"></small>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot, slotStat : ${slots}">
+                <td class="slot-cell">
+                    <div th:text="${slot.slotName}"></div>
+                    <small>
+                        <i class="far fa-clock"></i>
+                        <span th:text="${#temporals.format(slot.startTime, 'HH:mm')} + ' – ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></span>
+                    </small>
+                </td>
+
+                <td th:each="dayIdx : ${#numbers.sequence(0,6)}" class="timetable-cell">
+
+                    <!-- MULTIPLE CLASSES (SHOW CONFLICTS) -->
+                    <div th:if="${matrix[dayIdx][slotStat.index] != null && !matrix[dayIdx][slotStat.index].isEmpty()}">
+                        <div th:each="t, iter : ${matrix[dayIdx][slotStat.index]}"
+                             class="cell cell-booked"
+                             th:classappend="${iter.index > 0} ? 'cell-conflict'">
+
+                            <div class="class-info" th:text="${t.getClassName()}">
+                                Minor Class
+                            </div>
+                            <div class="room-name">
+                                <i class="fas fa-door-open"></i>
+                                <span th:text="${t.room.roomName ?: t.room.roomId}"></span>
+                            </div>
+
+                            <hr th:if="${!iter.last}" class="conflict-separator">
+                        </div>
+                    </div>
+
+                    <!-- EMPTY -->
+                    <div th:if="${matrix[dayIdx][slotStat.index] == null || matrix[dayIdx][slotStat.index].isEmpty()}"
+                         class="cell cell-unavailable">
+                        <i class="fas fa-minus"></i> Free
+                    </div>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function goToToday() {
+        const url = new URL(window.location);
+        url.searchParams.delete('year');
+        url.searchParams.delete('week');
+        window.location.href = url.toString();
+    }
+</script>
+
+</body>
+</html>

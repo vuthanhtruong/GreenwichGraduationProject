@@ -48,4 +48,5 @@ public interface SpecializedTimetableService {
     List<SpecializedTimetable> getSpecializedTimetableTodayByLecturer(String lecturerId);
     List<SpecializedTimetable> getSpecializedTimetableByStudentAndClassId(
             String studentId, String classId);
+    List<SpecializedTimetable> getAllSpecializedTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
 }

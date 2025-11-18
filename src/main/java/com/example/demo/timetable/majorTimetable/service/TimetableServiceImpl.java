@@ -10,6 +10,11 @@ import java.util.List;
 @Service
 public class TimetableServiceImpl implements TimetableService {
     @Override
+    public List<Timetable> getMajorTimetableAndSpecializedInWeek(Integer weekOfYear, Integer year, String campusId) {
+        return dao.getMajorTimetableAndSpecializedInWeek(weekOfYear, year, campusId);
+    }
+
+    @Override
     public List<Timetable> getTimetableTodayByLecturer(String lecturerId) {
         return dao.getTimetableTodayByLecturer(lecturerId);
     }

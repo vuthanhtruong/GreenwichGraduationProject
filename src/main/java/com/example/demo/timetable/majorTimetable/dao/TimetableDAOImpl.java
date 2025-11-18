@@ -17,6 +17,14 @@ import java.util.List;
 @Transactional
 public class TimetableDAOImpl implements TimetableDAO {
     @Override
+    public List<Timetable> getMajorTimetableAndSpecializedInWeek(Integer weekOfYear, Integer year, String campusIdr) {
+        List<Timetable> timetables = new ArrayList<>();
+        timetables.addAll(majorTimetableService.getAllMajorTimetablesInWeek(weekOfYear, year, campusIdr));
+        timetables.addAll(specializedTimetableService.getAllSpecializedTimetablesInWeek(weekOfYear, year, campusIdr));
+        return timetables;
+    }
+
+    @Override
     public List<Timetable> getTimetableTodayByLecturer(String lecturerId) {
         List<Timetable> timetableList = new ArrayList<>();
         timetableList.addAll(majorTimetableService.getMajorTimetableTodayByLecturer(lecturerId));

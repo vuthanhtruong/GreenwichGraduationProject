@@ -21,6 +21,39 @@ import java.util.List;
 public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
 
     @Override
+    public List<SpecializedTimetable> getAllSpecializedTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
+        if (weekOfYear == null || year == null) {
+            return List.of();
+        }
+
+        StringBuilder jpql = new StringBuilder("""
+        SELECT DISTINCT t FROM SpecializedTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN FETCH t.specializedClass c
+        WHERE t.weekOfYear = :week
+          AND t.year = :year
+        """);
+
+        if (campusId != null && !campusId.isBlank()) {
+            jpql.append(" AND c.creator.campus.campusId = :campusId");
+        }
+
+        jpql.append(" ORDER BY t.dayOfWeek, t.slot.startTime");
+
+        var query = em.createQuery(jpql.toString(), SpecializedTimetable.class)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year);
+
+        if (campusId != null && !campusId.isBlank()) {
+            query.setParameter("campusId", campusId);
+        }
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<SpecializedTimetable> getSpecializedTimetableByStudentAndClassId(String studentId, String classId) {
         String jpql = """
         SELECT t FROM SpecializedTimetable t

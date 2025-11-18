@@ -10,4 +10,5 @@ public interface TimetableService {
     List<Timetable> getStudentTimetable(String studentId, Integer week, Integer year);
     List<Timetable> getMajorLecturerTimetable(String lecturerId, Integer week, Integer year);
     List<Timetable> getTimetableTodayByLecturer(String lecturerId);
+    List<Timetable> getMajorTimetableAndSpecializedInWeek(Integer weekOfYear, Integer year, String campusId);
 }

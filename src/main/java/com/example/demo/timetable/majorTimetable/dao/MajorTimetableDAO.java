@@ -34,4 +34,5 @@ public interface MajorTimetableDAO {
     List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId);
     List<MajorTimetable> getMajorTimetableByStudentAndClassId(
             String studentId, String classId);
+    List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
 }

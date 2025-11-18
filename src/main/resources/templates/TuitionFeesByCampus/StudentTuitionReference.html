@@ -84,7 +84,7 @@
                 <!-- Re-study Fee -->
                 <td class="price">
                     <span th:if="${t.reStudyTuition != null and t.reStudyTuition > 0}"
-                          th:text="${#numbers.formatInteger(t.reStudyTuition.longValue(), 0, 'COMMA')} + ' ₫'"></span>
+                          th:text="${#numbers.formatInteger(t.reStudyTuition.longValue(), 0, 'COMMA')} + ' USD'"></span>
                     <span th:unless="${t.reStudyTuition != null and t.reStudyTuition > 0}" class="text-muted">—</span>
                 </td>
             </tr>
