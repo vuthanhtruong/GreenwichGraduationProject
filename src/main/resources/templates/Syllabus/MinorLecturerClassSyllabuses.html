@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minor Class Syllabus</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/ClassSyllabuses.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ==================== Toolbar for Minor Lecturer ==================== -->
+    <div class="search-toolbar unified-bar">
+
+        <!-- Left: Navigation -->
+        <div class="toolbar-left">
+            <a th:href="@{/minor-lecturer-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{/minor-lecturer-home/classes-list}" class="btn small">
+                <i class="fas fa-arrow-left"></i> Back to Class List
+            </a>
+        </div>
+
+        <!-- Center: Page Title -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-file-alt"></i>
+                Minor Class Syllabus
+            </h2>
+        </div>
+
+        <!-- Right: Total Syllabuses -->
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-layer-group"></i>
+                <span>
+                    <strong>Total Syllabuses:</strong>
+                    <span th:text="${Syllabuses != null ? Syllabuses.size() : 0}"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ===== Syllabus List Table ===== -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-id-card"></i> Syllabus ID</th>
+                <th><i class="fas fa-book"></i> Syllabus Name</th>
+                <th><i class="fas fa-user"></i> Creator</th>
+                <th><i class="fas fa-file"></i> File Type</th>
+                <th><i class="fas fa-eye"></i> View</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through syllabuses (MinorSyllabuses or SpecializationSyllabuses) -->
+            <tr th:each="syllabus : ${Syllabuses}">
+                <td th:text="${syllabus.syllabusId}"></td>
+                <td th:text="${syllabus.syllabusName}"></td>
+                <td th:text="${syllabus.creator != null ? syllabus.creator.firstName + ' ' + syllabus.creator.lastName : 'N/A'}"></td>
+                <td th:text="${syllabus.fileType != null ? syllabus.fileType : 'N/A'}"></td>
+                <td>
+                    <a th:if="${syllabus.filePath != null}"
+                       th:href="@{${syllabus.filePath}}"
+                       class="btn primary small" target="_blank">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <span th:if="${syllabus.filePath == null}" class="text-muted">No file attached</span>
+                </td>
+            </tr>
+
+            <!-- Empty state -->
+            <tr th:if="${Syllabuses == null or Syllabuses.isEmpty()}">
+                <td colspan="6" class="text-center text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    No syllabus has been uploaded for this subject yet.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

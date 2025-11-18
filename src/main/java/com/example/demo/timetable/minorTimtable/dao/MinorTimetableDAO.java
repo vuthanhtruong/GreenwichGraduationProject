@@ -42,4 +42,5 @@ public interface MinorTimetableDAO {
     List<MinorTimetable> getMinorTimetableByStudentAndClassId(
             String studentId, String classId);
     List<MinorTimetable> getAllMinorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
+    List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId);
 }

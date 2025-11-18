@@ -14,6 +14,11 @@ import java.util.List;
 @Service
 public class MinorTimetableServiceImpl implements MinorTimetableService {
     @Override
+    public List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId) {
+        return dao.getMinorTimetableTodayByLecturer(lecturerId);
+    }
+
+    @Override
     public List<MinorTimetable> getAllMinorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
         return dao.getAllMinorTimetablesInWeek(weekOfYear, year, campusId);
     }

@@ -12,12 +12,44 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.IsoFields;
 import java.util.List;
 
 @Repository
 @Transactional
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
+
+    // Thêm vào MinorTimetableDAO interface + impl
+    @Override
+    public List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId) {
+        LocalDate today = LocalDate.now(); // 19/11/2025
+        int week = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR); // tuần 47 năm 2025
+        int year = today.getYear();
+        DaysOfWeek dayOfWeek = DaysOfWeek.valueOf(today.getDayOfWeek().name());
+
+        String jpql = """
+        SELECT DISTINCT t FROM MinorTimetable t
+        JOIN FETCH t.room
+        JOIN FETCH t.slot
+        LEFT JOIN FETCH t.creator
+        JOIN t.minorClass c
+        JOIN MinorLecturers_MinorClasses lmc ON c.classId = lmc.minorClass.classId
+        WHERE lmc.lecturer.id = :lecturerId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+          AND t.dayOfWeek = :dayOfWeek
+        ORDER BY t.slot.startTime
+        """;
+
+        return em.createQuery(jpql, MinorTimetable.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .setParameter("dayOfWeek", dayOfWeek)
+                .getResultList();
+    }
 
     @Override
     public List<MinorTimetable> getAllMinorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {

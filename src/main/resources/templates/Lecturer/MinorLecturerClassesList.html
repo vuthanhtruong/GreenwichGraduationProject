@@ -59,9 +59,9 @@
 
             <tr th:each="lc : ${lecturerClasses}">
                 <td th:text="${lc.minorClass.classId}"></td>
-                <td th:text="${lc.minorClass.className}"></td>
-                <td th:text="${lc.minorClass.subjectName != null ? lc.minorClass.subjectName : 'N/A'}"></td>
-                <td th:text="${lc.minorClass.subjectCode != null ? lc.minorClass.subjectCode : '-'}"></td>
+                <td th:text="${lc.minorClass.nameClass}"></td>
+                <td th:text="${lc.minorClass.minorSubject.subjectName != null ? lc.minorClass.minorSubject.subjectName : 'N/A'}"></td>
+                <td th:text="${lc.minorClass.minorSubject.subjectId != null ? lc.minorClass.minorSubject.subjectId : '-'}"></td>
                 <td th:text="${lc.minorClass.session != null ? lc.minorClass.session : 'N/A'}"></td>
                 <td th:text="${lc.minorClass.slotQuantity != null ? lc.minorClass.slotQuantity : '-'}"></td>
                 <td th:text="${#temporals.format(lc.createdAt, 'dd MMM yyyy')}"></td>
@@ -99,19 +99,6 @@
 
     </div>
 
-
-    <!-- ===== Empty State ===== -->
-    <div class="no-data" th:if="${totalClasses == 0}">
-        <i class="fas fa-chalkboard-teacher fa-3x"></i>
-        <p>No classes assigned yet.</p>
-
-        <a th:href="@{/minor-lecturer-home}" class="btn secondary">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
-    </div>
-
-
-    <!-- ===== Pagination ===== -->
     <div class="pagination" th:if="${totalPages > 1}">
 
         <a th:href="@{/minor-lecturer-home/classes-list(page=1, pageSize=${pageSize})}"

@@ -109,6 +109,12 @@ public class MinorTimetableDetailController {
         model.addAttribute("lecturers", lecturers);
         model.addAttribute("studentAttendanceList", studentAttendanceList);
         model.addAttribute("staff", staff);
+        if(employesService.getMinorEmployee() instanceof MinorLecturers){
+            model.addAttribute("home", "/minor-lecturer-home");
+        }
+        else {
+            model.addAttribute("home", "/deputy-staff-home/minor-classes-list");
+        }
 
         return "MinorTimetableDetail";
     }

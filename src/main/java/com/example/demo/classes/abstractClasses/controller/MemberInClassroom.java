@@ -69,6 +69,8 @@ public class MemberInClassroom {
                 model.addAttribute("home", "/staff-home");
             } else if (personsService.getPerson() instanceof Students) {
                 model.addAttribute("home", "/student-home");
+            } else if (personsService.getPerson() instanceof MinorLecturers) {
+                model.addAttribute("home", "/minor-lecturer-home");
             }
             Classes classEntity = classesService.findClassById(classId);
             if (classEntity == null) {
