@@ -80,7 +80,7 @@
                 <td th:text="${lecturer.email}"></td>
                 <td>
                     <form method="post" th:action="@{/staff-timetable/lecturer}" class="inline-form">
-                        <input type="hidden" name="lecturerId" th:value="${lecture.id}" />
+                        <input type="hidden" name="lecturerId" th:value="${lecturer.id}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn info small">
                             <i class="fas fa-calendar-week"></i> View Timetable
@@ -91,7 +91,7 @@
                 <!-- Specializations Button -->
                 <td>
                     <form method="post" th:action="@{/staff-specializations/lecturer}" class="inline-form">
-                        <input type="hidden" name="lecturerId" th:value="${lecture.id}" />
+                        <input type="hidden" name="lecturerId" th:value="${lecturer.id}" />
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn info small">
                             <i class="fas fa-graduation-cap"></i> View Specializations

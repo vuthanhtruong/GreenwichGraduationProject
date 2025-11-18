@@ -177,7 +177,6 @@
            th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
 
         <form method="get" th:action="@{/staff-home/students-list}" class="page-select-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <label for="pageSelect">Go to page:</label>
             <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
                 <option th:each="i : ${#numbers.sequence(1, totalPages)}"
@@ -187,7 +186,7 @@
         </form>
     </div>
 
-    <!-- Overlay: Add Student -->
+    <!-- Overlay: Add Student (ĐÃ LƯỢC BỎ HOÀN TOÀN PHẦN PHỤ HUYNH) -->
     <div id="addOverlay" class="overlay">
         <div class="overlay-content">
             <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
@@ -244,7 +243,7 @@
                             <div class="text-danger" th:if="${errors?.containsKey('birthDate')}" th:text="${errors.get('birthDate')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="admissionYear"><i class="fas fa-calendar-alt"></i> admissionYear:</label>
+                            <label for="admissionYear"><i class="fas fa-calendar-alt"></i> Admission Year:</label>
                             <input id="admissionYear" th:field="*{admissionYear}" required type="text" class="input">
                             <div class="text-danger" th:if="${errors?.containsKey('admissionYear')}" th:text="${errors.get('admissionYear')}"></div>
                         </div>
@@ -259,7 +258,7 @@
                         </div>
                         <!-- Curriculum -->
                         <div class="form-row">
-                            <label for="curriculum">Curriculum:</label>
+                            <label for="curriculum"><i class="fas fa-book"></i> Curriculum:</label>
                             <select id="curriculum" name="curriculumId" required class="input">
                                 <option value="">Select Curriculum</option>
                                 <option th:each="c : ${curriculums}"
@@ -274,7 +273,7 @@
 
                         <!-- Narrow Specialization -->
                         <div class="form-row">
-                            <label for="specialization">Narrow Specialization:</label>
+                            <label for="specialization"><i class="fas fa-graduation-cap"></i> Narrow Specialization:</label>
                             <select id="specialization" name="specializationId" required class="input">
                                 <option value="">Select Narrow Specialization</option>
                                 <option th:each="s : ${specializations}"
@@ -291,46 +290,35 @@
 
                 <!-- Address (optional) -->
                 <section class="win11-panel">
-                    <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information</h2>
+                    <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address Information (Optional)</h2>
                     <div class="form-group grid-2">
-                        <div class="form-row"><label for="country"><i class="fas fa-flag"></i> Country:</label><input id="country" th:field="*{country}" class="input"></div>
-                        <div class="form-row"><label for="province"><i class="fas fa-location-dot"></i> Province:</label><input id="province" th:field="*{province}" class="input"></div>
-                        <div class="form-row"><label for="city"><i class="fas fa-city"></i> City:</label><input id="city" th:field="*{city}" class="input"></div>
-                        <div class="form-row"><label for="district"><i class="fas fa-map"></i> District:</label><input id="district" th:field="*{district}" class="input"></div>
-                        <div class="form-row"><label for="ward"><i class="fas fa-map-pin"></i> Ward:</label><input id="ward" th:field="*{ward}" class="input"></div>
-                        <div class="form-row"><label for="street"><i class="fas fa-road"></i> Street/House:</label><input id="street" th:field="*{street}" class="input"></div>
-                        <div class="form-row"><label for="postalCode"><i class="fas fa-mail-bulk"></i> Postal Code:</label><input id="postalCode" th:field="*{postalCode}" class="input"></div>
-                    </div>
-                </section>
-
-                <!-- Parents (optional) -->
-                <section class="win11-panel">
-                    <h2 class="panel-header"><i class="fas fa-users"></i> Parent's Information (Optional)</h2>
-                    <p class="form-text"><i class="fas fa-info-circle"></i> Provide valid info for up to two parents.</p>
-                    <div class="form-group grid-2">
-                        <div class="parent-entry">
-                            <h3 class="sub-header"><i class="fas fa-user"></i> Parent 1</h3>
-                            <div class="form-row"><label for="parentEmail1"><i class="fas fa-envelope"></i> Email:</label><input id="parentEmail1" name="parentEmail1" type="email" class="input"></div>
-                            <div class="form-row"><label for="supportPhoneNumber1"><i class="fas fa-phone"></i> Support Phone:</label><input id="supportPhoneNumber1" name="supportPhoneNumber1" type="text" class="input"></div>
-                            <div class="form-row">
-                                <label for="parentRelationship1"><i class="fas fa-handshake"></i> Relationship:</label>
-                                <select id="parentRelationship1" name="parentRelationship1" class="input">
-                                    <option value="">Select</option>
-                                    <option th:each="r : ${relationshipTypes}" th:value="${r}" th:text="${r}"></option>
-                                </select>
-                            </div>
+                        <div class="form-row">
+                            <label for="country"><i class="fas fa-flag"></i> Country:</label>
+                            <input id="country" th:field="*{country}" class="input">
                         </div>
-                        <div class="parent-entry">
-                            <h3 class="sub-header"><i class="fas fa-user"></i> Parent 2</h3>
-                            <div class="form-row"><label for="parentEmail2"><i class="fas fa-envelope"></i> Email:</label><input id="parentEmail2" name="parentEmail2" type="email" class="input"></div>
-                            <div class="form-row"><label for="supportPhoneNumber2"><i class="fas fa-phone"></i> Support Phone:</label><input id="supportPhoneNumber2" name="supportPhoneNumber2" type="text" class="input"></div>
-                            <div class="form-row">
-                                <label for="parentRelationship2"><i class="fas fa-handshake"></i> Relationship:</label>
-                                <select id="parentRelationship2" name="parentRelationship2" class="input">
-                                    <option value="">Select</option>
-                                    <option th:each="r : ${relationshipTypes}" th:value="${r}" th:text="${r}"></option>
-                                </select>
-                            </div>
+                        <div class="form-row">
+                            <label for="province"><i class="fas fa-location-dot"></i> Province:</label>
+                            <input id="province" th:field="*{province}" class="input">
+                        </div>
+                        <div class="form-row">
+                            <label for="city"><i class="fas fa-city"></i> City:</label>
+                            <input id="city" th:field="*{city}" class="input">
+                        </div>
+                        <div class="form-row">
+                            <label for="district"><i class="fas fa-map"></i> District:</label>
+                            <input id="district" th:field="*{district}" class="input">
+                        </div>
+                        <div class="form-row">
+                            <label for="ward"><i class="fas fa-map-pin"></i> Ward:</label>
+                            <input id="ward" th:field="*{ward}" class="input">
+                        </div>
+                        <div class="form-row">
+                            <label for="street"><i class="fas fa-road"></i> Street/House:</label>
+                            <input id="street" th:field="*{street}" class="input">
+                        </div>
+                        <div class="form-row">
+                            <label for="postalCode"><i class="fas fa-mail-bulk"></i> Postal Code:</label>
+                            <input id="postalCode" th:field="*{postalCode}" class="input">
                         </div>
                     </div>
                 </section>
