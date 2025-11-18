@@ -37,4 +37,7 @@ public interface AcademicTranscriptsService {
     List<AcademicTranscripts> getFailSubjectsByStudent(Students student);
     List<String> getNotificationsForMemberId(String memberId);
     boolean hasPassedSubject(Students student, String subjectId);
+    List<MinorAcademicTranscripts> getFailedNeverPassedMinor(Students student);
+    List<SpecializedAcademicTranscripts> getFailedNeverPassedSpecialized(Students student);
+    List<MajorAcademicTranscripts> getFailedNeverPassedMajor(Students student);
 }

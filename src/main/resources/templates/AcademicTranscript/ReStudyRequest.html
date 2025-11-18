@@ -4,177 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Re-study Request</title>
-    <link rel="stylesheet" th:href="@{/SyllabusesList.css}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Header -->
+    <!-- Toolbar - giống hệt trang Lecturers -->
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
             <a th:href="@{/student-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
+            <h2 class="page-title"><i class="fas fa-redo"></i> Re-study Request</h2>
         </div>
-        <div class="toolbar-center">
-            <h2 class="page-title">
-                <i class="fas fa-redo"></i> Re-study Request
-            </h2>
+        <div class="toolbar-right">
+            <div class="total">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Failed Subjects:</strong> <span th:text="${totalFail}">0</span></span>
+            </div>
         </div>
     </div>
 
-    <!-- Flash Messages -->
-    <div class="alert error" th:if="${errorMessage != null}">
-        <i class="fas fa-times-circle"></i>
-        <span th:text="${errorMessage}"></span>
+    <!-- Alert messages - dùng win11-alert đúng chuẩn -->
+    <div th:if="${errorMessage != null}" class="win11-alert error">
+        <i class="fas fa-times-circle"></i> <span th:text="${errorMessage}"></span>
     </div>
-    <div class="alert success" th:if="${successMessage != null}">
-        <i class="fas fa-check-circle"></i>
-        <span th:text="${successMessage}"></span>
+    <div th:if="${successMessage != null}" class="win11-alert success">
+        <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
     </div>
 
-    <!-- Student Info -->
-    <div class="info-box" th:if="${student != null}">
-        <p>
-            <strong>Full Name:</strong>
-            <span th:text="${student.fullName}">Student Name</span>
-        </p>
-        <p>
-            <strong>Student ID:</strong>
-            <span th:text="${student.id}">N/A</span>
-        </p>
-        <p>
-            <strong>Account Balance:</strong>
-            <span th:if="${currentBalance != null}"
-                  th:text="${#numbers.formatDecimal(currentBalance, 0, 'COMMA', 0, 'POINT')} + ' VND'">
-                0 VND
-            </span>
-            <span th:unless="${currentBalance != null}">
-                N/A
-            </span>
-        </p>
-        <p>
-            <strong>Total Failed Subjects:</strong>
-            <span th:text="${totalFail}">0</span>
-        </p>
+    <!-- Student Info nhỏ gọn như Total Lecturers -->
+    <div class="win11-alert info" style="margin: 15px 20px;">
+        <i class="fas fa-user-graduate"></i>
+        <strong th:text="${student?.fullName}">Student Name</strong>
+        (ID: <span th:text="${student?.id}">N/A</span>) |
+        Balance: <span th:text="${currentBalance != null ? #numbers.formatDecimal(currentBalance,0,'COMMA',0,'POINT') + ' VND' : 'N/A'}">0 VND</span>
     </div>
 
-    <!-- Form chọn môn học lại -->
-    <form th:action="@{/student-home/re-study-request/pay}"
-          method="post"
-          th:if="${failTranscripts != null and not #lists.isEmpty(failTranscripts)}"
-          onsubmit="return validateSelection()">
+    <!-- Table container giống hệt Lecturers List -->
+    <div class="table-container">
+        <form th:action="@{/student-home/re-study-request/pay}" method="post"
+              th:if="${failTranscripts != null and not #lists.isEmpty(failTranscripts)}"
+              onsubmit="return validateSelection()">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-        <div class="table-container">
-            <h3><i class="fas fa-list-alt"></i> Select Subjects to Re-study</h3>
-
-            <!-- Danh sách môn trượt -->
-            <div th:each="transcript : ${failTranscripts}"
-                 th:with="fee=${reStudyFeeMap[transcript.subjectId]}">
-                <div class="subject-card">
-                    <label class="checkbox-label">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th style="width: 50px;"><i class="fas fa-check-square"></i></th>
+                    <th><i class="fas fa-book"></i> Subject</th>
+                    <th><i class="fas fa-id-card"></i> Subject ID</th>
+                    <th style="text-align: right;"><i class="fas fa-coins"></i> Re-study Fee</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transcript : ${failTranscripts}"
+                    th:with="fee=${reStudyFeeMap[transcript.subjectId]}">
+                    <td class="text-center">
                         <input type="checkbox"
                                class="subject-checkbox"
                                th:name="selectedSubjects"
                                th:value="${transcript.subjectId}"
-                               th:attr="data-fee=${fee}"
-                               onclick="updateTotal()">
-                        <div style="flex: 1;">
-                            <div class="subject-header">
-                                <div>
-                                    <span class="subject-name"
-                                          th:text="${transcript.subjectName}">Subject Name</span>
-                                    <span class="fail-badge">FAILED</span>
-                                </div>
-                            </div>
-                            <p>
-                                <strong>Subject ID:</strong>
-                                <span th:text="${transcript.subjectId}">N/A</span>
-                            </p>
-                            <p>
-                                <strong>Re-study Fee:</strong>
-                                <span class="subject-fee"
-                                      th:text="${fee != null} ? ${#numbers.formatDecimal(fee, 0, 'COMMA', 0, 'POINT')} + ' VND' : 'N/A'">
-                                    0 VND
-                                </span>
-                            </p>
-                        </div>
-                    </label>
-                </div>
-            </div>
+                               th:attr="data-fee=${fee != null ? fee : 0}"
+                               onclick="updateTotal()" />
+                    </td>
+                    <td>
+                        <strong th:text="${transcript.subjectName}">Subject Name</strong>
+                        <span class="badge danger" style="margin-left: 8px;">FAILED</span>
+                    </td>
+                    <td th:text="${transcript.subjectId}">N/A</td>
+                    <td style="text-align: right; font-weight: 600;">
+                            <span th:text="${fee != null ? #numbers.formatDecimal(fee,0,'COMMA',0,'POINT') + ' VND' : 'N/A'}">
+                                0 VND
+                            </span>
+                    </td>
+                </tr>
 
-            <!-- Tổng tiền + nút thanh toán -->
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <p class="total-cost">
-                    Total Cost:
-                    <span id="totalCost">0 VND</span>
-                </p>
-                <button type="submit" class="pay-btn" id="payBtn" disabled>
-                    <i class="fas fa-credit-card"></i> Confirm &amp; Pay
+                <!-- Tổng tiền -->
+                <tr class="total-row">
+                    <td colspan="3" style="text-align: right; font-size: 1.2em; font-weight: bold;">
+                        Total Cost:
+                    </td>
+                    <td style="text-align: right; font-size: 1.4em; color: var(--primary); font-weight: bold;">
+                        <span id="totalCost">0 VND</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Nút thanh toán giống nút Add Lecturer -->
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="submit" class="btn primary large" id="payBtn" disabled>
+                    <i class="fas fa-credit-card"></i> Confirm & Pay
                 </button>
             </div>
-        </div>
-    </form>
+        </form>
 
-    <!-- Không có môn trượt -->
-    <div class="info-box success"
-         th:if="${failTranscripts == null or #lists.isEmpty(failTranscripts)}">
-        <i class="fas fa-check-circle"></i>
-        <strong>Congratulations!</strong> You have no failed subjects.
+        <!-- Không có môn trượt - dùng empty row giống Lecturers List -->
+        <table class="win11-table" th:if="${failTranscripts == null or #lists.isEmpty(failTranscripts)}">
+            <tbody>
+            <tr>
+                <td class="text-center success" style="padding: 60px; font-size: 1.3em;">
+                    <i class="fas fa-check-circle" style="font-size: 2.5em; margin-bottom: 15px; display: block;"></i>
+                    <strong>Congratulations!</strong><br>
+                    You have no failed subjects.
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 
 </div>
 
-<!-- JS tính tổng tiền & validate -->
 <script type="text/javascript">
     function updateTotal() {
-        const checkboxes = document.querySelectorAll('.subject-checkbox');
         let total = 0;
-
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                const feeAttr = cb.getAttribute('data-fee');
-                const fee = feeAttr ? parseFloat(feeAttr) : 0;
-                if (!isNaN(fee)) {
-                    total += fee;
-                }
-            }
+        document.querySelectorAll('.subject-checkbox:checked').forEach(cb => {
+            const fee = parseFloat(cb.dataset.fee || 0);
+            if (!isNaN(fee)) total += fee;
         });
 
-        const totalSpan = document.getElementById('totalCost');
-        if (totalSpan) {
-            // Format theo VND
-            try {
-                totalSpan.textContent = new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND'
-                }).format(total);
-            } catch (e) {
-                // Fallback nếu Intl không hỗ trợ
-                totalSpan.textContent = total.toLocaleString('vi-VN') + ' VND';
-            }
-        }
+        document.getElementById('totalCost').textContent = new Intl.NumberFormat('vi-VN', {
+            style: 'currency', currency: 'VND'
+        }).format(total);
 
-        const payBtn = document.getElementById('payBtn');
-        if (payBtn) {
-            payBtn.disabled = total <= 0;
-        }
+        document.getElementById('payBtn').disabled = total === 0;
     }
 
     function validateSelection() {
-        const anyChecked = Array.from(document.querySelectorAll('.subject-checkbox'))
-            .some(cb => cb.checked);
-
-        if (!anyChecked) {
+        if (document.querySelectorAll('.subject-checkbox:checked').length === 0) {
             alert('Please select at least one subject to re-study.');
             return false;
         }
         return true;
     }
-</script>
 
+    document.addEventListener('DOMContentLoaded', updateTotal);
+</script>
 </body>
 </html>

@@ -24,29 +24,7 @@
             <a th:href="@{/deputy-staff-home/minor-subjects-list}" class="btn">
                 <i class="fas fa-arrow-left"></i> Back to Subjects
             </a>
-            <h2 class="page-title">
-                <i class="fas fa-book-open"></i> Minor Syllabuses
-            </h2>
         </div>
-
-        <!-- CENTER: Search -->
-        <form method="post"
-              th:action="@{/deputy-staff-home/minor-subjects-list/syllabuses-list/search-syllabuses}"
-              class="toolbar-center">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-            <select name="searchType" class="input small">
-                <option value="name" th:selected="${searchType == 'name'}">Name</option>
-                <option value="id" th:selected="${searchType == 'id'}">ID</option>
-            </select>
-
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search syllabuses..." class="input search-input" />
-
-            <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
-            <a th:if="${keyword}" th:href="@{/deputy-staff-home/minor-subjects-list/syllabuses-list}" class="btn small danger">
-                <i class="fas fa-times"></i>
-            </a>
-        </form>
 
         <!-- RIGHT: Page size + Total + Add -->
         <div class="toolbar-right">
@@ -123,9 +101,6 @@
     <div class="no-data" th:if="${totalSyllabuses == 0}">
         <i class="fas fa-folder-open fa-3x"></i>
         <p>No syllabuses found for this subject.</p>
-        <a th:href="@{/deputy-staff-home/minor-subjects-list}" class="btn secondary">
-            <i class="fas fa-arrow-left"></i> Back to Subjects
-        </a>
     </div>
 
     <!-- ===== Pagination ===== -->

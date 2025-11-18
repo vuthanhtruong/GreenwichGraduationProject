@@ -181,13 +181,12 @@ public class ColleaguesController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/delete-colleague/{id}")
-    public String deleteColleague(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/delete-colleague")
+    public String deleteColleague(@RequestParam String partnerId, RedirectAttributes redirectAttributes) {
         try {
-            adminsService.deleteAdmin(id);
+            adminsService.deleteAdmin(partnerId);
             redirectAttributes.addFlashAttribute("message", "Colleague deleted successfully!");
         } catch (Exception e) {
-            logger.error("Failed to delete colleague ID {}: {}", id, e.getMessage(), e);
             redirectAttributes.addFlashAttribute("error", "Failed to delete colleague: " + e.getMessage());
         }
         return "redirect:/admin-home/colleagues-list";

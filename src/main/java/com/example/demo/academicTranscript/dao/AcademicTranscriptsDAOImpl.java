@@ -18,7 +18,9 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -303,20 +305,138 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
     }
 
     @Override
-    public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
-        try {
-            return entityManager.createQuery(
-                            "SELECT a FROM AcademicTranscripts a " +
-                                    "WHERE a.student = :student AND a.grade = :failGrade",
-                            AcademicTranscripts.class)
-                    .setParameter("student", student)
-                    .setParameter("failGrade", Grades.REFER)
-                    .getResultList();
-        } catch (Exception e) {
-            log.error("Error fetching failed subjects for student ID: {}", student.getId(), e);
+    public List<MajorAcademicTranscripts> getFailedNeverPassedMajor(Students student) {
+        if (student == null) {
             return new ArrayList<>();
         }
+
+        // Lấy tất cả bảng điểm Major của sinh viên, sắp xếp theo môn + thời gian giảm dần (mới nhất trước)
+        String jpql = """
+        SELECT t FROM MajorAcademicTranscripts t 
+        WHERE t.student = :student 
+        ORDER BY t.majorClass.subject.subjectId, t.createdAt DESC
+        """;
+
+        List<MajorAcademicTranscripts> allTranscripts = entityManager
+                .createQuery(jpql, MajorAcademicTranscripts.class)
+                .setParameter("student", student)
+                .getResultList();
+
+        // Map<subjectId, bản ghi mới nhất> – chỉ giữ nếu hiện tại vẫn trượt và chưa từng pass
+        Map<String, MajorAcademicTranscripts> resultMap = new LinkedHashMap<>();
+
+        for (MajorAcademicTranscripts t : allTranscripts) {
+            String subjectId = t.getSubjectId();
+            if (subjectId == null || "N/A".equals(subjectId)) {
+                continue;
+            }
+
+            // Nếu môn này TỪNG CÓ LẦN PASS → loại bỏ hoàn toàn khỏi danh sách
+            if (t.getGrade() != null && t.getGrade() != Grades.REFER) {
+                resultMap.remove(subjectId);   // xóa nếu trước đó đang giữ REFER
+                continue;
+            }
+
+            // Nếu hiện tại là REFER và chưa từng bị xóa ở trên → giữ lại bản ghi MỚI NHẤT
+            if (t.getGrade() == Grades.REFER) {
+                resultMap.putIfAbsent(subjectId, t); // chỉ put lần đầu → là bản mới nhất
+            }
+        }
+
+        return new ArrayList<>(resultMap.values());
     }
+
+    // ==================================================================
+// 2. MÔN PHỤ / KỸ NĂNG MỀM (MINOR) TRƯỢT MÀ CHƯA TỪNG PASS
+// ==================================================================
+    @Override
+    public List<MinorAcademicTranscripts> getFailedNeverPassedMinor(Students student) {
+        if (student == null) {
+            return new ArrayList<>();
+        }
+
+        String jpql = """
+        SELECT t FROM MinorAcademicTranscripts t 
+        WHERE t.student = :student 
+        ORDER BY t.minorClass.minorSubject.subjectId, t.createdAt DESC
+        """;
+
+        List<MinorAcademicTranscripts> allTranscripts = entityManager
+                .createQuery(jpql, MinorAcademicTranscripts.class)
+                .setParameter("student", student)
+                .getResultList();
+
+        Map<String, MinorAcademicTranscripts> resultMap = new LinkedHashMap<>();
+
+        for (MinorAcademicTranscripts t : allTranscripts) {
+            String subjectId = t.getSubjectId();
+            if (subjectId == null || "N/A".equals(subjectId)) {
+                continue;
+            }
+
+            if (t.getGrade() != null && t.getGrade() != Grades.REFER) {
+                resultMap.remove(subjectId);
+                continue;
+            }
+
+            if (t.getGrade() == Grades.REFER) {
+                resultMap.putIfAbsent(subjectId, t);
+            }
+        }
+
+        return new ArrayList<>(resultMap.values());
+    }
+
+    // ==================================================================
+// 3. MÔN CHUYÊN NGÀNH HẸP (SPECIALIZED) TRƯỢT MÀ CHƯA TỪNG PASS
+// ==================================================================
+    @Override
+    public List<SpecializedAcademicTranscripts> getFailedNeverPassedSpecialized(Students student) {
+        if (student == null) {
+            return new ArrayList<>();
+        }
+
+        String jpql = """
+        SELECT t FROM SpecializedAcademicTranscripts t 
+        WHERE t.student = :student 
+        ORDER BY t.specializedClass.specializedSubject.subjectId, t.createdAt DESC
+        """;
+
+        List<SpecializedAcademicTranscripts> allTranscripts = entityManager
+                .createQuery(jpql, SpecializedAcademicTranscripts.class)
+                .setParameter("student", student)
+                .getResultList();
+
+        Map<String, SpecializedAcademicTranscripts> resultMap = new LinkedHashMap<>();
+
+        for (SpecializedAcademicTranscripts t : allTranscripts) {
+            String subjectId = t.getSubjectId();
+            if (subjectId == null || "N/A".equals(subjectId)) {
+                continue;
+            }
+
+            if (t.getGrade() != null && t.getGrade() != Grades.REFER) {
+                resultMap.remove(subjectId);
+                continue;
+            }
+
+            if (t.getGrade() == Grades.REFER) {
+                resultMap.putIfAbsent(subjectId, t);
+            }
+        }
+
+        return new ArrayList<>(resultMap.values());
+    }
+
+    @Override
+    public List<AcademicTranscripts> getFailSubjectsByStudent(Students student) {
+       List<AcademicTranscripts> resultList = new ArrayList<>();
+       resultList.addAll(getFailedNeverPassedMinor(student));
+       resultList.addAll(getFailedNeverPassedSpecialized(student));
+       resultList.addAll(getFailedNeverPassedMajor(student));
+       return resultList;
+    }
+
     @Override
     public boolean hasPassedSubject(Students student, String subjectId) {
         if (student == null || subjectId == null) return false;

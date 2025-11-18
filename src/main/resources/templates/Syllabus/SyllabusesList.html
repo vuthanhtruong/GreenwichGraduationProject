@@ -23,28 +23,6 @@
             </a>
         </div>
 
-        <!-- CENTER: Search -->
-        <form method="post"
-              th:action="@{/staff-home/major-subjects-list/syllabuses-list/search-syllabuses}"
-              class="toolbar-center">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-            <select name="searchType" class="input small">
-                <option value="name" th:selected="${searchType == 'name'}">Name</option>
-                <option value="id" th:selected="${searchType == 'id'}">ID</option>
-            </select>
-
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search syllabuses..." class="input search-input" />
-
-            <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
-
-            <a th:if="${keyword != null and keyword != ''}"
-               th:href="@{/staff-home/major-subjects-list/syllabuses-list}"
-               class="btn small danger">
-                <i class="fas fa-times"></i>
-            </a>
-        </form>
-
         <!-- RIGHT: Page size + Total + Add -->
         <div class="toolbar-right">
             <form method="post"
