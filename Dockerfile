@@ -1,8 +1,8 @@
-# ===== Stage 1: Build jar =====
+# ===== Stage 1: Build JAR =====
 FROM maven:3-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy file Maven config trước để cache dependency
+# Copy Maven config để cache dependency
 COPY pom.xml .
 RUN mvn -q -DskipTests dependency:go-offline
 
@@ -12,16 +12,15 @@ COPY src ./src
 # Build jar
 RUN mvn -q -DskipTests clean package
 
-# ===== Stage 2: Run jar =====
-FROM eclipse-temurin:17-jre-jammy
+# ===== Stage 2: Run JAR =====
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Copy jar từ stage build
+# Copy jar (dùng wildcard vẫn ok)
 COPY --from=build /app/target/*.jar app.jar
 
-# Render sẽ set PORT, mặc định của nó là 10000 nếu bạn không override
-# Không bắt buộc, nhưng EXPOSE cho rõ ý đồ (Render không phụ thuộc EXPOSE) :contentReference[oaicite:5]{index=5}
+# Expose port (optional)
 EXPOSE 8080
 
-# Start command: dùng PORT do Render cấp
+# Start using $PORT from Render
 CMD ["sh", "-c", "java -jar app.jar --server.port=${PORT}"]
