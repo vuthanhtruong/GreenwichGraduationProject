@@ -34,6 +34,8 @@ public interface MajorTimetableService {
     List<MajorTimetable> getMajorTimetableTodayByLecturer(String lecturerId);
     List<MajorTimetable> getMajorTimetableByStudentAndClassId(
             String studentId, String classId);
+    void sendScheduleNotification(String classId);
+
     List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
     Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year);
     List<Object[]> getTop5BusyLecturers(String campusId, Integer weekOfYear, Integer year);

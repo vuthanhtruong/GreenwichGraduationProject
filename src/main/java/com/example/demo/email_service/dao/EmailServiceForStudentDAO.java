@@ -1,5 +1,6 @@
 package com.example.demo.email_service.dao;
 
+import com.example.demo.email_service.dto.ScheduleEmailContext;
 import com.example.demo.email_service.dto.StudentEmailContext;
 import jakarta.mail.MessagingException;
 import org.springframework.scheduling.annotation.Async;
@@ -10,4 +11,8 @@ public interface EmailServiceForStudentDAO {
 
     @Async("emailTaskExecutor")
     void sendEmailToNotifyStudentDeletion(String to, String subject, StudentEmailContext context) throws MessagingException;
+
+    // EmailServiceForStudentDAO.java
+    @Async("emailTaskExecutor")
+    void sendScheduleNotificationEmail(String to, String subject, ScheduleEmailContext context) throws MessagingException;
 }

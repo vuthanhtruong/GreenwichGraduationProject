@@ -151,7 +151,7 @@ public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
             scholarshipByYear.setId(new ScholarshipByYearId(scholarshipId, admissionYear));
             scholarshipByYear.setScholarship(scholarship);
         } else {
-            if (scholarshipByYear.getContractStatus() == ContractStatus.ACTIVE) {
+            if (scholarshipByYear.getContractStatus() == ContractStatus.DRAFT) {
                 throw new IllegalStateException("Cannot update scholarship " + scholarshipId + ": Contract is finalized.");
             }
             if (scholarshipByYear.getStatus() == ActivityStatus.DEACTIVATED) {

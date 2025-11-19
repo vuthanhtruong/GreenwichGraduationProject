@@ -222,7 +222,6 @@ public class MajorTimetableController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // LẤY TRỰC TIẾP TỪ SESSION
         String classId = (String) session.getAttribute("selectedClassId");
         if (classId == null || classId.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "No class selected.");
@@ -238,11 +237,6 @@ public class MajorTimetableController {
             redirectAttributes.addFlashAttribute("error", "Cannot save timetable for past weeks.");
             return redirectUrl(year, week);
         }
-
-        List<LocalDate> weekDates = getWeekDates(year, week);
-        int savedCount = 0;
-        List<String> errors = new ArrayList<>();
-        Set<String> usedRoomSlotWeek = new HashSet<>();
 
         try {
             Staffs creator = staffsService.getStaff();
@@ -263,14 +257,33 @@ public class MajorTimetableController {
                 return redirectUrl(year, week);
             }
 
-            int totalRequired = majorClass.getSlotQuantity() != null ? majorClass.getSlotQuantity() : 0;
-            int currentBooked = majorTimetableService.countBookedSlotsInWeek(classId, week, year, campusId);
-
-            if (currentBooked >= totalRequired) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Class is fully scheduled (" + currentBooked + "/" + totalRequired + "). Cannot add more.");
+            // === KIỂM TRA TỔNG SLOT ĐÃ ĐỦ CHƯA (toàn bộ lịch, không chỉ tuần này) ===
+            Integer requiredTotalSlots = majorClass.getSlotQuantity();
+            if (requiredTotalSlots == null || requiredTotalSlots <= 0) {
+                redirectAttributes.addFlashAttribute("error", "This class has no required slot quantity set.");
                 return redirectUrl(year, week);
             }
+
+            int alreadyScheduledTotal = majorTimetableService.countTotalBookedSlots(classId);
+
+            if (alreadyScheduledTotal >= requiredTotalSlots) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Class <strong>" + majorClass.getNameClass() + "</strong> is fully scheduled ("
+                                + alreadyScheduledTotal + "/" + requiredTotalSlots + " slots). Cannot add more schedules.");
+                return redirectUrl(year, week);
+            }
+
+            // Còn được phép thêm: requiredTotalSlots - alreadyScheduledTotal
+            int canStillAdd = requiredTotalSlots - alreadyScheduledTotal;
+
+            // === KIỂM TRA TUẦN NÀY ĐÃ BOOK BAO NHIÊU ===
+            int bookedThisWeek = majorTimetableService.countBookedSlotsInWeek(classId, week, year, campusId);
+            int remainingThisWeek = requiredTotalSlots - alreadyScheduledTotal; // thực tế còn bao nhiêu slot được thêm toàn bộ
+
+            List<LocalDate> weekDates = getWeekDates(year, week);
+            int savedCount = 0;
+            List<String> errors = new ArrayList<>();
+            Set<String> usedRoomSlotWeek = new HashSet<>();
 
             List<Slots> slots = slotsService.getSlots();
             if (slots.isEmpty()) {
@@ -285,6 +298,12 @@ public class MajorTimetableController {
                 LocalDate date = weekDates.get(dayIdx);
 
                 for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
+                    // Nếu đã đủ tổng slot → dừng luôn
+                    if (savedCount >= canStillAdd) {
+                        errors.add("Stopped: Class has reached maximum required slots (" + requiredTotalSlots + ").");
+                        break;
+                    }
+
                     String roomKey = "room_" + dayIdx + "_" + slotIdx;
                     String roomId = allParams.get(roomKey);
                     if (roomId == null || roomId.trim().isEmpty() || roomId.equals("-- Select Room --")) {
@@ -303,29 +322,28 @@ public class MajorTimetableController {
 
                     LocalDateTime slotEndTime = date.atTime(slot.getEndTime());
                     if (slotEndTime.isBefore(nowTime)) {
-                        String dayShort = dayOfWeek.name().substring(0, 3).toUpperCase();
-                        String timeRange = slot.getStartTime() + " - " + slot.getEndTime();
-                        errors.add("Cannot book past slot: " + dayShort + " " + timeRange);
+                        errors.add("Cannot book past slot: " + dayOfWeek.name().substring(0, 3) + " " + slot.getStartTime() + "-" + slot.getEndTime());
                         continue;
                     }
 
                     String conflictKey = roomId + "|" + slotId + "|" + week + "|" + year;
                     if (usedRoomSlotWeek.contains(conflictKey)) {
-                        errors.add("Room " + roomId + " already booked in this week");
+                        errors.add("Room " + roomId + " already booked in this week.");
                         continue;
                     }
 
                     Rooms room = roomsService.getRoomById(roomId);
                     if (room == null || !room.getCampus().getCampusId().equals(campusId)) {
-                        errors.add("Room not found or not in campus: " + roomId);
+                        errors.add("Invalid room: " + roomId);
                         continue;
                     }
 
                     if (majorTimetableService.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, week, year) != null) {
-                        errors.add("Class already has schedule in this slot");
+                        errors.add("Slot already booked for this class.");
                         continue;
                     }
 
+                    // Tạo và lưu lịch
                     MajorTimetable timetable = new MajorTimetable();
                     timetable.setTimetableId(UUID.randomUUID().toString());
                     timetable.setClassEntity(majorClass);
@@ -335,24 +353,41 @@ public class MajorTimetableController {
                     timetable.setWeekOfYear(week);
                     timetable.setYear(year);
                     timetable.setCreator(creator);
+
                     majorTimetableService.SaveMajorTimetable(timetable, campusId);
                     savedCount++;
                     usedRoomSlotWeek.add(conflictKey);
                 }
+                if (savedCount >= canStillAdd) break;
             }
+
+            // === THÔNG BÁO KẾT QUẢ ===
+            int newTotalScheduled = alreadyScheduledTotal + savedCount;
 
             if (savedCount > 0) {
                 redirectAttributes.addFlashAttribute("success",
-                        "Successfully saved " + savedCount + " room(s) in week " + week + "/" + year);
+                        "Successfully saved <strong>" + savedCount + "</strong> slot(s)! " +
+                                "Class <strong>" + majorClass.getNameClass() + "</strong>: " +
+                                newTotalScheduled + "/" + requiredTotalSlots + " slots completed.");
             } else if (errors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("info", "No valid rooms selected.");
             }
+
             if (!errors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", String.join("<br>", errors));
             }
+
+            // Nếu đã đủ slot sau khi lưu → thông báo hoàn thành
+            if (newTotalScheduled >= requiredTotalSlots) {
+                redirectAttributes.addFlashAttribute("success",
+                        "Class <strong>" + majorClass.getNameClass() + "</strong> is now FULLY SCHEDULED (" +
+                                requiredTotalSlots + "/" + requiredTotalSlots + " slots)! You can now send notification to students.");
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Save failed: " + e.getMessage());
         }
+
         return redirectUrl(year, week);
     }
 
@@ -422,5 +457,46 @@ public class MajorTimetableController {
         if (year < currentYear) return true;
         if (year > currentYear) return false;
         return week < currentWeek;
+    }
+
+    @PostMapping("/major-timetable/send-notification")
+    public String sendScheduleNotification(
+            @RequestParam String classId,
+            RedirectAttributes ra) {
+
+        try {
+            MajorClasses majorClass = majorClassesService.getClassById(classId);
+            if (majorClass == null) {
+                ra.addFlashAttribute("error", "Class not found.");
+                return "redirect:/staff-home/classes-list/major-timetable";
+            }
+
+            Integer required = majorClass.getSlotQuantity(); // có thể null
+            if (required == null || required <= 0) {
+                ra.addFlashAttribute("error", "This class has no required slot quantity set.");
+                return "redirect:/staff-home/classes-list/major-timetable";
+            }
+
+            // Đúng logic: đếm TỔNG số MajorTimetable của lớp này từ trước đến nay
+            int totalScheduled = majorTimetableService.getAllSchedulesByClass(classId).size();
+
+            if (totalScheduled < required) {
+                ra.addFlashAttribute("error",
+                        "Cannot send notification yet! Class requires <strong>" + required +
+                                "</strong> slots in total, but only <strong>" + totalScheduled +
+                                "</strong> have been scheduled (" + (required - totalScheduled) + " missing).");
+                return "redirect:/staff-home/classes-list/major-timetable";
+            }
+
+            // Đủ rồi → gửi luôn
+            majorTimetableService.sendScheduleNotification(classId);
+
+            ra.addFlashAttribute("success",
+                    "Schedule notification sent successfully! (" + totalScheduled + "/" + required + " slots completed)");
+
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Failed to send notification: " + e.getMessage());
+        }
+        return "redirect:/staff-home/classes-list/major-timetable";
     }
 }

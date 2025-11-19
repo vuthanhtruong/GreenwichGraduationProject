@@ -1,11 +1,17 @@
 package com.example.demo.timetable.majorTimetable.dao;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
+import com.example.demo.classes.majorClasses.service.MajorClassesService;
+import com.example.demo.email_service.dto.ScheduleEmailContext;
+import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
+import com.example.demo.students_Classes.students_MajorClass.model.Students_MajorClasses;
+import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
 import com.example.demo.timetable.majorTimetable.model.MajorTimetable;
 import com.example.demo.timetable.majorTimetable.model.Slots;
 import com.example.demo.timetable.majorTimetable.service.SlotsService;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -19,12 +25,51 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
+    private final StudentsMajorClassesService students_MajorClasses;
+    private final MajorClassesService majorClassesService;
+    private final EmailServiceForStudentService emailServiceForStudentService;
 
-    // ==================== DASHBOARD CHO MAJOR STAFF - KHÔNG DTO ====================
+    private final SlotsService slotsService;
 
-    /**
-     * 1. Thống kê tổng quan tuần hiện tại (trả về Object[] đơn giản)
-     */
+    public MajorTimetableDAOImpl(StudentsMajorClassesService studentsMajorClasses, MajorClassesService majorClassesService, EmailServiceForStudentService emailServiceForStudentService, SlotsService slotsService) {
+        students_MajorClasses = studentsMajorClasses;
+        this.majorClassesService = majorClassesService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.slotsService = slotsService;
+    }
+
+    @Override
+    public void sendScheduleNotification(String classId) {
+        try {
+            // Lấy thông tin lớp
+            MajorClasses majorClasses = majorClassesService.getClassById(classId);
+            if (majorClasses == null) {
+                System.err.println("ERROR: Class not found with ID: " + classId);
+                return;
+            }
+            List<Students> studentsList = students_MajorClasses.getStudentsByClass(majorClasses);
+            if (studentsList == null || studentsList.isEmpty()) {
+                System.out.println("WARN: No students found in class: " + classId);
+                return;
+            }
+            for (Students student : studentsList) {
+                try {
+                    String subject = "Class Schedule Update - " + majorClasses.getNameClass();
+                    ScheduleEmailContext scheduleEmailContext=new ScheduleEmailContext(student.getId(), student.getFullName(), student.getEmail(), majorClasses.getNameClass(), majorClasses.getSubject().getSubjectName());
+                    emailServiceForStudentService.sendScheduleNotificationEmail(student.getEmail(), subject, scheduleEmailContext);
+                    System.out.println("SUCCESS: Sent notification email to " + student.getEmail());
+                } catch (Exception e) {
+                    System.err.println("ERROR: Failed to send email to " + student.getEmail() + ": " + e.getMessage());
+                }
+            }
+            System.out.println("INFO: Completed sending schedule notifications for class: " + classId);
+
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to send schedule notifications: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year) {
         if (weekOfYear == null || year == null) {
@@ -290,12 +335,6 @@ public class MajorTimetableDAOImpl implements MajorTimetableDAO {
     @Override
     public MajorTimetable getMajorTimetableById(String timetableId) {
         return em.find(MajorTimetable.class, timetableId);
-    }
-
-    private final SlotsService slotsService;
-
-    public MajorTimetableDAOImpl(SlotsService slotsService) {
-        this.slotsService = slotsService;
     }
 
     @Override

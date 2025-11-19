@@ -13,6 +13,10 @@ import java.util.List;
 
 @Service
 public class MinorTimetableServiceImpl implements MinorTimetableService {
+    @Override
+    public void sendScheduleNotification(String classId) {
+        dao.sendScheduleNotification(classId);
+    }
 
     // Thêm vào interface + impl
     @Override

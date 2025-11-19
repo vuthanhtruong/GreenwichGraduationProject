@@ -1,11 +1,20 @@
 package com.example.demo.timetable.specializedTimetable.dao;
 
+import com.example.demo.classes.minorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
+import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
+import com.example.demo.email_service.dto.ScheduleEmailContext;
+import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
+import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
+import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
+import com.example.demo.students_Classes.students_SpecializedClasses.service.StudentsSpecializedClassesService;
 import com.example.demo.timetable.majorTimetable.model.Slots;
 import com.example.demo.timetable.majorTimetable.service.SlotsService;
 import com.example.demo.timetable.specializedTimetable.model.SpecializedTimetable;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -20,7 +29,78 @@ import java.util.List;
 @Transactional
 public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
 
-    // ==================== DASHBOARD SPECIALIZED TIMETABLE ====================
+    @PersistenceContext
+    private EntityManager em;
+
+    private final SlotsService slotsService;
+
+    public SpecializedTimetableDAOImpl(SlotsService slotsService, EmailServiceForStudentService emailServiceForStudentService, StudentsSpecializedClassesService studentsSpecializedClassesService, SpecializedClassesService specializedClassesService) {
+        this.slotsService = slotsService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+        this.studentsSpecializedClassesService = studentsSpecializedClassesService;
+        this.specializedClassesService = specializedClassesService;
+    }
+
+    private final EmailServiceForStudentService emailServiceForStudentService;
+    private final StudentsSpecializedClassesService studentsSpecializedClassesService;
+    private final SpecializedClassesService specializedClassesService;
+
+    @Override
+    public void sendScheduleNotification(String classId) {
+        try {
+            // 1. Lấy lớp chuyên ngành
+            SpecializedClasses specializedClasses = specializedClassesService.getClassById(classId);
+            if (specializedClasses == null) {
+                System.err.println("ERROR: Specialized class not found with ID: " + classId);
+                return;
+            }
+
+            // 2. Lấy danh sách sinh viên trong lớp chuyên ngành
+            List<Students> studentsList = studentsSpecializedClassesService.getStudentsByClass(specializedClasses);
+            if (studentsList == null || studentsList.isEmpty()) {
+                System.out.println("WARN: No students found in specialized class: " + classId + " (" + specializedClasses.getNameClass() + ")");
+                return;
+            }
+
+            // 3. Gửi email cho từng sinh viên
+            for (Students student : studentsList) {
+                if (student.getEmail() == null || student.getEmail().trim().isEmpty()) {
+                    System.out.println("SKIP: Student " + student.getFullName() + " has no email.");
+                    continue;
+                }
+
+                try {
+                    ScheduleEmailContext context = new ScheduleEmailContext(
+                            student.getId(),
+                            student.getFullName(),
+                            student.getEmail(),
+                            specializedClasses.getNameClass(),                    // Tên lớp
+                            specializedClasses.getSpecializedSubject().getSubjectName()      // Tên môn học
+                    );
+
+                    String subject = "Your Specialized Class Schedule – " + specializedClasses.getNameClass();
+
+                    emailServiceForStudentService.sendScheduleNotificationEmail(
+                            student.getEmail(),
+                            subject,
+                            context
+                    );
+
+                    System.out.println("SUCCESS: Sent schedule notification to " + student.getEmail() + " (" + student.getFullName() + ")");
+
+                } catch (Exception e) {
+                    System.err.println("ERROR: Failed to send email to " + student.getEmail() + ": " + e.getMessage());
+                }
+            }
+
+            System.out.println("INFO: Successfully completed sending schedule notifications for specialized class: "
+                    + classId + " (" + specializedClasses.getNameClass() + ") – " + studentsList.size() + " students.");
+
+        } catch (Exception e) {
+            System.err.println("FATAL ERROR: Failed to process schedule notification for specialized class ID: " + classId);
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public Object[] getDashboardSummarySpecialized(String campusId, Integer weekOfYear, Integer year) {
@@ -274,15 +354,6 @@ public class SpecializedTimetableDAOImpl implements SpecializedTimetableDAO {
     @Override
     public SpecializedTimetable getTimetableById(String timetableId) {
         return em.find(SpecializedTimetable.class, timetableId);
-    }
-
-    @PersistenceContext
-    private EntityManager em;
-
-    private final SlotsService slotsService;
-
-    public SpecializedTimetableDAOImpl(SlotsService slotsService) {
-        this.slotsService = slotsService;
     }
 
     // === 1. KIỂM TRA LỊCH ĐÃ TỒN TẠI ===

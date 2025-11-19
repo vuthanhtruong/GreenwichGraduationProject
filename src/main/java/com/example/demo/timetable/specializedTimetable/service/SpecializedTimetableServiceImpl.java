@@ -17,6 +17,11 @@ import java.util.List;
 @Transactional
 public class SpecializedTimetableServiceImpl implements SpecializedTimetableService {
     @Override
+    public void sendScheduleNotification(String classId) {
+        dao.sendScheduleNotification(classId);
+    }
+
+    @Override
     public Object[] getDashboardSummarySpecialized(String campusId, Integer weekOfYear, Integer year) {
         return dao.getDashboardSummarySpecialized(campusId, weekOfYear, year);
     }

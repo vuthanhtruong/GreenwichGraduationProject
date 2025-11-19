@@ -24,26 +24,6 @@
                 <i class="fas fa-graduation-cap"></i> Majors Management
             </h2>
         </div>
-
-        <!-- Center: Search -->
-        <form method="post"
-              th:action="@{/admin-home/majors-list/search-majors}"
-              class="toolbar-center">
-
-            <select class="input small" name="searchType">
-                <option value="name">Name</option>
-                <option value="id">ID</option>
-            </select>
-
-            <input class="input search-input" name="keyword"
-                   placeholder="Search..." type="text">
-
-            <button class="btn small" type="submit">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
-
-        <!-- Right: Add -->
         <div class="toolbar-right">
 
             <button type="button" class="btn primary small"

@@ -2,11 +2,17 @@
 package com.example.demo.timetable.minorTimtable.dao;
 
 import com.example.demo.classes.minorClasses.model.MinorClasses;
+import com.example.demo.classes.minorClasses.service.MinorClassesService;
+import com.example.demo.email_service.dto.ScheduleEmailContext;
+import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.entity.Enums.DaysOfWeek;
 import com.example.demo.room.model.Rooms;
+import com.example.demo.room.service.RoomsService;
+import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
 import com.example.demo.timetable.majorTimetable.model.Slots;
 import com.example.demo.timetable.majorTimetable.service.SlotsService;
 import com.example.demo.timetable.minorTimtable.model.MinorTimetable;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -20,6 +26,81 @@ import java.util.List;
 @Repository
 @Transactional
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
+
+    @PersistenceContext
+    private EntityManager em;
+
+
+    private final SlotsService slotsService;
+
+    public MinorTimetableDAOImpl(MinorClassesService minorClassesService, StudentsMinorClassesService studentsMinorClassesService, SlotsService slotsService, EmailServiceForStudentService emailServiceForStudentService) {
+        this.minorClassesService = minorClassesService;
+        this.studentsMinorClassesService = studentsMinorClassesService;
+        this.slotsService = slotsService;
+        this.emailServiceForStudentService = emailServiceForStudentService;
+    }
+
+    private final MinorClassesService minorClassesService;
+    private final StudentsMinorClassesService studentsMinorClassesService;
+    private final EmailServiceForStudentService emailServiceForStudentService;
+
+    @Override
+    @Transactional
+    public void sendScheduleNotification(String classId) {
+        try {
+            // 1. Lấy lớp phụ (Minor Class)
+            MinorClasses minorClass = minorClassesService.getClassById(classId);
+            if (minorClass == null) {
+                System.err.println("ERROR: Minor class not found with ID: " + classId);
+                return;
+            }
+
+            // 2. Lấy danh sách sinh viên trong lớp phụ
+            List<Students> studentsList = studentsMinorClassesService.getStudentsByClass(minorClass);
+            if (studentsList == null || studentsList.isEmpty()) {
+                System.out.println("WARN: No students enrolled in minor class: " + classId + " (" + minorClass.getNameClass() + ")");
+                return;
+            }
+
+            // 3. Gửi email thông báo lịch học cho từng sinh viên
+            for (Students student : studentsList) {
+                if (student.getEmail() == null || student.getEmail().trim().isEmpty()) {
+                    System.out.println("SKIP: Student " + student.getFullName() + " (ID: " + student.getId() + ") has no email.");
+                    continue;
+                }
+
+                try {
+                    ScheduleEmailContext context = new ScheduleEmailContext(
+                            student.getId(),
+                            student.getFullName(),
+                            student.getEmail(),
+                            minorClass.getNameClass(),                          // Tên lớp phụ
+                            minorClass.getMinorSubject().getSubjectName()            // Tên môn học phụ
+                    );
+
+                    String subject = "Minor Class Schedule – " + minorClass.getNameClass();
+
+                    emailServiceForStudentService.sendScheduleNotificationEmail(
+                            student.getEmail(),
+                            subject,
+                            context
+                    );
+
+                    System.out.println("SUCCESS: Sent minor class schedule notification to " + student.getEmail() + " (" + student.getFullName() + ")");
+
+                } catch (Exception e) {
+                    System.err.println("ERROR: Failed to send email to " + student.getEmail() + " for minor class " + classId + ": " + e.getMessage());
+                }
+            }
+
+            System.out.println("INFO: Successfully sent schedule notifications for minor class: "
+                    + classId + " (" + minorClass.getNameClass() + ") – " + studentsList.size() + " students notified.");
+
+        } catch (Exception e) {
+            System.err.println("FATAL ERROR: Failed to send schedule notifications for minor class ID: " + classId);
+            e.printStackTrace();
+        }
+    }
 
     // Trong MinorTimetableDAOImpl.java (thêm vào cuối class)
     @Override
@@ -295,16 +376,6 @@ public class MinorTimetableDAOImpl implements MinorTimetableDAO {
                 .setParameter("week", week)
                 .setParameter("year", year)
                 .getResultList();
-    }
-
-    @PersistenceContext
-    private EntityManager em;
-
-
-    private final SlotsService slotsService;
-
-    public MinorTimetableDAOImpl(SlotsService slotsService) {
-        this.slotsService = slotsService;
     }
 
     @Override

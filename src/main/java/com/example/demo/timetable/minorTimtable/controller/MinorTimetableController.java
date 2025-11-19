@@ -207,7 +207,6 @@ public class MinorTimetableController {
         return "MinorTimetable";
     }
 
-    // === LƯU TẤT CẢ ===
     @PostMapping("/minor-timetable/save-all")
     public String saveAll(
             @RequestParam Integer year,
@@ -232,11 +231,6 @@ public class MinorTimetableController {
             return redirectUrl(year, week);
         }
 
-        List<LocalDate> weekDates = getWeekDates(year, week);
-        int savedCount = 0;
-        List<String> errors = new ArrayList<>();
-        Set<String> usedRoomSlotWeek = new HashSet<>();
-
         try {
             DeputyStaffs creator = deputyStaffsService.getDeputyStaff();
             if (creator == null) {
@@ -256,14 +250,29 @@ public class MinorTimetableController {
                 return redirectUrl(year, week);
             }
 
-            int totalRequired = minorClass.getSlotQuantity() != null ? minorClass.getSlotQuantity() : 0;
-            int currentBooked = minorTimetableService.countBookedSlotsInWeek(classId, week, year, campusId);
-
-            if (currentBooked >= totalRequired) {
-                ra.addFlashAttribute("error",
-                        "Class is fully scheduled (" + currentBooked + "/" + totalRequired + "). Cannot add more.");
+            // === KIỂM TRA TỔNG SLOT YÊU CẦU VÀ ĐÃ ĐẶT ===
+            Integer requiredTotalSlots = minorClass.getSlotQuantity();
+            if (requiredTotalSlots == null || requiredTotalSlots <= 0) {
+                ra.addFlashAttribute("error", "This minor class has no required slot quantity set.");
                 return redirectUrl(year, week);
             }
+
+            int alreadyScheduledTotal = minorTimetableService.countTotalBookedSlots(classId);
+
+            if (alreadyScheduledTotal >= requiredTotalSlots) {
+                ra.addFlashAttribute("error",
+                        "Class <strong>" + minorClass.getNameClass() + "</strong> is already fully scheduled ("
+                                + alreadyScheduledTotal + "/" + requiredTotalSlots + " slots). Cannot add more.");
+                return redirectUrl(year, week);
+            }
+
+            // Còn được phép thêm bao nhiêu slot nữa?
+            int canStillAdd = requiredTotalSlots - alreadyScheduledTotal;
+
+            List<LocalDate> weekDates = getWeekDates(year, week);
+            int savedCount = 0;
+            List<String> errors = new ArrayList<>();
+            Set<String> usedRoomSlotWeek = new HashSet<>();
 
             List<Slots> slots = slotsService.getSlots();
             if (slots.isEmpty()) {
@@ -278,6 +287,12 @@ public class MinorTimetableController {
                 LocalDate date = weekDates.get(dayIdx);
 
                 for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
+                    // Dừng ngay nếu đã đủ tổng slot
+                    if (savedCount >= canStillAdd) {
+                        errors.add("Stopped: Reached maximum required slots (" + requiredTotalSlots + ").");
+                        break;
+                    }
+
                     String roomKey = "room_" + dayIdx + "_" + slotIdx;
                     String roomId = allParams.get(roomKey);
                     if (roomId == null || roomId.trim().isEmpty() || roomId.equals("-- Select Room --")) {
@@ -296,29 +311,28 @@ public class MinorTimetableController {
 
                     LocalDateTime slotEndTime = date.atTime(slot.getEndTime());
                     if (slotEndTime.isBefore(nowTime)) {
-                        String dayShort = dayOfWeek.name().substring(0, 3).toUpperCase();
-                        String timeRange = slot.getStartTime() + " - " + slot.getEndTime();
-                        errors.add("Cannot book past slot: " + dayShort + " " + timeRange);
+                        errors.add("Cannot book past slot: " + dayOfWeek.name().substring(0, 3) + " " + slot.getStartTime() + "-" + slot.getEndTime());
                         continue;
                     }
 
                     String conflictKey = roomId + "|" + slotId + "|" + week + "|" + year;
                     if (usedRoomSlotWeek.contains(conflictKey)) {
-                        errors.add("Room " + roomId + " already booked in this week");
+                        errors.add("Room " + roomId + " already booked in this week.");
                         continue;
                     }
 
                     Rooms room = roomsService.getRoomById(roomId);
                     if (room == null || !room.getCampus().getCampusId().equals(campusId)) {
-                        errors.add("Room not found or not in campus: " + roomId);
+                        errors.add("Invalid room: " + roomId);
                         continue;
                     }
 
                     if (minorTimetableService.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, week, year) != null) {
-                        errors.add("Class already has schedule in this slot");
+                        errors.add("Slot already booked for this class.");
                         continue;
                     }
 
+                    // === LƯU LỊCH ===
                     MinorTimetable timetable = new MinorTimetable();
                     timetable.setTimetableId(UUID.randomUUID().toString());
                     timetable.setMinorClass(minorClass);
@@ -333,20 +347,36 @@ public class MinorTimetableController {
                     savedCount++;
                     usedRoomSlotWeek.add(conflictKey);
                 }
+
+                if (savedCount >= canStillAdd) break; // dừng vòng lặp ngày nếu đủ
             }
+
+            // === THÔNG BÁO KẾT QUẢ ===
+            int newTotalScheduled = alreadyScheduledTotal + savedCount;
 
             if (savedCount > 0) {
                 ra.addFlashAttribute("success",
-                        "Successfully saved " + savedCount + " room(s) in week " + week + "/" + year);
+                        "Successfully saved <strong>" + savedCount + "</strong> slot(s) in week " + week + "/" + year + "!<br>" +
+                                "Class <strong>" + minorClass.getNameClass() + "</strong>: " + newTotalScheduled + "/" + requiredTotalSlots + " slots completed.");
             } else if (errors.isEmpty()) {
                 ra.addFlashAttribute("info", "No valid rooms selected.");
             }
+
             if (!errors.isEmpty()) {
                 ra.addFlashAttribute("error", String.join("<br>", errors));
             }
+
+            // Nếu vừa lưu xong → đủ slot → gợi ý gửi thông báo
+            if (newTotalScheduled >= requiredTotalSlots) {
+                ra.addFlashAttribute("success",
+                        "Class <strong>" + minorClass.getNameClass() + "</strong> is now FULLY SCHEDULED (" +
+                                requiredTotalSlots + "/" + requiredTotalSlots + " slots)! You can now send notification to students.");
+            }
+
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Error: " + e.getMessage());
+            ra.addFlashAttribute("error", "Save failed: " + e.getMessage());
         }
+
         return redirectUrl(year, week);
     }
 
@@ -415,5 +445,64 @@ public class MinorTimetableController {
         if (year < currentYear) return true;
         if (year > currentYear) return false;
         return week < currentWeek;
+    }
+
+    @PostMapping("/minor-timetable/send-notification")
+    public String sendMinorScheduleNotification(
+            @RequestParam String classId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer week,
+            HttpSession session,
+            RedirectAttributes ra) {
+
+        try {
+            MinorClasses minorClass = minorClassesService.getClassById(classId);
+            if (minorClass == null) {
+                ra.addFlashAttribute("error", "Minor class not found.");
+                return "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+            }
+
+            // Kiểm tra quyền campus
+            DeputyStaffs currentStaff = deputyStaffsService.getDeputyStaff();
+            if (currentStaff == null || !currentStaff.getCampus().getCampusId().equals(minorClass.getCreator().getCampus().getCampusId())) {
+                ra.addFlashAttribute("error", "You are not authorized to send notifications for this class.");
+                return "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+            }
+
+            // Kiểm tra đủ slot chưa
+            Integer requiredSlots = minorClass.getSlotQuantity();
+            if (requiredSlots == null || requiredSlots <= 0) {
+                ra.addFlashAttribute("error", "This minor class has no required slot quantity set.");
+                return "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+            }
+
+            int totalScheduled = minorTimetableService.countTotalBookedSlots(classId); // tổng lịch đã xếp
+
+            if (totalScheduled < requiredSlots) {
+                ra.addFlashAttribute("error",
+                        "Cannot send notification yet! Minor class <strong>" + minorClass.getNameClass() +
+                                "</strong> requires <strong>" + requiredSlots + "</strong> slots, " +
+                                "but only <strong>" + totalScheduled + "</strong> are scheduled (" +
+                                (requiredSlots - totalScheduled) + " missing).");
+                return "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+            }
+
+            // Đủ slot → gửi thông báo
+            minorTimetableService.sendScheduleNotification(classId);
+
+            ra.addFlashAttribute("success",
+                    "Minor class schedule notification sent successfully!<br>" +
+                            "<strong>" + minorClass.getNameClass() + "</strong> (" + totalScheduled + "/" + requiredSlots + " slots completed)");
+
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Failed to send notification: " + e.getMessage());
+        }
+
+        // Giữ nguyên tuần đang xem
+        String redirect = "redirect:/deputy-staff-home/minor-classes-list/minor-timetable";
+        if (year != null && week != null) {
+            redirect += "?year=" + year + "&week=" + week;
+        }
+        return redirect;
     }
 }

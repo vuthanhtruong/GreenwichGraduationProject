@@ -39,6 +39,7 @@ public interface SpecializedTimetableDAO {
 
     // Đếm tổng slot đã đặt (toàn khóa)
     int countTotalBookedSlots(String classId);
+    void sendScheduleNotification(String classId);
 
     // Lấy toàn bộ lịch của lớp (không phân trang)
     List<SpecializedTimetable> getAllSchedulesByClass(String classId);

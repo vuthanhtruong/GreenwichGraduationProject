@@ -35,6 +35,8 @@ public class SpecializedTimetableController {
     private final StaffsService staffsService;
     private final SpecializedClassesService classesService;
     private final RoomsService roomsService;
+    private final SpecializedClassesService specializedClassesService;
+    private final SpecializedTimetableService specializedTimetableService;
 
     @PostMapping("/specialized-timetable")
     public String openTimetableFromList(
@@ -222,7 +224,6 @@ public class SpecializedTimetableController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // LẤY TRỰC TIẾP TỪ SESSION
         String classId = (String) session.getAttribute("selectedSpecializedClassId");
         if (classId == null || classId.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "No class selected.");
@@ -238,11 +239,6 @@ public class SpecializedTimetableController {
             redirectAttributes.addFlashAttribute("error", "Cannot save timetable for past weeks.");
             return redirectUrl(year, week);
         }
-
-        List<LocalDate> weekDates = getWeekDates(year, week);
-        int savedCount = 0;
-        List<String> errors = new ArrayList<>();
-        Set<String> usedRoomSlotWeek = new HashSet<>();
 
         try {
             Staffs creator = staffsService.getStaff();
@@ -263,14 +259,28 @@ public class SpecializedTimetableController {
                 return redirectUrl(year, week);
             }
 
-            int totalRequired = specializedClass.getSlotQuantity() != null ? specializedClass.getSlotQuantity() : 0;
-            int currentBooked = timetableService.countBookedSlotsInWeek(classId, week, year, campusId);
-
-            if (currentBooked >= totalRequired) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Class is fully scheduled (" + currentBooked + "/" + totalRequired + "). Cannot add more.");
+            // ========== KIỂM TRA TỔNG SLOT YÊU CẦU (toàn bộ lịch của lớp) ==========
+            Integer requiredTotalSlots = specializedClass.getSlotQuantity();
+            if (requiredTotalSlots == null || requiredTotalSlots <= 0) {
+                redirectAttributes.addFlashAttribute("error", "This specialized class has no required slot quantity set.");
                 return redirectUrl(year, week);
             }
+
+            int alreadyScheduledTotal = timetableService.countTotalBookedSlots(classId);
+
+            if (alreadyScheduledTotal >= requiredTotalSlots) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Class <strong>" + specializedClass.getNameClass() + "</strong> is already fully scheduled (" +
+                                alreadyScheduledTotal + "/" + requiredTotalSlots + " slots). Cannot add more schedules.");
+                return redirectUrl(year, week);
+            }
+
+            int canStillAdd = requiredTotalSlots - alreadyScheduledTotal; // còn được thêm bao nhiêu
+
+            List<LocalDate> weekDates = getWeekDates(year, week);
+            int savedCount = 0;
+            List<String> errors = new ArrayList<>();
+            Set<String> usedRoomSlotWeek = new HashSet<>();
 
             List<Slots> slots = slotsService.getSlots();
             if (slots.isEmpty()) {
@@ -280,11 +290,18 @@ public class SpecializedTimetableController {
 
             List<String> dayNames = dayNames();
 
+            outerLoop:
             for (int dayIdx = 0; dayIdx < 7; dayIdx++) {
                 DaysOfWeek dayOfWeek = DaysOfWeek.valueOf(dayNames.get(dayIdx));
                 LocalDate date = weekDates.get(dayIdx);
 
                 for (int slotIdx = 0; slotIdx < slots.size(); slotIdx++) {
+                    // Dừng ngay nếu đã đủ tổng slot yêu cầu
+                    if (savedCount >= canStillAdd) {
+                        errors.add("Stopped: Maximum required slots reached (" + requiredTotalSlots + ").");
+                        break outerLoop;
+                    }
+
                     String roomKey = "room_" + dayIdx + "_" + slotIdx;
                     String roomId = allParams.get(roomKey);
                     if (roomId == null || roomId.trim().isEmpty() || roomId.equals("-- Select Room --")) {
@@ -303,29 +320,28 @@ public class SpecializedTimetableController {
 
                     LocalDateTime slotEndTime = date.atTime(slot.getEndTime());
                     if (slotEndTime.isBefore(nowTime)) {
-                        String dayShort = dayOfWeek.name().substring(0, 3).toUpperCase();
-                        String timeRange = slot.getStartTime() + " - " + slot.getEndTime();
-                        errors.add("Cannot book past slot: " + dayShort + " " + timeRange);
+                        errors.add("Cannot book past slot: " + dayOfWeek.name().substring(0, 3) + " " + slot.getStartTime() + "-" + slot.getEndTime());
                         continue;
                     }
 
                     String conflictKey = roomId + "|" + slotId + "|" + week + "|" + year;
                     if (usedRoomSlotWeek.contains(conflictKey)) {
-                        errors.add("Room " + roomId + " already booked in this week");
+                        errors.add("Room " + roomId + " already booked in this week.");
                         continue;
                     }
 
                     Rooms room = roomsService.getRoomById(roomId);
                     if (room == null || !room.getCampus().getCampusId().equals(campusId)) {
-                        errors.add("Room not found or not in campus: " + roomId);
+                        errors.add("Invalid room: " + roomId);
                         continue;
                     }
 
                     if (timetableService.getTimetableByClassSlotDayWeek(classId, campusId, slotId, dayOfWeek, week, year) != null) {
-                        errors.add("Class already has schedule in this slot");
+                        errors.add("This slot is already booked for the class.");
                         continue;
                     }
 
+                    // ========== LƯU LỊCH ==========
                     SpecializedTimetable timetable = new SpecializedTimetable();
                     timetable.setTimetableId(UUID.randomUUID().toString());
                     timetable.setSpecializedClass(specializedClass);
@@ -335,24 +351,39 @@ public class SpecializedTimetableController {
                     timetable.setWeekOfYear(week);
                     timetable.setYear(year);
                     timetable.setCreator(creator);
+
                     timetableService.saveSpecializedTimetable(timetable, campusId);
                     savedCount++;
                     usedRoomSlotWeek.add(conflictKey);
                 }
             }
 
+            // ========== THÔNG BÁO KẾT QUẢ ==========
+            int newTotalScheduled = alreadyScheduledTotal + savedCount;
+
             if (savedCount > 0) {
                 redirectAttributes.addFlashAttribute("success",
-                        "Successfully saved " + savedCount + " room(s) in week " + week + "/" + year);
+                        "Successfully saved <strong>" + savedCount + "</strong> slot(s) in week " + week + "/" + year + "!<br>" +
+                                "Class <strong>" + specializedClass.getNameClass() + "</strong>: " + newTotalScheduled + "/" + requiredTotalSlots + " slots completed.");
             } else if (errors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("info", "No valid rooms selected.");
             }
+
             if (!errors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", String.join("<br>", errors));
             }
+
+            // Nếu vừa lưu xong → đủ slot → báo hoàn thành
+            if (newTotalScheduled >= requiredTotalSlots) {
+                redirectAttributes.addFlashAttribute("success",
+                        "Class <strong>" + specializedClass.getNameClass() + "</strong> is now FULLY SCHEDULED (" +
+                                requiredTotalSlots + "/" + requiredTotalSlots + " slots)! You can now send notification to students.");
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Save failed: " + e.getMessage());
         }
+
         return redirectUrl(year, week);
     }
 
@@ -422,5 +453,50 @@ public class SpecializedTimetableController {
         if (year < currentYear) return true;
         if (year > currentYear) return false;
         return week < currentWeek;
+    }
+
+    @PostMapping("/specialized-timetable/send-notification")
+    public String sendSpecializedScheduleNotification(
+            @RequestParam String classId,
+            RedirectAttributes ra) {
+
+        try {
+            // Kiểm tra lớp có tồn tại không
+            SpecializedClasses specializedClass = specializedClassesService.getClassById(classId);
+            if (specializedClass == null) {
+                ra.addFlashAttribute("error", "Specialized class not found.");
+                return "redirect:/staff-home/specialized-classes-list/specialized-timetable";
+            }
+
+            // Kiểm tra slotQuantity vs tổng số lịch đã xếp (tổng toàn bộ thời gian, không chỉ tuần hiện tại)
+            Integer requiredSlots = specializedClass.getSlotQuantity();
+            if (requiredSlots == null || requiredSlots <= 0) {
+                ra.addFlashAttribute("error", "This specialized class has no required slot quantity set.");
+                return "redirect:/staff-home/specialized-classes-list/specialized-timetable";
+            }
+
+            int totalScheduledSlots = specializedTimetableService.getAllSchedulesByClass(classId).size();
+
+            if (totalScheduledSlots < requiredSlots) {
+                ra.addFlashAttribute("error",
+                        "Cannot send notification yet! " +
+                                "Class <strong>" + specializedClass.getNameClass() + "</strong> requires <strong>" + requiredSlots +
+                                "</strong> slots in total, but only <strong>" + totalScheduledSlots + "</strong> have been scheduled " +
+                                "(" + (requiredSlots - totalScheduledSlots) + " missing).");
+                return "redirect:/staff-home/specialized-classes-list/specialized-timetable";
+            }
+
+            // Đủ slot → gửi thông báo
+            specializedTimetableService.sendScheduleNotification(classId);
+
+            ra.addFlashAttribute("success",
+                    "Schedule notification sent successfully to all students in class <strong>" +
+                            specializedClass.getNameClass() + "</strong> (" + totalScheduledSlots + "/" + requiredSlots + " slots completed)");
+
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Failed to send notification: " + e.getMessage());
+        }
+
+        return "redirect:/staff-home/specialized-classes-list/specialized-timetable";
     }
 }

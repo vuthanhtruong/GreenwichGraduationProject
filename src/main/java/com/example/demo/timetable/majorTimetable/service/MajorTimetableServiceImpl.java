@@ -13,6 +13,11 @@ import java.util.List;
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
     @Override
+    public void sendScheduleNotification(String classId) {
+        majorTimetableDAO.sendScheduleNotification(classId);
+    }
+
+    @Override
     public Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year) {
         return majorTimetableDAO.getDashboardSummary(campusId, weekOfYear, year);
     }

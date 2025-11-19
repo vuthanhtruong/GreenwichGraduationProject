@@ -3,6 +3,7 @@ package com.example.demo.email_service.dao;
 import com.example.demo.emailTemplates.dto.EmailTemplateDTO;
 import com.example.demo.emailTemplates.model.EmailTemplates;
 import com.example.demo.emailTemplates.service.EmailTemplatesService;
+import com.example.demo.email_service.dto.ScheduleEmailContext;
 import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.entity.Enums.EmailTemplateTypes;
 import jakarta.mail.MessagingException;
@@ -389,5 +390,174 @@ public class EmailServiceForStudentDAOImpl implements EmailServiceForStudentDAO 
         }
 
         mailSender.send(message);
+    }
+
+    @Async("emailTaskExecutor")
+    @Override
+    public void sendScheduleNotificationEmail(String to, String subject, ScheduleEmailContext context) throws MessagingException {
+        EmailTemplateDTO templateDTO;
+
+        try {
+            Optional<EmailTemplates> opt = emailTemplatesService.findByType(EmailTemplateTypes.STUDENT_SCHEDULE_NOTIFICATION);
+            templateDTO = opt.map(EmailTemplateDTO::new)
+                    .orElseGet(() -> {
+                        System.out.println("WARN: Template STUDENT_SCHEDULE_NOTIFICATION not found. Using default.");
+                        return createDefaultScheduleTemplate();
+                    });
+        } catch (Exception e) {
+            System.err.println("ERROR loading schedule template: " + e.getMessage());
+            templateDTO = createDefaultScheduleTemplate();
+        }
+
+        String htmlMessage = generateScheduleEmailHtml(context, templateDTO);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlMessage, true);
+
+        // Attach ảnh inline nếu template có
+        if (templateDTO.getHeaderImage() != null && templateDTO.getHeaderImage().length > 0) {
+            helper.addInline("headerImage", new ByteArrayResource(templateDTO.getHeaderImage()), "image/png");
+        }
+        if (templateDTO.getBannerImage() != null && templateDTO.getBannerImage().length > 0) {
+            helper.addInline("bannerImage", new ByteArrayResource(templateDTO.getBannerImage()), "image/png");
+        }
+
+        mailSender.send(message);
+    }
+
+    // Default template khi không có trong DB
+    private EmailTemplateDTO createDefaultScheduleTemplate() {
+        EmailTemplateDTO t = new EmailTemplateDTO();
+        t.setSalutation("Your Class Schedule is Ready!");
+        t.setGreeting("Hi there,");
+        t.setBody("Your timetable for the upcoming semester has been finalized. Please check the details below and get ready for an exciting term ahead!");
+
+        t.setLinkCta(baseUrl != null ? baseUrl + "/student/schedule" : "http://localhost:8080/student/schedule");
+        t.setSupport("support@university.example.com");
+        t.setCampusAddress("123 University Avenue, City, Country");
+        t.setCopyrightNotice("University Name. All rights reserved.");
+        t.setLinkFacebook("https://www.facebook.com/GreenwichVietnam");
+        t.setLinkTiktok("https://www.tiktok.com/@greenwichvietnam");
+        return t;
+    }
+
+    // Render HTML cho email lịch học
+    private String generateScheduleEmailHtml(ScheduleEmailContext context, EmailTemplateDTO template) {
+        java.util.function.Function<String, String> safe = str -> str != null ? str : "N/A";
+        String year = String.valueOf(java.time.Year.now().getValue());
+
+        String title       = safe.apply(template.getSalutation());
+        String greeting    = template.getGreeting() != null ? template.getGreeting() : "Hi there,";
+        String bodyText    = template.getBody() != null ? template.getBody() : "Your schedule is ready.";
+        String ctaUrl      = template.getLinkCta() != null ? template.getLinkCta() : (baseUrl + "/student/schedule");
+        String supportMail = template.getSupport() != null ? template.getSupport() : "support@university.example.com";
+        String addressLine = template.getCampusAddress() != null ? template.getCampusAddress() : "123 University Avenue, City, Country";
+        String copyrightNotice = template.getCopyrightNotice() != null ? template.getCopyrightNotice() : "University Name. All rights reserved.";
+        String facebookLink = template.getLinkFacebook() != null ? template.getLinkFacebook() : "https://www.facebook.com/GreenwichVietnam";
+        String tiktokLink = template.getLinkTiktok() != null ? template.getLinkTiktok() : "https://www.tiktok.com/@greenwichvietnam";
+
+        String headerImg = (template.getHeaderImage() != null && template.getHeaderImage().length > 0)
+                ? "cid:headerImage"
+                : "https://cms.theuniguide.com/sites/default/files/2022-07/banner-university-of-greenwich-1786x642-2022.png";
+
+        String footerImg = (template.getBannerImage() != null && template.getBannerImage().length > 0)
+                ? "cid:bannerImage"
+                : "https://scontent.fhan2-3.fna.fbcdn.net/v/t39.30808-6/467750405_985588663602647_1228255341212736818_n.png?_nc_cat=108&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeHBzUB4JrrplmNOCJ7aka0MU8FaZtam74xTwVpm1qbvjNXz4_Z-Pg8H8BArQCkJhiK00xaUDQre5hBA3hyqJ1Sy&_nc_ohc=JSUhzfOS4RQQ7kNvwE5UR4f&_nc_oc=Admu-O9W3FdifQrvIcY-39qKZRFCPyc2VH3RRePK2rQmNnJIQ8EERdaQrSxj1IOT338&_nc_zt=23&_nc_ht=scontent.fhan2-3.fna&_nc_gid=ciAyH7cwbiuBI9Kd5gPnzA&oh=00_AfVRy5_bt0HVtSG04nrc7NyK-M8imi5klc-J7rMUa0MqVg&oe=68B41159";
+
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'>")
+                .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
+                .append("<title>").append(title).append("</title>")
+                .append("<style>")
+                .append("body {margin:0;padding:0;background:#f5f7fa;font-family:sans-serif;color:#1f2937;}")
+                .append(".container {width:600px;max-width:600px;background:#ffffff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,0.08);overflow:hidden;margin:0 auto;}")
+                .append("@media (max-width:600px) {.container{width:100%!important;border-radius:0!important;}}")
+                .append("</style>")
+                .append("</head>")
+                .append("<body style='background:#f5f7fa;padding:24px 0;'>")
+
+                .append("<table width='100%' cellpadding='0' cellspacing='0'>")
+                .append("<tr><td align='center'>")
+                .append("<table class='container' cellpadding='0' cellspacing='0'>")
+
+                // Header Image
+                .append("<tr><td style='padding:0;'>")
+                .append("<img src='").append(headerImg).append("' width='100%' ")
+                .append("style='display:block;border-radius:14px 14px 0 0;' alt='Banner'>")
+                .append("</td></tr>")
+
+                // Title
+                .append("<tr><td style='padding:30px 40px 10px;text-align:center;'>")
+                .append("<h1 style='margin:0;font-size:26px;color:#001A4C;font-family:sans-serif;'>")
+                .append(title).append("</h1>")
+                .append("</td></tr>")
+
+                // Greeting
+                .append("<tr><td style='padding:0 40px 20px;text-align:center;color:#4b5563;font-size:17px;font-family:sans-serif;'>")
+                .append(greeting)
+                .append("</td></tr>")
+
+                // Body Content
+                .append("<tr><td style='padding:0 40px 30px;font-size:16px;line-height:1.7;color:#374151;font-family:sans-serif;'>")
+                .append("<p style='margin:0 0 20px 0;'>Dear ").append(safe.apply(context.fullName())).append(",</p>")
+                .append("<p style='margin:0 0 20px 0;'>").append(bodyText).append("</p>")
+
+                // Class Info Box - THAY THẾ PHẦN SEMESTER
+                .append("<div style='background:#f0f9ff;padding:18px;border-radius:12px;margin:25px 0;border-left:5px solid #0ea5e9;'>")
+                .append("<strong style='color:#0c4a6e;font-family:sans-serif;'>Class Name:</strong> ").append(safe.apply(context.ClassName())).append("<br>")
+                .append("<strong style='color:#0c4a6e;font-family:sans-serif;'>Subject:</strong> ").append(safe.apply(context.SubjectName())).append("<br>")
+                .append("<strong style='color:#0c4a6e;font-family:sans-serif;'>Student ID:</strong> ").append(safe.apply(context.studentId()))
+                .append("</div>")
+
+                // Thông báo kiểm tra lịch học - XÓA PHẦN SCHEDULE TABLE HTML
+                .append("<p style='margin:25px 0;padding:15px;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:8px;font-size:15px;color:#92400e;'>")
+                .append("📅 Your detailed timetable has been updated. Please log in to the system to view your complete schedule.")
+                .append("</p>")
+
+                // CTA Button
+                .append("<div style='text-align:center;margin:35px 0;'>")
+                .append("<a href='").append(ctaUrl).append("' ")
+                .append("style='background:#001A4C;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block;font-family:sans-serif;'>")
+                .append("View Full Schedule")
+                .append("</a>")
+                .append("</div>")
+
+                // Support Text
+                .append("<p style='font-size:14px;color:#6b7280;text-align:center;margin:20px 0 0 0;font-family:sans-serif;'>")
+                .append("Need help? Contact us at ")
+                .append("<a href='mailto:").append(supportMail).append("' style='color:#001A4C;text-decoration:none;font-family:sans-serif;'>")
+                .append(supportMail).append("</a>")
+                .append("</p>")
+
+                .append("</td></tr>")
+
+                // Footer
+                .append("<tr><td style='background:#f8fafc;padding:25px;text-align:center;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;font-family:sans-serif;'>")
+                .append("&copy; ").append(year).append(" ").append(copyrightNotice).append("<br>")
+                .append(addressLine).append("<br>")
+                .append("<p style='margin:10px 0 0 0;'>")
+                .append("<a href='").append(facebookLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Facebook</a>")
+                .append("<span style='color:#d1d5db;'>|</span>")
+                .append("<a href='#' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>Instagram</a>")
+                .append("<span style='color:#d1d5db;'>|</span>")
+                .append("<a href='").append(tiktokLink).append("' style='color:#001A4C;text-decoration:none;margin:0 6px;font-family:sans-serif;'>TikTok</a>")
+                .append("</p>")
+                .append("</td></tr>")
+
+                // Footer Image
+                .append("<tr><td style='padding:0;'>")
+                .append("<img src='").append(footerImg).append("' width='100%' ")
+                .append("style='display:block;border-radius:0 0 14px 14px;' alt='Footer'>")
+                .append("</td></tr>")
+
+                .append("</table>")
+                .append("</td></tr>")
+                .append("</table>")
+                .append("</body></html>");
+
+        return html.toString();
     }
 }

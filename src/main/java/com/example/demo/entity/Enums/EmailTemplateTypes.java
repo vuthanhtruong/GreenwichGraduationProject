@@ -30,5 +30,6 @@ public enum EmailTemplateTypes {
     MINOR_LECTURE_DELETE,
 
     // User
-    USER_FORGOT_PASSWORD
+    USER_FORGOT_PASSWORD,
+    STUDENT_SCHEDULE_NOTIFICATION
 }

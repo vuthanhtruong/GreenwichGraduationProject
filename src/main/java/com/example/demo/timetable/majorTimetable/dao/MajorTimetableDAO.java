@@ -35,6 +35,7 @@ public interface MajorTimetableDAO {
     List<MajorTimetable> getMajorTimetableByStudentAndClassId(
             String studentId, String classId);
     List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
+    void sendScheduleNotification(String classId);
 
     // Thêm 5 hàm dashboard này vào interface
     Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year);
