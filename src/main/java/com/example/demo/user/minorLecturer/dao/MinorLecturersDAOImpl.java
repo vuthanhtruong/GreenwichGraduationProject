@@ -2,8 +2,10 @@ package com.example.demo.user.minorLecturer.dao;
 
 import com.example.demo.email_service.dto.MinorLecturerEmailContext;
 import com.example.demo.email_service.service.EmailServiceForMinorLecturerService;
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
@@ -31,6 +33,217 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class MinorLecturersDAOImpl implements MinorLecturersDAO {
+    @Override
+    public long totalMinorLecturersAllCampus() {
+        return entityManager.createQuery("SELECT COUNT(l) FROM MinorLecturers l", Long.class)
+                .getSingleResult();
+    }
+
+    @Override
+    public long newMinorLecturersThisYearAllCampus() {
+        int year = LocalDate.now().getYear();
+        return entityManager.createQuery(
+                        "SELECT COUNT(l) FROM MinorLecturers l WHERE YEAR(l.createdDate) = :year", Long.class)
+                .setParameter("year", year)
+                .getSingleResult();
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByCampus() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT c.campusName, COUNT(l) " +
+                                "FROM MinorLecturers l JOIN l.campus c " +
+                                "GROUP BY c.campusId, c.campusName " +
+                                "ORDER BY COUNT(l) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByGender() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT COALESCE(l.gender, 'OTHER'), COUNT(l) FROM MinorLecturers l GROUP BY l.gender",
+                        Object[].class)
+                .getResultList();
+
+        Map<String, Long> result = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Gender g = (Gender) row[0];
+            String label = switch (g) {
+                case MALE -> "Male";
+                case FEMALE -> "Female";
+                case OTHER -> "Other";
+            };
+            result.put(label, (Long) row[1]);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByAgeGroup() {
+        int currentYear = LocalDate.now().getYear();
+
+        String jpql = """
+        SELECT 
+            CASE 
+                WHEN l.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(l.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(l.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(l.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END,
+            COUNT(l)
+        FROM MinorLecturers l
+        GROUP BY 
+            CASE 
+                WHEN l.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(l.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(l.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(l.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END
+        ORDER BY 
+            MIN(CASE WHEN l.birthDate IS NULL THEN 9999 ELSE YEAR(l.birthDate) END) DESC
+        """;
+
+        List<Object[]> rows = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("currentYear", currentYear)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public List<MinorLecturers> top5NewestMinorLecturers() {
+        return entityManager.createQuery(
+                        "SELECT l FROM MinorLecturers l ORDER BY l.createdDate DESC", MinorLecturers.class)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public List<MinorLecturers> top5MostSeniorMinorLecturers() {
+        return entityManager.createQuery(
+                        "SELECT l FROM MinorLecturers l WHERE l.createdDate IS NOT NULL ORDER BY l.createdDate ASC", MinorLecturers.class)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long countCampusesWithoutMinorLecturer() {
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM Campuses c " +
+                                "WHERE NOT EXISTS (SELECT 1 FROM MinorLecturers l WHERE l.campus = c)", Long.class)
+                .getSingleResult();
+    }
+
+    // Trong MinorLecturersDAOImpl.java
+    @Override
+    public long totalMinorLecturersInMyCampus() {
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaff(); // hoặc staffsService.getStaff()
+        if (staff == null || staff.getCampus() == null) return 0L;
+
+        String campusId = staff.getCampus().getCampusId();
+        return entityManager.createQuery(
+                        "SELECT COUNT(l) FROM MinorLecturers l WHERE l.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long newMinorLecturersThisYearInMyCampus() {
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaff();
+        if (staff == null || staff.getCampus() == null) return 0L;
+
+        int year = LocalDate.now().getYear();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(l) FROM MinorLecturers l " +
+                                "WHERE l.campus.campusId = :campusId AND YEAR(l.createdDate) = :year", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("year", year)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> minorLecturersByGenderInMyCampus() {
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaff();
+        if (staff == null || staff.getCampus() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(l.gender, 'OTHER'), COUNT(l) " +
+                                "FROM MinorLecturers l WHERE l.campus.campusId = :campusId " +
+                                "GROUP BY l.gender", Object[].class)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> minorLecturersByAgeGroupInMyCampus() {
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaff();
+        if (staff == null || staff.getCampus() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+
+        String jpql = """
+        SELECT 
+            CASE 
+                WHEN YEAR(l.birthDate) >= 1997 THEN 'Gen Z (≤28)'
+                WHEN YEAR(l.birthDate) BETWEEN 1981 AND 1996 THEN 'Millennial (29-44)'
+                WHEN YEAR(l.birthDate) BETWEEN 1965 AND 1980 THEN 'Gen X (45-60)'
+                ELSE 'Boomer (>60)'
+            END AS ageGroup,
+            COUNT(l) AS lecturerCount
+        FROM MinorLecturers l 
+        WHERE l.campus.campusId = :campusId 
+          AND l.birthDate IS NOT NULL
+        GROUP BY 
+            CASE 
+                WHEN YEAR(l.birthDate) >= 1997 THEN 'Gen Z (≤28)'
+                WHEN YEAR(l.birthDate) BETWEEN 1981 AND 1996 THEN 'Millennial (29-44)'
+                WHEN YEAR(l.birthDate) BETWEEN 1965 AND 1980 THEN 'Gen X (45-60)'
+                ELSE 'Boomer (>60)'
+            END
+        ORDER BY lecturerCount DESC
+        """;
+
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> top5MostExperiencedMinorLecturersInMyCampus() {
+        DeputyStaffs staff = deputyStaffsService.getDeputyStaff();
+        if (staff == null || staff.getCampus() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), l.createdDate " +
+                                "FROM MinorLecturers l " +
+                                "WHERE l.campus.campusId = :campusId AND l.createdDate IS NOT NULL " +
+                                "ORDER BY l.createdDate ASC", Object[].class)
+                .setMaxResults(5)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
 
     @Override
     public List<MinorLecturers> colleaguesByCampusId(String campusId) { // ĐÃ SỬA

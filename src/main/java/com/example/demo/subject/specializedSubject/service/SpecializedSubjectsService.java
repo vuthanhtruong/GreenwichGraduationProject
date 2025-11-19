@@ -32,4 +32,28 @@ public interface SpecializedSubjectsService {
     List<SpecializedSubject> subjectsByMajor(Majors majors);
     List<SpecializedSubject> getSpecializedSubjectsByMajorAndCurriculum(Majors majors, Curriculum curriculum);
     List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId);
+
+    long totalSpecializedSubjectsInMyMajor();
+
+    /**
+     * Phân bố môn học chuyên ngành theo học kỳ
+     * Kết quả: List<[semester, count]>
+     */
+    List<Object[]> specializedSubjectsBySemesterInMyMajor();
+
+    /**
+     * Số môn chuyên ngành chưa được gắn chương trình đào tạo (rất hay để cảnh báo)
+     */
+    long specializedSubjectsWithoutCurriculumInMyMajor();
+
+    /**
+     * Phân bố môn học chuyên ngành theo từng chuyên ngành con
+     * Kết quả: List<[specializationName, count]>
+     */
+    List<Object[]> specializedSubjectsBySpecializationInMyMajor();
+
+    /**
+     * Top 10 môn chuyên ngành có tên dài nhất (thay thế cho top credits – thực tế dùng để check dữ liệu bậy)
+     */
+    List<Object[]> top10LongestNameSpecializedSubjectsInMyMajor();
 }

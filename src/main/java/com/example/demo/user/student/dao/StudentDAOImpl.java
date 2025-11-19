@@ -1,6 +1,7 @@
 package com.example.demo.user.student.dao;
 
 import com.example.demo.curriculum.model.Curriculum;
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.specialization.model.Specialization;
 import com.example.demo.email_service.dto.StudentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForLecturerService;
@@ -32,6 +33,170 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StudentDAOImpl implements StudentsDAO {
+
+    @Override
+    public long totalStudentsAllCampus() {
+        return entityManager.createQuery("SELECT COUNT(s) FROM Students s", Long.class)
+                .getSingleResult();
+    }
+
+    @Override
+    public long newStudentsThisYearAllCampus() {
+        int currentYear = LocalDate.now().getYear();
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Students s WHERE s.admissionYear = :year", Long.class)
+                .setParameter("year", currentYear)
+                .getSingleResult();
+    }
+
+    @Override
+    public Map<String, Long> studentsByCampus() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT c.campusName, COUNT(s) " +
+                                "FROM Students s JOIN s.campus c " +
+                                "GROUP BY c.campusId, c.campusName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> studentsByMajor() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT m.majorName, COUNT(s) " +
+                                "FROM Students s JOIN s.specialization spec JOIN spec.major m " +
+                                "GROUP BY m.majorId, m.majorName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> studentsBySpecialization() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT COALESCE(s.specialization.specializationName, 'Not Assigned'), COUNT(s) " +
+                                "FROM Students s " +
+                                "GROUP BY s.specialization.specializationId, s.specialization.specializationName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> studentsByGender() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT COALESCE(s.gender, 'OTHER'), COUNT(s) FROM Students s GROUP BY s.gender",
+                        Object[].class)
+                .getResultList();
+
+        Map<String, Long> result = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Gender g = (Gender) row[0];
+            String label = switch (g) {
+                case MALE -> "Male";
+                case FEMALE -> "Female";
+                case OTHER -> "Other";
+            };
+            result.put(label, (Long) row[1]);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> studentsByAdmissionYear() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT s.admissionYear, COUNT(s) " +
+                                "FROM Students s WHERE s.admissionYear IS NOT NULL " +
+                                "GROUP BY s.admissionYear " +
+                                "ORDER BY s.admissionYear DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> String.valueOf(arr[0]),
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> studentsByAgeGroup() {
+        int currentYear = LocalDate.now().getYear();
+
+        String jpql = """
+        SELECT 
+            CASE 
+                WHEN s.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(s.birthDate) >= :currentYear - 19 THEN 'Under 20'
+                WHEN YEAR(s.birthDate) >= :currentYear - 24 THEN '20-24'
+                WHEN YEAR(s.birthDate) >= :currentYear - 29 THEN '25-29'
+                ELSE '30+'
+            END,
+            COUNT(s)
+        FROM Students s
+        GROUP BY 
+            CASE 
+                WHEN s.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(s.birthDate) >= :currentYear - 19 THEN 'Under 20'
+                WHEN YEAR(s.birthDate) >= :currentYear - 24 THEN '20-24'
+                WHEN YEAR(s.birthDate) >= :currentYear - 29 THEN '25-29'
+                ELSE '30+'
+            END
+        ORDER BY 
+            MIN(CASE WHEN s.birthDate IS NULL THEN 9999 ELSE YEAR(s.birthDate) END) DESC
+        """;
+
+        List<Object[]> rows = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("currentYear", currentYear)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public List<Students> top10NewestStudents() {
+        return entityManager.createQuery(
+                        "SELECT s FROM Students s ORDER BY s.createdDate DESC", Students.class)
+                .setMaxResults(10)
+                .getResultList();
+    }
+
+    @Override
+    public long countCampusesWithoutStudents() {
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM Campuses c " +
+                                "WHERE NOT EXISTS (SELECT 1 FROM Students s WHERE s.campus = c)", Long.class)
+                .getSingleResult();
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -564,5 +729,148 @@ public class StudentDAOImpl implements StudentsDAO {
                 .setParameter("campusId", campusId)
                 .setParameter("majorId", majorId)
                 .getSingleResult();
+    }
+
+    // ==================== DASHBOARD METHODS CHO STAFF HIỆN TẠI ====================
+
+    @Override
+    public long totalStudentsForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return 0L;
+
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long countNewStudentsLast30DaysForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return 0L;
+
+        LocalDate thirtyDaysAgo = LocalDate.now().minusDays(30);
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "AND s.createdDate >= :date", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setParameter("date", thirtyDaysAgo)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> countStudentsBySpecializationForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT s.specialization.specializationName, COUNT(s) " +
+                                "FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "GROUP BY s.specialization.specializationId, s.specialization.specializationName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> countStudentsByAdmissionYearForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT s.admissionYear, COUNT(s) " +
+                                "FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "AND s.admissionYear IS NOT NULL " +
+                                "GROUP BY s.admissionYear " +
+                                "ORDER BY s.admissionYear DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> countStudentsByGenderForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(s.gender, 'KHÁC'), COUNT(s) " +
+                                "FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "GROUP BY s.gender", Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> top5SpecializationsForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return List.of();
+
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT s.specialization.specializationName, COUNT(s) " +
+                                "FROM Students s " +
+                                "WHERE s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "GROUP BY s.specialization.specializationId, s.specialization.specializationName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .setMaxResults(5)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> monthlyStudentIntakeThisYearForCurrentStaff() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getCampus() == null || staff.getMajorManagement() == null) return List.of();
+
+        int currentYear = LocalDate.now().getYear();
+        String campusId = staff.getCampus().getCampusId();
+        String majorId = staff.getMajorManagement().getMajorId();
+
+        return entityManager.createQuery(
+                        "SELECT MONTH(s.createdDate), COUNT(s) " +
+                                "FROM Students s " +
+                                "WHERE YEAR(s.createdDate) = :year " +
+                                "AND s.campus.campusId = :campusId " +
+                                "AND s.specialization.major.majorId = :majorId " +
+                                "GROUP BY MONTH(s.createdDate) " +
+                                "ORDER BY MONTH(s.createdDate)", Object[].class)
+                .setParameter("year", currentYear)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getResultList();
     }
 }

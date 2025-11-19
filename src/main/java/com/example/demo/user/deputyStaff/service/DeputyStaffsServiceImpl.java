@@ -14,6 +14,41 @@ import java.util.Map;
 @Service
 public class DeputyStaffsServiceImpl implements DeputyStaffsService {
     @Override
+    public long totalDeputyStaffs() {
+        return deputyStaffsDAO.totalDeputyStaffs();
+    }
+
+    @Override
+    public long newDeputyStaffsThisYear() {
+        return deputyStaffsDAO.newDeputyStaffsThisYear();
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByCampus() {
+        return deputyStaffsDAO.deputyStaffsByCampus();
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByGender() {
+        return deputyStaffsDAO.deputyStaffsByGender();
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByAgeGroup() {
+        return deputyStaffsDAO.deputyStaffsByAgeGroup();
+    }
+
+    @Override
+    public List<DeputyStaffs> top5NewestDeputyStaffs() {
+        return deputyStaffsDAO.top5NewestDeputyStaffs();
+    }
+
+    @Override
+    public long countCampusesWithoutDeputyStaff() {
+        return deputyStaffsDAO.countCampusesWithoutDeputyStaff();
+    }
+
+    @Override
     public List<DeputyStaffs> getDeputyStaffsByCampus(String campusId) {
         return deputyStaffsDAO.getDeputyStaffsByCampus(campusId);
     }

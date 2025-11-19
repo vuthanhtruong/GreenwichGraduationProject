@@ -24,4 +24,12 @@ public interface MajorClassesService {
     long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId);
     List<MajorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId);
     long numberOfClassesByCampus(Majors major, String campusId);
+
+    long totalMajorClassesInMyMajor();                                      // Tổng lớp học chính ngành
+    long totalSlotsInMyMajor();                                             // Tổng số slot (sĩ số)
+    long totalOccupiedSlotsInMyMajor();                                     // Tổng slot đã đăng ký (từ bảng Students_MajorClasses)
+    double averageClassSizeInMyMajor();                                     // Trung bình sĩ số/lớp
+    List<Object[]> majorClassesBySemesterInMyMajor();                       // Số lớp + slot theo kỳ học
+    List<Object[]> top5LargestClassesInMyMajor();                           // Top 5 lớp đông nhất
+    List<Object[]> majorClassesBySubjectInMyMajor();
 }

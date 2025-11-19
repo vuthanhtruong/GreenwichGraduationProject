@@ -17,6 +17,31 @@ import java.util.List;
 @Transactional
 public class SpecializedTimetableServiceImpl implements SpecializedTimetableService {
     @Override
+    public Object[] getDashboardSummarySpecialized(String campusId, Integer weekOfYear, Integer year) {
+        return dao.getDashboardSummarySpecialized(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5BusyLecturersSpecialized(String campusId, Integer weekOfYear, Integer year) {
+        return dao.getTop5BusyLecturersSpecialized(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public long[] getSlotsPerDayOfWeekSpecialized(String campusId, Integer weekOfYear, Integer year) {
+        return dao.getSlotsPerDayOfWeekSpecialized(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5UsedRoomsSpecialized(String campusId, Integer weekOfYear, Integer year) {
+        return dao.getTop5UsedRoomsSpecialized(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public int getUnscheduledSpecializedClassesCount(String campusId, Integer weekOfYear, Integer year) {
+        return dao.getUnscheduledSpecializedClassesCount(campusId, weekOfYear, year);
+    }
+
+    @Override
     public List<SpecializedTimetable> getAllSpecializedTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
         return dao.getAllSpecializedTimetablesInWeek(weekOfYear, year, campusId);
     }

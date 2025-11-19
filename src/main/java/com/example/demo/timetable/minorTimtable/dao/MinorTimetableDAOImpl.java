@@ -21,6 +21,147 @@ import java.util.List;
 @Transactional
 public class MinorTimetableDAOImpl implements MinorTimetableDAO {
 
+    // Trong MinorTimetableDAOImpl.java (thêm vào cuối class)
+    @Override
+    public Object[] getDashboardSummaryMinor(String campusId, Integer weekOfYear, Integer year) {
+        if (weekOfYear == null || year == null) {
+            LocalDate today = LocalDate.now();
+            weekOfYear = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            year = today.getYear();
+        }
+
+        Long totalClasses = em.createQuery("""
+        SELECT COUNT(DISTINCT c.classId) FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        Long totalSlots = em.createQuery("""
+        SELECT COUNT(t) FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        Long bookedRooms = em.createQuery("""
+        SELECT COUNT(DISTINCT t.room.roomId) FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        Long totalRooms = em.createQuery("SELECT COUNT(r) FROM Rooms r WHERE r.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+
+        int roomRate = totalRooms == 0 ? 0 : (int) (bookedRooms * 100 / totalRooms);
+
+        return new Object[] { totalClasses.intValue(), totalSlots.intValue(), roomRate, weekOfYear, year };
+    }
+
+    @Override
+    public List<Object[]> getTop5BusyLecturersMinor(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+        SELECT l.lecturer.id, l.lecturer.firstName, COUNT(t)
+        FROM MinorTimetable t
+        JOIN t.minorClass c
+        JOIN MinorLecturers_MinorClasses l ON c.classId = l.minorClass.classId
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        GROUP BY l.lecturer.id, l.lecturer.firstName
+        ORDER BY COUNT(t) DESC
+        """;
+
+        return em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long[] getSlotsPerDayOfWeekMinor(String campusId, Integer weekOfYear, Integer year) {
+        long[] result = new long[7];
+
+        String jpql = """
+        SELECT t.dayOfWeek, COUNT(t)
+        FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        GROUP BY t.dayOfWeek
+        ORDER BY t.dayOfWeek
+        """;
+
+        List<Object[]> list = em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getResultList();
+
+        for (Object[] row : list) {
+            DaysOfWeek day = (DaysOfWeek) row[0];
+            Long count = (Long) row[1];
+            result[day.ordinal()] = count;
+        }
+        return result;
+    }
+
+    @Override
+    public List<Object[]> getTop5UsedRoomsMinor(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+        SELECT t.room.roomId, t.room.roomName, COUNT(t)
+        FROM MinorTimetable t
+        JOIN t.minorClass c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week AND t.year = :year
+        GROUP BY t.room.roomId, t.room.roomName
+        ORDER BY COUNT(t) DESC
+        """;
+
+        return em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long getUnscheduledMinorClassesCount(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+        SELECT COUNT(DISTINCT c.classId)
+        FROM MinorClasses c
+        WHERE c.creator.campus.campusId = :campusId
+          AND c.classId NOT IN (
+            SELECT t.minorClass.classId FROM MinorTimetable t
+            WHERE t.weekOfYear = :week AND t.year = :year
+          )
+        """;
+
+        Long count = em.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        return count != null ? count : 0L;
+    }
+
     // Thêm vào MinorTimetableDAO interface + impl
     @Override
     public List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId) {

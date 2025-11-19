@@ -35,4 +35,9 @@ public interface MajorTimetableService {
     List<MajorTimetable> getMajorTimetableByStudentAndClassId(
             String studentId, String classId);
     List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
+    Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5BusyLecturers(String campusId, Integer weekOfYear, Integer year);
+    long[] getSlotsPerDayOfWeek(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5UsedRooms(String campusId, Integer weekOfYear, Integer year);
+    int getUnscheduledClassesCount(String campusId, Integer weekOfYear, Integer year);
 }

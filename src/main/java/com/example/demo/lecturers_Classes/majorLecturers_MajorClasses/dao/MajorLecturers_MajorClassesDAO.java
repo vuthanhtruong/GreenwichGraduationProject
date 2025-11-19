@@ -13,4 +13,9 @@ public interface MajorLecturers_MajorClassesDAO {
     void removeLecturerFromClass(MajorClasses classes, List<String> lecturerIds);
     List<MajorLecturers_MajorClasses> getClassByLecturer(MajorLecturers lecturers);
     List<String> getClassNotificationsForLecturer(String lecturerId);
+    long countLecturersTeachingAtLeastOneClass();
+    List<Object[]> getTop5LecturersByClassCount();
+    long countMajorClassesWithoutAnyLecturer();
+    List<Object[]> getTop5ClassesWithMostLecturers();
+    List<Object[]> getTop5LecturersWithFewestClasses();
 }

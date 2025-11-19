@@ -13,6 +13,41 @@ import java.util.Map;
 @Service
 public class MajorClassesServiceImpl implements MajorClassesService {
     @Override
+    public long totalMajorClassesInMyMajor() {
+        return classesDAO.totalMajorClassesInMyMajor();
+    }
+
+    @Override
+    public long totalSlotsInMyMajor() {
+        return classesDAO.totalSlotsInMyMajor();
+    }
+
+    @Override
+    public long totalOccupiedSlotsInMyMajor() {
+        return classesDAO.totalOccupiedSlotsInMyMajor();
+    }
+
+    @Override
+    public double averageClassSizeInMyMajor() {
+        return classesDAO.averageClassSizeInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> majorClassesBySemesterInMyMajor() {
+        return classesDAO.majorClassesBySemesterInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> top5LargestClassesInMyMajor() {
+        return classesDAO.top5LargestClassesInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> majorClassesBySubjectInMyMajor() {
+        return classesDAO.majorClassesBySubjectInMyMajor();
+    }
+
+    @Override
     public Map<String, String> validateClass(MajorClasses classObj, String excludeId) {
         return classesDAO.validateClass(classObj, excludeId);
     }

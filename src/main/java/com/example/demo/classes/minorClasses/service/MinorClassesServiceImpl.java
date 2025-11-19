@@ -12,6 +12,46 @@ import java.util.Map;
 @Service
 public class MinorClassesServiceImpl implements MinorClassesService {
     @Override
+    public long unscheduledMinorClassesCount() {
+        return classesDAO.unscheduledMinorClassesCount();
+    }
+
+    @Override
+    public long totalMinorClassesInMyCampus() {
+        return classesDAO.totalMinorClassesInMyCampus();
+    }
+
+    @Override
+    public long totalSlotsInMyCampus() {
+        return classesDAO.totalSlotsInMyCampus();
+    }
+
+    @Override
+    public long totalOccupiedSlotsInMyCampus() {
+        return classesDAO.totalOccupiedSlotsInMyCampus();
+    }
+
+    @Override
+    public double averageClassSizeInMyCampus() {
+        return classesDAO.averageClassSizeInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> minorClassesBySemesterInMyCampus() {
+        return classesDAO.minorClassesBySemesterInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> top5LargestClassesInMyCampus() {
+        return classesDAO.top5LargestClassesInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> minorClassesBySubjectInMyCampus() {
+        return classesDAO.minorClassesBySubjectInMyCampus();
+    }
+
+    @Override
     public Map<String, String> validateClass(MinorClasses classObj, String excludeId) {
         return classesDAO.validateClass(classObj, excludeId);
     }

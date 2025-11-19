@@ -1,6 +1,7 @@
 package com.example.demo.user.deputyStaff.dao;
 
 import com.example.demo.campus.model.Campuses;
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
@@ -31,6 +32,116 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class DeputyStaffsDAOImpl implements DeputyStaffsDAO {
+    // ==================== ADMIN DASHBOARD - DEPUTY STAFF (100% DỮ LIỆU HIỆN TẠI) ====================
+
+    @Override
+    public long totalDeputyStaffs() {
+        return entityManager.createQuery("SELECT COUNT(d) FROM DeputyStaffs d", Long.class)
+                .getSingleResult();
+    }
+
+    @Override
+    public long newDeputyStaffsThisYear() {
+        int year = LocalDate.now().getYear();
+        return entityManager.createQuery(
+                        "SELECT COUNT(d) FROM DeputyStaffs d WHERE YEAR(d.createdDate) = :year", Long.class)
+                .setParameter("year", year)
+                .getSingleResult();
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByCampus() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT c.campusName, COUNT(d) " +
+                                "FROM DeputyStaffs d JOIN d.campus c " +
+                                "GROUP BY c.campusId, c.campusName " +
+                                "ORDER BY COUNT(d) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByGender() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT d.gender, COUNT(d) FROM DeputyStaffs d WHERE d.gender IS NOT NULL GROUP BY d.gender",
+                        Object[].class)
+                .getResultList();
+
+        Map<String, Long> result = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Gender gender = (Gender) row[0];
+            String display = switch (gender) {
+                case MALE -> "Nam";
+                case FEMALE -> "Nữ";
+                case OTHER -> "Khác";
+            };
+            result.put(display, (Long) row[1]);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> deputyStaffsByAgeGroup() {
+        int currentYear = LocalDate.now().getYear();
+
+        String jpql = """
+        SELECT 
+            CASE 
+                WHEN d.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(d.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(d.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(d.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END,
+            COUNT(d)
+        FROM DeputyStaffs d
+        GROUP BY 
+            CASE 
+                WHEN d.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(d.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(d.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(d.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END
+        ORDER BY 
+            MIN(CASE WHEN d.birthDate IS NULL THEN 9999 ELSE YEAR(d.birthDate) END) DESC
+        """;
+
+        List<Object[]> rows = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("currentYear", currentYear)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public List<DeputyStaffs> top5NewestDeputyStaffs() {
+        return entityManager.createQuery(
+                        "SELECT d FROM DeputyStaffs d ORDER BY d.createdDate DESC", DeputyStaffs.class)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long countCampusesWithoutDeputyStaff() {
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM Campuses c " +
+                                "WHERE NOT EXISTS (SELECT 1 FROM DeputyStaffs d WHERE d.campus = c)", Long.class)
+                .getSingleResult();
+    }
     @Override
     public List<DeputyStaffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize) {
         try {

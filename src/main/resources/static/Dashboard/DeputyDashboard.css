@@ -1,0 +1,185 @@
+/* ============================
+   GLOBAL LAYOUT & TYPOGRAPHY
+============================ */
+body {
+    background-color: #f8f9fa;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+h5, h6 {
+    font-weight: 600;
+}
+
+.card {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: 0.25s ease;
+}
+
+.card:hover {
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.12);
+}
+
+.card-header {
+    font-weight: 600;
+    border-bottom: none !important;
+    padding: 0.9rem 1.25rem;
+}
+
+/* ============================
+   CUSTOM COLOR UTILITIES
+============================ */
+.text-purple { color: #9c27b0 !important; }
+.bg-purple { background-color: #9c27b0 !important; }
+
+.text-pink { color: #f5576c !important; }
+.bg-pink { background-color: #f5576c !important; }
+
+.text-indigo { color: #667eea !important; }
+.bg-indigo { background-color: #667eea !important; }
+
+/* ============================
+   BADGES & LABELS
+============================ */
+.badge {
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.badge.bg-danger {
+    font-weight: 600;
+}
+
+/* ============================
+   TIMETABLE METRICS
+============================ */
+.card .col-md-4 h4 {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.alert {
+    border-radius: 10px;
+    font-size: 0.95rem;
+}
+
+/* ============================
+   ROOM LIST + CLASS LIST
+============================ */
+.list-group-item {
+    border: none;
+    padding: 0.75rem 0.4rem;
+    font-size: 0.95rem;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+.list-group-item i {
+    font-size: 1.1rem;
+    margin-right: 6px;
+}
+
+/* ============================
+   STATISTICS CARDS (BOTTOM)
+============================ */
+.card-header.bg-secondary {
+    background: #6c757d !important;
+}
+
+.card .d-flex span {
+    font-size: 0.95rem;
+}
+
+.card .d-flex {
+    padding: 0.35rem 0;
+    border-bottom: 1px dashed #ddd;
+}
+
+.card .d-flex:last-child {
+    border-bottom: none;
+}
+
+/* ============================
+   CHARTS APPEARANCE
+============================ */
+canvas {
+    max-height: 260px;
+}
+
+#minorSessionsChart,
+#busyMinorLecturersChart {
+    max-height: 240px;
+}
+
+#genderChart,
+#ageChart {
+    max-height: 220px;
+}
+
+/* ============================
+   GRID & SPACING IMPROVEMENTS
+============================ */
+.container-fluid {
+    padding-bottom: 2rem;
+}
+
+.row.g-4 {
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.2rem;
+    }
+    h5 {
+        font-size: 1.05rem;
+    }
+    .card .col-md-4 h4 {
+        font-size: 1.5rem;
+    }
+    canvas {
+        max-height: 200px;
+    }
+}
+
+/* ============================
+   SPECIAL ICON & LIST STYLES
+============================ */
+.list-group-item strong {
+    font-weight: 600;
+}
+
+.list-group-item .text-muted {
+    font-size: 0.9rem;
+}
+
+.bi-star-fill {
+    font-size: 1rem;
+}
+
+.bi-door-closed {
+    font-size: 1.1rem;
+}
+
+/* ============================
+   SMOOTH VISUAL STYLE
+============================ */
+.card-body h5 i,
+.card-header h6 i,
+.card-body h6 i {
+    margin-right: 8px;
+}
+
+.card-body h5,
+.card-body h6 {
+    margin-bottom: 1rem;
+}
+
+.badge.text-dark.bg-warning {
+    font-weight: 600;
+}

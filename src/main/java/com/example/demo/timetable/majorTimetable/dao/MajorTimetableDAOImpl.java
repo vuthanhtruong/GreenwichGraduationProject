@@ -20,6 +20,174 @@ import java.util.List;
 @Transactional
 public class MajorTimetableDAOImpl implements MajorTimetableDAO {
 
+    // ==================== DASHBOARD CHO MAJOR STAFF - KHÔNG DTO ====================
+
+    /**
+     * 1. Thống kê tổng quan tuần hiện tại (trả về Object[] đơn giản)
+     */
+    @Override
+    public Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year) {
+        if (weekOfYear == null || year == null) {
+            LocalDate today = LocalDate.now();
+            weekOfYear = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            year = today.getYear();
+        }
+
+        // Tổng lớp major trong tuần
+        Long totalClasses = em.createQuery("""
+            SELECT COUNT(DISTINCT c.classId) FROM MajorTimetable t
+            JOIN t.classEntity c
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                        .getSingleResult();
+
+        // Tổng buổi đã xếp
+        Long totalSlots = em.createQuery("""
+            SELECT COUNT(t) FROM MajorTimetable t
+            JOIN t.classEntity c
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        // Tỷ lệ sử dụng phòng (%)
+        Long bookedRooms = em.createQuery("""
+            SELECT COUNT(DISTINCT t.room.roomId) FROM MajorTimetable t
+            JOIN t.classEntity c
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            """, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        Long totalRooms = em.createQuery("SELECT COUNT(r) FROM Rooms r WHERE r.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+
+        int roomRate = totalRooms == 0 ? 0 : (int) (bookedRooms * 100 / totalRooms);
+
+        return new Object[] {
+                totalClasses.intValue(),      // 0: số lớp
+                totalSlots.intValue(),        // 1: số tiết đã xếp
+                roomRate,                     // 2: % phòng sử dụng
+                weekOfYear,                   // 3: tuần
+                year                          // 4: năm
+        };
+    }
+
+    /**
+     * 2. Top 5 giảng viên dạy nhiều nhất trong tuần
+     * Trả về List<Object[]> : [lecturerId, lecturerName, slotCount]
+     */
+    @Override
+    public List<Object[]> getTop5BusyLecturers(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+            SELECT l.lecturer.id, l.lecturer.firstName, COUNT(t)
+            FROM MajorTimetable t
+            JOIN t.classEntity c
+            JOIN MajorLecturers_MajorClasses l ON c.classId = l.majorClass.classId
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            GROUP BY l.lecturer.id, l.lecturer.firstName
+            ORDER BY COUNT(t) DESC
+            """;
+
+        return em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 3. Số tiết đã xếp theo từng ngày trong tuần (cho biểu đồ cột)
+     * Trả về Object[7] tương ứng thứ 2 → CN
+     */
+    @Override
+    public long[] getSlotsPerDayOfWeek(String campusId, Integer weekOfYear, Integer year) {
+        long[] result = new long[7];
+
+        String jpql = """
+            SELECT t.dayOfWeek, COUNT(t)
+            FROM MajorTimetable t
+            JOIN t.classEntity c
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            GROUP BY t.dayOfWeek
+            ORDER BY t.dayOfWeek
+            """;
+
+        List<Object[]> list = em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getResultList();
+
+        for (Object[] row : list) {
+            DaysOfWeek day = (DaysOfWeek) row[0];
+            Long count = (Long) row[1];
+            result[day.ordinal()] = count;
+        }
+        return result;
+    }
+
+    /**
+     * 4. Top 5 phòng được dùng nhiều nhất trong tuần
+     */
+    @Override
+    public List<Object[]> getTop5UsedRooms(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+            SELECT t.room.roomId, t.room.roomName, COUNT(t)
+            FROM MajorTimetable t
+            JOIN t.classEntity c
+            WHERE c.creator.campus.campusId = :campusId
+              AND t.weekOfYear = :week AND t.year = :year
+            GROUP BY t.room.roomId, t.room.roomName
+            ORDER BY COUNT(t) DESC
+            """;
+
+        return em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 5. Số lượng lớp chưa xếp lịch trong tuần (cảnh báo)
+     */
+    @Override
+    public int getUnscheduledClassesCount(String campusId, Integer weekOfYear, Integer year) {
+        String jpql = """
+            SELECT COUNT(DISTINCT c.classId)
+            FROM MajorClasses c
+            WHERE c.creator.campus.campusId = :campusId
+              AND c.classId NOT IN (
+                SELECT t.classEntity.classId FROM MajorTimetable t
+                WHERE t.weekOfYear = :week AND t.year = :year
+              )
+            """;
+
+        Long count = em.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", weekOfYear)
+                .setParameter("year", year)
+                .getSingleResult();
+
+        return count.intValue();
+    }
+
     @Override
     public List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
         if (weekOfYear == null || year == null) {

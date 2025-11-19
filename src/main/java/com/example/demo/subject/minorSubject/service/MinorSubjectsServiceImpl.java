@@ -13,6 +13,26 @@ import java.util.Map;
 @Service
 public class MinorSubjectsServiceImpl implements MinorSubjectsService {
     @Override
+    public long totalMinorSubjectsInMyCampus() {
+        return subjectsDAO.totalMinorSubjectsInMyCampus();
+    }
+
+    @Override
+    public long minorSubjectsThisSemester() {
+        return subjectsDAO.minorSubjectsThisSemester();
+    }
+
+    @Override
+    public List<Object[]> minorSubjectsBySemester() {
+        return subjectsDAO.minorSubjectsBySemester();
+    }
+
+    @Override
+    public List<Object[]> top5MostUsedMinorSubjects() {
+        return subjectsDAO.top5MostUsedMinorSubjects();
+    }
+
+    @Override
     public List<MinorSubjects> getAllSubjects() {
         return subjectsDAO.getAllSubjects();
     }

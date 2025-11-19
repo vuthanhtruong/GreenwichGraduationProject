@@ -18,6 +18,46 @@ import java.util.Map;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
+    public long totalStaffsAllCampus() {
+        return staffsDAO.totalStaffsAllCampus();
+    }
+
+    @Override
+    public long newStaffsThisYearAllCampus() {
+        return staffsDAO.newStaffsThisYearAllCampus();
+    }
+
+    @Override
+    public Map<String, Long> staffsByCampus() {
+        return staffsDAO.staffsByCampus();
+    }
+
+    @Override
+    public Map<String, Long> staffsByMajor() {
+        return staffsDAO.staffsByMajor();
+    }
+
+    @Override
+    public Map<String, Long> staffsByGender() {
+        return staffsDAO.staffsByGender();
+    }
+
+    @Override
+    public Map<String, Long> staffsByAgeGroup() {
+        return staffsDAO.staffsByAgeGroup();
+    }
+
+    @Override
+    public List<Staffs> top5NewestStaffs() {
+        return staffsDAO.top5NewestStaffs();
+    }
+
+    @Override
+    public long countMajorsWithoutStaff() {
+        return staffsDAO.countMajorsWithoutStaff();
+    }
+
+    @Override
     public List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId) {
         return staffsDAO.yourManagersByCampusIdAndMajor(campusId, majorId);
     }

@@ -13,6 +13,36 @@ import java.util.Map;
 @Service
 public class MajorSubjectsServiceImpl implements MajorSubjectsService {
     @Override
+    public long totalSubjectsInMyMajor() {
+        return subjectsDAO.totalSubjectsInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> subjectsBySemesterInMyMajor() {
+        return subjectsDAO.subjectsBySemesterInMyMajor();
+    }
+
+    @Override
+    public long subjectsInCurrentSemesterInMyMajor() {
+        return subjectsDAO.subjectsInCurrentSemesterInMyMajor();
+    }
+
+    @Override
+    public long subjectsWithoutCurriculumInMyMajor() {
+        return subjectsDAO.subjectsWithoutCurriculumInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> subjectsByCurriculumInMyMajor() {
+        return subjectsDAO.subjectsByCurriculumInMyMajor();
+    }
+
+    @Override
+    public List<Object[]> top10LongestSubjectNamesInMyMajor() {
+        return subjectsDAO.top10LongestSubjectNamesInMyMajor();
+    }
+
+    @Override
     public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
         return subjectsDAO.getSubjectsByCurriculumId(curriculumId);
     }

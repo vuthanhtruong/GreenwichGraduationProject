@@ -33,4 +33,13 @@ public interface StaffsDAO {
     Campuses getCampusOfStaff();
     List<Staffs> colleagueBycampusId(String campusId);
     List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId);
+    // ==================== ADMIN DASHBOARD - STAFF STATISTICS ====================
+    long totalStaffsAllCampus();
+    long newStaffsThisYearAllCampus();
+    Map<String, Long> staffsByCampus();
+    Map<String, Long> staffsByMajor();
+    Map<String, Long> staffsByGender();
+    Map<String, Long> staffsByAgeGroup();
+    List<Staffs> top5NewestStaffs();
+    long countMajorsWithoutStaff();
 }

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" th:href="@{/DeputyDashboard.css}">
+</head>
+<body class="bg-light">
+
+<div class="container-fluid py-4 px-5">
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN: Key Metrics -->
+        <div class="col-lg-8">
+
+            <!-- Timetable Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-week me-2"></i> Minor Schedule Overview This Week</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h4 class="fw-bold text-primary" th:text="${minorTotalSlots}">0</h4>
+                            <p>Minor Sessions Scheduled</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="fw-bold text-info" th:text="${minorTotalClasses}">0</h4>
+                            <p>Minor Classes This Week</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="fw-bold text-danger" th:text="${minorRoomUtilizationRate + '%'}">0%</h4>
+                            <p>Room Utilization Rate</p>
+                        </div>
+                    </div>
+
+                    <!-- Unscheduled Alert -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-center" th:if="${hasMinorUnscheduledTimetable}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <strong th:text="${minorUnscheduledTimetable}"></strong> Minor Classes Not Scheduled Yet
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecturer Assignment Status -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i> Minor Lecturer Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">
+                                <span th:text="${minorLecturersTeachingCount}"></span> / <span th:text="${totalMinorLecturers}"></span>
+                            </h4>
+                            <p>Lecturers Teaching Minor Classes</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-warning" th:text="${totalMinorClasses}">0</h4>
+                            <p>Total Minor Classes</p>
+                            <span class="badge bg-danger fs-6" th:if="${hasMinorClassesWithoutLecturer}">
+                                <strong th:text="${minorClassesWithoutLecturer}"></strong> classes without lecturer
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Minor Classes Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-book me-2"></i> Minor Classes Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h4 class="text-success" th:text="${totalMinorClasses}">0</h4>
+                            <p>Total Minor Classes</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-info" th:text="${minorClassesThisSession}">0</h4>
+                            <p>Classes This Session</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-warning" th:text="${unscheduledMinorClasses}">0</h4>
+                            <p>Unscheduled Classes</p>
+                            <span class="badge bg-danger" th:if="${hasUnscheduledMinor}">ACTION NEEDED</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Usage -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-door-open me-2"></i> Top 5 Most Used Rooms This Week</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="room : ${minorTop5UsedRooms}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>
+                                    <i class="bi bi-door-closed text-warning me-2"></i>
+                                    <strong th:text="${room[1]}"></strong>
+                                </span>
+                                <span class="badge bg-warning text-dark" th:text="${room[2] + ' sessions'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Charts & Rankings -->
+        <div class="col-lg-4">
+
+            <!-- Sessions per Day -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5><i class="bi bi-bar-chart-line"></i> Minor Sessions per Day</h5>
+                    <canvas id="minorSessionsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Busiest Lecturers -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5><i class="bi bi-trophy"></i> Top 5 Busiest Minor Lecturers</h5>
+                    <canvas id="busyMinorLecturersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Minor Lecturers Stats -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-person-workspace me-2"></i> Minor Lecturers Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Minor Lecturers:</span>
+                        <strong th:text="${totalMinorLecturers}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>New This Year:</span>
+                        <strong th:text="${newMinorThisYear}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Currently Teaching:</span>
+                        <strong th:text="${minorLecturersTeachingCount}">0</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom Row: Detailed Lists -->
+    <div class="row g-4 mt-4">
+
+        <!-- Top 5 Largest Minor Classes -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-people"></i> Top 5 Largest Minor Classes</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${top5LargestMinorClasses}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="badge bg-primary" th:text="${item[2] + ' students'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 5 Most Used Minor Subjects -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-bookmarks"></i> Top 5 Most Popular Minor Subjects</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${top5MostUsedMinorSubjects}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="badge bg-success" th:text="${item[2] + ' classes'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Third Row: Assignment Details -->
+    <div class="row g-4 mt-4">
+
+        <!-- Classes with Most Lecturers -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-person-check"></i> Top 5 Minor Classes with Most Lecturers</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${minorTop5ClassesMostLecturers}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="badge bg-info" th:text="${item[2] + ' lecturers'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggested Lecturers (Lightest Load) -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-person-plus"></i> Suggested Lecturers (Lightest Load)</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${minorTop5LecturersLightestLoad}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="text-success" th:text="${item[2] + ' classes'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Fourth Row: Additional Statistics -->
+    <div class="row g-4 mt-4">
+
+        <!-- Minor Subjects Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-journals me-2"></i> Minor Subjects</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Minor Subjects:</span>
+                        <strong th:text="${totalMinorSubjects}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>This Semester:</span>
+                        <strong th:text="${minorSubjectsThisSemester}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gender Distribution -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-gender-ambiguous me-2"></i> Lecturers by Gender</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Age Group Distribution -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-calendar-range me-2"></i> Lecturers by Age</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Fifth Row: Senior Lecturers -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-award"></i> Top 5 Most Experienced Minor Lecturers</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${top5SeniorMinor}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>
+                                    <i class="bi bi-star-fill text-warning me-2"></i>
+                                    <strong th:text="${item[1]}"></strong>
+                                </span>
+                                <span class="text-muted" th:text="${item[2] + ' years experience'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js Scripts -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Minor Sessions per Day
+    const minorSlots = /*[[${minorSlotsPerDay}]]*/ [];
+
+    new Chart(document.getElementById('minorSessionsChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+            datasets: [{
+                label: 'Minor Sessions',
+                data: minorSlots,
+                backgroundColor: '#f5576c'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Busiest Minor Lecturers
+    const busyMinor = /*[[${minorTop5BusyLecturersTimetable}]]*/ [];
+
+    new Chart(document.getElementById('busyMinorLecturersChart'), {
+        type: 'bar',
+        data: {
+            labels: busyMinor.map(l => l[1]),
+            datasets: [{
+                label: 'Sessions Taught',
+                data: busyMinor.map(l => l[2]),
+                backgroundColor: '#f093fb'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Gender Distribution
+    const genderData = /*[[${minorByGender}]]*/ [];
+    const genderLabels = genderData.map(g => g[0]);
+    const genderCounts = genderData.map(g => g[1]);
+
+    new Chart(document.getElementById('genderChart'), {
+        type: 'doughnut',
+        data: {
+            labels: genderLabels,
+            datasets: [{
+                data: genderCounts,
+                backgroundColor: ['#667eea', '#f093fb']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Age Distribution
+    const ageData = /*[[${minorByAgeGroup}]]*/ [];
+    const ageLabels = ageData.map(a => a[0]);
+    const ageCounts = ageData.map(a => a[1]);
+
+    new Chart(document.getElementById('ageChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ageLabels,
+            datasets: [{
+                data: ageCounts,
+                backgroundColor: ['#4facfe', '#00f2fe', '#f5576c', '#f093fb', '#764ba2']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { fontSize: 10 } }
+            }
+        }
+    });
+
+    /*]]>*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

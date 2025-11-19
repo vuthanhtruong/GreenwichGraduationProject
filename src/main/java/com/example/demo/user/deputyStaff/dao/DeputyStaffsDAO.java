@@ -32,4 +32,11 @@ public interface DeputyStaffsDAO {
     List<DeputyStaffs> searchStaffsByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResultsByCampus(String campusId, String searchType, String keyword);
     List<DeputyStaffs> getDeputyStaffsByCampus(String campusId);
+    long totalDeputyStaffs();
+    long newDeputyStaffsThisYear();
+    Map<String, Long> deputyStaffsByCampus();
+    Map<String, Long> deputyStaffsByGender();
+    Map<String, Long> deputyStaffsByAgeGroup();
+    List<DeputyStaffs> top5NewestDeputyStaffs();
+    long countCampusesWithoutDeputyStaff();
 }

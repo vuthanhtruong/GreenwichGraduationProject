@@ -13,6 +13,28 @@ import java.util.List;
 
 @Service
 public class MinorTimetableServiceImpl implements MinorTimetableService {
+
+    // Thêm vào interface + impl
+    @Override
+    public Object[] getDashboardSummaryMinor(String campusId, Integer week, Integer year) {
+        return dao.getDashboardSummaryMinor(campusId, week, year);
+    }
+    @Override
+    public List<Object[]> getTop5BusyLecturersMinor(String campusId, Integer week, Integer year) {
+        return dao.getTop5BusyLecturersMinor(campusId, week, year);
+    }
+    @Override
+    public long[] getSlotsPerDayOfWeekMinor(String campusId, Integer week, Integer year) {
+        return dao.getSlotsPerDayOfWeekMinor(campusId, week, year);
+    }
+    @Override
+    public List<Object[]> getTop5UsedRoomsMinor(String campusId, Integer week, Integer year) {
+        return dao.getTop5UsedRoomsMinor(campusId, week, year);
+    }
+    @Override
+    public long getUnscheduledMinorClassesCount(String campusId, Integer week, Integer year) {
+        return dao.getUnscheduledMinorClassesCount(campusId, week, year);
+    }
     @Override
     public List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId) {
         return dao.getMinorTimetableTodayByLecturer(lecturerId);

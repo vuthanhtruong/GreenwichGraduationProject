@@ -13,4 +13,9 @@ public interface SpecializedAttendanceService {
     void saveAll(List<SpecializedAttendance> attendances);
 
     SpecializedAttendance findByTimetableAndStudent(String timetableId, String studentId);
+
+    long countAttendanceSessionsThisWeek(String campusId, Integer week, Integer year);
+    double getAverageAttendanceRateThisWeek(String campusId, Integer week, Integer year);
+    List<Object[]> getTop5ClassesLowestAttendanceThisWeek(String campusId, Integer week, Integer year);
+    long countStudentsWithManyAbsencesThisWeek(String campusId, Integer week, Integer year);
 }

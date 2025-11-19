@@ -40,4 +40,10 @@ public interface MinorSubjectsDAO {
     Map<String, String> validateSubject(MinorSubjects subject);
 
     List<MinorSubjects> getAllSubjects();
+
+    // Trong MinorSubjectsDAO.java (interface)
+    long totalMinorSubjectsInMyCampus();
+    long minorSubjectsThisSemester(); // Số môn học kỳ hiện tại
+    List<Object[]> minorSubjectsBySemester(); // Phân bố theo học kỳ
+    List<Object[]> top5MostUsedMinorSubjects(); // Top 5 môn có nhiều lớp nhất
 }

@@ -27,4 +27,19 @@ public interface MinorLecturersService {
     List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchMinorLecturersByCampus(String campusId, String searchType, String keyword);
     List<MinorLecturers> colleaguesByCampusId(String campusId);
+
+    long totalMinorLecturersInMyCampus();
+    long newMinorLecturersThisYearInMyCampus();
+    List<Object[]> minorLecturersByGenderInMyCampus();
+    List<Object[]> minorLecturersByAgeGroupInMyCampus();
+    List<Object[]> top5MostExperiencedMinorLecturersInMyCampus();
+
+    long totalMinorLecturersAllCampus();
+    long newMinorLecturersThisYearAllCampus();
+    Map<String, Long> minorLecturersByCampus();
+    Map<String, Long> minorLecturersByGender();
+    Map<String, Long> minorLecturersByAgeGroup();
+    List<MinorLecturers> top5NewestMinorLecturers();
+    List<MinorLecturers> top5MostSeniorMinorLecturers();
+    long countCampusesWithoutMinorLecturer();
 }

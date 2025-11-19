@@ -26,4 +26,20 @@ public interface MinorLecturersDAO {
     List<MinorLecturers> searchMinorLecturersByCampus(String campusId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchMinorLecturersByCampus(String campusId, String searchType, String keyword);
     List<MinorLecturers> colleaguesByCampusId(String campusId); // ĐÃ SỬA TÊN
+    // Trong MinorLecturersDAO.java (interface)
+    long totalMinorLecturersInMyCampus();
+    long newMinorLecturersThisYearInMyCampus();
+    List<Object[]> minorLecturersByGenderInMyCampus();
+    List<Object[]> minorLecturersByAgeGroupInMyCampus();
+    List<Object[]> top5MostExperiencedMinorLecturersInMyCampus();
+
+    // ==================== ADMIN DASHBOARD - MINOR LECTURERS STATISTICS ====================
+    long totalMinorLecturersAllCampus();
+    long newMinorLecturersThisYearAllCampus();
+    Map<String, Long> minorLecturersByCampus();
+    Map<String, Long> minorLecturersByGender();
+    Map<String, Long> minorLecturersByAgeGroup();
+    List<MinorLecturers> top5NewestMinorLecturers();
+    List<MinorLecturers> top5MostSeniorMinorLecturers();
+    long countCampusesWithoutMinorLecturer();
 }

@@ -13,6 +13,95 @@ import java.util.List;
 @Transactional
 public class MajorAttendanceDAOImpl implements MajorAttendanceDAO {
 
+    @Override
+    public long countAttendanceSessionsThisWeek(String campusId, Integer week, Integer year) {
+        String jpql = """
+        SELECT COUNT(DISTINCT t.timetableId)
+        FROM MajorTimetable t
+        JOIN t.classEntity c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+          AND EXISTS (SELECT 1 FROM MajorAttendance a WHERE a.timetable = t)
+        """;
+        Long count = em.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getSingleResult();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    public double getAverageAttendanceRateThisWeek(String campusId, Integer week, Integer year) {
+        String jpql = """
+        SELECT 
+            COALESCE(
+                CAST(SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) AS double) 
+                / NULLIF(COUNT(a), 0) * 100, 0.0)
+        FROM MajorAttendance a
+        JOIN a.timetable t
+        JOIN t.classEntity c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+        """;
+        Double rate = em.createQuery(jpql, Double.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getSingleResult();
+        return rate != null ? rate : 0.0;
+    }
+
+    @Override
+    public List<Object[]> getTop5ClassesLowestAttendanceThisWeek(String campusId, Integer week, Integer year) {
+        String jpql = """
+        SELECT c.classId, c.nameClass,
+               COALESCE(
+                   CAST(SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) AS double) 
+                   / NULLIF(COUNT(a), 0) * 100, 0.0)
+        FROM MajorAttendance a
+        JOIN a.timetable t
+        JOIN t.classEntity c
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+        GROUP BY c.classId, c.nameClass
+        HAVING COUNT(a) > 0
+        ORDER BY 3 ASC
+        """;
+        return em.createQuery(jpql, Object[].class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long countStudentsWithManyAbsencesThisWeek(String campusId, Integer week, Integer year) {
+        String jpql = """
+        SELECT COUNT(DISTINCT s.id)
+        FROM MajorAttendance a
+        JOIN a.timetable t
+        JOIN t.classEntity c
+        JOIN a.student s
+        WHERE c.creator.campus.campusId = :campusId
+          AND t.weekOfYear = :week
+          AND t.year = :year
+          AND a.status = 'ABSENT'
+        GROUP BY s.id
+        HAVING COUNT(a) >= 3
+        """;
+        List<Long> result = em.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getResultList();
+        return result != null ? result.size() : 0L;
+    }
+
     @PersistenceContext
     private EntityManager em;
 

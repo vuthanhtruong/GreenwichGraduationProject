@@ -11,6 +11,25 @@ import java.util.List;
 @Service
 @Transactional
 public class SpecializedAttendanceServiceImpl implements SpecializedAttendanceService {
+    @Override
+    public long countAttendanceSessionsThisWeek(String campusId, Integer week, Integer year) {
+        return dao.countAttendanceSessionsThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public double getAverageAttendanceRateThisWeek(String campusId, Integer week, Integer year) {
+        return dao.getAverageAttendanceRateThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5ClassesLowestAttendanceThisWeek(String campusId, Integer week, Integer year) {
+        return dao.getTop5ClassesLowestAttendanceThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public long countStudentsWithManyAbsencesThisWeek(String campusId, Integer week, Integer year) {
+        return dao.countStudentsWithManyAbsencesThisWeek(campusId, week, year);
+    }
 
     private final SpecializedAttendanceDAO dao;
 

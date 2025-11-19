@@ -20,6 +20,96 @@ import java.util.List;
 @Transactional
 public class MinorLecturers_MinorClassesDAOImpl implements MinorLecturers_MinorClassesDAO {
 
+    // Trong MinorLecturers_MinorClassesDAOImpl.java
+    @Override
+    public long countLecturersTeachingMinorClasses() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(DISTINCT lmc.lecturer.id) " +
+                                "FROM MinorLecturers_MinorClasses lmc " +
+                                "JOIN lmc.minorClass mc " +
+                                "WHERE mc.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long countMinorClassesWithoutLecturer() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(mc) FROM MinorClasses mc " +
+                                "WHERE mc.creator.campus.campusId = :campusId " +
+                                "AND mc.classId NOT IN (SELECT lmc.minorClass.classId FROM MinorLecturers_MinorClasses lmc)", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersByMinorClassCount() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COUNT(lmc) " +
+                                "FROM MinorLecturers_MinorClasses lmc " +
+                                "JOIN lmc.lecturer l " +
+                                "JOIN lmc.minorClass mc " +
+                                "WHERE mc.creator.campus.campusId = :campusId " +
+                                "GROUP BY l.id, l.firstName, l.lastName " +
+                                "ORDER BY COUNT(lmc) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> getTop5MinorClassesWithMostLecturers() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT mc.classId, mc.nameClass, COUNT(lmc) " +
+                                "FROM MinorLecturers_MinorClasses lmc " +
+                                "JOIN lmc.minorClass mc " +
+                                "WHERE mc.creator.campus.campusId = :campusId " +
+                                "GROUP BY mc.classId, mc.nameClass " +
+                                "ORDER BY COUNT(lmc) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestMinorClasses() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COALESCE(COUNT(lmc), 0) " +
+                                "FROM MinorLecturers l " +
+                                "LEFT JOIN MinorLecturers_MinorClasses lmc ON l.id = lmc.lecturer.id " +
+                                "WHERE l.campus.campusId = :campusId " +
+                                "GROUP BY l.id, l.firstName, l.lastName " +
+                                "ORDER BY COALESCE(COUNT(lmc), 0) ASC, l.firstName", Object[].class)
+                .setParameter("campusId", campusId)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
     @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {
         String jpql = """

@@ -5,6 +5,7 @@ import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
 import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.LecturersClassesId;
 import com.example.demo.lecturers_Classes.majorLecturers_SpecializedClasses.model.MajorLecturers_SpecializedClasses;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,10 +19,125 @@ import java.util.List;
 @Transactional
 public class MajorLecturers_SpecializedClassesDAOImpl implements MajorLecturers_SpecializedClassesDAO {
 
+    // ==================== DASHBOARD SPECIALIZED LECTURERS (CHO MAJOR STAFF) ====================
+
+    /**
+     * 1. Tổng số giảng viên đang dạy ít nhất 1 lớp chuyên ngành
+     */
+    @Override
+    public long countLecturersTeachingSpecializedClasses() {
+        String jpql = """
+        SELECT COUNT(DISTINCT lmc.lecturer.id)
+        FROM MajorLecturers_SpecializedClasses lmc
+        JOIN lmc.specializedClass sc
+        WHERE sc.creator.campus.campusId = :campusId
+          AND sc.specializedSubject.specialization.major = :majorManagement
+        """;
+
+        Staffs staff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", staff.getCampus().getCampusId())
+                .setParameter("majorManagement", staff.getMajorManagement())
+                .getSingleResult();
+    }
+
+    /**
+     * 2. Top 5 giảng viên dạy nhiều lớp chuyên ngành nhất
+     * Trả về: [lecturerId, fullName, classCount]
+     */
+    @Override
+    public List<Object[]> getTop5LecturersBySpecializedClassCount() {
+        String jpql = """
+        SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COUNT(lmc)
+        FROM MajorLecturers_SpecializedClasses lmc
+        JOIN lmc.lecturer l
+        JOIN lmc.specializedClass sc
+        WHERE sc.creator.campus.campusId = :campusId
+          AND sc.specializedSubject.specialization.major = :majorManagement
+        GROUP BY l.id, l.firstName, l.lastName
+        ORDER BY COUNT(lmc) DESC
+        """;
+
+        Staffs staff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", staff.getCampus().getCampusId())
+                .setParameter("majorManagement", staff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 3. Số lớp chuyên ngành CHƯA có giảng viên nào (CẢNH BÁO ĐỎ)
+     */
+    @Override
+    public long countSpecializedClassesWithoutLecturer() {
+        String jpql = """
+        SELECT COUNT(sc)
+        FROM SpecializedClasses sc
+        WHERE sc.creator.campus.campusId = :campusId
+          AND sc.specializedSubject.specialization.major = :majorManagement
+          AND sc.classId NOT IN (
+            SELECT lmc.specializedClass.classId FROM MajorLecturers_SpecializedClasses lmc
+          )
+        """;
+
+        Staffs staff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", staff.getCampus().getCampusId())
+                .setParameter("majorManagement", staff.getMajorManagement())
+                .getSingleResult();
+    }
+
+    /**
+     * 4. Top 5 lớp chuyên ngành có nhiều giảng viên nhất
+     */
+    @Override
+    public List<Object[]> getTop5SpecializedClassesWithMostLecturers() {
+        String jpql = """
+        SELECT sc.classId, sc.nameClass, COUNT(lmc)
+        FROM MajorLecturers_SpecializedClasses lmc
+        JOIN lmc.specializedClass sc
+        WHERE sc.creator.campus.campusId = :campusId
+          AND sc.specializedSubject.specialization.major = :majorManagement
+        GROUP BY sc.classId, sc.nameClass
+        ORDER BY COUNT(lmc) DESC
+        """;
+
+        Staffs staff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", staff.getCampus().getCampusId())
+                .setParameter("majorManagement", staff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 5. Top 5 giảng viên dạy ÍT lớp chuyên ngành nhất → gợi ý phân công thêm
+     */
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestSpecializedClasses() {
+        String jpql = """
+        SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COALESCE(COUNT(lmc), 0)
+        FROM MajorLecturers l
+        LEFT JOIN MajorLecturers_SpecializedClasses lmc ON l.id = lmc.lecturer.id
+        WHERE l.campus.campusId = :campusId
+          AND l.majorManagement = :majorManagement
+        GROUP BY l.id, l.firstName, l.lastName
+        ORDER BY COALESCE(COUNT(lmc), 0) ASC, l.firstName
+        """;
+
+        Staffs staff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", staff.getCampus().getCampusId())
+                .setParameter("majorManagement", staff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
+
     @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {
         String jpql = """
-        SELECT CONCAT('You have been added to specialized class: ', 
+        SELECT CONCAT('You have been added to specialized class: ',
                       c.nameClass, ' (', 
                       COALESCE(c.specializedSubject.subjectName, 'N/A'), 
                       ') on ', lmc.createdAt)

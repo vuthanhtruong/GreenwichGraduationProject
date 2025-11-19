@@ -12,6 +12,71 @@ import java.util.Map;
 @Service
 public class MinorLecturersServiceImpl implements MinorLecturersService {
     @Override
+    public long totalMinorLecturersAllCampus() {
+        return minorLecturersDAO.totalMinorLecturersAllCampus();
+    }
+
+    @Override
+    public long newMinorLecturersThisYearAllCampus() {
+        return minorLecturersDAO.newMinorLecturersThisYearAllCampus();
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByCampus() {
+        return minorLecturersDAO.minorLecturersByCampus();
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByGender() {
+        return minorLecturersDAO.minorLecturersByGender();
+    }
+
+    @Override
+    public Map<String, Long> minorLecturersByAgeGroup() {
+        return minorLecturersDAO.minorLecturersByAgeGroup();
+    }
+
+    @Override
+    public List<MinorLecturers> top5NewestMinorLecturers() {
+        return minorLecturersDAO.top5NewestMinorLecturers();
+    }
+
+    @Override
+    public List<MinorLecturers> top5MostSeniorMinorLecturers() {
+        return minorLecturersDAO.top5MostSeniorMinorLecturers();
+    }
+
+    @Override
+    public long countCampusesWithoutMinorLecturer() {
+        return minorLecturersDAO.countCampusesWithoutMinorLecturer();
+    }
+
+    @Override
+    public long totalMinorLecturersInMyCampus() {
+        return minorLecturersDAO.totalMinorLecturersInMyCampus();
+    }
+
+    @Override
+    public long newMinorLecturersThisYearInMyCampus() {
+        return minorLecturersDAO.newMinorLecturersThisYearInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> minorLecturersByGenderInMyCampus() {
+        return minorLecturersDAO.minorLecturersByGenderInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> minorLecturersByAgeGroupInMyCampus() {
+        return minorLecturersDAO.minorLecturersByAgeGroupInMyCampus();
+    }
+
+    @Override
+    public List<Object[]> top5MostExperiencedMinorLecturersInMyCampus() {
+        return List.of();
+    }
+
+    @Override
     public List<MinorLecturers> colleaguesByCampusId(String campusId) {
         return minorLecturersDAO.colleaguesByCampusId(campusId);
     }

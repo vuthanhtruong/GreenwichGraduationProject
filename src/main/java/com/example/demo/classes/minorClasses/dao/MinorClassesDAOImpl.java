@@ -2,29 +2,177 @@ package com.example.demo.classes.minorClasses.dao;
 
 import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
+import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.subject.minorSubject.model.MinorSubjects;
+import com.example.demo.user.deputyStaff.model.DeputyStaffs;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.IsoFields;
+import java.util.*;
 
 @Repository
 @Transactional
 public class MinorClassesDAOImpl implements MinorClassesDAO {
+
+    private final DeputyStaffsService deputyStaffsService;
+
+    // Trong MinorClassesDAOImpl.java
+    @Override
+    public long totalMinorClassesInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM MinorClasses c " +
+                                "WHERE c.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long totalSlotsInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(SUM(c.slotQuantity), 0) FROM MinorClasses c " +
+                                "WHERE c.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long totalOccupiedSlotsInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(smc) FROM Students_MinorClasses smc " +
+                                "JOIN smc.minorClass mc " +
+                                "WHERE mc.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public double averageClassSizeInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0.0;
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        try {
+            Object[] result = entityManager.createQuery(
+                            "SELECT COUNT(smc), COUNT(DISTINCT mc) " +
+                                    "FROM Students_MinorClasses smc " +
+                                    "JOIN smc.minorClass mc " +
+                                    "WHERE mc.creator.campus.campusId = :campusId", Object[].class)
+                    .setParameter("campusId", campusId)
+                    .getSingleResult();
+
+            long enrolled = result[0] != null ? ((Number) result[0]).longValue() : 0L;
+            long classes = result[1] != null ? ((Number) result[1]).longValue() : 0L;
+
+            return classes == 0 ? 0.0 : Math.round((double) enrolled / classes * 10) / 10.0;
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    @Override
+    public List<Object[]> minorClassesBySemesterInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT c.session, COUNT(c), COALESCE(SUM(c.slotQuantity), 0) " +
+                                "FROM MinorClasses c " +
+                                "WHERE c.creator.campus.campusId = :campusId " +
+                                "GROUP BY c.session ORDER BY c.session DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> top5LargestClassesInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT c.nameClass, c.slotQuantity, COUNT(smc.student) " +
+                                "FROM MinorClasses c LEFT JOIN Students_MinorClasses smc ON smc.minorClass = c " +
+                                "WHERE c.creator.campus.campusId = :campusId " +
+                                "GROUP BY c.classId, c.nameClass, c.slotQuantity " +
+                                "ORDER BY COUNT(smc.student.id) DESC", Object[].class)
+                .setMaxResults(5)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> minorClassesBySubjectInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(s.subjectName, 'No Subject'), COUNT(c), COALESCE(SUM(c.slotQuantity), 0) " +
+                                "FROM MinorClasses c LEFT JOIN c.minorSubject s " +
+                                "WHERE c.creator.campus.campusId = :campusId " +
+                                "GROUP BY s.subjectId, s.subjectName " +
+                                "ORDER BY COUNT(c) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public long unscheduledMinorClassesCount() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+        LocalDate today = LocalDate.now();
+        int week = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        int year = today.getYear();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM MinorClasses c " +
+                                "WHERE c.creator.campus.campusId = :campusId " +
+                                "AND c.classId NOT IN (" +
+                                "   SELECT t.minorClass.classId FROM MinorTimetable t " +
+                                "   WHERE t.weekOfYear = :week AND t.year = :year" +
+                                ")", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("week", week)
+                .setParameter("year", year)
+                .getSingleResult();
+    }
 
     private final ClassesService classesService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public MinorClassesDAOImpl(ClassesService classesService) {
+    public MinorClassesDAOImpl(DeputyStaffsService deputyStaffsService, ClassesService classesService) {
+        this.deputyStaffsService = deputyStaffsService;
         this.classesService = classesService;
     }
 

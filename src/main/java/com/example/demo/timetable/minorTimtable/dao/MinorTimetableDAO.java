@@ -43,4 +43,11 @@ public interface MinorTimetableDAO {
             String studentId, String classId);
     List<MinorTimetable> getAllMinorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
     List<MinorTimetable> getMinorTimetableTodayByLecturer(String lecturerId);
+
+    // Trong MinorTimetableDAO.java (interface)
+    Object[] getDashboardSummaryMinor(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5BusyLecturersMinor(String campusId, Integer weekOfYear, Integer year);
+    long[] getSlotsPerDayOfWeekMinor(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5UsedRoomsMinor(String campusId, Integer weekOfYear, Integer year);
+    long getUnscheduledMinorClassesCount(String campusId, Integer weekOfYear, Integer year);
 }

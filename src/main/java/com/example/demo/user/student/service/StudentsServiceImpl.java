@@ -16,6 +16,56 @@ import java.util.Map;
 @Service
 public class StudentsServiceImpl implements StudentsService {
     @Override
+    public long totalStudentsAllCampus() {
+        return studentsDAO.totalStudentsAllCampus();
+    }
+
+    @Override
+    public long newStudentsThisYearAllCampus() {
+        return studentsDAO.newStudentsThisYearAllCampus();
+    }
+
+    @Override
+    public Map<String, Long> studentsByCampus() {
+        return studentsDAO.studentsByCampus();
+    }
+
+    @Override
+    public Map<String, Long> studentsByMajor() {
+        return studentsDAO.studentsByMajor();
+    }
+
+    @Override
+    public Map<String, Long> studentsBySpecialization() {
+        return studentsDAO.studentsBySpecialization();
+    }
+
+    @Override
+    public Map<String, Long> studentsByGender() {
+        return studentsDAO.studentsByGender();
+    }
+
+    @Override
+    public Map<String, Long> studentsByAdmissionYear() {
+        return studentsDAO.studentsByAdmissionYear();
+    }
+
+    @Override
+    public Map<String, Long> studentsByAgeGroup() {
+        return studentsDAO.studentsByAgeGroup();
+    }
+
+    @Override
+    public List<Students> top10NewestStudents() {
+        return studentsDAO.top10NewestStudents();
+    }
+
+    @Override
+    public long countCampusesWithoutStudents() {
+        return studentsDAO.countCampusesWithoutStudents();
+    }
+
+    @Override
     public List<Students> getStudentsByCampusAndMajor(String campusId, String majorId) {
         return studentsDAO.getStudentsByCampusAndMajor(campusId, majorId);
     }
@@ -129,5 +179,39 @@ public class StudentsServiceImpl implements StudentsService {
     @Override
     public Majors getStudentMajor() {
         return studentsDAO.getStudentMajor();
+    }
+    @Override
+    public long totalStudentsForCurrentStaff() {
+        return studentsDAO.totalStudentsForCurrentStaff();
+    }
+
+    @Override
+    public long countNewStudentsLast30DaysForCurrentStaff() {
+        return studentsDAO.countNewStudentsLast30DaysForCurrentStaff();
+    }
+
+    @Override
+    public List<Object[]> countStudentsBySpecializationForCurrentStaff() {
+        return studentsDAO.countStudentsBySpecializationForCurrentStaff();
+    }
+
+    @Override
+    public List<Object[]> countStudentsByAdmissionYearForCurrentStaff() {
+        return studentsDAO.countStudentsByAdmissionYearForCurrentStaff();
+    }
+
+    @Override
+    public List<Object[]> countStudentsByGenderForCurrentStaff() {
+        return studentsDAO.countStudentsByGenderForCurrentStaff();
+    }
+
+    @Override
+    public List<Object[]> top5SpecializationsForCurrentStaff() {
+        return studentsDAO.top5SpecializationsForCurrentStaff();
+    }
+
+    @Override
+    public List<Object[]> monthlyStudentIntakeThisYearForCurrentStaff() {
+        return studentsDAO.monthlyStudentIntakeThisYearForCurrentStaff();
     }
 }

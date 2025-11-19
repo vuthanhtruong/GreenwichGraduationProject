@@ -11,6 +11,31 @@ import java.util.List;
 @Service
 public class MinorLecturers_MinorClassesServiceImpl implements MinorLecturers_MinorClassesService {
     @Override
+    public long countLecturersTeachingMinorClasses() {
+        return dao.countLecturersTeachingMinorClasses();
+    }
+
+    @Override
+    public long countMinorClassesWithoutLecturer() {
+        return dao.countMinorClassesWithoutLecturer();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersByMinorClassCount() {
+        return dao.getTop5LecturersByMinorClassCount();
+    }
+
+    @Override
+    public List<Object[]> getTop5MinorClassesWithMostLecturers() {
+        return dao.getTop5MinorClassesWithMostLecturers();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestMinorClasses() {
+        return dao.getTop5LecturersWithFewestMinorClasses();
+    }
+
+    @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {
         return dao.getClassNotificationsForLecturer(lecturerId);
     }

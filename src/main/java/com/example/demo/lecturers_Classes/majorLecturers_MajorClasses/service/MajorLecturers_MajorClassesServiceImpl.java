@@ -10,6 +10,31 @@ import java.util.List;
 @Service
 public class MajorLecturers_MajorClassesServiceImpl implements MajorLecturers_MajorClassesService {
     @Override
+    public long countLecturersTeachingAtLeastOneClass() {
+        return lecturers_classesDAO.countLecturersTeachingAtLeastOneClass();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersByClassCount() {
+        return lecturers_classesDAO.getTop5LecturersByClassCount();
+    }
+
+    @Override
+    public long countMajorClassesWithoutAnyLecturer() {
+        return lecturers_classesDAO.countMajorClassesWithoutAnyLecturer();
+    }
+
+    @Override
+    public List<Object[]> getTop5ClassesWithMostLecturers() {
+        return lecturers_classesDAO.getTop5ClassesWithMostLecturers();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestClasses() {
+        return lecturers_classesDAO.getTop5LecturersWithFewestClasses();
+    }
+
+    @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {
         return lecturers_classesDAO.getClassNotificationsForLecturer(lecturerId);
     }

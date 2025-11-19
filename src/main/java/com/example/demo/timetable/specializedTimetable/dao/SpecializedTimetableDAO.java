@@ -52,4 +52,9 @@ public interface SpecializedTimetableDAO {
     List<SpecializedTimetable> getSpecializedTimetableByStudentAndClassId(
             String studentId, String classId);
     List<SpecializedTimetable> getAllSpecializedTimetablesInWeek(Integer weekOfYear, Integer year, String campusId);
+    Object[] getDashboardSummarySpecialized(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5BusyLecturersSpecialized(String campusId, Integer weekOfYear, Integer year);
+    long[] getSlotsPerDayOfWeekSpecialized(String campusId, Integer weekOfYear, Integer year);
+    List<Object[]> getTop5UsedRoomsSpecialized(String campusId, Integer weekOfYear, Integer year);
+    int getUnscheduledSpecializedClassesCount(String campusId, Integer weekOfYear, Integer year);
 }

@@ -21,6 +21,95 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MinorSubjectsDAOImpl implements MinorSubjectsDAO {
+    // Trong MinorSubjectsDAOImpl.java
+    @Override
+    public long totalMinorSubjectsInMyCampus() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM MinorSubjects s WHERE s.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long minorSubjectsThisSemester() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return 0L;
+
+        String campusId = deputy.getCampus().getCampusId();
+        int currentSemester = getCurrentVietnameseSemesterAsNumber(); // trả về 1, 2, 3
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM MinorSubjects s " +
+                                "WHERE s.creator.campus.campusId = :campusId AND s.semester = :semester", Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("semester", currentSemester) // Integer, không còn lỗi
+                .getSingleResult();
+    }
+
+    private int getCurrentVietnameseSemesterAsNumber() {
+        LocalDate now = LocalDate.now();
+        int month = now.getMonthValue();
+
+        if (month >= 8) {
+            return 1; // HK1
+        } else if (month >= 2) {
+            return 2; // HK2
+        } else {
+            return 3; // HK3 (hè)
+        }
+    }
+
+    @Override
+    public List<Object[]> minorSubjectsBySemester() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT s.semester, COUNT(s) FROM MinorSubjects s " +
+                                "WHERE s.creator.campus.campusId = :campusId " +
+                                "GROUP BY s.semester ORDER BY COUNT(s) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> top5MostUsedMinorSubjects() {
+        DeputyStaffs deputy = deputyStaffsService.getDeputyStaff();
+        if (deputy == null || deputy.getCampus() == null) return List.of();
+
+        String campusId = deputy.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT s.subjectId, s.subjectName, COUNT(c) " +
+                                "FROM MinorClasses c JOIN c.minorSubject s " +
+                                "WHERE c.creator.campus.campusId = :campusId " +
+                                "GROUP BY s.subjectId, s.subjectName " +
+                                "ORDER BY COUNT(c) DESC", Object[].class)
+                .setParameter("campusId", campusId)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    // Hàm helper (đã sửa lỗi getCurrentSession)
+    private String getCurrentVietnameseSemester() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        if (month >= 8) {
+            return year + "-" + (year + 1) + "-HK1";
+        } else if (month >= 2) {
+            return (year - 1) + "-" + year + "-HK2";
+        } else {
+            return (year - 1) + "-" + year + "-HK3";
+        }
+    }
     @Override
     public List<MinorSubjects> getAllSubjects() {
         return entityManager.createQuery("select m from MinorSubjects m", MinorSubjects.class).getResultList();

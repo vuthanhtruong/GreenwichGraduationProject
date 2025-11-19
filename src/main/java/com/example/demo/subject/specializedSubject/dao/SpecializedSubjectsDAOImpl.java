@@ -24,6 +24,79 @@ import java.util.Map;
 @Repository
 @Transactional
 public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
+
+    @Override
+    public long totalSpecializedSubjectsInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return 0L;
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM SpecializedSubject s WHERE s.specialization.major = :major", Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> specializedSubjectsBySemesterInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT s.semester, COUNT(s) " +
+                                "FROM SpecializedSubject s " +
+                                "WHERE s.specialization.major = :major AND s.semester IS NOT NULL " +
+                                "GROUP BY s.semester ORDER BY s.semester", Object[].class)
+                .setParameter("major", major)
+                .getResultList();
+        // [semester, count]
+    }
+
+    @Override
+    public List<Object[]> top10LongestNameSpecializedSubjectsInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT s.subjectName, s.specialization.specializationName " +
+                                "FROM SpecializedSubject s " +
+                                "WHERE s.specialization.major = :major " +
+                                "ORDER BY LENGTH(s.subjectName) DESC", Object[].class)
+                .setMaxResults(10)
+                .setParameter("major", major)
+                .getResultList();
+        // [subjectName, specializationName] – thay cho top credits
+    }
+
+    @Override
+    public List<Object[]> specializedSubjectsBySpecializationInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT s.specialization.specializationName, COUNT(s) " +
+                                "FROM SpecializedSubject s " +
+                                "WHERE s.specialization.major = :major " +
+                                "GROUP BY s.specialization.specializationId, s.specialization.specializationName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .setParameter("major", major)
+                .getResultList();
+        // [specializationName, count]
+    }
+
+    @Override
+    public long specializedSubjectsWithoutCurriculumInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return 0L;
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM SpecializedSubject s " +
+                                "WHERE s.specialization.major = :major AND s.curriculum IS NULL", Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+        // Rất thực tế: môn chuyên ngành nào chưa gắn CTĐT
+    }
+
+    // ==================== CÁC HÀM CŨ (giữ nguyên, không động vào credits) ====================
     @Override
     public List<SpecializedSubject> getSubjectsByCurriculumId(String curriculumId) {
         if (curriculumId == null || curriculumId.trim().isEmpty()) {
@@ -33,7 +106,6 @@ public class SpecializedSubjectsDAOImpl implements SpecializedSubjectsDAO {
                     .setParameter("major", staffsService.getStaffMajor())
                     .getResultList();
         }
-
         return entityManager.createQuery(
                         "SELECT s FROM SpecializedSubject s WHERE s.curriculum.curriculumId = :curriculumId AND s.specialization.major = :major ORDER BY s.semester ASC",
                         SpecializedSubject.class)

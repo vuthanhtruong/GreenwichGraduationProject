@@ -12,6 +12,31 @@ import java.util.List;
 @Service
 public class MajorLecturers_SpecializedClassesServiceImpl implements MajorLecturers_SpecializedClassesService {
     @Override
+    public long countLecturersTeachingSpecializedClasses() {
+        return majorLecturersSpecializedClassesDAO.countLecturersTeachingSpecializedClasses();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersBySpecializedClassCount() {
+        return majorLecturersSpecializedClassesDAO.getTop5LecturersBySpecializedClassCount();
+    }
+
+    @Override
+    public long countSpecializedClassesWithoutLecturer() {
+        return majorLecturersSpecializedClassesDAO.countLecturersTeachingSpecializedClasses();
+    }
+
+    @Override
+    public List<Object[]> getTop5SpecializedClassesWithMostLecturers() {
+        return majorLecturersSpecializedClassesDAO.getTop5SpecializedClassesWithMostLecturers();
+    }
+
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestSpecializedClasses() {
+        return majorLecturersSpecializedClassesDAO.getTop5LecturersWithFewestSpecializedClasses();
+    }
+
+    @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {
         return majorLecturersSpecializedClassesDAO.getClassNotificationsForLecturer(lecturerId);
     }

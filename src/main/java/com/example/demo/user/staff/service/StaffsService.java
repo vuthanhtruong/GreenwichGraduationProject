@@ -15,6 +15,14 @@ import java.util.List;
 import java.util.Map;
 
 public interface StaffsService {
+    long totalStaffsAllCampus();
+    long newStaffsThisYearAllCampus();
+    Map<String, Long> staffsByCampus();
+    Map<String, Long> staffsByMajor();
+    Map<String, Long> staffsByGender();
+    Map<String, Long> staffsByAgeGroup();
+    List<Staffs> top5NewestStaffs();
+    long countMajorsWithoutStaff();
     Staffs getStaff();
     Majors getStaffMajor();
     List<MajorClasses> getClasses();

@@ -13,6 +13,57 @@ import java.util.Map;
 @Service
 public class MajorLecturersServiceImpl implements MajorLecturersService {
     @Override
+    public long totalMajorLecturersAllCampus() {
+        return lecturesDAO.totalMajorLecturersAllCampus();
+    }
+
+    @Override
+    public long newMajorLecturersThisYearAllCampus() {
+        return lecturesDAO.newMajorLecturersThisYearAllCampus();
+    }
+
+    @Override
+    public Map<String, Long> majorLecturersByCampus() {
+        return lecturesDAO.majorLecturersByCampus();
+    }
+
+    @Override
+    public Map<String, Long> majorLecturersByMajor() {
+        return lecturesDAO.majorLecturersByMajor();
+    }
+
+    @Override
+    public Map<String, Long> majorLecturersByGender() {
+        return lecturesDAO.majorLecturersByGender();
+    }
+
+    @Override
+    public Map<String, Long> majorLecturersByAgeGroup() {
+        return lecturesDAO.majorLecturersByAgeGroup();
+    }
+
+    @Override
+    public List<MajorLecturers> top5NewestMajorLecturers() {
+        return lecturesDAO.top5NewestMajorLecturers();
+    }
+
+    @Override
+    public List<MajorLecturers> top5MostSeniorMajorLecturers() {
+        return lecturesDAO.top5MostSeniorMajorLecturers();
+    }
+
+    @Override
+    public long countMajorsWithoutMajorLecturer() {
+        return lecturesDAO.countMajorsWithoutMajorLecturer();
+    }
+
+    @Override public long totalMajorLecturersInMyMajor() { return lecturesDAO.totalMajorLecturersInMyMajor(); }
+    @Override public long newMajorLecturersThisYearInMyMajor() { return lecturesDAO.newMajorLecturersThisYearInMyMajor(); }
+    @Override public List<Object[]> majorLecturersByGenderInMyMajor() { return lecturesDAO.majorLecturersByGenderInMyMajor(); }
+    @Override public List<Object[]> majorLecturersByAgeGroupInMyMajor() { return lecturesDAO.majorLecturersByAgeGroupInMyMajor(); }
+    @Override public List<Object[]> top5MostExperiencedLecturersInMyMajor() { return lecturesDAO.top5MostExperiencedLecturersInMyMajor(); }
+
+    @Override
     public long totalLecturersByCampusAndMajor(String campusId, String majorId) {
         return lecturesDAO.totalLecturersByCampusAndMajor(campusId, majorId);
     }

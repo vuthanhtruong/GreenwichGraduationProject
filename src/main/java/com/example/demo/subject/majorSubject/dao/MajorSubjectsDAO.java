@@ -25,4 +25,37 @@ public interface MajorSubjectsDAO {
     long numberOfSubjects(Majors major);
     boolean isDuplicateSubjectName(String subjectName, String subjectId);
     List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId);
+
+    // ==================== DASHBOARD SIÊU THỰC TẾ CHO STAFF ====================
+    /**
+     * Tổng số môn học chính ngành hiện tại (của staff đang login)
+     */
+    long totalSubjectsInMyMajor();
+
+    /**
+     * Phân bố môn học theo học kỳ trong ngành hiện tại
+     * Kết quả: List<[semester, count]>
+     */
+    List<Object[]> subjectsBySemesterInMyMajor();
+
+    /**
+     * Số môn học trong học kỳ hiện tại (có thể tùy chỉnh logic)
+     */
+    long subjectsInCurrentSemesterInMyMajor();
+
+    /**
+     * Số môn học chưa được gắn chương trình đào tạo (rất hay để cảnh báo)
+     */
+    long subjectsWithoutCurriculumInMyMajor();
+
+    /**
+     * Phân bố môn học theo từng chương trình đào tạo trong ngành
+     * Kết quả: List<[curriculumName hoặc "Chưa gắn CTĐT", count]>
+     */
+    List<Object[]> subjectsByCurriculumInMyMajor();
+
+    /**
+     * Top 10 môn có tên dài nhất (vui nhưng thực tế dùng để dọn dữ liệu bậy bạ)
+     */
+    List<Object[]> top10LongestSubjectNamesInMyMajor();
 }

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" th:href="@{/StaffDashboard.css}">
+
+</head>
+<body class="bg-light">
+
+<div class="container-fluid py-4 px-5">
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN: Key Metrics -->
+        <div class="col-lg-8">
+
+            <!-- Timetable Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-week me-2"></i> Schedule Overview This Week</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="fw-bold text-primary" th:text="${timetableTotalSlots}">0</h4>
+                            <p>Core Sessions</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="fw-bold text-info" th:text="${timetableTotalClasses}">0</h4>
+                            <p>Core Classes Scheduled</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="fw-bold text-purple" th:text="${specTotalSlots}">0</h4>
+                            <p>Specialized Sessions</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="fw-bold text-warning" th:text="${specTotalClasses}">0</h4>
+                            <p>Specialized Classes Scheduled</p>
+                        </div>
+                    </div>
+
+                    <!-- Unscheduled Alerts -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 text-center" th:if="${hasUnscheduled}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <strong th:text="${unscheduledClassesCount}"></strong> Core Classes Unscheduled
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-center" th:if="${hasSpecUnscheduled}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <strong th:text="${specUnscheduledClassesCount}"></strong> Specialized Classes Unscheduled
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i> Attendance This Week</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 th:text="${majorAvgAttendanceRate}">0%</h4>
+                            <p>Core Classes Attendance</p>
+                            <span th:classappend="'badge bg-' + ${majorAttendanceRateColor}" th:text="${majorAttendanceRateColor.toUpperCase()}"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 th:text="${specAvgAttendanceRate}">0%</h4>
+                            <p>Specialized Classes Attendance</p>
+                            <span th:classappend="'badge bg-' + ${specAttendanceRateColor}" th:text="${specAttendanceRateColor.toUpperCase()}"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-danger" th:text="${roomUtilizationRate + '%'}">0%</h4>
+                            <p>Room Utilization Rate</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info" th:text="${majorAttendanceSessions + specAttendanceSessions}">0</h4>
+                            <p>Total Sessions Recorded</p>
+                        </div>
+                    </div>
+
+                    <!-- High Absence Alerts -->
+                    <div class="mt-4">
+                        <div class="alert alert-danger" th:if="${hasMajorHighAbsent || hasSpecHighAbsent}">
+                            <i class="bi bi-bell-fill"></i>
+                            <span th:if="${hasMajorHighAbsent}">
+                                <strong th:text="${majorHighAbsentStudents}"></strong> students ≥3 absences (Core)
+                            </span>
+                            <span th:if="${hasSpecHighAbsent}">
+                                • <strong th:text="${specHighAbsentStudents}"></strong> students ≥3 absences (Specialized)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecturer Assignment -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i> Lecturer Assignment Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">
+                                <span th:text="${lecturersTeachingCount}"></span> / <span th:text="${totalMajorLecturers}"></span>
+                            </h4>
+                            <p>Core Classes Assigned</p>
+                            <span class="badge bg-danger fs-6" th:if="${hasClassesWithoutLecturer}">
+                                <strong th:text="${classesWithoutLecturer}"></strong> classes without lecturer
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-purple">
+                                <span th:text="${specLecturersTeachingCount}"></span> / <span th:text="${totalMajorLecturers}"></span>
+                            </h4>
+                            <p>Specialized Classes Assigned</p>
+                            <span class="badge bg-danger fs-6" th:if="${hasSpecClassesWithoutLecturer}">
+                                <strong th:text="${specClassesWithoutLecturer}"></strong> classes without lecturer
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Usage -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-door-open me-2"></i> Room Usage This Week</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Top 5 Core Rooms</h6>
+                            <ul class="list-group list-group-flush">
+                                <th:block th:each="room : ${top5UsedRooms}">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span th:text="${room[1]}"></span>
+                                        <span class="badge bg-primary" th:text="${room[2] + ' sessions'}"></span>
+                                    </li>
+                                </th:block>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-purple">Top 5 Specialized Rooms</h6>
+                            <ul class="list-group list-group-flush">
+                                <th:block th:each="room : ${specTop5UsedRooms}">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span th:text="${room[1]}"></span>
+                                        <span class="badge bg-purple" th:text="${room[2] + ' sessions'}"></span>
+                                    </li>
+                                </th:block>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Charts & Rankings -->
+        <div class="col-lg-4">
+
+            <!-- Sessions per Day (Combined) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5><i class="bi bi-bar-chart-line"></i> Sessions per Day This Week</h5>
+                    <canvas id="sessionsPerDayChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Busiest Lecturers -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5><i class="bi bi-trophy"></i> Top 5 Busiest Lecturers</h5>
+                    <canvas id="busyLecturersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Lowest Attendance Classes -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="text-danger"><i class="bi bi-graph-down-arrow"></i> Lowest Attendance Classes</h5>
+                    <canvas id="lowAttendanceChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom Row: Detailed Rankings -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-person-check"></i> Top 5 Classes with Most Lecturers</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${top5ClassesMostLecturers}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="badge bg-primary" th:text="${item[2] + ' lecturers'}"></span>
+                            </li>
+                        </th:block>
+                        <th:block th:each="item : ${specTop5ClassesMostLecturers}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]} + ' (Spec)'"></span>
+                                <span class="badge bg-purple" th:text="${item[2] + ' lecturers'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5><i class="bi bi-person-plus"></i> Suggested Lecturers (Lightest Load)</h5>
+                    <ul class="list-group list-group-flush">
+                        <th:block th:each="item : ${top5LecturersLightestLoad}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]}"></span>
+                                <span class="text-success" th:text="${item[2] + ' classes'}"></span>
+                            </li>
+                        </th:block>
+                        <th:block th:each="item : ${specTop5LecturersLightestLoad}">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span th:text="${item[1]} + ' (Spec)'"></span>
+                                <span class="text-success" th:text="${item[2] + ' classes'}"></span>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Statistics Row -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-mortarboard me-2"></i> Student Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Students:</span>
+                        <strong th:text="${totalStudents}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>New (30 days):</span>
+                        <strong th:text="${newStudents30Days}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Average Class Size:</span>
+                        <strong th:text="${averageClassSize}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-book me-2"></i> Subject & Class Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Core Subjects:</span>
+                        <strong th:text="${totalSubjects}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Specialized Subjects:</span>
+                        <strong th:text="${totalSpecializedSubjects}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Total Classes:</span>
+                        <strong th:text="${totalMajorClasses}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0"><i class="bi bi-pie-chart me-2"></i> Class Fill Rate</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Slots:</span>
+                        <strong th:text="${totalSlots}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Occupied Slots:</span>
+                        <strong th:text="${occupiedSlots}">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Fill Rate:</span>
+                        <strong th:text="${fillRate + '%'}">0%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // Combined Sessions per Day (Core + Specialized)
+    const coreSlots = /*[[${slotsPerDay}]]*/ [];
+    const specSlots = /*[[${specSlotsPerDay}]]*/ [];
+
+    new Chart(document.getElementById('sessionsPerDayChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+            datasets: [
+                { label: 'Core', data: coreSlots, backgroundColor: '#667eea' },
+                { label: 'Specialized', data: specSlots, backgroundColor: '#9c27b0' }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Busiest Lecturers (Core + Spec combined)
+    const coreBusy = /*[[${top5BusyLecturers}]]*/ [];
+    const specBusy = /*[[${specTop5BusyLecturers}]]*/ [];
+
+    // Combine and sort by session count
+    const lecturerMap = new Map();
+    coreBusy.forEach(item => {
+        const name = item[1];
+        lecturerMap.set(name, (lecturerMap.get(name) || 0) + item[2]);
+    });
+    specBusy.forEach(item => {
+        const name = item[1];
+        lecturerMap.set(name, (lecturerMap.get(name) || 0) + item[2]);
+    });
+
+    const allBusy = Array.from(lecturerMap.entries())
+        .map(([name, count]) => [null, name, count])
+        .sort((a, b) => b[2] - a[2])
+        .slice(0, 5);
+
+    new Chart(document.getElementById('busyLecturersChart'), {
+        type: 'bar',
+        data: {
+            labels: allBusy.map(l => l[1]),
+            datasets: [{
+                label: 'Total Sessions',
+                data: allBusy.map(l => l[2]),
+                backgroundColor: '#ff6b6b'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+
+    // Lowest Attendance Classes
+    const lowCore = /*[[${majorLowAttendanceClasses}]]*/ [];
+    const lowSpec = /*[[${specLowAttendanceClasses}]]*/ [];
+    const allLow = [...lowCore.map(i => ({...i, type: 'Core'})), ...lowSpec.map(i => ({...i, type: 'Spec'}))];
+    allLow.sort((a,b) => a[2] - b[2]);
+
+    new Chart(document.getElementById('lowAttendanceChart'), {
+        type: 'bar',
+        data: {
+            labels: allLow.slice(0,5).map(c => c[1] + (c.type === 'Spec' ? ' (S)' : '')),
+            datasets: [{
+                label: 'Attendance %',
+                data: allLow.slice(0,5).map(c => c[2]),
+                backgroundColor: '#e53e3e'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    /*]]>*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

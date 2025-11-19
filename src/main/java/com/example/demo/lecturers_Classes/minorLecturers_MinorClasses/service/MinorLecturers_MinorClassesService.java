@@ -17,4 +17,10 @@ public interface MinorLecturers_MinorClassesService {
 
     List<MinorLecturers> listLecturersNotInClass(MinorClasses minorClass);
     List<String> getClassNotificationsForLecturer(String lecturerId);
+
+    long countLecturersTeachingMinorClasses();                    // Tổng GV đang dạy ít nhất 1 lớp minor
+    long countMinorClassesWithoutLecturer();                      // Số lớp minor chưa có GV (CẢNH BÁO ĐỎ)
+    List<Object[]> getTop5LecturersByMinorClassCount();           // Top 5 GV dạy nhiều lớp minor nhất
+    List<Object[]> getTop5MinorClassesWithMostLecturers();        // Top 5 lớp minor có nhiều GV nhất
+    List<Object[]> getTop5LecturersWithFewestMinorClasses();
 }

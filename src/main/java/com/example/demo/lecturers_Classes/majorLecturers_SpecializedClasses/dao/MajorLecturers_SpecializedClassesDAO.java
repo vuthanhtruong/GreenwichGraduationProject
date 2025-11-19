@@ -12,4 +12,10 @@ public interface MajorLecturers_SpecializedClassesDAO {
     void removeLecturerFromClass(SpecializedClasses classes, List<String> lecturerIds);
     List<MajorLecturers_SpecializedClasses>  getClassByLecturer(MajorLecturers lecturers);
     List<String> getClassNotificationsForLecturer(String lecturerId);
+
+    long countLecturersTeachingSpecializedClasses();
+    List<Object[]> getTop5LecturersBySpecializedClassCount();
+    long countSpecializedClassesWithoutLecturer();
+    List<Object[]> getTop5SpecializedClassesWithMostLecturers();
+    List<Object[]> getTop5LecturersWithFewestSpecializedClasses();
 }

@@ -4,6 +4,8 @@ import com.example.demo.classes.abstractClasses.service.ClassesService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.major.model.Majors;
 import com.example.demo.subject.majorSubject.model.MajorSubjects;
+import com.example.demo.user.staff.model.Staffs;
+import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -20,12 +22,157 @@ import java.util.Map;
 @Transactional
 public class MajorClassesDAOImpl implements MajorClassesDAO {
 
+    private final StaffsService staffsService;
+
+    // ==================== DASHBOARD LỚP HỌC CHÍNH NGÀNH - CHUẨN NHẤT CHO STAFF ====================
+
+    @Override
+    public long totalMajorClassesInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return 0L;
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(c) FROM MajorClasses c " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long totalSlotsInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return 0L;
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(SUM(c.slotQuantity), 0) FROM MajorClasses c " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public long totalOccupiedSlotsInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return 0L;
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(smc) FROM Students_MajorClasses smc " +
+                                "JOIN smc.majorClass mc " +
+                                "WHERE mc.creator.majorManagement = :major " +
+                                "AND mc.creator.campus.campusId = :campusId", Long.class)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getSingleResult();
+    }
+
+    @Override
+    public double averageClassSizeInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return 0.0;
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        try {
+            Object[] result = entityManager.createQuery(
+                            "SELECT COUNT(smc), COUNT(DISTINCT mc) " +
+                                    "FROM Students_MajorClasses smc " +
+                                    "JOIN smc.majorClass mc " +
+                                    "WHERE mc.creator.majorManagement = :major " +
+                                    "AND mc.creator.campus.campusId = :campusId", Object[].class)
+                    .setParameter("major", major)
+                    .setParameter("campusId", campusId)
+                    .getSingleResult();
+
+            long enrolled = result[0] != null ? ((Number) result[0]).longValue() : 0L;
+            long classes = result[1] != null ? ((Number) result[1]).longValue() : 0L;
+
+            return classes == 0 ? 0.0 : Math.round((double) enrolled / classes * 10) / 10.0;
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    @Override
+    public List<Object[]> majorClassesBySemesterInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return List.of();
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT c.session, COUNT(c), COALESCE(SUM(c.slotQuantity), 0) " +
+                                "FROM MajorClasses c " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId " +
+                                "GROUP BY c.session ORDER BY c.session DESC", Object[].class)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> top5LargestClassesInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return List.of();
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT c.nameClass, c.slotQuantity, COUNT(smc.student) " +
+                                "FROM MajorClasses c LEFT JOIN Students_MajorClasses smc ON smc.majorClass = c " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId " +
+                                "GROUP BY c.classId, c.nameClass, c.slotQuantity " +
+                                "ORDER BY COUNT(smc.student.id) DESC", Object[].class)
+                .setMaxResults(5)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
+    @Override
+    public List<Object[]> majorClassesBySubjectInMyMajor() {
+        Staffs staff = staffsService.getStaff();
+        if (staff == null || staff.getMajorManagement() == null || staff.getCampus() == null) return List.of();
+
+        Majors major = staff.getMajorManagement();
+        String campusId = staff.getCampus().getCampusId();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(s.subjectName, 'No Subject'), COUNT(c), COALESCE(SUM(c.slotQuantity), 0) " +
+                                "FROM MajorClasses c LEFT JOIN c.subject s " +
+                                "WHERE c.creator.majorManagement = :major " +
+                                "AND c.creator.campus.campusId = :campusId " +
+                                "GROUP BY s.subjectId, s.subjectName " +
+                                "ORDER BY COUNT(c) DESC", Object[].class)
+                .setParameter("major", major)
+                .setParameter("campusId", campusId)
+                .getResultList();
+    }
+
     private final ClassesService classesService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public MajorClassesDAOImpl(ClassesService classesService) {
+    public MajorClassesDAOImpl(StaffsService staffsService, ClassesService classesService) {
+        this.staffsService = staffsService;
         this.classesService = classesService;
     }
 

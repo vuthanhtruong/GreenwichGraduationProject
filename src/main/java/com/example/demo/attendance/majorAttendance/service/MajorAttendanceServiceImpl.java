@@ -12,6 +12,26 @@ import java.util.List;
 @Transactional
 public class MajorAttendanceServiceImpl implements MajorAttendanceService {
     @Override
+    public long countAttendanceSessionsThisWeek(String campusId, Integer week, Integer year) {
+        return dao.countAttendanceSessionsThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public double getAverageAttendanceRateThisWeek(String campusId, Integer week, Integer year) {
+        return dao.getAverageAttendanceRateThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5ClassesLowestAttendanceThisWeek(String campusId, Integer week, Integer year) {
+        return dao.getTop5ClassesLowestAttendanceThisWeek(campusId, week, year);
+    }
+
+    @Override
+    public long countStudentsWithManyAbsencesThisWeek(String campusId, Integer week, Integer year) {
+        return dao.countStudentsWithManyAbsencesThisWeek(campusId, week, year);
+    }
+
+    @Override
     public void save(MajorAttendance attendance) {
         dao.save(attendance);
     }

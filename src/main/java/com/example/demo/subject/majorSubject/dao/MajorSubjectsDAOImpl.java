@@ -24,6 +24,88 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MajorSubjectsDAOImpl implements MajorSubjectsDAO {
+
+    // ==================== DASHBOARD MÔN HỌC - SIÊU THỰC TẾ, KHÔNG CẦN CREDITS ====================
+
+    @Override
+
+    public long totalSubjectsInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return 0L;
+        return entityManager.createQuery("SELECT COUNT(s) FROM MajorSubjects s WHERE s.major = :major", Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> subjectsBySemesterInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT s.semester, COUNT(s) " +
+                                "FROM MajorSubjects s WHERE s.major = :major AND s.semester IS NOT NULL " +
+                                "GROUP BY s.semester ORDER BY s.semester", Object[].class)
+                .setParameter("major", major)
+                .getResultList();
+        // [1, 12], [2, 15], [3, 18]... → Học kỳ nào có bao nhiêu môn
+    }
+
+    @Override
+    public long subjectsInCurrentSemesterInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return 0L;
+
+        // Giả sử học kỳ hiện tại là 2025-1, anh có thể thay đổi logic tùy ý
+        int currentSemester = 1; // Hoặc lấy từ config, hoặc tính theo tháng
+        int currentYear = LocalDate.now().getYear();
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM MajorSubjects s WHERE s.major = :major AND s.semester = :semester", Long.class)
+                .setParameter("major", major)
+                .setParameter("semester", currentSemester)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Object[]> top10LongestSubjectNamesInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT s.subjectName FROM MajorSubjects s WHERE s.major = :major " +
+                                "ORDER BY LENGTH(s.subjectName) DESC", Object[].class)
+                .setMaxResults(10)
+                .setParameter("major", major)
+                .getResultList();
+        // Top 10 môn có tên dài nhất (thực tế hay dùng để cười chơi hoặc check dữ liệu bậy)
+    }
+
+    @Override
+    public long subjectsWithoutCurriculumInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return 0L;
+
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM MajorSubjects s WHERE s.major = :major AND s.curriculum IS NULL", Long.class)
+                .setParameter("major", major)
+                .getSingleResult();
+        // Rất thực tế: phát hiện môn nào chưa gắn chương trình đào tạo
+    }
+
+    @Override
+    public List<Object[]> subjectsByCurriculumInMyMajor() {
+        Majors major = staffsService.getStaffMajor();
+        if (major == null) return List.of();
+
+        return entityManager.createQuery(
+                        "SELECT COALESCE(c.name, 'Chưa gắn CTĐT'), COUNT(s) " +
+                                "FROM MajorSubjects s LEFT JOIN s.curriculum c WHERE s.major = :major " +
+                                "GROUP BY c.name ORDER BY COUNT(s) DESC", Object[].class)
+                .setParameter("major", major)
+                .getResultList();
+        // ["CTĐT 2023", 45], ["CTĐT 2020", 23], ["Chưa gắn CTĐT", 5] → SIÊU THỰC TẾ!
+    }
     @Override
     public List<MajorSubjects> getSubjectsByCurriculumId(String curriculumId) {
         return entityManager.createQuery("from MajorSubjects m where m.curriculum.id=:curriculumId", MajorSubjects.class)

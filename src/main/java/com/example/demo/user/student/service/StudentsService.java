@@ -33,4 +33,23 @@ public interface StudentsService {
     List<Students> searchStudentsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword, int firstResult, int pageSize);
     long countSearchResultsByCampusAndMajor(String campusId, String majorId, String searchType, String keyword);
     long totalStudentsByCampusAndMajor(String campusId, String majorId);
+
+    long totalStudentsForCurrentStaff();
+    long countNewStudentsLast30DaysForCurrentStaff();
+    List<Object[]> countStudentsBySpecializationForCurrentStaff();
+    List<Object[]> countStudentsByAdmissionYearForCurrentStaff();
+    List<Object[]> countStudentsByGenderForCurrentStaff();
+    List<Object[]> top5SpecializationsForCurrentStaff();
+    List<Object[]> monthlyStudentIntakeThisYearForCurrentStaff();
+
+    long totalStudentsAllCampus();
+    long newStudentsThisYearAllCampus();
+    Map<String, Long> studentsByCampus();
+    Map<String, Long> studentsByMajor();
+    Map<String, Long> studentsBySpecialization();
+    Map<String, Long> studentsByGender();
+    Map<String, Long> studentsByAdmissionYear();
+    Map<String, Long> studentsByAgeGroup();
+    List<Students> top10NewestStudents();
+    long countCampusesWithoutStudents();
 }

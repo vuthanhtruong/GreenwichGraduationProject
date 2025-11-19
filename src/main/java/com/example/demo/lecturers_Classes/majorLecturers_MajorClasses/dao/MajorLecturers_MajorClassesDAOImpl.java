@@ -5,6 +5,7 @@ import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.lecturers_Classes.abstractLecturers_Classes.model.LecturersClassesId;
 import com.example.demo.lecturers_Classes.majorLecturers_MajorClasses.model.MajorLecturers_MajorClasses;
 import com.example.demo.user.majorLecturer.service.MajorLecturersService;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,6 +18,122 @@ import java.util.List;
 @Repository
 @Transactional
 public class MajorLecturers_MajorClassesDAOImpl implements MajorLecturers_MajorClassesDAO {
+
+    // ==================== DASHBOARD CHO MAJOR STAFF ====================
+
+    /**
+     * 1. Tổng số giảng viên đang dạy ít nhất 1 lớp trong bộ môn
+     */
+    @Override
+    public long countLecturersTeachingAtLeastOneClass() {
+        String jpql = """
+        SELECT COUNT(DISTINCT lmc.lecturer.id)
+        FROM MajorLecturers_MajorClasses lmc
+        JOIN lmc.majorClass mc
+        WHERE mc.creator.campus.campusId = :campusId
+          AND mc.creator.majorManagement = :majorManagement
+        """;
+
+        Staffs currentStaff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", currentStaff.getCampus().getCampusId())
+                .setParameter("majorManagement", currentStaff.getMajorManagement())
+                .getSingleResult();
+    }
+
+    /**
+     * 2. Top 5 giảng viên dạy nhiều lớp nhất trong bộ môn
+     * Trả về: [lecturerId, fullName, classCount]
+     */
+    @Override
+    public List<Object[]> getTop5LecturersByClassCount() {
+        String jpql = """
+        SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COUNT(lmc)
+        FROM MajorLecturers_MajorClasses lmc
+        JOIN lmc.lecturer l
+        JOIN lmc.majorClass mc
+        WHERE mc.creator.campus.campusId = :campusId
+          AND mc.creator.majorManagement = :majorManagement
+        GROUP BY l.id, l.firstName, l.lastName
+        ORDER BY COUNT(lmc) DESC
+        """;
+
+        Staffs currentStaff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", currentStaff.getCampus().getCampusId())
+                .setParameter("majorManagement", currentStaff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 3. Số lớp major HIỆN TẠI CHƯA có giảng viên nào (cảnh báo đỏ)
+     */
+    @Override
+    public long countMajorClassesWithoutAnyLecturer() {
+        String jpql = """
+        SELECT COUNT(mc)
+        FROM MajorClasses mc
+        WHERE mc.creator.campus.campusId = :campusId
+          AND mc.creator.majorManagement = :majorManagement
+          AND mc.classId NOT IN (
+            SELECT lmc.majorClass.classId FROM MajorLecturers_MajorClasses lmc
+          )
+        """;
+
+        Staffs currentStaff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", currentStaff.getCampus().getCampusId())
+                .setParameter("majorManagement", currentStaff.getMajorManagement())
+                .getSingleResult();
+    }
+
+    /**
+     * 4. Top 5 lớp có nhiều giảng viên nhất (thường là lớp lớn hoặc môn hot)
+     */
+    @Override
+    public List<Object[]> getTop5ClassesWithMostLecturers() {
+        String jpql = """
+        SELECT mc.classId, mc.nameClass, COUNT(lmc)
+        FROM MajorLecturers_MajorClasses lmc
+        JOIN lmc.majorClass mc
+        WHERE mc.creator.campus.campusId = :campusId
+          AND mc.creator.majorManagement = :majorManagement
+        GROUP BY mc.classId, mc.nameClass
+        ORDER BY COUNT(lmc) DESC
+        """;
+
+        Staffs currentStaff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", currentStaff.getCampus().getCampusId())
+                .setParameter("majorManagement", currentStaff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    /**
+     * 5. Giảng viên nào đang "rảnh" nhất (dạy ít lớp nhất) - gợi ý phân công
+     */
+    @Override
+    public List<Object[]> getTop5LecturersWithFewestClasses() {
+        String jpql = """
+        SELECT l.id, CONCAT(l.firstName, ' ', l.lastName), COALESCE(COUNT(lmc), 0)
+        FROM MajorLecturers l
+        LEFT JOIN MajorLecturers_MajorClasses lmc ON l.id = lmc.lecturer.id
+        JOIN l.majorManagement m
+        WHERE l.campus.campusId = :campusId
+          AND m = :majorManagement
+        GROUP BY l.id, l.firstName, l.lastName
+        ORDER BY COALESCE(COUNT(lmc), 0) ASC, l.firstName
+        """;
+
+        Staffs currentStaff = staffsService.getStaff();
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("campusId", currentStaff.getCampus().getCampusId())
+                .setParameter("majorManagement", currentStaff.getMajorManagement())
+                .setMaxResults(5)
+                .getResultList();
+    }
 
     @Override
     public List<String> getClassNotificationsForLecturer(String lecturerId) {

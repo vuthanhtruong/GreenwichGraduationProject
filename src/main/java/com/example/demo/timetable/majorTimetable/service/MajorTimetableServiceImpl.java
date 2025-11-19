@@ -13,6 +13,31 @@ import java.util.List;
 @Service
 public class MajorTimetableServiceImpl implements MajorTimetableService {
     @Override
+    public Object[] getDashboardSummary(String campusId, Integer weekOfYear, Integer year) {
+        return majorTimetableDAO.getDashboardSummary(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5BusyLecturers(String campusId, Integer weekOfYear, Integer year) {
+        return majorTimetableDAO.getTop5BusyLecturers(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public long[] getSlotsPerDayOfWeek(String campusId, Integer weekOfYear, Integer year) {
+        return majorTimetableDAO.getSlotsPerDayOfWeek(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public List<Object[]> getTop5UsedRooms(String campusId, Integer weekOfYear, Integer year) {
+        return majorTimetableDAO.getTop5UsedRooms(campusId, weekOfYear, year);
+    }
+
+    @Override
+    public int getUnscheduledClassesCount(String campusId, Integer weekOfYear, Integer year) {
+        return majorTimetableDAO.getUnscheduledClassesCount(campusId, weekOfYear, year);
+    }
+
+    @Override
     public List<MajorTimetable> getAllMajorTimetablesInWeek(Integer weekOfYear, Integer year, String campusId) {
         return majorTimetableDAO.getAllMajorTimetablesInWeek(weekOfYear, year, campusId);
     }

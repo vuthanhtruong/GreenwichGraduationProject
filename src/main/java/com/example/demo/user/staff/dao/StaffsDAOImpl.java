@@ -2,6 +2,7 @@ package com.example.demo.user.staff.dao;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.email_service.dto.StaffEmailContext;
 import com.example.demo.email_service.service.EmailServiceForStaffService;
+import com.example.demo.entity.Enums.Gender;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;
 import com.example.demo.campus.model.Campuses;
@@ -34,6 +35,133 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+    @Override
+    public long totalStaffsAllCampus() {
+        return entityManager.createQuery("SELECT COUNT(s) FROM Staffs s", Long.class)
+                .getSingleResult();
+    }
+
+    @Override
+    public long newStaffsThisYearAllCampus() {
+        int year = LocalDate.now().getYear();
+        return entityManager.createQuery(
+                        "SELECT COUNT(s) FROM Staffs s WHERE YEAR(s.createdDate) = :year", Long.class)
+                .setParameter("year", year)
+                .getSingleResult();
+    }
+
+    @Override
+    public Map<String, Long> staffsByCampus() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT c.campusName, COUNT(s) " +
+                                "FROM Staffs s JOIN s.campus c " +
+                                "GROUP BY c.campusId, c.campusName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> staffsByMajor() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT m.majorName, COUNT(s) " +
+                                "FROM Staffs s JOIN s.majorManagement m " +
+                                "GROUP BY m.majorId, m.majorName " +
+                                "ORDER BY COUNT(s) DESC", Object[].class)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public Map<String, Long> staffsByGender() {
+        List<Object[]> rows = entityManager.createQuery(
+                        "SELECT s.gender, COUNT(s) FROM Staffs s WHERE s.gender IS NOT NULL GROUP BY s.gender",
+                        Object[].class)
+                .getResultList();
+
+        Map<String, Long> result = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Gender gender = (Gender) row[0];
+            String display = switch (gender) {
+                case MALE -> "Male";
+                case FEMALE -> "Female";
+                case OTHER -> "Other";
+            };
+            result.put(display, (Long) row[1]);
+        }
+        return result;
+    }
+
+    // Ví dụ cho Staffs — copy y hệt cho các class khác
+    @Override
+    public Map<String, Long> staffsByAgeGroup() {
+        int currentYear = LocalDate.now().getYear();
+
+        String jpql = """
+        SELECT 
+            CASE 
+                WHEN s.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(s.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(s.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(s.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END,
+            COUNT(s)
+        FROM Staffs s
+        GROUP BY 
+            CASE 
+                WHEN s.birthDate IS NULL THEN 'Unknown'
+                WHEN YEAR(s.birthDate) >= :currentYear - 29 THEN 'Under 30'
+                WHEN YEAR(s.birthDate) >= :currentYear - 39 THEN '30-39'
+                WHEN YEAR(s.birthDate) >= :currentYear - 49 THEN '40-49'
+                ELSE '50 and above'
+            END
+        ORDER BY 
+            MIN(CASE WHEN s.birthDate IS NULL THEN 9999 ELSE YEAR(s.birthDate) END) DESC
+        """;
+
+        List<Object[]> rows = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("currentYear", currentYear)
+                .getResultList();
+
+        return rows.stream()
+                .collect(Collectors.toMap(
+                        arr -> (String) arr[0],
+                        arr -> (Long) arr[1],
+                        (v1, v2) -> v1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    @Override
+    public List<Staffs> top5NewestStaffs() {
+        return entityManager.createQuery(
+                        "SELECT s FROM Staffs s ORDER BY s.createdDate DESC", Staffs.class)
+                .setMaxResults(5)
+                .getResultList();
+    }
+
+    @Override
+    public long countMajorsWithoutStaff() {
+        return entityManager.createQuery(
+                        "SELECT COUNT(m) FROM Majors m " +
+                                "WHERE NOT EXISTS (SELECT 1 FROM Staffs s WHERE s.majorManagement = m)", Long.class)
+                .getSingleResult();
+    }
     @Override
     public List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId) {
         return entityManager.createQuery("from Staffs s where s.campus.id=:campusId And s.majorManagement.majorId=:majorId", Staffs.class).setParameter("campusId", campusId).
