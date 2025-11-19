@@ -35,42 +35,50 @@ public class MajorAttendanceDAOImpl implements MajorAttendanceDAO {
     @Override
     public double getAverageAttendanceRateThisWeek(String campusId, Integer week, Integer year) {
         String jpql = """
-        SELECT 
-            COALESCE(
-                CAST(SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) AS double) 
-                / NULLIF(COUNT(a), 0) * 100, 0.0)
+    SELECT COALESCE( (p.presentCount * 100.0) / p.totalCount, 0.0 )
+    FROM (
+        SELECT
+            SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) AS presentCount,
+            COUNT(a) AS totalCount
         FROM MajorAttendance a
         JOIN a.timetable t
         JOIN t.classEntity c
         WHERE c.creator.campus.campusId = :campusId
           AND t.weekOfYear = :week
           AND t.year = :year
-        """;
-        Double rate = em.createQuery(jpql, Double.class)
+    ) p
+    """;
+
+        Double result = em.createQuery(jpql, Double.class)
                 .setParameter("campusId", campusId)
                 .setParameter("week", week)
                 .setParameter("year", year)
                 .getSingleResult();
-        return rate != null ? rate : 0.0;
+
+        return result != null ? result : 0.0;
     }
 
+
     @Override
-    public List<Object[]> getTop5ClassesLowestAttendanceThisWeek(String campusId, Integer week, Integer year) {
+    public List<Object[]> getTop5ClassesLowestAttendanceThisWeek(
+            String campusId, Integer week, Integer year) {
+
         String jpql = """
-        SELECT c.classId, c.nameClass,
-               COALESCE(
-                   CAST(SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) AS double) 
-                   / NULLIF(COUNT(a), 0) * 100, 0.0)
-        FROM MajorAttendance a
-        JOIN a.timetable t
-        JOIN t.classEntity c
-        WHERE c.creator.campus.campusId = :campusId
-          AND t.weekOfYear = :week
-          AND t.year = :year
-        GROUP BY c.classId, c.nameClass
-        HAVING COUNT(a) > 0
-        ORDER BY 3 ASC
-        """;
+    SELECT c.classId,
+           c.nameClass,
+           (SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) * 100.0)
+           / COUNT(a)
+    FROM MajorAttendance a
+    JOIN a.timetable t
+    JOIN t.classEntity c
+    WHERE c.creator.campus.campusId = :campusId
+      AND t.weekOfYear = :week
+      AND t.year = :year
+    GROUP BY c.classId, c.nameClass
+    HAVING COUNT(a) > 0
+    ORDER BY 3 ASC
+    """;
+
         return em.createQuery(jpql, Object[].class)
                 .setParameter("campusId", campusId)
                 .setParameter("week", week)
@@ -78,6 +86,7 @@ public class MajorAttendanceDAOImpl implements MajorAttendanceDAO {
                 .setMaxResults(5)
                 .getResultList();
     }
+
 
     @Override
     public long countStudentsWithManyAbsencesThisWeek(String campusId, Integer week, Integer year) {

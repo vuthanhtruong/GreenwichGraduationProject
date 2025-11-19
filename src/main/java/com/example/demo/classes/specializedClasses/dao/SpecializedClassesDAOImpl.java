@@ -223,60 +223,118 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     }
 
     @Override
-    public List<SpecializedClasses> searchClassesByCampus(String searchType, String keyword, int firstResult, int pageSize, Majors major, String campusId) {
-        if (major == null || campusId == null || campusId.isBlank()) return List.of();
+    public List<SpecializedClasses> searchClassesByCampus(String searchType,
+                                                          String keyword,
+                                                          int firstResult,
+                                                          int pageSize,
+                                                          Majors major,
+                                                          String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) {
+            log.warn("Search aborted: major or campusId is null/blank. major={}, campusId={}", major, campusId);
+            return List.of();
+        }
 
-        String jpql = "SELECT c FROM SpecializedClasses c " +
-                "JOIN FETCH c.creator JOIN FETCH c.specializedSubject s " +
-                "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId";
+        // Chuẩn hoá searchType (default = "name")
+        if (searchType == null || searchType.isBlank()) {
+            searchType = "name";
+        }
 
-        if ("name".equals(searchType)) {
-            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+        // Chuẩn hoá keyword
+        if (keyword == null) {
+            keyword = "";
+        }
+        String likeKeyword = "%" + keyword.trim() + "%";
+
+        String jpql =
+                "SELECT c FROM SpecializedClasses c " +
+                        "JOIN FETCH c.creator cr " +
+                        "JOIN FETCH c.specializedSubject s " +
+                        "WHERE cr.majorManagement = :major " +
+                        "AND cr.campus.campusId = :campusId ";
+
+        if ("name".equalsIgnoreCase(searchType)) {
+            jpql += "AND LOWER(c.nameClass) LIKE LOWER(:keyword) ";
         } else {
-            jpql += " AND c.classId LIKE :keyword";
+            // Mặc định nhánh còn lại là search theo classId
+            jpql += "AND c.classId LIKE :keyword ";
         }
 
         try {
             List<SpecializedClasses> result = entityManager.createQuery(jpql, SpecializedClasses.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)
-                    .setParameter("keyword", "%" + keyword + "%")
+                    .setParameter("keyword", likeKeyword)
                     .setFirstResult(firstResult)
                     .setMaxResults(pageSize)
                     .getResultList();
-            log.debug("Search found {} classes (type={}, keyword={})", result.size(), searchType, keyword);
+
+            log.debug("Search found {} classes (type={}, keyword={}, majorId={}, campusId={})",
+                    result.size(), searchType, keyword,
+                    major.getMajorId(), campusId);
+
             return result;
         } catch (Exception e) {
-            log.error("Search error", e);
+            log.error("Search error (type={}, keyword={}, majorId={}, campusId={})",
+                    searchType, keyword, major.getMajorId(), campusId, e);
             return List.of();
         }
     }
 
+
     @Override
-    public long countSearchResultsByCampus(String searchType, String keyword, Majors major, String campusId) {
-        if (major == null || campusId == null || campusId.isBlank()) return 0;
+    public long countSearchResultsByCampus(String searchType,
+                                           String keyword,
+                                           Majors major,
+                                           String campusId) {
+        if (major == null || campusId == null || campusId.isBlank()) {
+            log.warn("Count search aborted: major or campusId is null/blank. major={}, campusId={}", major, campusId);
+            return 0;
+        }
 
-        String jpql = "SELECT COUNT(c) FROM SpecializedClasses c JOIN c.specializedSubject s " +
-                "WHERE s.specialization.major = :major AND c.creator.campus.campusId = :campusId";
+        // Chuẩn hoá searchType (default = "name")
+        if (searchType == null || searchType.isBlank()) {
+            searchType = "name";
+        }
 
-        if ("name".equals(searchType)) {
-            jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
+        // Chuẩn hoá keyword
+        if (keyword == null) {
+            keyword = "";
+        }
+        String likeKeyword = "%" + keyword.trim() + "%";
+
+        String jpql =
+                "SELECT COUNT(c) FROM SpecializedClasses c " +
+                        "JOIN c.creator cr " +
+                        "JOIN c.specializedSubject s " +
+                        "WHERE cr.majorManagement = :major " +
+                        "AND cr.campus.campusId = :campusId ";
+
+        if ("name".equalsIgnoreCase(searchType)) {
+            jpql += "AND LOWER(c.nameClass) LIKE LOWER(:keyword) ";
         } else {
-            jpql += " AND c.classId LIKE :keyword";
+            jpql += "AND c.classId LIKE :keyword ";
         }
 
         try {
             Long count = entityManager.createQuery(jpql, Long.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)
-                    .setParameter("keyword", "%" + keyword + "%")
+                    .setParameter("keyword", likeKeyword)
                     .getSingleResult();
-            return count != null ? count : 0;
+
+            long result = (count != null) ? count : 0L;
+
+            log.debug("Count search results = {} (type={}, keyword={}, majorId={}, campusId={})",
+                    result, searchType, keyword, major.getMajorId(), campusId);
+
+            return result;
         } catch (Exception e) {
-            log.error("Count error", e);
+            log.error("Count search error (type={}, keyword={}, majorId={}, campusId={})",
+                    searchType, keyword, major.getMajorId(), campusId, e);
             return 0;
         }
     }
+
 
     @Override
     public List<SpecializedClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId) {
