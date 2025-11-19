@@ -100,10 +100,10 @@
                                    class="input small center"></td>
                         <td class="center">
                             <select th:name="'grade_' + ${t.student.id}" class="input small">
-                                <option value="REFER" th:selected="${t.grade == 'REFER'}">REFER</option>
-                                <option value="PASS" th:selected="${t.grade == 'PASS'}">PASS</option>
-                                <option value="MERIT" th:selected="${t.grade == 'MERIT'}">MERIT</option>
-                                <option value="DISTINCTION" th:selected="${t.grade == 'DISTINCTION'}">DISTINCTION</option>
+                                <option th:each="g : ${grades}"
+                                        th:value="${g}"
+                                        th:text="${g}"
+                                        th:selected="${t.grade == g}"></option>
                             </select>
                         </td>
                     </tr>
