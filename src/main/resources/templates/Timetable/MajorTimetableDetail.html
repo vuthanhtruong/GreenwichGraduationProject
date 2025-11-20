@@ -95,14 +95,28 @@
             <table class="win11-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th><i class="fas fa-image"></i> Avatar</th>
+                    <th><i class="fas fa-id-card"></i> ID</th>
+                    <th><i class="fas fa-user"></i> Full Name</th>
+                    <th><i class="fas fa-envelope"></i> Email</th>
+                    <th><i class="fas fa-phone"></i> Phone</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="lec : ${lecturers}">
+
+                    <!-- Avatar -->
+                    <td>
+                        <img th:if="${lec.avatar != null}"
+                             th:src="@{'/lecturers/avatar/' + ${lec.id}}"
+                             class="avatar">
+
+                        <img th:if="${lec.avatar == null}"
+                             th:src="${lec.defaultAvatarPath}"
+                             class="avatar">
+                    </td>
+
                     <td th:text="${lec.id}"></td>
                     <td th:text="${lec.fullName}"></td>
                     <td th:text="${lec.email}"></td>
@@ -110,11 +124,12 @@
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(lecturers)}">
-                    <td colspan="4" class="text-center text-muted">No lecturers assigned</td>
+                    <td colspan="5" class="text-center text-muted">No lecturers assigned</td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
     </section>
 
     <!-- STUDENT ATTENDANCE -->

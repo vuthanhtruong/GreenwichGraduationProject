@@ -33,11 +33,11 @@
                      class="avatar-img" alt="Lecturer Avatar">
 
                 <img th:if="${lecturer.avatar == null and lecturer.gender == 'MALE'}"
-                     th:src="@{/DefaultAvatar/Lecturer_Male.png}"
+                     th:src="@{/DefaultAvatar/Teacher_Boy.png}"
                      class="avatar-img" alt="Default Male Avatar">
 
                 <img th:if="${lecturer.avatar == null and lecturer.gender != 'MALE'}"
-                     th:src="@{/DefaultAvatar/Lecturer_Female.png}"
+                     th:src="@{/DefaultAvatar/Teacher_Girl.png}"
                      class="avatar-img" alt="Default Female Avatar">
             </div>
         </section>

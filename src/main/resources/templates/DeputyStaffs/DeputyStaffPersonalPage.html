@@ -28,11 +28,11 @@
                      class="avatar-img" alt="Deputy Staff Avatar">
 
                 <img th:if="${deputyStaff.avatar == null and deputyStaff.gender == 'MALE'}"
-                     th:src="@{/DefaultAvatar/DeputyStaff_Male.png}"
+                     th:src="@{/DefaultAvatar/Staff_Boy.png}"
                      class="avatar-img" alt="Default Male Avatar">
 
                 <img th:if="${deputyStaff.avatar == null and deputyStaff.gender != 'MALE'}"
-                     th:src="@{/DefaultAvatar/DeputyStaff_Female.png}"
+                     th:src="@{/DefaultAvatar/Staff_Girl.png}"
                      class="avatar-img" alt="Default Female Avatar">
             </div>
         </section>

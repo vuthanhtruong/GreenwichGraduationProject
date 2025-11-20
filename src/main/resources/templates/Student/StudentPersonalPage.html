@@ -28,11 +28,11 @@
                      class="avatar-img" alt="Student Avatar">
 
                 <img th:if="${student.avatar == null and student.gender == 'MALE'}"
-                     th:src="@{/DefaultAvatar/Student_Male.png}"
+                     th:src="@{/DefaultAvatar/Student_Boy.png}"
                      class="avatar-img" alt="Default Male Avatar">
 
                 <img th:if="${student.avatar == null and student.gender != 'MALE'}"
-                     th:src="@{/DefaultAvatar/Student_Female.png}"
+                     th:src="@{/DefaultAvatar/Student_Girl.png}"
                      class="avatar-img" alt="Default Female Avatar">
             </div>
         </section>

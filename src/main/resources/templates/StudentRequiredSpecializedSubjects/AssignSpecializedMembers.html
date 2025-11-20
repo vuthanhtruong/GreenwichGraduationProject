@@ -46,6 +46,7 @@
                     <thead>
                     <tr>
                         <th><input type="checkbox" onclick="toggleGroupCheckboxes(this, 'assignedGroup')"></th>
+                        <th><i class="fas fa-image"></i> Avatar</th>
                         <th><i class="fas fa-id-card"></i> Student ID</th>
                         <th><i class="fas fa-user"></i> Name</th>
                         <th><i class="fas fa-comment"></i> Reason</th>
@@ -56,6 +57,18 @@
                     <tr th:each="srs : ${studentRequiredSubjects}">
                         <td><input type="checkbox" name="studentIds" class="assignedGroup"
                                    th:value="${srs.student.id}"></td>
+
+                        <!-- Avatar -->
+                        <td>
+                            <img th:if="${srs.student.avatar != null}"
+                                 th:src="@{'/staff-home/students-list/avatar/' + ${srs.student.id}}"
+                                 class="avatar">
+
+                            <img th:if="${srs.student.avatar == null}"
+                                 th:src="${srs.student.defaultAvatarPath}"
+                                 class="avatar">
+                        </td>
+
                         <td th:text="${srs.student.id}"></td>
                         <td th:text="${srs.student.firstName + ' ' + srs.student.lastName}"></td>
                         <td th:text="${srs.requiredReason ?: 'N/A'}"></td>
@@ -63,7 +76,7 @@
                     </tr>
 
                     <tr th:if="${studentRequiredSubjects == null or #lists.isEmpty(studentRequiredSubjects)}">
-                        <td colspan="5" class="text-center">No students assigned.</td>
+                        <td colspan="6" class="text-center">No students assigned.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -92,20 +105,34 @@
                     <thead>
                     <tr>
                         <th><input type="checkbox" onclick="toggleGroupCheckboxes(this, 'notAssignedGroup')"></th>
+                        <th><i class="fas fa-image"></i> Avatar</th>
                         <th><i class="fas fa-id-card"></i> Student ID</th>
                         <th><i class="fas fa-user"></i> Name</th>
                     </tr>
                     </thead>
                     <tbody>
+
                     <tr th:each="student : ${studentsNotRequired}">
                         <td><input type="checkbox" name="studentIds" class="notAssignedGroup"
                                    th:value="${student.id}"></td>
+
+                        <!-- Avatar -->
+                        <td>
+                            <img th:if="${student.avatar != null}"
+                                 th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                                 class="avatar">
+
+                            <img th:if="${student.avatar == null}"
+                                 th:src="${student.defaultAvatarPath}"
+                                 class="avatar">
+                        </td>
+
                         <td th:text="${student.id}"></td>
                         <td th:text="${student.firstName + ' ' + student.lastName}"></td>
                     </tr>
 
                     <tr th:if="${studentsNotRequired == null or #lists.isEmpty(studentsNotRequired)}">
-                        <td colspan="3" class="text-center">No students available to assign.</td>
+                        <td colspan="4" class="text-center">No students available to assign.</td>
                     </tr>
 
                     </tbody>

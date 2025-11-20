@@ -24,33 +24,52 @@
 
     <!-- Assigned Students -->
     <div class="table-container">
-        <h2><i class="fas fa-user-check"></i> Assigned Students
+        <h2>
+            <i class="fas fa-user-check"></i> Assigned Students
             (<span th:text="${#lists.size(assignedStudents)}"></span>)
         </h2>
+
         <form th:action="@{/deputy-staff-home/minor-study-plan/assign/remove}" method="post">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
             <table class="win11-table">
                 <thead>
                 <tr>
                     <th><input type="checkbox" onclick="toggle(this, 'studentIds')"></th>
+                    <th><i class="fas fa-image"></i> Avatar</th>
                     <th>Student ID</th>
                     <th>Full Name</th>
                     <th>Assigned By</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 <tr th:each="assign : ${assignedStudents}">
                     <td><input type="checkbox" name="studentIds" th:value="${assign.student.id}"></td>
+
+                    <!-- Avatar -->
+                    <td>
+                        <img th:if="${assign.student.avatar != null}"
+                             th:src="@{'/deputy-staff-home/minor-study-plan/avatar/' + ${assign.student.id}}"
+                             class="avatar">
+
+                        <img th:if="${assign.student.avatar == null}"
+                             th:src="${assign.student.defaultAvatarPath}"
+                             class="avatar">
+                    </td>
+
                     <td th:text="${assign.student.id}"></td>
                     <td th:text="${assign.student.firstName + ' ' + assign.student.lastName}"></td>
                     <td th:text="${assign.assignedBy?.fullName ?: 'N/A'}"></td>
                 </tr>
+
                 <tr th:if="${#lists.isEmpty(assignedStudents)}">
-                    <td colspan="4" class="text-center">No students assigned yet.</td>
+                    <td colspan="5" class="text-center">No students assigned yet.</td>
                 </tr>
                 </tbody>
             </table>
+
             <button type="submit" class="btn danger"
                     th:disabled="${#lists.isEmpty(assignedStudents)}">
                 <i class="fas fa-user-minus"></i> Remove Selected
@@ -58,33 +77,55 @@
         </form>
     </div>
 
+
     <!-- Available Students -->
     <div class="table-container">
-        <h2><i class="fas fa-user-plus"></i> Available Students
+        <h2>
+            <i class="fas fa-user-plus"></i> Available Students
             (<span th:text="${#lists.size(availableStudents)}"></span>)
         </h2>
+
         <form th:action="@{/deputy-staff-home/minor-study-plan/assign/add}" method="post">
             <input type="hidden" name="subjectId" th:value="${subject.subjectId}">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
             <table class="win11-table">
                 <thead>
                 <tr>
                     <th><input type="checkbox" onclick="toggle(this, 'studentIds')"></th>
+                    <th><i class="fas fa-image"></i> Avatar</th>
                     <th>Student ID</th>
                     <th>Full Name</th>
                 </tr>
                 </thead>
+
                 <tbody>
+
                 <tr th:each="student : ${availableStudents}">
                     <td><input type="checkbox" name="studentIds" th:value="${student.id}"></td>
+
+                    <!-- Avatar -->
+                    <td>
+                        <img th:if="${student.avatar != null}"
+                             th:src="@{'/deputy-staff-home/minor-study-plan/avatar/' + ${student.id}}"
+                             class="avatar">
+
+                        <img th:if="${student.avatar == null}"
+                             th:src="${student.defaultAvatarPath}"
+                             class="avatar">
+                    </td>
+
                     <td th:text="${student.id}"></td>
                     <td th:text="${student.firstName + ' ' + student.lastName}"></td>
                 </tr>
+
                 <tr th:if="${#lists.isEmpty(availableStudents)}">
-                    <td colspan="3" class="text-center">All students are already assigned.</td>
+                    <td colspan="4" class="text-center">All students are already assigned.</td>
                 </tr>
+
                 </tbody>
             </table>
+
             <button type="submit" class="btn primary"
                     th:disabled="${#lists.isEmpty(availableStudents)}">
                 <i class="fas fa-user-plus"></i> Assign Selected
