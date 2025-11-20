@@ -1,15 +1,15 @@
-package com.example.demo.security.service;
+package com.example.demo.specialization.security.service;
 
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
+import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -82,6 +82,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (person instanceof Admins) return "ROLE_ADMIN";
         if (person instanceof DeputyStaffs) return "ROLE_DEPUTY";
         if (person instanceof MinorLecturers) return "ROLE_MINOR";
+        if (person instanceof ParentAccounts) return "ROLE_PARENT";
         throw new IllegalStateException("Unknown person type: " + person.getClass());
     }
 }

@@ -26,50 +26,65 @@ public class StudentParentController {
         this.parentAccountsService = parentAccountsService;
     }
 
+    // ===================== ADD PARENT =====================
     @PostMapping("/add-parent-to-student")
     public String addParentToStudent(
             @RequestParam @NotBlank(message = "Student ID is required") String studentId,
-            @RequestParam @NotBlank(message = "Parent email is required")
-            @Email(message = "Invalid parent email format") String parentEmail,
+            @RequestParam @NotBlank(message = "Parent email is required") @Email(message = "Invalid email format") String parentEmail,
             @RequestParam(required = false) String supportPhoneNumber,
             @RequestParam(defaultValue = "MOTHER") String relationship,
-            RedirectAttributes redirectAttributes, HttpSession session) {
+            RedirectAttributes ra,
+            HttpSession session) {
 
+        // Check if student exists
         Students student = studentsService.getStudentById(studentId);
         if (student == null) {
-            redirectAttributes.addFlashAttribute("parentError", "Student not found.");
+            ra.addFlashAttribute("parentError", "Student not found.");
             return "redirect:/staff-home/students-list";
         }
 
+        // Validate relationship enum
         RelationshipToStudent relEnum;
         try {
             relEnum = RelationshipToStudent.valueOf(relationship.toUpperCase());
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("parentError", "Invalid relationship.");
-            redirectAttributes.addAttribute("id", studentId);
+            ra.addFlashAttribute("parentError", "Invalid relationship to student.");
+            session.setAttribute("studentId", studentId);
+            return "redirect:/staff-home/students-list/edit-student-form";
+        }
+
+        String email = parentEmail.trim().toLowerCase();
+
+        // NEW: Check if this email can be used for a parent account
+        if (!parentAccountsService.isParentEmailAvailable(email)) {
+            ra.addFlashAttribute("parentError",
+                    "The email '" + parentEmail + "' is already used by another account type (student, teacher, admin, etc.). Please use a different email.");
+            session.setAttribute("studentId", studentId);
             return "redirect:/staff-home/students-list/edit-student-form";
         }
 
         try {
             parentAccountsService.createParentLink(
                     studentId,
-                    parentEmail.trim().toLowerCase(),
+                    email,
                     supportPhoneNumber != null ? supportPhoneNumber.trim() : null,
                     relEnum.name()
             );
 
-            redirectAttributes.addFlashAttribute("parentSuccess",
-                    "Parent added successfully! Login details have been sent to " + parentEmail);
+            ra.addFlashAttribute("parentSuccess",
+                    "Parent added successfully! Login credentials have been sent to " + parentEmail);
 
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("parentError",
-                    "Failed to add parent: " + e.getMessage());
+            ra.addFlashAttribute("parentError", "Failed to add parent: " + e.getMessage());
         }
+
+        // Keep session to return cleanly (no ID in URL)
         session.setAttribute("studentId", studentId);
         return "redirect:/staff-home/students-list/edit-student-form";
     }
 
+    // ===================== REMOVE PARENT LINK =====================
     @PostMapping("/remove-parent-link")
     public String removeParentLink(
             @RequestParam("studentId") String studentId,
@@ -79,11 +94,13 @@ public class StudentParentController {
 
         try {
             parentAccountsService.removeParentLinkByIds(studentId, parentId);
+            ra.addFlashAttribute("parentSuccess", "Parent link removed successfully.");
         } catch (Exception e) {
             e.printStackTrace();
+            ra.addFlashAttribute("parentError", "Failed to remove parent link: " + e.getMessage());
         }
-        session.setAttribute("studentId", studentId);
 
+        session.setAttribute("studentId", studentId);
         return "redirect:/staff-home/students-list/edit-student-form";
     }
 }

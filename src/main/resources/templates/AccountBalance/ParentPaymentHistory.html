@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+<body>
+<div class="win11-container">
+
+    <!-- ===================== Toolbar cho phụ huynh ===================== -->
+    <div class="search-toolbar unified-bar">
+
+        <!-- Left -->
+        <div class="toolbar-left">
+            <a th:href="@{/parent-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <a th:href="@{/parent-home}" class="btn small">
+                <i class="fas fa-users"></i> My Children
+            </a>
+        </div>
+
+        <!-- Center: Tên con đang xem -->
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-receipt"></i> Financial History —
+                <span style="color:#2563eb;" th:text="${student.fullName}">Child Name</span>
+            </h2>
+        </div>
+
+        <!-- Right: Chuyển con nhanh + Số dư -->
+        <div class="toolbar-right">
+            <!-- Chuyển con nhanh (chỉ hiện khi có >1 con) -->
+            <div th:if="${siblings != null and #lists.size(siblings) > 1}" class="child-switcher">
+                <form method="post" th:action="@{/parent/payment-history}" class="inline-form">
+                    <label>Child:</label>
+                    <select name="studentId" onchange="this.form.submit()" class="input small">
+                        <option th:each="s : ${siblings}"
+                                th:value="${s.id}"
+                                th:text="${s.fullName}"
+                                th:selected="${s.id == currentChildId}"></option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Số dư hiện tại -->
+            <div class="total">
+                <i class="fas fa-coins"></i>
+                <span><strong>Current Balance:</strong>
+                    <span th:text="${accountBalances != null ? accountBalances.balance + ' USD' : '0 USD'}"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== Bảng lịch sử giao dịch ===================== -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th><i class="fas fa-calendar-alt"></i> Date</th>
+                <th><i class="fas fa-file-invoice"></i> Description</th>
+                <th><i class="fas fa-money-bill-wave"></i> Balance After</th>
+                <th><i class="fas fa-cogs"></i> Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="h : ${histories}">
+                <td th:text="${#temporals.format(h.createdAt,'dd MMM yyyy HH:mm')}"></td>
+                <td th:text="${h.historyType}"></td>
+                <td th:text="${#numbers.formatDecimal(h.currentAmount,1,'COMMA',2,'POINT')} + ' USD'"></td>
+                <td>
+                    <span class="status" th:text="${h.status}"></span>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(histories)}">
+                <td colspan="4" class="text-center">No transaction history.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

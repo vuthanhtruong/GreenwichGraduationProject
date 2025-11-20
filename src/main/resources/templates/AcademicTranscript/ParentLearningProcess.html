@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Process</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/LearningProcess.css}">
+</head>
+<body>
+
+<div class="win11-container">
+
+    <!-- Toolbar -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/parent-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a th:href="@{/parent-home}" class="btn small">
+                <i class="fas fa-users"></i> My Children
+            </a>
+        </div>
+
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-layer-group"></i> Learning Process -
+                <span th:text="${student.fullName}">Student Name</span>
+            </h2>
+        </div>
+
+        <div class="toolbar-right">
+            <form method="get" th:action="@{/parent/learning-process/view}" class="inline-form">
+                <label>Show:</label>
+                <input type="number" name="pageSize" min="5" max="100" th:value="${pageSize}" class="input small">
+                <button type="submit" class="btn small">Apply</button>
+            </form>
+
+            <div class="total">
+                <i class="fas fa-book"></i>
+                <strong>Total Classes:</strong> <span th:text="${totalClasses}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng lớp học -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th>Class ID</th>
+                <th>Class Name</th>
+                <th>Subject</th>
+                <th>Session</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sc : ${classes}">
+                <td th:text="${sc.classEntity.classId}"></td>
+                <td th:text="${sc.classEntity.nameClass}"></td>
+                <td th:text="${sc.subjectName}"></td>
+                <td th:text="${sc.classEntity.session}"></td>
+                <td th:text="${#temporals.format(sc.createdAt,'dd/MM/yyyy')}"></td>
+                <td>
+                    <a th:href="@{/parent/learning-process/detail-scores(classId=${sc.classEntity.classId})}"
+                       class="btn small">
+                        <i class="fas fa-chart-line"></i> View Scores
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(classes)}">
+                <td colspan="6" class="text-center">No classes enrolled.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang (GET thay vì POST) -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:href="@{/parent/learning-process/view(page=1, pageSize=${pageSize})}
+                   " th:classappend="${currentPage == 1} ? 'disabled'">First</a>
+        <a th:href="@{/parent/learning-process/view(page=${currentPage - 1}, pageSize=${pageSize})}
+                   " th:classappend="${currentPage == 1} ? 'disabled'">Prev</a>
+
+        <span th:each="i : ${#numbers.sequence(
+                java.lang.Math.max(1, currentPage - 2),
+                java.lang.Math.min(totalPages, currentPage + 2))}">
+            <a th:href="@{/parent/learning-process/view(page=${i}, pageSize=${pageSize})}
+               " th:classappend="${i == currentPage} ? 'active'" th:text="${i}"></a>
+        </span>
+
+        <a th:href="@{/parent/learning-process/view(page=${currentPage + 1}, pageSize=${pageSize})}
+                   " th:classappend="${currentPage == totalPages} ? 'disabled'">Next</a>
+        <a th:href="@{/parent/learning-process/view(page=${totalPages}, pageSize=${pageSize})}
+                   " th:classappend="${currentPage == totalPages} ? 'disabled'">Last</a>
+    </div>
+
+</div>
+</body>
+</html>

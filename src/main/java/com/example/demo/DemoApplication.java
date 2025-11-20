@@ -13,6 +13,7 @@ import com.example.demo.entity.Enums.Gender;
 import com.example.demo.entity.Enums.Sessions;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.entity.Enums.YourNotification;
+import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.financialHistory.depositHistory.model.DepositHistories;
 import com.example.demo.major.model.Majors;
 import com.example.demo.room.model.OfflineRooms;
@@ -33,6 +34,8 @@ import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
+import com.example.demo.user.parentAccount.model.ParentAccounts;
+import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
@@ -62,6 +65,9 @@ public class DemoApplication {
     private static final int SPEC_CLASSES_TOTAL = 5;
     private static final int REQUIRED_SUBJECTS_LIMIT = 40; // 40 SV có required subjects
 
+    // Số phụ huynh sẽ seed (mỗi SV 1 phụ huynh, tối đa bằng số SV)
+    private static final int TOTAL_PARENTS = 50;
+
     // Mã campus cho Hà Nội, sẽ gắn vào tất cả user id
     private static final String CAMPUS_CODE = "hn";
 
@@ -88,6 +94,7 @@ public class DemoApplication {
             seedMinorLecturers(em);
 
             seedStudents(em);
+            seedParentAccountsAndRelations(em);   // <<< SEED PHỤ HUYNH + LIÊN KẾT SV - PHỤ HUYNH
 
             seedMajorSubjects(em);
             seedMinorSubjects(em);
@@ -524,6 +531,103 @@ public class DemoApplication {
         }
 
         System.out.println("[STUDENT] Total inserted: " + created);
+    }
+
+    // ===================== PARENT ACCOUNTS & RELATIONS =====================
+
+    private static void seedParentAccountsAndRelations(EntityManager em) {
+        Long relCount = em.createQuery("SELECT COUNT(r) FROM Student_ParentAccounts r", Long.class).getSingleResult();
+        if (relCount > 0) {
+            System.out.println("[PARENT] Student_ParentAccounts already has data, skip.");
+            return;
+        }
+
+        List<Students> students = em.createQuery("SELECT s FROM Students s ORDER BY s.id", Students.class)
+                .getResultList();
+        if (students.isEmpty()) {
+            System.out.println("[PARENT] No students, skip.");
+            return;
+        }
+
+        List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
+        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+
+        Staffs defaultStaffCreator = staffList.isEmpty() ? null : staffList.get(0);
+        Random random = new Random();
+
+        String[] fatherFirstNames = {"Hùng", "Nam", "Thắng", "Dũng", "Quang"};
+        String[] motherFirstNames = {"Hoa", "Lan", "Hương", "Trang", "Nhung"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng"};
+
+        int limit = Math.min(Math.min(TOTAL_PARENTS, TOTAL_STUDENTS), students.size());
+        int parentCreated = 0;
+        int relationsCreated = 0;
+
+        for (int i = 0; i < limit; i++) {
+            Students stu = students.get(i);
+
+            // ID phụ huynh: par + CAMPUS_CODE + 4 số, ví dụ: parhn0001
+            String parentId = userId4("par", i + 1);
+            ParentAccounts parent;
+
+            if (exists(em, ParentAccounts.class, "id", parentId)) {
+                parent = find(em, ParentAccounts.class, "id", parentId);
+                System.out.println("[PARENT] " + parentId + " already exists, reuse.");
+            } else {
+                parent = new ParentAccounts();
+                parent.setId(parentId);
+
+                boolean isFather = (i % 2 == 0);
+                if (isFather) {
+                    parent.setFirstName(fatherFirstNames[i % fatherFirstNames.length]);
+                    parent.setGender(Gender.MALE);
+                } else {
+                    parent.setFirstName(motherFirstNames[i % motherFirstNames.length]);
+                    parent.setGender(Gender.FEMALE);
+                }
+                parent.setLastName(lastNames[i % lastNames.length]);
+                parent.setEmail(parentId + "@parent.demo.com");
+                parent.setPhoneNumber("+84106" + String.format("%07d", i + 1));
+                parent.setBirthDate(LocalDate.of(1975 + (i % 5), 1 + (i % 12), 10 + (i % 18)));
+                parent.setCountry("Vietnam");
+                parent.setProvince("Hà Nội");
+                parent.setCity("Hà Nội");
+                parent.setDistrict("Thanh Xuân");
+                parent.setWard("Khương Trung");
+                parent.setStreet("Nhà phụ huynh số " + (20 + i));
+                parent.setPostalCode("100000");
+                parent.setCreator(defaultStaffCreator);
+
+                em.persist(parent);
+                createAuth(em, parentId, parent);
+                parentCreated++;
+                System.out.println("[PARENT] Inserted " + parentId);
+            }
+
+            // Tạo bản ghi liên kết Student_ParentAccounts
+            RelationshipToStudent relationship =
+                    parent.getGender() == Gender.MALE ? RelationshipToStudent.FATHER : RelationshipToStudent.MOTHER;
+
+            Staffs addedBy = staffList.isEmpty()
+                    ? null
+                    : staffList.get(random.nextInt(staffList.size()));
+
+            Student_ParentAccounts rel = new Student_ParentAccounts(
+                    stu,
+                    parent,
+                    addedBy,
+                    LocalDateTime.now().minusDays(random.nextInt(10)),
+                    relationship,
+                    parent.getPhoneNumber()
+            );
+
+            em.persist(rel);
+            relationsCreated++;
+            System.out.println("[PARENT] Linked parent " + parent.getId() + " with student " + stu.getId());
+        }
+
+        System.out.println("[PARENT] Total parents inserted: " + parentCreated);
+        System.out.println("[PARENT] Total student-parent relations inserted: " + relationsCreated);
     }
 
     // ===================== SUBJECTS =====================
@@ -1120,7 +1224,7 @@ public class DemoApplication {
     }
 
     private static String userId4(String prefix, int index) {
-        // prefix + CAMPUS_CODE + 4 số, ví dụ: stuhn0001
+        // prefix + CAMPUS_CODE + 4 số, ví dụ: stuhn0001, parhn0001
         return prefix + CAMPUS_CODE + String.format("%04d", index);
     }
 

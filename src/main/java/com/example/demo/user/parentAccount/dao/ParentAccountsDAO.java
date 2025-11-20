@@ -3,6 +3,7 @@ package com.example.demo.user.parentAccount.dao;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.entity.Enums.RelationshipToStudent;
+import com.example.demo.user.student.model.Students;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +29,7 @@ public interface ParentAccountsDAO {
     // Trong Interface ParentAccountsDAO
     Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId);
     void removeParentLinkByIds(String studentId, String parentId); // tiện nhất
+    ParentAccounts getParent();
+    List<Students> getStudentsByParentId(String parentId);
+    boolean isParentEmailAvailable(String email);
 }

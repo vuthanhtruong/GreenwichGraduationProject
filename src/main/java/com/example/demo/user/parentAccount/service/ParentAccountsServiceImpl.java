@@ -4,6 +4,7 @@ import com.example.demo.user.parentAccount.dao.ParentAccountsDAO;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.entity.Enums.RelationshipToStudent;
+import com.example.demo.user.student.model.Students;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,21 @@ import java.util.Map;
 @Service
 @Transactional
 public class ParentAccountsServiceImpl implements ParentAccountsService {
+    @Override
+    public boolean isParentEmailAvailable(String email) {
+        return parentAccountsDAO.isParentEmailAvailable(email);
+    }
+
+    @Override
+    public List<Students> getStudentsByParentId(String parentId) {
+        return parentAccountsDAO.getStudentsByParentId(parentId);
+    }
+
+    @Override
+    public ParentAccounts getParent() {
+        return parentAccountsDAO.getParent();
+    }
+
     @Override
     public Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId) {
         return parentAccountsDAO.findLinkByStudentAndParent(studentId, parentId);

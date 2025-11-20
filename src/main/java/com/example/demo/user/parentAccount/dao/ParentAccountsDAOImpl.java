@@ -1,17 +1,29 @@
 package com.example.demo.user.parentAccount.dao;
 
+import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
+import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.user.admin.service.AdminsService;
+import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
+import com.example.demo.user.majorLecturer.model.MajorLecturers;
+import com.example.demo.user.majorLecturer.service.MajorLecturersService;
+import com.example.demo.user.minorLecturer.model.MinorLecturers;
+import com.example.demo.user.minorLecturer.service.MinorLecturersService;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.RelationshipToStudent;
+import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
 import com.example.demo.user.staff.service.StaffsService;
+import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
 import com.example.demo.authenticator.service.AuthenticatorsService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import java.security.SecureRandom;
@@ -23,6 +35,43 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class ParentAccountsDAOImpl implements ParentAccountsDAO {
+    @Override
+    public List<Students> getStudentsByParentId(String parentId) {
+        if (parentId == null || parentId.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            return entityManager.createQuery(
+                            "SELECT spa.student FROM Student_ParentAccounts spa " +
+                                    "WHERE spa.parent.id = :parentId " +
+                                    "ORDER BY spa.createdAt DESC",  // con mới thêm lên đầu
+                            Students.class)
+                    .setParameter("parentId", parentId)
+                    .getResultList();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+    @Override
+    public ParentAccounts getParent() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
+
+        Object principal = auth.getPrincipal();
+
+        Persons person = switch (principal) {
+            case DatabaseUserPrincipal dbPrincipal -> dbPrincipal.getPerson();
+            case CustomOidcUserPrincipal oidcPrincipal -> oidcPrincipal.getPerson();
+            default -> throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+        };
+        return entityManager.find(ParentAccounts.class, person.getId());
+    }
+
     // Trong ParentAccountsDAOImpl
     @Override
     public Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId) {
@@ -56,6 +105,32 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
     private final StaffsService staffsService;
     private final StudentsService studentsService;
     private final AuthenticatorsService authenticatorsService;
+
+    @Override
+    public boolean isParentEmailAvailable(String email) {
+        if (email == null || email.trim().isEmpty()) return false;
+        String normalizedEmail = email.trim().toLowerCase();
+
+        // 1. Nếu đã là phụ huynh → cho phép dùng lại
+        Long parentCount = entityManager.createQuery(
+                        "SELECT COUNT(p) FROM ParentAccounts p WHERE LOWER(p.email) = :email", Long.class)
+                .setParameter("email", normalizedEmail)
+                .getSingleResult();
+
+        if (parentCount > 0) {
+            return true;
+        }
+
+        // 2. Kiểm tra các role khác bằng TYPE() – chuẩn JPQL
+        Long otherCount = entityManager.createQuery(
+                        "SELECT COUNT(p) FROM Persons p " +
+                                "WHERE LOWER(p.email) = :email " +
+                                "AND TYPE(p) IN (Students, Staffs, Admins, DeputyStaffs, MajorLecturers, MinorLecturers)", Long.class)
+                .setParameter("email", normalizedEmail)
+                .getSingleResult();
+
+        return otherCount == 0;
+    }
 
     @Autowired
     public ParentAccountsDAOImpl(PersonsService personsService, StaffsService staffsService,

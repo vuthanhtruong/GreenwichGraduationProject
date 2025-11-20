@@ -384,4 +384,14 @@ public class ThymeleafConfig {
         resolver.setCheckExistence(true);
         return resolver;
     }
+    @Bean
+    public SpringResourceTemplateResolver templateResolver38() {
+        SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
+        resolver.setPrefix("classpath:/templates/ParentAccount/");
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode("HTML");
+        resolver.setOrder(38);
+        resolver.setCheckExistence(true);
+        return resolver;
+    }
 }

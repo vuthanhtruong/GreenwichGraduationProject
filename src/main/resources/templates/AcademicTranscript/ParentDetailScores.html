@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scores</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/StudentsList.css}">
+</head>
+<body>
+
+<div class="win11-container">
+
+    <!-- Toolbar cho phụ huynh -->
+    <div class="search-toolbar unified-bar">
+        <div class="toolbar-left">
+            <a th:href="@{/parent-home}" class="btn home-btn">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <a th:href="@{/parent-home}" class="btn small">
+                <i class="fas fa-users"></i> My Children
+            </a>
+
+            <!-- Nút Back về danh sách lớp của con hiện tại -->
+            <a th:href="@{/parent/learning-process/view}" class="btn small">
+                <i class="fas fa-arrow-left"></i> Back to learning process
+            </a>
+        </div>
+
+        <div class="toolbar-center">
+            <h2 class="page-title">
+                <i class="fas fa-star"></i>
+                Scores — <span style="color:#2563eb;" th:text="${className}">Class Name</span>
+            </h2>
+        </div>
+
+        <!-- Chuyển con nhanh (nếu có nhiều con) -->
+        <div class="toolbar-right" th:if="${siblings != null and #lists.size(siblings) > 1}">
+            <form method="post" th:action="@{/parent/learning-process}" class="inline-form">
+                <label>View child:</label>
+                <select name="studentId" onchange="this.form.submit()" class="input small">
+                    <option th:each="s : ${siblings}"
+                            th:value="${s.id}"
+                            th:text="${s.fullName}"
+                            th:selected="${s.id == currentChildId}"></option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng điểm môn học -->
+    <div class="table-container">
+        <table class="win11-table">
+            <thead>
+            <tr>
+                <th>Subject Name</th>
+                <th>Process 1</th>
+                <th>Midterm</th>
+                <th>Practice</th>
+                <th>Final Score</th>
+                <th>Grade</th>
+                <th>Creator</th>
+                <th>Created At</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="t : ${transcripts}">
+                <td th:text="${t.subjectName}"></td>
+
+                <td th:text="${t.scoreComponent1 != null ? #numbers.formatDecimal(t.scoreComponent1,1,2) : 'N/A'}"></td>
+                <td th:text="${t.scoreComponent2 != null ? #numbers.formatDecimal(t.scoreComponent2,1,2) : 'N/A'}"></td>
+                <td th:text="${t.scoreComponent3 != null ? #numbers.formatDecimal(t.scoreComponent3,1,2) : 'N/A'}"></td>
+
+                <td th:text="${t.score != null ? #numbers.formatDecimal(t.score,1,2) : 'N/A'}"></td>
+
+                <td th:text="${t.grade != null ? t.grade : 'N/A'}"></td>
+
+                <td th:text="${t.creator != null ? t.creator.id : 'N/A'}"></td>
+
+                <td th:text="${#temporals.format(t.createdAt,'dd/MM/yyyy HH:mm')}"></td>
+
+                <td>
+                    <span th:if="${t.grade != null and t.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
+                          class="badge pass">Pass</span>
+
+                    <span th:unless="${t.grade != null and t.grade != T(com.example.demo.entity.Enums.Grades).REFER}"
+                          class="badge fail">Fail</span>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(transcripts)}">
+                <td colspan="9" class="text-center">No scores found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

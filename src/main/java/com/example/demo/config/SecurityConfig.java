@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import com.example.demo.security.model.CustomOidcUserPrincipal;
-import com.example.demo.security.service.CustomOAuth2UserService;
+import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
+import com.example.demo.specialization.security.service.CustomOAuth2UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/minor-lecturer-home/**", "/api/minor-lecturer-home/**").hasRole("MINOR")
                         .requestMatchers("/deputy-staff-home/**", "/api/deputy-staff-home/**").hasRole("DEPUTY")
                         .requestMatchers("/admin-home/**", "/api/admin-home/**").hasRole("ADMIN")
+                        .requestMatchers("/parent-home/**", "/api/parent-home/**").hasRole("PARENT")
                         .requestMatchers("/major-timetable/**","/specialized-timetable/**").hasAnyRole("LECTURER", "STAFF", "ADMIN")
                         .requestMatchers("/classroom/**", "/messages/**","/check-news/**", "/documents/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
                         .requestMatchers(
@@ -116,6 +117,7 @@ public class SecurityConfig {
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return "/admin-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_DEPUTY"))) return "/deputy-staff-home";
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_MINOR"))) return "/minor-lecturer-home";
+        if (authorities.contains(new SimpleGrantedAuthority("ROLE_PARENT"))) return "/parent-home";
         return null;
     }
 

@@ -8,8 +8,8 @@ import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.security.model.CustomOidcUserPrincipal;
-import com.example.demo.security.model.DatabaseUserPrincipal;
+import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
+import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.person.service.PersonsService;
@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 
