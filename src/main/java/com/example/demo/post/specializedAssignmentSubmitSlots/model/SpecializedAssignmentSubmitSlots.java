@@ -2,6 +2,7 @@ package com.example.demo.post.specializedAssignmentSubmitSlots.model;
 
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.comment.model.Comments;
+import com.example.demo.comment.model.SpecializedAssignmentComments;
 import com.example.demo.comment.model.StudentComments;
 import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +72,9 @@ public class SpecializedAssignmentSubmitSlots extends ClassPosts {
         return "Specialized Assignment Submit Slot";
     }
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SpecializedAssignmentComments> specializedAssignmentComments;
+
     @Override
     public String getCreatorAvatar() {
         if (creator == null) return getDefaultAvatarPath();
@@ -100,7 +105,10 @@ public class SpecializedAssignmentSubmitSlots extends ClassPosts {
     }
 
     public List<Comments> getAllCommentsSorted() {
-        List<StudentComments> list = getStudentComments();
+        List<Comments> list = new ArrayList<>();
+        List<StudentComments> liststudent = getStudentComments();
+        list.addAll(liststudent);
+        list.addAll(specializedAssignmentComments);
         return (list != null ? list.stream() : Stream.<StudentComments>empty())
                 .sorted(Comparator.comparing(Comments::getCreatedAt))
                 .collect(Collectors.toList());

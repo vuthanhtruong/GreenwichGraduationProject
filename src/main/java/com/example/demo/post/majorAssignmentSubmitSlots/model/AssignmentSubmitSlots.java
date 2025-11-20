@@ -2,6 +2,7 @@ package com.example.demo.post.majorAssignmentSubmitSlots.model;
 
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.comment.model.Comments;
+import com.example.demo.comment.model.MajorAssignmentComments;
 import com.example.demo.comment.model.StudentComments;
 import com.example.demo.entity.Enums.OtherNotification;
 import com.example.demo.post.classPost.model.ClassPosts;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +44,10 @@ public class AssignmentSubmitSlots extends ClassPosts {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OtherNotification notificationType;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MajorAssignmentComments> majorAssignmentComments;
+
 
     public AssignmentSubmitSlots() {
         this.notificationType = OtherNotification.MAJOR_ASSIGNMENT_SLOT_CREATED;
@@ -103,7 +109,10 @@ public class AssignmentSubmitSlots extends ClassPosts {
     }
 
     public List<Comments> getAllCommentsSorted() {
-        List<StudentComments> list = getStudentComments();
+        List<Comments> list = new ArrayList<>();
+        List<StudentComments> liststudent = getStudentComments();
+        list.addAll(liststudent);
+        list.addAll(majorAssignmentComments);
         return (list != null ? list.stream() : Stream.<StudentComments>empty())
                 .sorted(Comparator.comparing(Comments::getCreatedAt))
                 .collect(Collectors.toList());
