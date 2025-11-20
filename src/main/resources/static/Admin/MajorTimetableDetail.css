@@ -318,3 +318,23 @@ body {
         flex-direction: column;
     }
 }
+/* =========================================================
+   LECTURER AVATAR
+   ========================================================= */
+
+/* Avatar giảng viên trong bảng */
+.avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover nhẹ kiểu Fluent UI */
+.avatar:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}

@@ -64,6 +64,29 @@ public class MinorClassPosts extends ClassPosts {
     }
 
     @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown User";
+    }
+
+    @Override
+    public String getCreatorAvatar() {
+        if (creator == null) return getDefaultAvatarPath();
+
+        // Nếu nhân viên minor có avatar
+        if (creator.getAvatar() != null)
+            return "/persons/avatar/" + creator.getId();
+
+        // Nếu không có avatar thì dùng default theo gender
+        return creator.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        // Default lecturer avatar, có thể tùy chỉnh theo role
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
+
+    @Override
     public long getTotalComments() {
         return Stream.concat(
                 minorComments != null ? minorComments.stream() : Stream.empty(),

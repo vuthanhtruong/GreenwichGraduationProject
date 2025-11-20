@@ -8,6 +8,10 @@ public enum OtherNotification {
     COMMENT_MADE_ON_SPECIALIZED_POST("Someone commented on a specialized class post"),
     STUDENT_COMMENTED_ON_POST("A student commented on your class post"),
 
+    // --- COMMENT ON ASSIGNMENT ---
+    COMMENT_MADE_ON_MAJOR_ASSIGNMENT("Someone commented on a major assignment submission"),
+    COMMENT_MADE_ON_SPECIALIZED_ASSIGNMENT("Someone commented on a specialized assignment submission"),
+
     // --- POST CREATED / UPDATED ---
     MAJOR_POST_CREATED("A new major class post was published"),
     MINOR_POST_CREATED("A new minor class post was published"),

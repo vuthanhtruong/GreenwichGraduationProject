@@ -37,4 +37,8 @@ public abstract class Comments {
     public abstract Object getCommenterEntity();
     public abstract String getPostId();
     public abstract Object getPostEntity();
+    public abstract String getCommenterAvatar();
+    public abstract String getDefaultAvatarPath();
+
+
 }

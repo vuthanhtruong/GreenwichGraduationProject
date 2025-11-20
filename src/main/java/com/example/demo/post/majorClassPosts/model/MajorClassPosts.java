@@ -64,6 +64,23 @@ public class MajorClassPosts extends ClassPosts {
     }
 
     @Override
+    public String getCreatorAvatar() {
+        if (creator == null) return getDefaultAvatarPath();
+        if (creator.getAvatar() != null)
+            return "/persons/avatar/" + creator.getId();
+        return creator.getDefaultAvatarPath();
+    }
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown User";
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        return "/DefaultAvatar/Teacher_Boy.png";  // hoặc tùy theo logic
+    }
+
+    @Override
     public long getTotalComments() {
         return Stream.concat(
                 majorComments != null ? majorComments.stream() : Stream.empty(),

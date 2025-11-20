@@ -67,6 +67,27 @@ public class SpecializedClassPosts extends ClassPosts {
     }
 
     @Override
+    public String getCreatorAvatar() {
+        if (creator == null)
+            return getDefaultAvatarPath();
+
+        if (creator.getAvatar() != null)
+            return "/persons/avatar/" + creator.getId();
+
+        return creator.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown User";
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
+
+    @Override
     public long getTotalComments() {
         return Stream.concat(
                 specializedComments != null ? specializedComments.stream() : Stream.empty(),

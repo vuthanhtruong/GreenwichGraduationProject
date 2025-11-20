@@ -37,6 +37,26 @@ public class MajorComments extends Comments {
     }
 
     @Override
+    public String getCommenterAvatar() {
+
+        if (commenter == null)
+            return getDefaultAvatarPath();
+
+        // Nếu lecturer có avatar custom trong DB
+        if (commenter.getAvatar() != null)
+            return "/persons/avatar/" + commenter.getId();
+
+        // Dùng default avatar theo giới tính
+        return commenter.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        // fallback khi không tìm được avatar từ entity
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
+
+    @Override
     public String getCommenterId() { return commenter != null ? commenter.getId() : null; }
 
     @Override

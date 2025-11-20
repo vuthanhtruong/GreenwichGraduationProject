@@ -1,7 +1,7 @@
 package com.example.demo.comment.model;
 
 import com.example.demo.entity.Enums.OtherNotification;
-import com.example.demo.post.specializedClassPosts.model.SpecializedClassPosts;
+import com.example.demo.post.specializedAssignmentSubmitSlots.model.SpecializedAssignmentSubmitSlots;
 import com.example.demo.user.employe.model.MajorEmployes;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,11 +12,11 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "SpecializedComments")
+@Table(name = "SpecializedAssignmentComments")
 @PrimaryKeyJoinColumn(name = "CommentID")
 @Getter
 @Setter
-public class SpecializedComments extends Comments {
+public class SpecializedAssignmentComments extends Comments {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CommenterID", nullable = false)
@@ -26,37 +26,42 @@ public class SpecializedComments extends Comments {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PostID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private SpecializedClassPosts post;
+    private SpecializedAssignmentSubmitSlots post;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OtherNotification notificationType;
+    private OtherNotification notificationType =
+            OtherNotification.COMMENT_MADE_ON_SPECIALIZED_ASSIGNMENT;
 
-    public SpecializedComments() {
-        this.notificationType = OtherNotification.COMMENT_MADE_ON_SPECIALIZED_POST;
-    }
+    public SpecializedAssignmentComments() {}
 
-    public SpecializedComments(String commentId, MajorEmployes commenter, SpecializedClassPosts post,
-                               String content, LocalDateTime createdAt) {
+    public SpecializedAssignmentComments(String commentId,
+                                         MajorEmployes commenter,
+                                         SpecializedAssignmentSubmitSlots post,
+                                         String content,
+                                         LocalDateTime createdAt) {
+
         super(commentId, content, createdAt);
         this.commenter = commenter;
         this.post = post;
     }
 
-    @Override
-    public String getCommenterId() { return commenter != null ? commenter.getId() : null; }
+    /* ========== COMMENTER INFO ========== */
 
     @Override
-    public String getCommenterName() { return commenter != null ? commenter.getFullName() : null; }
+    public String getCommenterId() {
+        return commenter != null ? commenter.getId() : null;
+    }
 
     @Override
-    public Object getCommenterEntity() { return commenter; }
+    public String getCommenterName() {
+        return commenter != null ? commenter.getFullName() : null;
+    }
 
     @Override
-    public String getPostId() { return post != null ? post.getPostId() : null; }
-
-    @Override
-    public Object getPostEntity() { return post; }
+    public Object getCommenterEntity() {
+        return commenter;
+    }
 
     @Override
     public String getCommenterAvatar() {
@@ -64,17 +69,26 @@ public class SpecializedComments extends Comments {
         if (commenter == null)
             return getDefaultAvatarPath();
 
-        // Avatar người dùng đã tải lên
         if (commenter.getAvatar() != null)
             return "/persons/avatar/" + commenter.getId();
 
-        // Fallback avatar theo gender (dùng từ MajorEmployes)
         return commenter.getDefaultAvatarPath();
     }
 
     @Override
     public String getDefaultAvatarPath() {
-        // fallback khi commenter null
         return "/DefaultAvatar/Teacher_Boy.png";
+    }
+
+    /* ========== POST INFO ========== */
+
+    @Override
+    public String getPostId() {
+        return post != null ? post.getPostId() : null;
+    }
+
+    @Override
+    public Object getPostEntity() {
+        return post;
     }
 }

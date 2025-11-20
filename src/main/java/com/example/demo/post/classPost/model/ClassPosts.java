@@ -46,4 +46,7 @@ public abstract class ClassPosts {
     public abstract String getCreatorId();
     public abstract String getClassPostsType();
     public abstract long getTotalComments();
+    public abstract String getCreatorAvatar();   // 🔥 HÀM BẮT BUỘC
+    public abstract String getDefaultAvatarPath();
+    public abstract String getCreatorName();     // tùy chọn nhưng nên có
 }

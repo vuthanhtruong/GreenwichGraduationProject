@@ -50,4 +50,23 @@ public class PublicComments extends Comments {
 
     @Override
     public Object getPostEntity() { return post; }
+
+    @Override
+    public String getCommenterAvatar() {
+
+        if (commenter == null)
+            return getDefaultAvatarPath();
+
+        // Nếu có avatar custom
+        if (commenter.getAvatar() != null)
+            return "/persons/avatar/" + commenter.getId();
+
+        // fallback default
+        return commenter.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        return "/DefaultAvatar/User.png";
+    }
 }

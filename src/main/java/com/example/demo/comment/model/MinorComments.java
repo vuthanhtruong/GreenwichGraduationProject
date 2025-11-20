@@ -57,4 +57,23 @@ public class MinorComments extends Comments {
 
     @Override
     public Object getPostEntity() { return post; }
+
+    @Override
+    public String getCommenterAvatar() {
+
+        if (commenter == null)
+            return getDefaultAvatarPath();
+
+        // Nếu có avatar custom
+        if (commenter.getAvatar() != null)
+            return "/persons/avatar/" + commenter.getId();
+
+        // fallback default boy/girl
+        return commenter.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
 }

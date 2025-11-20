@@ -74,6 +74,29 @@ public class AssignmentSubmitSlots extends ClassPosts {
     }
 
     @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown User";
+    }
+
+    @Override
+    public String getCreatorAvatar() {
+        if (creator == null) return getDefaultAvatarPath();
+
+        // Nếu nhân viên Major có avatar
+        if (creator.getAvatar() != null)
+            return "/persons/avatar/" + creator.getId();
+
+        // fallback theo gender
+        return creator.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        // Default theo style của Major Lecturer / Teacher
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
+
+    @Override
     public long getTotalComments() {
         List<StudentComments> list = getStudentComments();
         return list != null ? list.size() : 0;

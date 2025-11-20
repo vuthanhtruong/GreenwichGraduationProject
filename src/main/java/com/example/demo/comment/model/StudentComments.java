@@ -56,4 +56,23 @@ public class StudentComments extends Comments {
 
     @Override
     public Object getPostEntity() { return post; }
+
+    @Override
+    public String getCommenterAvatar() {
+
+        if (commenter == null)
+            return getDefaultAvatarPath();
+
+        // Nếu student có avatar upload
+        if (commenter.getAvatar() != null)
+            return "/students/avatar/" + commenter.getId();
+
+        // fallback avatar theo gender
+        return commenter.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        return "/DefaultAvatar/Student.png";
+    }
 }

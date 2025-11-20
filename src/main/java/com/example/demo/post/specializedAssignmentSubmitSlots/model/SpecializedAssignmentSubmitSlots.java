@@ -71,6 +71,29 @@ public class SpecializedAssignmentSubmitSlots extends ClassPosts {
     }
 
     @Override
+    public String getCreatorAvatar() {
+        if (creator == null) return getDefaultAvatarPath();
+
+        // Nếu MajorEmployes có avatar
+        if (creator.getAvatar() != null)
+            return "/persons/avatar/" + creator.getId();
+
+        // fallback theo giới tính
+        return creator.getDefaultAvatarPath();
+    }
+
+    @Override
+    public String getDefaultAvatarPath() {
+        // Default cho Specialized posts (có thể tùy chỉnh)
+        return "/DefaultAvatar/Teacher_Boy.png";
+    }
+    @Override
+    public String getCreatorName() {
+        return creator != null ? creator.getFullName() : "Unknown User";
+    }
+
+
+    @Override
     public long getTotalComments() {
         List<StudentComments> list = getStudentComments();
         return list != null ? list.size() : 0;

@@ -1,318 +1,378 @@
-/* Updated full CSS with improved styling for post and assignment overlays */
+/* =========================================================
+   WINDOWS 11 - Classroom Dashboard Theme (Professional)
+   ========================================================= */
 
+/* Root Color Tokens */
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+
+    --success: #22c55e;
+    --danger: #dc2626;
+
+    --bg-light: #f3f4f6;
+    --bg-white: #ffffff;
+    --bg-acrylic: rgba(255, 255, 255, 0.65);
+
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+
+    --border: #e5e7eb;
+    --shadow-soft: 0 4px 14px rgba(0,0,0,0.07);
+    --shadow-hover: 0 8px 22px rgba(37,99,235,0.18);
+
+    --radius: 14px;
+}
+
+/* Base Structure */
 body {
-    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #eef3ff, #f9fafc);
     margin: 0;
-    color: #1a1a1a;
-    font-size: 16px;
-    line-height: 1.6;
-    letter-spacing: 0.2px;
+    font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
 }
 
 .win11-container {
-    padding: 32px;
-    max-width: 1400px;
+    max-width: 1350px;
     margin: auto;
+    padding: 32px;
 }
 
-/* Alerts */
-.alert {
-    border-left: 5px solid;
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    font-size: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    animation: fadeIn 0.3s ease;
-}
-.alert-success {
-    background: #e6f9ec;
-    border-color: #22c55e;
-    color: #166534;
-}
-.alert-danger {
-    background: #fee2e2;
-    border-color: #dc2626;
-    color: #7f1d1d;
-}
-
-/* Toolbar */
+/* ------------------- Toolbar ------------------- */
 .search-toolbar {
+    background: var(--bg-white);
+    padding: 20px 28px;
+    border-radius: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 18px;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 28px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border);
 }
+
 .toolbar-left,
+.toolbar-center,
 .toolbar-right {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-.toolbar-center {
-    flex: 1;
-    text-align: center;
-}
-.toolbar-center h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 650;
+    gap: 12px;
 }
 
-/* Buttons */
+.toolbar-center h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+/* ------------------- Buttons ------------------- */
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 10px 18px;
-    border-radius: 10px;
-    background: #ffffff;
-    border: 1px solid #ddd;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     text-decoration: none;
-    color: #1a1a1a;
     font-size: 15px;
     cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-.btn:hover {
-    background: #f0f6ff;
-    border-color: #2563eb;
-    color: #2563eb;
-    box-shadow: 0 4px 10px rgba(37,99,235,0.15);
-}
-.btn.primary {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
-}
-.btn.primary:hover {
-    background: #1e40af;
-}
-.btn.danger {
-    background: #dc2626;
-    color: #fff;
-}
-.btn.danger:hover {
-    background: #b91c1c;
-}
-.btn.small {
-    font-size: 14px;
-    padding: 8px 14px;
+    color: var(--text-dark);
+    transition: 0.22s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-/* Layout */
+.btn:hover {
+    background: #eef5ff;
+    color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn.danger {
+    background: #fee2e2;
+    color: var(--danger);
+    border-color: #fca5a5;
+}
+
+.btn.small {
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+/* ------------------- Input ------------------- */
+.input {
+    width: 85%;
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-white);
+    transition: 0.2s;
+}
+
+.input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    outline: none;
+}
+
+/* ------------------- Overlay / Modal ------------------- */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    z-index: 999;
+    overflow-y: auto;
+    backdrop-filter: blur(6px);
+}
+
+.overlay.active { display: flex; }
+
+.overlay-content {
+    width: 100%;
+    max-width: 900px;
+    background: var(--bg-white);
+    padding: 26px;
+    border-radius: 18px;
+    box-shadow: 0 6px 26px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ------------------- Layout ------------------- */
 .class-layout {
+    margin-top: 30px;
     display: grid;
     grid-template-columns: 320px 1fr;
-    gap: 24px;
+    gap: 26px;
 }
 
+/* ------------------- Left Panel: Deadlines ------------------- */
 .panel {
-    background: #ffffff;
-    border-radius: 16px;
+    background: var(--bg-white);
+    border-radius: 18px;
     padding: 22px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    animation: fadeIn 0.3s ease;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border);
 }
 
-/* Deadlines */
+.panel h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+}
+
 .deadline-item {
-    background: #f9fafc;
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 10px;
-    transition: background 0.25s ease;
-}
-.deadline-item:hover {
-    background: #e0ebff;
-}
-
-/* Posts */
-.post {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 20px 24px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    animation: fadeIn 0.3s ease;
-}
-.post:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-}
-.post-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    background: #f9fafc;
+    padding: 14px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+}
+
+.deadline-item:hover {
+    background: #eef5ff;
+    border-color: var(--primary);
+}
+
+/* View Button */
+.btn-view {
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-view:hover {
+    background: var(--primary-hover);
+}
+
+/* ------------------- Post Stream ------------------- */
+.post {
+    background: var(--bg-white);
+    padding: 22px;
+    border-radius: 18px;
+    margin-bottom: 26px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    transition: 0.2s;
+}
+
+.post:hover {
+    background: #f8faff;
+    border-color: var(--primary);
+}
+
+.post-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.post-header i {
+    font-size: 22px;
+    background: var(--primary);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+}
+
+.post p {
+    margin: 10px 0 16px;
+    font-size: 15px;
 }
 
 /* Documents */
-.documents {
-    margin-top: 10px;
-    background: #f2f5f9;
-    border-radius: 8px;
-    padding: 10px 14px;
+.documents ul {
+    margin: 0;
+    padding-left: 18px;
 }
 
-/* Comments */
-.comments {
-    margin-top: 16px;
-    background: #f9fafc;
-    border-radius: 12px;
-    padding: 14px 16px;
-    border: 1px solid #e5e7eb;
+.documents li a {
+    color: var(--primary);
 }
+
+.documents li a:hover {
+    text-decoration: underline;
+}
+
+/* ------------------- Comments ------------------- */
+.comments ul {
+    margin-top: 8px;
+    padding-left: 18px;
+}
+
 .comments li {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 8px;
-    transition: background 0.2s ease;
-}
-.comments li:hover {
-    background: #eef4ff;
+    padding: 4px 0;
 }
 
-/* Overlay */
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-.overlay.active {
-    display: flex;
-    opacity: 1;
-    pointer-events: all;
-}
-.overlay-content {
-    background: #ffffff;
-    padding: 26px;
-    border-radius: 18px;
-    max-width: 650px;
-    width: 90%;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+/* Muted text */
+.text-muted {
+    color: var(--text-muted);
 }
 
-/* Improved Form Styling */
-
-/* Form container refinement */
-.overlay-content {
-    background: #ffffff;
-    padding: 34px;
-    border-radius: 20px;
-    max-width: 700px;
-    width: 92%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.28);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-.overlay-content h2 {
-    font-size: 22px;
-    font-weight: 700;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e5e7eb;
-    margin-bottom: 10px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
+.text-primary {
+    color: var(--primary);
 }
 
-/* Input groups improved */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.form-group label {
-    font-weight: 600;
-    font-size: 15px;
-    color: #0f172a;
-}
-.form-group .input,
-.overlay-content textarea,
-.overlay-content input[type="datetime-local"],
-.overlay-content input[type="file"] {
-    width: 100%;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 12px 14px;
-    font-size: 15px;
-    background: #f1f5f9;
-    transition: all 0.25s ease;
-}
-
-.form-group .input:focus,
-.overlay-content textarea:focus,
-.overlay-content input[type="datetime-local"]:focus {
-    outline: none;
-    border-color: #2563eb;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(37,99,235,0.18);
-}
-
-/* File input */
-.overlay-content input[type="file"] {
-    background: #f8fafc;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-/* Actions area */
-.form-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 14px;
-}
-
-/* Grid layout: form fields balanced */
-.form-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
+/* ------------------- Responsive ------------------- */
+@media (max-width: 950px) {
     .class-layout {
         grid-template-columns: 1fr;
     }
 }
+
 @media (max-width: 600px) {
-    .win11-container {
-        padding: 16px;
+    .search-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
     }
-    .btn {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
+}
+/* ================================
+   1. Avatar chung (post & comment)
+   ================================ */
+.post-avatar,
+.comment-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%; /* TRÒN 100% */
+    object-fit: cover; /* Crop hình cho cân đối */
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.12);
+}
+
+/* Avatar nhỏ trong comment */
+.comment-avatar {
+    width: 38px;
+    height: 38px;
+}
+
+/* ================================
+   2. Bố cục post header
+   ================================ */
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-info strong {
+    font-size: 15px;
+}
+
+.post-info small {
+    font-size: 12px;
+    color: #777;
+}
+
+/* ================================
+   3. Comment layout
+   ================================ */
+.comment-box {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+}
+
+.comment-body {
+    background: #ffffff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.08);
+    width: fit-content;
+    max-width: 85%;
+}
+
+.comment-body strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.comment-body span {
+    display: block;
+    font-size: 13.5px;
+}
+
+.comment-body small {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+    display: block;
+}
+
+/* ================================
+   4. Hover effect Win11 style
+   ================================ */
+.post-avatar:hover,
+.comment-avatar:hover {
+    transform: scale(1.05);
+    transition: 0.15s;
 }
