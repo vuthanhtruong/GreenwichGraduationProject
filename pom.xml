@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.12</version>
         <relativePath/>
     </parent>
 
@@ -22,16 +22,17 @@
     <properties>
         <java.version>21</java.version>
         <jjwt.version>0.12.6</jjwt.version>
-        <mysql.version>8.4.0</mysql.version>
-        <jackson.version>2.17.2</jackson.version>
+        <mysql.version>9.1.0</mysql.version>
+        <jackson.version>2.18.2</jackson.version>
         <okhttp.version>4.12.0</okhttp.version>
         <json.version>20240303</json.version>
         <hibernate.version>6.6.1.Final</hibernate.version>
         <ehcache.version>3.10.8</ehcache.version>
         <cache-api.version>1.1.1</cache-api.version>
-        <spring-framework.version>6.1.14</spring-framework.version>
-        <spring-security.version>6.3.5</spring-security.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <spring-framework.version>6.2.14</spring-framework.version>
+        <spring-security.version>6.4.13</spring-security.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <lombok.version>1.18.36</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -152,7 +153,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -191,32 +192,34 @@
             <artifactId>cache-api</artifactId>
             <version>${cache-api.version}</version>
         </dependency>
-        <dependency>
-            <groupId>me.paulschwarz</groupId>
-            <artifactId>spring-dotenv</artifactId>
-            <version>3.0.0</version>
-        </dependency>
 
-
-        <dependency>
-            <groupId>com.stripe</groupId>
-            <artifactId>stripe-java</artifactId>
-            <version>25.0.0</version>
-        </dependency>
+        <!-- Spring DotEnv - XÓA DUPLICATE, CHỈ GIỮ VERSION MỚI -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>4.0.0</version>
         </dependency>
+
+        <!-- Stripe -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>28.4.0</version>
+        </dependency>
+
+        <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
             <version>6.5.1</version>
         </dependency>
+
+        <!-- Spring Security Messaging -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-messaging</artifactId>
         </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -261,7 +264,12 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.32</version>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

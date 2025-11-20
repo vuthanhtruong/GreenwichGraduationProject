@@ -58,8 +58,8 @@ public class DemoApplication {
     private static final String DEFAULT_PASSWORD = "123456";
     private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0;
 
-    // DEMO – Ít dữ liệu, chỉ Hà Nội cho nhanh
-    private static final int TOTAL_STUDENTS = 50;          // 50 sinh viên
+    // DEMO – Ít dữ liệu, tổng 50 sinh viên, chia đều cho các cơ sở
+    private static final int TOTAL_STUDENTS = 50;          // tổng 50 sinh viên
     private static final int MAJOR_CLASSES_TOTAL = 10;
     private static final int MINOR_CLASSES_TOTAL = 5;
     private static final int SPEC_CLASSES_TOTAL = 5;
@@ -68,8 +68,24 @@ public class DemoApplication {
     // Số phụ huynh sẽ seed (mỗi SV 1 phụ huynh, tối đa bằng số SV)
     private static final int TOTAL_PARENTS = 50;
 
-    // Mã campus cho Hà Nội, sẽ gắn vào tất cả user id
-    private static final String CAMPUS_CODE = "hn";
+    // ID campus
+    private static final String CAMPUS_ID_HANOI = "CAMP01";
+    private static final String CAMPUS_ID_HCM = "CAMP02";
+    private static final String CAMPUS_ID_DANANG = "CAMP03";
+
+    // Mã campus (code) dùng trong userId (Hà Nội vẫn là mặc định)
+    private static final String CAMPUS_CODE_HANOI = "hn";
+    private static final String CAMPUS_CODE_HCM = "hcm";
+    private static final String CAMPUS_CODE_DANANG = "dn";
+
+    // Mã campus mặc định cho Hà Nội, dùng trong các helper userId cũ
+    private static final String CAMPUS_CODE = CAMPUS_CODE_HANOI;
+
+    private static final Map<String, String> CAMPUS_CODE_MAP = Map.of(
+            CAMPUS_ID_HANOI, CAMPUS_CODE_HANOI,
+            CAMPUS_ID_HCM, CAMPUS_CODE_HCM,
+            CAMPUS_ID_DANANG, CAMPUS_CODE_DANANG
+    );
 
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(DemoApplication.class, args);
@@ -94,7 +110,7 @@ public class DemoApplication {
             seedMinorLecturers(em);
 
             seedStudents(em);
-            seedParentAccountsAndRelations(em);   // <<< SEED PHỤ HUYNH + LIÊN KẾT SV - PHỤ HUYNH
+            seedParentAccountsAndRelations(em);   // SEED PHỤ HUYNH + LIÊN KẾT SV - PHỤ HUYNH
 
             seedMajorSubjects(em);
             seedMinorSubjects(em);
@@ -122,19 +138,52 @@ public class DemoApplication {
     // ===================== CAMPUS / ADMIN =====================
 
     private static void seedCampuses(EntityManager em) {
-        if (exists(em, Campuses.class, "campusId", "CAMP01")) {
-            System.out.println("[CAMPUS] CAMP01 already exists, skip.");
+        // Hà Nội
+        seedSingleCampus(
+                em,
+                CAMPUS_ID_HANOI,
+                "Hà Nội Campus",
+                LocalDate.of(2010, 1, 1),
+                "Campus chính tại Hà Nội"
+        );
+
+        // Hồ Chí Minh
+        seedSingleCampus(
+                em,
+                CAMPUS_ID_HCM,
+                "Hồ Chí Minh Campus",
+                LocalDate.of(2015, 9, 1),
+                "Campus tại TP. Hồ Chí Minh"
+        );
+
+        // Đà Nẵng
+        seedSingleCampus(
+                em,
+                CAMPUS_ID_DANANG,
+                "Đà Nẵng Campus",
+                LocalDate.of(2018, 9, 1),
+                "Campus tại Đà Nẵng"
+        );
+    }
+
+    private static void seedSingleCampus(EntityManager em,
+                                         String campusId,
+                                         String campusName,
+                                         LocalDate openingDay,
+                                         String description) {
+        if (exists(em, Campuses.class, "campusId", campusId)) {
+            System.out.println("[CAMPUS] " + campusId + " already exists, skip.");
             return;
         }
 
         Campuses c = new Campuses();
-        c.setCampusId("CAMP01");
-        c.setCampusName("Hà Nội Campus");
-        c.setOpeningDay(LocalDate.of(2010, 1, 1));
-        c.setDescription("Campus chính tại Hà Nội");
+        c.setCampusId(campusId);
+        c.setCampusName(campusName);
+        c.setOpeningDay(openingDay);
+        c.setDescription(description);
         em.persist(c);
 
-        System.out.println("[CAMPUS] Inserted CAMP01 - Hà Nội Campus");
+        System.out.println("[CAMPUS] Inserted " + campusId + " - " + campusName);
     }
 
     private static void seedAdmin001(EntityManager em) {
@@ -144,9 +193,9 @@ public class DemoApplication {
             return;
         }
 
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
         if (campus == null) {
-            throw new IllegalStateException("CAMP01 must exist before creating " + id);
+            throw new IllegalStateException(CAMPUS_ID_HANOI + " must exist before creating " + id);
         }
 
         Admins admin = new Admins();
@@ -188,7 +237,7 @@ public class DemoApplication {
         String[] phones = {"+84987654321", "+84911223344"};
         LocalDate[] births = {LocalDate.of(1982, 3, 22), LocalDate.of(1978, 7, 10)};
 
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
 
         for (int i = 0; i < ids.length; i++) {
             if (exists(em, Admins.class, "id", ids[i])) {
@@ -281,7 +330,7 @@ public class DemoApplication {
             Curriculum c = new Curriculum();
             c.setCurriculumId("CURR01");
             c.setName("BTEC");
-            c.setDescription("Chương trình BTEC demo (Hà Nội only)");
+            c.setDescription("Chương trình BTEC demo (multi-campus)");
             c.setCreator(creator);
             c.setCreatedAt(LocalDateTime.now());
             em.persist(c);
@@ -295,7 +344,7 @@ public class DemoApplication {
 
     private static void seedStaffs(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
 
         String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT"};
         String[] firstNames = {"Minh", "Lan", "Hùng", "Mai", "Tuấn"};
@@ -337,7 +386,7 @@ public class DemoApplication {
 
     private static void seedDeputyStaffs(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
 
         String[] firstNames = {"Anh", "Bình", "Cường"};
         String[] lastNames = {"Trần", "Lê", "Phạm"};
@@ -430,7 +479,6 @@ public class DemoApplication {
             return;
         }
 
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
         String[] firstNames = {"Hảo", "Giang", "Trang"};
         String[] lastNames = {"Nguyễn", "Trần", "Lê"};
 
@@ -442,6 +490,9 @@ public class DemoApplication {
                 continue;
             }
 
+            DeputyStaffs creator = deputies.get(i % deputies.size());
+            Campuses campus = creator.getCampus();
+
             MinorLecturers ml = new MinorLecturers();
             ml.setId(id);
             ml.setFirstName(firstNames[i]);
@@ -451,15 +502,16 @@ public class DemoApplication {
             ml.setBirthDate(LocalDate.of(1985 + i, 4 + i, 12 + i));
             ml.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
             ml.setCountry("Vietnam");
-            ml.setProvince("Hà Nội");
-            ml.setCity("Hà Nội");
+            ml.setProvince(campus != null && CAMPUS_ID_HCM.equals(campus.getCampusId()) ? "TP. Hồ Chí Minh" :
+                    CAMPUS_ID_DANANG.equals(campus.getCampusId()) ? "Đà Nẵng" : "Hà Nội");
+            ml.setCity(ml.getProvince());
             ml.setDistrict("Hoàn Kiếm");
             ml.setWard("Hàng Bài");
             ml.setStreet("Đường Minor Lec " + (i + 1));
             ml.setPostalCode("100000");
             ml.setCampus(campus);
             ml.setEmploymentTypes(i % 2 == 0 ? EmploymentTypes.PART_TIME : EmploymentTypes.FULL_TIME);
-            ml.setCreator(deputies.get(i % deputies.size()));
+            ml.setCreator(creator);
 
             em.persist(ml);
             createAuth(em, id, ml);
@@ -483,7 +535,13 @@ public class DemoApplication {
             return;
         }
 
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c ORDER BY c.campusId", Campuses.class)
+                .getResultList();
+        if (campuses.isEmpty()) {
+            System.out.println("[STUDENT] No campus found, skip.");
+            return;
+        }
+
         List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
         if (staffList.isEmpty()) {
             System.out.println("[STUDENT] No staff found, skip.");
@@ -496,7 +554,11 @@ public class DemoApplication {
 
         int created = 0;
         for (int i = 1; i <= TOTAL_STUDENTS; i++) {
-            // ID theo format: stu + CAMPUS_CODE + 4 số => stuhn0001 (với CAMPUS_CODE = "hn")
+            // chọn campus theo vòng tròn
+            Campuses campus = campuses.get((i - 1) % campuses.size());
+
+            // ID theo format cũ: stu + CAMPUS_CODE(HN) + 4 số => stuhn0001
+            // (ID không encode campus mới để giữ backward compatibility)
             String id = userId4("stu", i);
             if (exists(em, Students.class, "id", id)) {
                 System.out.println("[STUDENT] " + id + " already exists, skip.");
@@ -512,11 +574,34 @@ public class DemoApplication {
             student.setBirthDate(LocalDate.of(2001 + (i % 3), 1 + (i % 12), 5 + (i % 20)));
             student.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
             student.setCountry("Vietnam");
-            student.setProvince("Hà Nội");
-            student.setCity("Hà Nội");
-            student.setDistrict("Đống Đa");
-            student.setWard("Láng Hạ");
-            student.setStreet("Số " + (10 + i) + " Đường Demo Hà Nội");
+
+            // Address tùy theo campus
+            if (CAMPUS_ID_HANOI.equals(campus.getCampusId())) {
+                student.setProvince("Hà Nội");
+                student.setCity("Hà Nội");
+                student.setDistrict("Đống Đa");
+                student.setWard("Láng Hạ");
+                student.setStreet("Số " + (10 + i) + " Đường Demo Hà Nội");
+            } else if (CAMPUS_ID_HCM.equals(campus.getCampusId())) {
+                student.setProvince("TP. Hồ Chí Minh");
+                student.setCity("TP. Hồ Chí Minh");
+                student.setDistrict("Quận 1");
+                student.setWard("Bến Nghé");
+                student.setStreet("Số " + (10 + i) + " Đường Demo Sài Gòn");
+            } else if (CAMPUS_ID_DANANG.equals(campus.getCampusId())) {
+                student.setProvince("Đà Nẵng");
+                student.setCity("Đà Nẵng");
+                student.setDistrict("Hải Châu");
+                student.setWard("Thạch Thang");
+                student.setStreet("Số " + (10 + i) + " Đường Demo Đà Nẵng");
+            } else {
+                student.setProvince("Hà Nội");
+                student.setCity("Hà Nội");
+                student.setDistrict("Đống Đa");
+                student.setWard("Láng Hạ");
+                student.setStreet("Số " + (10 + i) + " Đường Demo");
+            }
+
             student.setPostalCode("100000");
             student.setAdmissionYear(2025);
             student.setCreator(defaultCreator);
@@ -527,7 +612,7 @@ public class DemoApplication {
             em.persist(student);
             createAuth(em, id, student);
             created++;
-            System.out.println("[STUDENT] Inserted " + id);
+            System.out.println("[STUDENT] Inserted " + id + " (campus " + campus.getCampusId() + ")");
         }
 
         System.out.println("[STUDENT] Total inserted: " + created);
@@ -550,8 +635,6 @@ public class DemoApplication {
         }
 
         List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
-
         Staffs defaultStaffCreator = staffList.isEmpty() ? null : staffList.get(0);
         Random random = new Random();
 
@@ -559,7 +642,7 @@ public class DemoApplication {
         String[] motherFirstNames = {"Hoa", "Lan", "Hương", "Trang", "Nhung"};
         String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng"};
 
-        int limit = Math.min(Math.min(TOTAL_PARENTS, TOTAL_STUDENTS), students.size());
+        int limit = Math.min(TOTAL_PARENTS, students.size());
         int parentCreated = 0;
         int relationsCreated = 0;
 
@@ -796,7 +879,6 @@ public class DemoApplication {
 
     private static void seedTuitionByYear(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
 
         List<Subjects> subjects = new ArrayList<>();
         subjects.addAll(em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList());
@@ -808,30 +890,39 @@ public class DemoApplication {
             return;
         }
 
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
+        if (campuses.isEmpty()) {
+            System.out.println("[TUITION] No campuses, skip.");
+            return;
+        }
+
         Integer[] years = {2025, 2026};
         Random rand = new Random();
         int inserted = 0;
 
-        for (Subjects subject : subjects) {
-            for (Integer year : years) {
-                TuitionByYearId id = new TuitionByYearId(subject.getSubjectId(), year, campus.getCampusId());
-                if (existsTuitionByYear(em, id)) {
-                    System.out.println("[TUITION] existed " + subject.getSubjectId() + " year " + year + ", skip.");
-                    continue;
-                }
+        for (Campuses campus : campuses) {
+            for (Subjects subject : subjects) {
+                for (Integer year : years) {
+                    TuitionByYearId id = new TuitionByYearId(subject.getSubjectId(), year, campus.getCampusId());
+                    if (existsTuitionByYear(em, id)) {
+                        System.out.println("[TUITION] existed " + subject.getSubjectId()
+                                + " year " + year + " campus " + campus.getCampusId() + ", skip.");
+                        continue;
+                    }
 
-                TuitionByYear t = new TuitionByYear();
-                t.setId(id);
-                t.setSubject(subject);
-                t.setCampus(campus);
-                t.setAdmissionYear(year);
-                double base = 10 + (rand.nextDouble() * 5);
-                t.setTuition(roundTo2Decimals(base));
-                t.setReStudyTuition(roundTo2Decimals(base * 0.7));
-                t.setContractStatus(ContractStatus.ACTIVE);
-                t.setCreator(creator);
-                em.persist(t);
-                inserted++;
+                    TuitionByYear t = new TuitionByYear();
+                    t.setId(id);
+                    t.setSubject(subject);
+                    t.setCampus(campus);
+                    t.setAdmissionYear(year);
+                    double base = 10 + (rand.nextDouble() * 5);
+                    t.setTuition(roundTo2Decimals(base));
+                    t.setReStudyTuition(roundTo2Decimals(base * 0.7));
+                    t.setContractStatus(ContractStatus.ACTIVE);
+                    t.setCreator(creator);
+                    em.persist(t);
+                    inserted++;
+                }
             }
         }
 
@@ -874,7 +965,11 @@ public class DemoApplication {
 
     private static void seedRooms(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", "CAMP01");
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
+        if (campuses.isEmpty()) {
+            System.out.println("[ROOM] No campuses, skip.");
+            return;
+        }
 
         String[] physicalIds = {"G101", "G102", "G201"};
         String[] physicalNames = {
@@ -884,20 +979,23 @@ public class DemoApplication {
         };
 
         int insertedOffline = 0;
-        for (int i = 0; i < physicalIds.length; i++) {
-            if (exists(em, OfflineRooms.class, "roomId", physicalIds[i])) {
-                System.out.println("[ROOM_OFFLINE] " + physicalIds[i] + " already exists, skip.");
-                continue;
+        for (Campuses campus : campuses) {
+            for (int i = 0; i < physicalIds.length; i++) {
+                String roomId = campus.getCampusId() + "_" + physicalIds[i]; // đảm bảo unique theo campus
+                if (exists(em, OfflineRooms.class, "roomId", roomId)) {
+                    System.out.println("[ROOM_OFFLINE] " + roomId + " already exists, skip.");
+                    continue;
+                }
+                OfflineRooms room = new OfflineRooms();
+                room.setRoomId(roomId);
+                room.setRoomName(physicalNames[i] + " - " + campus.getCampusName());
+                room.setCreator(creator);
+                room.setCampus(campus);
+                room.setFloor((i / 2) + 1);
+                em.persist(room);
+                insertedOffline++;
+                System.out.println("[ROOM_OFFLINE] Inserted " + roomId);
             }
-            OfflineRooms room = new OfflineRooms();
-            room.setRoomId(physicalIds[i]);
-            room.setRoomName(physicalNames[i]);
-            room.setCreator(creator);
-            room.setCampus(campus);
-            room.setFloor((i / 2) + 1);
-            em.persist(room);
-            insertedOffline++;
-            System.out.println("[ROOM_OFFLINE] Inserted " + physicalIds[i]);
         }
 
         String[] onlineIds = {"ONLINE01", "ZOOM01", "MEET01"};
@@ -913,20 +1011,23 @@ public class DemoApplication {
         };
 
         int insertedOnline = 0;
-        for (int i = 0; i < onlineIds.length; i++) {
-            if (exists(em, OnlineRooms.class, "roomId", onlineIds[i])) {
-                System.out.println("[ROOM_ONLINE] " + onlineIds[i] + " already exists, skip.");
-                continue;
+        for (Campuses campus : campuses) {
+            for (int i = 0; i < onlineIds.length; i++) {
+                String roomId = campus.getCampusId() + "_" + onlineIds[i];
+                if (exists(em, OnlineRooms.class, "roomId", roomId)) {
+                    System.out.println("[ROOM_ONLINE] " + roomId + " already exists, skip.");
+                    continue;
+                }
+                OnlineRooms room = new OnlineRooms();
+                room.setRoomId(roomId);
+                room.setRoomName(onlineNames[i] + " - " + campus.getCampusName());
+                room.setCreator(creator);
+                room.setCampus(campus);
+                room.setLink(links[i]);
+                em.persist(room);
+                insertedOnline++;
+                System.out.println("[ROOM_ONLINE] Inserted " + roomId);
             }
-            OnlineRooms room = new OnlineRooms();
-            room.setRoomId(onlineIds[i]);
-            room.setRoomName(onlineNames[i]);
-            room.setCreator(creator);
-            room.setCampus(campus);
-            room.setLink(links[i]);
-            em.persist(room);
-            insertedOnline++;
-            System.out.println("[ROOM_ONLINE] Inserted " + onlineIds[i]);
         }
 
         System.out.println("[ROOM] Offline inserted: " + insertedOffline + ", Online inserted: " + insertedOnline);
@@ -1216,7 +1317,7 @@ public class DemoApplication {
         return results.isEmpty() ? null : results.get(0);
     }
 
-    // Helper sinh ID có campus
+    // Helper sinh ID có campus HÀ NỘI (mặc định, backward compatible)
 
     private static String userId3(String prefix, int index) {
         // prefix + CAMPUS_CODE + 3 số, ví dụ: adminhn001, staffhn002
