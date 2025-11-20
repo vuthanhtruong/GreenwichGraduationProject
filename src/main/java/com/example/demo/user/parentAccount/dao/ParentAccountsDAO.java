@@ -25,4 +25,7 @@ public interface ParentAccountsDAO {
     void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship);
     void createParentLink(String studentId, String email, String supportPhoneNumber, String relationship);
     void deleteIfUnlinked(ParentAccounts parent, String excludeStudentId);
+    // Trong Interface ParentAccountsDAO
+    Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId);
+    void removeParentLinkByIds(String studentId, String parentId); // tiện nhất
 }

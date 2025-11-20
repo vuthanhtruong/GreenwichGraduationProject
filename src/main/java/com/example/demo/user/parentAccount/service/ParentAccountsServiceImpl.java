@@ -15,6 +15,16 @@ import java.util.Map;
 @Transactional
 public class ParentAccountsServiceImpl implements ParentAccountsService {
     @Override
+    public Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId) {
+        return parentAccountsDAO.findLinkByStudentAndParent(studentId, parentId);
+    }
+
+    @Override
+    public void removeParentLinkByIds(String studentId, String parentId) {
+        parentAccountsDAO.removeParentLinkByIds(studentId, parentId);
+    }
+
+    @Override
     public Map<String, String> validateParentLink(String email, String supportPhoneNumber, String relationship, String parentLabel) {
         return parentAccountsDAO.validateParentLink(email, supportPhoneNumber, relationship, parentLabel);
     }

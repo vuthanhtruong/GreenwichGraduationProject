@@ -23,6 +23,31 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class ParentAccountsDAOImpl implements ParentAccountsDAO {
+    // Trong ParentAccountsDAOImpl
+    @Override
+    public Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId) {
+        try {
+            return entityManager.createQuery(
+                            "SELECT spa FROM Student_ParentAccounts spa " +
+                                    "WHERE spa.student.id = :studentId AND spa.parent.id = :parentId",
+                            Student_ParentAccounts.class)
+                    .setParameter("studentId", studentId)
+                    .setParameter("parentId", parentId)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void removeParentLinkByIds(String studentId, String parentId) {
+        Student_ParentAccounts link = findLinkByStudentAndParent(studentId, parentId);
+        if (link != null) {
+            entityManager.remove(link);
+            // Sau khi xóa link → kiểm tra xem parent còn liên kết với học sinh nào nữa không
+            deleteIfUnlinked(link.getParent(), studentId);
+        }
+    }
 
     @PersistenceContext
     private EntityManager entityManager;
