@@ -8,13 +8,25 @@ import com.example.demo.user.student.model.Students;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @Transactional
 public class ParentAccountsServiceImpl implements ParentAccountsService {
+    @Override
+    public void editParent(ParentAccounts parent, MultipartFile avatarFile) throws IOException {
+        parentAccountsDAO.editParent(parent, avatarFile);
+    }
+
+    @Override
+    public Map<String, String> validateParent(ParentAccounts parent, MultipartFile avatarFile) {
+        return parentAccountsDAO.validateParent(parent, avatarFile);
+    }
+
     @Override
     public boolean isParentEmailAvailable(String email) {
         return parentAccountsDAO.isParentEmailAvailable(email);

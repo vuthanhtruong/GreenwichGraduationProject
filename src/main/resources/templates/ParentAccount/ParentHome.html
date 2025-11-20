@@ -11,32 +11,37 @@
 <body>
 <div class="win11-container">
 
+    <!-- ===================== Toolbar cho Parent Home ===================== -->
     <div class="search-toolbar unified-bar">
 
-        <!-- Left -->
+        <!-- Left: Tiêu đề + Tên phụ huynh -->
         <div class="toolbar-left">
             <h2 class="page-title">
                 <i class="fas fa-user-graduate"></i> Your Children
             </h2>
+            <p class="welcome-text" style="margin: 4px 0 0; font-size: 14px; color: #555;">
+                Welcome back, <strong th:text="${parent.fullName}">Parent Name</strong>
+            </p>
         </div>
 
-        <a th:href="@{/parent/personal-page}"
-           class="btn small info"
-           style="display:flex; align-items:center; gap:6px;">
-            <i class="fas fa-id-card"></i> Personal Page
-        </a>
+        <!-- Center: trống để cân đối -->
+        <div class="toolbar-center"></div>
 
-
-        <!-- Right: Parent Info + Logout -->
+        <!-- Right: Personal Page + Logout -->
         <div class="toolbar-right" style="display:flex; align-items:center; gap:20px;">
-            <!-- Logout button -->
+
+            <!-- Personal Page Button -->
+            <a th:href="@{/parent-home/personal-page}" class="btn small info" style="display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-id-card"></i> Personal Page
+            </a>
+
+            <!-- Logout Button -->
             <form th:action="@{/logout}" method="post" style="margin:0;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button type="submit" class="btn small danger" style="display:flex; align-items:center; gap:6px;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </form>
-
         </div>
     </div>
 

@@ -4,7 +4,9 @@ import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.user.student.model.Students;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,4 +34,7 @@ public interface ParentAccountsDAO {
     ParentAccounts getParent();
     List<Students> getStudentsByParentId(String parentId);
     boolean isParentEmailAvailable(String email);
+    // Thêm 2 method này vào interface ParentAccountsDAO trước
+    void editParent(ParentAccounts parent, MultipartFile avatarFile) throws IOException;
+    Map<String, String> validateParent(ParentAccounts parent, MultipartFile avatarFile);
 }

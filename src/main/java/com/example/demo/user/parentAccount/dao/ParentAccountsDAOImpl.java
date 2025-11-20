@@ -25,7 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -231,6 +233,94 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 .setParameter("parentId", parentId)
                 .setParameter("excludeStudentId", excludeStudentId)
                 .getSingleResult();
+    }
+    @Override
+    public Map<String, String> validateParent(ParentAccounts parent, MultipartFile avatarFile) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (parent == null) {
+            errors.put("general", "Parent data is required.");
+            return errors;
+        }
+
+        // First & Last Name
+        if (isNullOrBlank(parent.getFirstName())) {
+            errors.put("firstName", "First name is required.");
+        } else if (!isValidName(parent.getFirstName())) {
+            errors.put("firstName", "First name contains invalid characters.");
+        }
+
+        if (isNullOrBlank(parent.getLastName())) {
+            errors.put("lastName", "Last name is required.");
+        } else if (!isValidName(parent.getLastName())) {
+            errors.put("lastName", "Last name contains invalid characters.");
+        }
+
+        // Email - bắt buộc và phải unique (trừ chính mình)
+        if (isNullOrBlank(parent.getEmail())) {
+            errors.put("email", "Email is required.");
+        } else if (!isValidEmail(parent.getEmail())) {
+            errors.put("email", "Invalid email format.");
+        } else {
+            String normalizedEmail = parent.getEmail().trim().toLowerCase();
+            ParentAccounts existing = findByEmail(normalizedEmail);
+            if (existing != null && !existing.getId().equals(parent.getId())) {
+                errors.put("email", "This email is already used by another account.");
+            }
+        }
+
+        // Phone - optional nhưng nếu có thì phải hợp lệ
+        if (!isNullOrBlank(parent.getPhoneNumber()) && !isValidPhoneNumber(parent.getPhoneNumber())) {
+            errors.put("phoneNumber", "Invalid phone number format (10-15 digits, optional + prefix).");
+        }
+
+        // Birth Date
+        if (parent.getBirthDate() != null && parent.getBirthDate().isAfter(LocalDate.now())) {
+            errors.put("birthDate", "Birth date cannot be in the future.");
+        }
+
+        // Avatar validation
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB
+                errors.put("avatar", "Avatar image must be less than 5MB.");
+            }
+            String contentType = avatarFile.getContentType();
+            if (contentType == null || !contentType.matches("image/(jpeg|png|gif|webp)")) {
+                errors.put("avatar", "Only JPG, PNG, GIF, WEBP images are allowed.");
+            }
+        }
+
+        return errors;
+    }
+
+    @Override
+    public void editParent(ParentAccounts parent, MultipartFile avatarFile) throws IOException {
+        ParentAccounts existing = entityManager.find(ParentAccounts.class, parent.getId());
+        if (existing == null) {
+            throw new IllegalArgumentException("Parent not found with ID: " + parent.getId());
+        }
+
+        // Cập nhật các field cơ bản
+        existing.setFirstName(parent.getFirstName().trim());
+        existing.setLastName(parent.getLastName().trim());
+        existing.setEmail(parent.getEmail().trim().toLowerCase());
+        existing.setPhoneNumber(parent.getPhoneNumber() != null ? parent.getPhoneNumber().trim() : null);
+        existing.setBirthDate(parent.getBirthDate());
+        existing.setGender(parent.getGender());
+        existing.setCountry(parent.getCountry());
+        existing.setProvince(parent.getProvince());
+        existing.setCity(parent.getCity());
+        existing.setDistrict(parent.getDistrict());
+        existing.setWard(parent.getWard());
+        existing.setStreet(parent.getStreet());
+        existing.setPostalCode(parent.getPostalCode());
+
+        // Xử lý avatar
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            existing.setAvatar(avatarFile.getBytes());
+        }
+
+        entityManager.merge(existing);
     }
 
     @Override
