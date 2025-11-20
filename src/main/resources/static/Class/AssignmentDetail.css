@@ -1,219 +1,343 @@
-/* === General Container === */
+/* ============================================================
+   WINDOWS 11 FLUENT PROFESSIONAL UI – GLOBAL THEME
+   Author: (You)
+   Version: 3.0
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. FLUENT COLOR SYSTEM
+------------------------------------------------------------ */
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+
+    --danger: #dc2626;
+    --warning: #f59e0b;
+    --success: #22c55e;
+    --info: #0ea5e9;
+
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+
+    --bg-light: #f3f4f6;
+    --bg-white: #ffffff;
+
+    /* Acrylic card */
+    --acrylic-bg: rgba(255, 255, 255, 0.65);
+    --acrylic-border: rgba(255, 255, 255, 0.35);
+
+    --border: #e5e7eb;
+    --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 14px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 26px rgba(0,0,0,0.15);
+
+    --radius: 14px;
+}
+
+/* ------------------------------------------------------------
+   2. BASE RESET + TYPOGRAPHY
+------------------------------------------------------------ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+}
+
 .win11-container {
-    background-color: #f3f4f6;
-    min-height: 100vh;
-    padding: 25px 40px;
-    font-family: "Segoe UI", system-ui, sans-serif;
+    padding: 32px;
+    max-width: 1400px;
+    margin: auto;
 }
 
-/* === Unified Toolbar === */
-.unified-bar {
+/* ------------------------------------------------------------
+   3. TOOLBAR
+------------------------------------------------------------ */
+.search-toolbar {
+    background: var(--bg-white);
+    border-radius: 18px;
+    padding: 16px 24px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 14px 20px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 18px;
     margin-bottom: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
 }
 
-.unified-bar .btn {
-    border-radius: 8px;
-    font-weight: 500;
-}
-
-.unified-bar .home-btn {
-    background: #2563eb;
-    color: white;
-}
-
-.unified-bar .home-btn:hover {
-    background: #1e3a8a;
-}
-
-.unified-bar .total {
-    font-size: 0.95rem;
-    color: #374151;
+.toolbar-left,
+.toolbar-center,
+.toolbar-right {
     display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   4. BUTTONS (Professional)
+------------------------------------------------------------ */
+.btn {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    font-size: 15px;
+    user-select: none;
 }
 
-/* === Panels === */
+.btn.small {
+    padding: 7px 12px;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #eef4ff;
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: var(--shadow-md);
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: white !important;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn.danger {
+    background: #fee2e2;
+    color: var(--danger);
+    border-color: #fca5a5;
+}
+
+.btn.danger:hover {
+    background: #fecaca;
+}
+
+.btn.info {
+    background: #e0f2fe;
+    color: var(--info);
+    border-color: #7dd3fc;
+}
+
+.btn.info:hover {
+    background: #bae6fd;
+}
+
+/* Clean floating button styles */
+.btn-icon {
+    padding: 10px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+}
+
+/* ------------------------------------------------------------
+   5. INPUTS / FORMS
+------------------------------------------------------------ */
+.input {
+    width: 85%;
+    padding: 10px 14px;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.input.small {
+    max-width: 110px;
+}
+
+.input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.20);
+    outline: none;
+}
+
+/* ------------------------------------------------------------
+   6. PANELS (Windows 11 Acrylic Panels)
+------------------------------------------------------------ */
 .win11-panel {
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 24px;
-    padding: 20px;
+    background: var(--bg-white);
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 28px;
 }
 
 .panel-header {
-    border-bottom: 2px solid #e5e7eb;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.panel-header h3 {
-    font-size: 1.2rem;
-    color: #1e40af;
-    margin: 0;
-}
-
-/* === Section Titles === */
-.section-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-title i {
-    font-size: 1rem;
-}
-
-/* === Submission Cards === */
-.submission-card {
-    background: #fafafa;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 15px 18px;
-    margin-bottom: 18px;
-    transition: all 0.25s ease-in-out;
-}
-
-.submission-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-}
-
-.submission-card.border-success {
-    border-left: 5px solid #16a34a;
-}
-
-.submission-card.border-warning {
-    border-left: 5px solid #f59e0b;
-}
-
-.submission-card .late {
-    color: #dc2626;
-    font-weight: 600;
-}
-
-.submission-card .on-time {
-    color: #16a34a;
-    font-weight: 600;
-}
-
-/* === File List === */
-.file-item {
-    background: #f1f5f9;
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin-top: 6px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 0.9rem;
-    color: #374151;
 }
 
-.file-item i {
-    color: #2563eb;
-}
-
-.file-item a {
-    text-decoration: none;
-}
-
-.file-item a:hover {
-    color: #1e3a8a;
-}
-
-/* === Feedback Form === */
-.feedback-form {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 15px;
-}
-
-.feedback-form textarea {
-    resize: none;
-}
-
-.feedback-form .save-btn {
-    transition: all 0.2s ease-in-out;
-}
-
-.feedback-form .btn-success {
-    background-color: #16a34a;
-    border-color: #16a34a;
-}
-
-.feedback-form .btn-success:hover {
-    background-color: #15803d;
-}
-
-.feedback-form .btn-primary {
-    background-color: #2563eb;
-    border-color: #2563eb;
-}
-
-.feedback-form .btn-primary:hover {
-    background-color: #1e3a8a;
-}
-
-/* === Not Submitted Table === */
-.win11-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.win11-table thead {
-    background-color: #fee2e2;
-    color: #991b1b;
+.section-title {
+    font-size: 20px;
     font-weight: 600;
 }
 
-.win11-table tbody tr:hover {
-    background: #fef2f2;
+/* ------------------------------------------------------------
+   7. TABLES
+------------------------------------------------------------ */
+.table-container {
+    background: var(--bg-white);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
 }
 
-/* === Badges === */
-.badge.bg-success {
-    background-color: #16a34a !important;
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.badge.bg-danger {
-    background-color: #dc2626 !important;
+.win11-table th,
+.win11-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
 }
 
-/* === Responsive Adjustments === */
-@media (max-width: 768px) {
-    .unified-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
+.win11-table th {
+    font-weight: 600;
+    background: #f9fafb;
+}
 
-    .feedback-form .row > * {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
+.win11-table tr:hover {
+    background: #eef4ff;
+}
 
-    .submission-card {
-        padding: 12px;
-    }
+/* ------------------------------------------------------------
+   8. AVATAR
+------------------------------------------------------------ */
+.avatar,
+.submission-avatar,
+.post-avatar,
+.comment-avatar {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
 
-    .win11-panel {
-        padding: 15px;
-    }
+.comment-avatar {
+    width: 38px;
+    height: 38px;
+}
+
+/* ------------------------------------------------------------
+   9. OVERLAYS / MODALS (Fluent Blur)
+------------------------------------------------------------ */
+.overlay {
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(8px) saturate(150%);
+    background: rgba(0,0,0,0.45);
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    z-index: 999;
+    overflow-y: auto;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.overlay-content {
+    width: 100%;
+    max-width: 900px;
+    background: var(--bg-white);
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ------------------------------------------------------------
+   10. STATUS BADGES
+------------------------------------------------------------ */
+.late {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.on-time {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.badge {
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+/* ------------------------------------------------------------
+   11. FILE ITEMS
+------------------------------------------------------------ */
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+/* ------------------------------------------------------------
+   12. FEEDBACK BLOCK
+------------------------------------------------------------ */
+.feedback-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ------------------------------------------------------------
+   13. RESPONSIVE
+------------------------------------------------------------ */
+@media (max-width: 850px) {
+    .toolbar-left { flex-wrap: wrap; }
+    .win11-container { padding: 16px; }
+}
+
+@media (max-width: 600px) {
+    .search-toolbar { flex-direction: column; align-items: flex-start; }
 }
