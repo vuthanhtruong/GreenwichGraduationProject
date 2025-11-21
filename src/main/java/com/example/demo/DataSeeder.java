@@ -62,15 +62,13 @@ public class DataSeeder implements CommandLineRunner {
     private static final String DEFAULT_PASSWORD = "123456";
     private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0;
 
-    // scale to nhiều user hơn
+    // scale demo
     private static final int TOTAL_STUDENTS = 200;
     private static final int MAJOR_CLASSES_TOTAL = 40;
     private static final int MINOR_CLASSES_TOTAL = 20;
     private static final int SPEC_CLASSES_TOTAL = 20;
-
     private static final int TOTAL_PARENTS = 200;
 
-    // số lượng staff/deputy/lecturer theo campus/major
     private static final int STAFF_PER_MAJOR_PER_CAMPUS = 2;
     private static final int DEPUTY_PER_CAMPUS = 3;
     private static final int MAJOR_LECTURERS_PER_MAJOR_PER_CAMPUS = 2;
@@ -87,7 +85,7 @@ public class DataSeeder implements CommandLineRunner {
     private static final String CAMPUS_CODE_HCM = "hcm";
     private static final String CAMPUS_CODE_DANANG = "dn";
 
-    // mã campus dùng trong id user (demo, không nhất thiết trùng campus DB)
+    // dùng chung 1 code để sinh ID (demo)
     private static final String CAMPUS_CODE = CAMPUS_CODE_HANOI;
 
     @Override
@@ -294,7 +292,7 @@ public class DataSeeder implements CommandLineRunner {
         String[] ids = {
                 "GBH", // Quản trị Kinh doanh
                 "GCH", // CNTT
-                "GDH", // Thiết kế đồ hoạ
+                "GDH", // Thiết kế đồ họa
                 "GKH", // Marketing
                 "GKT", // Kế toán
                 "GLU", // Luật
@@ -410,11 +408,14 @@ public class DataSeeder implements CommandLineRunner {
                     s.setLastName(lastNames[(idx + k) % lastNames.length]);
                     s.setEmail(id + "@staff.demo.com");
                     s.setPhoneNumber("+84101" + String.format("%07d", idx));
-                    s.setBirthDate(LocalDate.of(1985 + (idx % 5), 1 + (idx % 12), 1 + (idx % 28)));
+                    s.setBirthDate(LocalDate.of(
+                            1985 + (idx % 5),
+                            1 + (idx % 12),       // 1–12
+                            1 + (idx % 28)        // 1–28
+                    ));
                     s.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                     s.setCountry("Vietnam");
 
-                    // địa chỉ theo campus
                     fillAddressByCampus(s, campus, 100 + idx);
 
                     s.setMajorManagement(major);
@@ -460,7 +461,11 @@ public class DataSeeder implements CommandLineRunner {
                 d.setLastName(lastNames[(idx + i) % lastNames.length]);
                 d.setEmail(id + "@deputy.demo.com");
                 d.setPhoneNumber("+84102" + String.format("%07d", idx));
-                d.setBirthDate(LocalDate.of(1990 + (idx % 5), 2 + (idx % 10), 5 + (idx % 20)));
+                d.setBirthDate(LocalDate.of(
+                        1990 + (idx % 5),
+                        2 + (idx % 10),       // 2–11
+                        5 + (idx % 20)        // 5–24
+                ));
                 d.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                 d.setCountry("Vietnam");
 
@@ -486,7 +491,6 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        // staff theo (majorId + campusId)
         Map<String, List<Staffs>> staffByMajorAndCampus = staffList.stream()
                 .filter(st -> st.getMajorManagement() != null
                         && st.getMajorManagement().getMajorId() != null
@@ -527,9 +531,11 @@ public class DataSeeder implements CommandLineRunner {
                     l.setLastName(lastNames[(lecturerIndex + i) % lastNames.length]);
                     l.setEmail(id + "@lect.demo.com");
                     l.setPhoneNumber("+84103" + String.format("%07d", lecturerIndex));
-                    l.setBirthDate(LocalDate.of(1975 + (lecturerIndex % 5),
-                            3 + (lecturerIndex % 10),
-                            10 + (lecturerIndex % 10)));
+                    l.setBirthDate(LocalDate.of(
+                            1975 + (lecturerIndex % 5),
+                            3 + (lecturerIndex % 10),   // 3–12
+                            10 + (lecturerIndex % 10)   // 10–19
+                    ));
                     l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                     l.setCountry("Vietnam");
 
@@ -595,7 +601,13 @@ public class DataSeeder implements CommandLineRunner {
                 ml.setLastName(lastNames[(idx + i) % lastNames.length]);
                 ml.setEmail(id + "@minorlec.demo.com");
                 ml.setPhoneNumber("+84104" + String.format("%07d", idx));
-                ml.setBirthDate(LocalDate.of(1985 + (idx % 5), 4 + (idx % 12), 12 + (idx % 18)));
+
+                // FIX LỖI: luôn đảm bảo month 1–12, day 1–28
+                int year = 1985 + (idx % 5);
+                int month = (4 + idx) % 12 + 1;   // 1–12
+                int day = (12 + idx) % 28 + 1;    // 1–28
+                ml.setBirthDate(LocalDate.of(year, month, day));
+
                 ml.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
                 ml.setCountry("Vietnam");
 
@@ -662,7 +674,11 @@ public class DataSeeder implements CommandLineRunner {
             student.setLastName(lastNames[(i - 1) % lastNames.length]);
             student.setEmail(id + "@student.demo.com");
             student.setPhoneNumber("+84105" + String.format("%07d", i));
-            student.setBirthDate(LocalDate.of(2001 + (i % 3), 1 + (i % 12), 5 + (i % 20)));
+            student.setBirthDate(LocalDate.of(
+                    2001 + (i % 3),
+                    1 + (i % 12),      // 1–12
+                    5 + (i % 20)       // 5–24
+            ));
             student.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
             student.setCountry("Vietnam");
 
@@ -735,7 +751,11 @@ public class DataSeeder implements CommandLineRunner {
                 parent.setLastName(lastNames[i % lastNames.length]);
                 parent.setEmail(parentId + "@parent.demo.com");
                 parent.setPhoneNumber("+84106" + String.format("%07d", i + 1));
-                parent.setBirthDate(LocalDate.of(1975 + (i % 5), 1 + (i % 12), 10 + (i % 18)));
+                parent.setBirthDate(LocalDate.of(
+                        1975 + (i % 5),
+                        1 + (i % 12),      // 1–12
+                        10 + (i % 18)      // 10–27
+                ));
                 parent.setCountry("Vietnam");
                 parent.setProvince("Hà Nội");
                 parent.setCity("Hà Nội");
@@ -782,7 +802,6 @@ public class DataSeeder implements CommandLineRunner {
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", mainAdminId());
 
-        // mỗi major 1-2 môn demo
         String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GLU", "GQT", "GNN", "GTC"};
         String[] names = {
                 "Nhập môn Quản trị",
@@ -833,6 +852,13 @@ public class DataSeeder implements CommandLineRunner {
                 "Kỹ năng Thuyết trình"
         };
 
+        List<DeputyStaffs> deputies = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class)
+                .getResultList();
+        if (deputies.isEmpty()) {
+            System.out.println("[SUB_MINOR] No deputy, skip all.");
+            return;
+        }
+
         for (int i = 0; i < names.length; i++) {
             String id = "SUB_MIN_" + String.format("%03d", i + 1);
             if (exists(em, MinorSubjects.class, "subjectId", id)) {
@@ -840,13 +866,6 @@ public class DataSeeder implements CommandLineRunner {
                 continue;
             }
 
-            // random 1 deputy làm creator
-            List<DeputyStaffs> deputies = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class)
-                    .getResultList();
-            if (deputies.isEmpty()) {
-                System.out.println("[SUB_MINOR] No deputy, skip all.");
-                return;
-            }
             DeputyStaffs creator = deputies.get(i % deputies.size());
 
             MinorSubjects s = new MinorSubjects();
@@ -1144,7 +1163,6 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        // staff theo major
         Map<String, List<Staffs>> staffByMajor = staffList.stream()
                 .filter(st -> st.getMajorManagement() != null && st.getMajorManagement().getMajorId() != null)
                 .collect(Collectors.groupingBy(st -> st.getMajorManagement().getMajorId()));
@@ -1259,7 +1277,6 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        // staff theo major
         Map<String, List<Staffs>> staffByMajor = staffList.stream()
                 .filter(st -> st.getMajorManagement() != null && st.getMajorManagement().getMajorId() != null)
                 .collect(Collectors.groupingBy(st -> st.getMajorManagement().getMajorId()));
@@ -1309,11 +1326,13 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("[CLASS_SPEC] Total inserted: " + inserted);
     }
 
+    // ===================== REQUIRED SUBJECTS =====================
+
     /**
-     * Logic mới cho REQUIRED SUBJECTS:
-     * - MajorRequired: full tất cả MajorSubjects theo major của student, creator = staff cùng major + campus
-     * - SpecRequired: full tất cả SpecializedSubject theo specialization của student, creator = staff cùng major + campus
-     * - MinorRequired: full tất cả MinorSubjects, creator = deputy cùng campus
+     * Logic chuẩn:
+     * - MajorRequired: full tất cả MajorSubjects theo major của student, creator = staff cùng major + campus.
+     * - SpecRequired: full tất cả SpecializedSubject theo specialization của student, creator = staff cùng major + campus.
+     * - MinorRequired: full tất cả MinorSubjects, creator = deputy cùng campus.
      */
     private static void seedStudentRequiredSubjects(EntityManager em) {
         Long countMaj = em.createQuery(
@@ -1360,17 +1379,14 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        // MajorSubjects theo majorId
         Map<String, List<MajorSubjects>> majorSubjectsByMajor = majorSubjects.stream()
                 .filter(ms -> ms.getMajor() != null && ms.getMajor().getMajorId() != null)
                 .collect(Collectors.groupingBy(ms -> ms.getMajor().getMajorId()));
 
-        // SpecializedSubject theo specializationId
         Map<String, List<SpecializedSubject>> specSubjectsBySpec = specSubjects.stream()
                 .filter(ss -> ss.getSpecialization() != null && ss.getSpecialization().getSpecializationId() != null)
                 .collect(Collectors.groupingBy(ss -> ss.getSpecialization().getSpecializationId()));
 
-        // Staffs theo (majorId + campusId)
         Map<String, List<Staffs>> staffByMajorAndCampus = staffList.stream()
                 .filter(st -> st.getMajorManagement() != null
                         && st.getMajorManagement().getMajorId() != null
@@ -1380,7 +1396,6 @@ public class DataSeeder implements CommandLineRunner {
                         st.getMajorManagement().getMajorId() + "#" + st.getCampus().getCampusId()
                 ));
 
-        // DeputyStaffs theo campusId
         Map<String, List<DeputyStaffs>> deputyByCampus = deputyList.stream()
                 .filter(d -> d.getCampus() != null && d.getCampus().getCampusId() != null)
                 .collect(Collectors.groupingBy(d -> d.getCampus().getCampusId()));
@@ -1407,7 +1422,7 @@ public class DataSeeder implements CommandLineRunner {
             String staffKey = majorId + "#" + campusId;
             List<Staffs> staffsForStudent = staffByMajorAndCampus.get(staffKey);
 
-            // ====== Major + Specialized: đảm bảo staff đúng ngành + đúng campus ======
+            // Major + Specialized
             if (staffsForStudent == null || staffsForStudent.isEmpty()) {
                 System.out.println("[REQ_SUBJECT] NO Staff for student " + stu.getId()
                         + " (major=" + majorId + ", campus=" + campusId
@@ -1415,7 +1430,6 @@ public class DataSeeder implements CommandLineRunner {
             } else {
                 Staffs assignedStaff = staffsForStudent.get(random.nextInt(staffsForStudent.size()));
 
-                // Major required = full tất cả MajorSubjects của major đó
                 List<MajorSubjects> majorListForStudent =
                         majorSubjectsByMajor.getOrDefault(majorId, Collections.emptyList());
                 for (MajorSubjects majSub : majorListForStudent) {
@@ -1430,7 +1444,6 @@ public class DataSeeder implements CommandLineRunner {
                     inserted++;
                 }
 
-                // Specialized required = full tất cả SpecializedSubject theo specialization của student
                 List<SpecializedSubject> specListForStudent =
                         specSubjectsBySpec.getOrDefault(specId, Collections.emptyList());
                 for (SpecializedSubject specSub : specListForStudent) {
@@ -1446,7 +1459,7 @@ public class DataSeeder implements CommandLineRunner {
                 }
             }
 
-            // ====== Minor: dùng DeputyStaffs cùng campus ======
+            // Minor
             List<DeputyStaffs> deputiesForCampus = deputyByCampus.get(campusId);
             if (deputiesForCampus == null || deputiesForCampus.isEmpty()) {
                 System.out.println("[REQ_SUBJECT] NO DeputyStaff for campus "
@@ -1455,7 +1468,6 @@ public class DataSeeder implements CommandLineRunner {
             } else {
                 DeputyStaffs assignedDeputy = deputiesForCampus.get(random.nextInt(deputiesForCampus.size()));
 
-                // Minor required = full tất cả MinorSubjects
                 for (MinorSubjects minSub : minorSubjects) {
                     StudentRequiredMinorSubjects rMin = new StudentRequiredMinorSubjects(
                             stu,
@@ -1490,10 +1502,6 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("[AUTH] Inserted auth for " + personId);
     }
 
-    /**
-     * Helper exists():
-     * - Nếu clazz là Persons hoặc subclass → luôn check trên Persons theo ID.
-     */
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
         Class<?> targetClass = clazz;
         String field = idField;
@@ -1555,9 +1563,6 @@ public class DataSeeder implements CommandLineRunner {
         return userId3("admin", 1);
     }
 
-    /**
-     * Điền địa chỉ theo campus cho tất cả entity có field address giống nhau.
-     */
     private static void fillAddressByCampus(Persons person, Campuses campus, int houseNumber) {
         if (campus == null || campus.getCampusId() == null) {
             person.setProvince("Hà Nội");
