@@ -71,6 +71,11 @@
             <span class="meta"><strong>Tuition Management</strong><small>Payments & invoices</small></span>
         </a>
 
+        <a class="dashboard-card success" th:href="@{/admin-home/annual-restudy-fee}">
+            <span class="icon"><i class="fas fa-coins"></i></span>
+            <span class="meta"><strong>Annual Re-study Fee</strong><small>Manage re-study policies</small></span>
+        </a>
+
         <a class="dashboard-card professional" th:href="@{/admin-home/majors-list}">
             <span class="icon"><i class="fas fa-graduation-cap"></i></span>
             <span class="meta"><strong>Majors List</strong><small>Manage academic majors</small></span>
@@ -81,18 +86,16 @@
             <span class="meta"><strong>Curriculums</strong><small>Subject outlines & structure</small></span>
         </a>
 
-
         <!-- 🟩 FINANCIAL & SCHOLARSHIP -->
         <a class="dashboard-card award" th:href="@{/admin-home/scholarship-by-year-list}">
             <span class="icon"><i class="fas fa-award"></i></span>
             <span class="meta"><strong>Scholarship Policies</strong><small>Manage awards by year</small></span>
         </a>
 
-        <a class="dashboard-card success" th:href="@{/admin-home/annual-restudy-fee}">
-            <span class="icon"><i class="fas fa-coins"></i></span>
-            <span class="meta"><strong>Annual Re-study Fee</strong><small>Manage re-study policies</small></span>
+        <a class="dashboard-card professional" th:href="@{/admin-home/contracts-list}">
+            <span class="icon"><i class="fas fa-file-contract"></i></span>
+            <span class="meta"><strong>Academic Contracts</strong><small>Manage agreements</small></span>
         </a>
-
 
         <!-- 🟫 INFRASTRUCTURE MANAGEMENT -->
         <a class="dashboard-card neutral" th:href="@{/admin-home/campuses-list}">
@@ -117,12 +120,6 @@
             <span class="meta"><strong>Support Tickets</strong><small>Student & staff support</small></span>
         </a>
 
-
-        <!-- ⚙️ SYSTEM & CONTRACT MANAGEMENT -->
-        <a class="dashboard-card professional" th:href="@{/admin-home/contracts-list}">
-            <span class="icon"><i class="fas fa-file-contract"></i></span>
-            <span class="meta"><strong>Academic Contracts</strong><small>Manage agreements</small></span>
-        </a>
 
         <a class="dashboard-card colleague" th:href="@{/admin-home/colleagues-list}">
             <span class="icon"><i class="fas fa-handshake"></i></span>

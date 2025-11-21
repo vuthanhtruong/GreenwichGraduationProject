@@ -24,4 +24,6 @@ public interface StudentCommentsService {
     String generateUniqueCommentId(String postId, LocalDate createdDate);
 
     Map<String, String> validateComment(StudentComments comment);
+
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
 }

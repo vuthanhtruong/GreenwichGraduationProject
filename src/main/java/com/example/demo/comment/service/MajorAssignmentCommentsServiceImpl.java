@@ -10,6 +10,10 @@ import java.util.Map;
 
 @Service
 public class MajorAssignmentCommentsServiceImpl implements MajorAssignmentCommentsService {
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+        return dao.getCommentNotificationsForLecturer(lecturerId);
+    }
 
     private final MajorAssignmentCommentsDAO dao;
 

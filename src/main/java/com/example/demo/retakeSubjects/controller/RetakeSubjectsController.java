@@ -88,7 +88,6 @@ public class RetakeSubjectsController {
         Object missingObj = validation.get("missingFees");
         if (missingObj instanceof List<?>) {
             try {
-                @SuppressWarnings("unchecked")
                 List<String> casted = (List<String>) missingObj;
                 missingFees = casted;
             } catch (ClassCastException ignored) {

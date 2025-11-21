@@ -2,6 +2,7 @@ package com.example.demo.comment.dao;
 
 import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.SpecializedAssignmentComments;
+import com.example.demo.entity.Enums.OtherNotification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -14,6 +15,34 @@ import java.util.*;
 @Repository
 @Transactional
 public class SpecializedAssignmentCommentsDAOImpl implements SpecializedAssignmentCommentsDAO {
+
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+
+        String jpql = """
+        SELECT CONCAT(
+            c.commenter.id,
+            ' commented on specialized assignment submission of ',
+            p.creator.firstName,
+            ': "',
+            SUBSTRING(c.content, 1, 50),
+            CASE WHEN LENGTH(c.content) > 50 THEN '...' ELSE '' END,
+            '" on ',
+            c.createdAt
+        )
+        FROM SpecializedAssignmentComments c
+        JOIN c.post p
+        WHERE p.creator.id = :lecturerId
+          AND c.notificationType = :nt
+        ORDER BY c.createdAt DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("nt", OtherNotification.COMMENT_MADE_ON_SPECIALIZED_ASSIGNMENT)
+                .getResultList();
+    }
+
 
     @PersistenceContext
     private EntityManager entityManager;

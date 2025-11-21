@@ -2,6 +2,7 @@ package com.example.demo.messages.controller;
 
 import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.comment.service.MinorCommentsService;
+import com.example.demo.comment.service.StudentCommentsService;
 import com.example.demo.lecturers_Classes.minorLecturers_MinorClasses.service.MinorLecturers_MinorClassesService;
 import com.example.demo.post.minorClassPosts.service.MinorClassPostsService;
 import jakarta.servlet.http.HttpSession;
@@ -23,19 +24,18 @@ public class NotificationMinorLecturerController {
 
     private final MinorLecturers_MinorClassesService minorLecturersMinorClassesService;
     private final MinorClassPostsService minorClassPostsService;
-    private final AcademicTranscriptsService academicTranscriptsService;
     private final MinorCommentsService minorCommentsService; // THÊM: BÌNH LUẬN
+    private final StudentCommentsService studentCommentsService;
 
     public NotificationMinorLecturerController(
             MinorLecturers_MinorClassesService minorLecturersMinorClassesService,
             MinorClassPostsService minorClassPostsService,
-            AcademicTranscriptsService academicTranscriptsService,
-            MinorCommentsService minorCommentsService // THÊM VÀO CONSTRUCTOR
+            MinorCommentsService minorCommentsService, StudentCommentsService studentCommentsService // THÊM VÀO CONSTRUCTOR
     ) {
         this.minorLecturersMinorClassesService = minorLecturersMinorClassesService;
         this.minorClassPostsService = minorClassPostsService;
-        this.academicTranscriptsService = academicTranscriptsService;
         this.minorCommentsService = minorCommentsService;
+        this.studentCommentsService = studentCommentsService;
     }
 
     @PostMapping
@@ -45,10 +45,9 @@ public class NotificationMinorLecturerController {
                         minorLecturersMinorClassesService.getClassNotificationsForLecturer(lecturerId),
                         // 2. Bài đăng mới trong lớp Minor (của mình hoặc người khác)
                         minorClassPostsService.getNotificationsForMemberId(lecturerId),
-                        // 3. Cập nhật điểm (Minor)
-                        academicTranscriptsService.getNotificationsForMemberId(lecturerId),
                         // 4. Có người bình luận vào bài đăng của mình
-                        minorCommentsService.getCommentNotificationsForLecturer(lecturerId)
+                        minorCommentsService.getCommentNotificationsForLecturer(lecturerId),
+                studentCommentsService.getCommentNotificationsForLecturer(lecturerId)
                 )
                 .flatMap(List::stream)
                 .filter(notif -> notif != null && notif.contains(" on "))

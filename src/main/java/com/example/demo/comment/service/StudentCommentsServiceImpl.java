@@ -11,6 +11,11 @@ import java.util.Map;
 @Service
 public class StudentCommentsServiceImpl implements StudentCommentsService{
     @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+        return studentCommentsDAO.getCommentNotificationsForLecturer(lecturerId);
+    }
+
+    @Override
     public Map<String, String> validateComment(StudentComments comment) {
         return studentCommentsDAO.validateComment(comment);
     }

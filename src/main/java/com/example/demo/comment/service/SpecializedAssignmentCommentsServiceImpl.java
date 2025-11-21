@@ -10,6 +10,10 @@ import java.util.Map;
 
 @Service
 public class SpecializedAssignmentCommentsServiceImpl implements SpecializedAssignmentCommentsService {
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+        return dao.getCommentNotificationsForLecturer(lecturerId);
+    }
 
     private final SpecializedAssignmentCommentsDAO dao;
 

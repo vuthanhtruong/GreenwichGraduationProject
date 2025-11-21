@@ -2,6 +2,7 @@ package com.example.demo.comment.dao;
 
 import com.example.demo.comment.model.Comments;
 import com.example.demo.comment.model.StudentComments;
+import com.example.demo.entity.Enums.OtherNotification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,45 @@ import java.util.Map;
 @Repository
 @Transactional
 public class StudentCommentsDAOImpl implements StudentCommentsDAO {
+
+    @Override
+    public List<String> getCommentNotificationsForLecturer(String lecturerId) {
+
+        String jpql = """
+        SELECT CONCAT(
+            c.commenter.firstName,
+            ' commented on your class post: "',
+            SUBSTRING(c.content, 1, 50),
+            CASE WHEN LENGTH(c.content) > 50 THEN '...' ELSE '' END,
+            '" on ',
+            c.createdAt
+        )
+        FROM StudentComments c
+        JOIN c.post p
+        LEFT JOIN TREAT(p AS MajorClassPosts) mp
+        LEFT JOIN TREAT(p AS MinorClassPosts) mip
+        LEFT JOIN TREAT(p AS AssignmentSubmitSlots) asp
+        LEFT JOIN TREAT(p AS SpecializedAssignmentSubmitSlots) sasp
+        LEFT JOIN TREAT(p AS SpecializedClassPosts) sp
+        WHERE (
+                (mp IS NOT NULL AND mp.creator.id = :lecturerId) OR
+                (mip IS NOT NULL AND mip.creator.id = :lecturerId) OR
+                (asp IS NOT NULL AND asp.creator.id = :lecturerId) OR
+                (sasp IS NOT NULL AND sasp.creator.id = :lecturerId) OR
+                (sp IS NOT NULL AND sp.creator.id = :lecturerId)
+              )
+          AND c.notificationType = :nt
+        ORDER BY c.createdAt DESC
+        """;
+
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("lecturerId", lecturerId)
+                .setParameter("nt", OtherNotification.STUDENT_COMMENTED_ON_POST)
+                .getResultList();
+    }
+
+
+
 
     @PersistenceContext
     private EntityManager entityManager;

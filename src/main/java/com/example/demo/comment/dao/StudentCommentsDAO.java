@@ -26,4 +26,5 @@ public interface StudentCommentsDAO {
 
     Map<String, String> validateComment(StudentComments comment);
 
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
 }

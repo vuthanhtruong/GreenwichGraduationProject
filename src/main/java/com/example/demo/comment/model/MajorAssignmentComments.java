@@ -33,7 +33,9 @@ public class MajorAssignmentComments extends Comments {
     private OtherNotification notificationType =
             OtherNotification.COMMENT_MADE_ON_MAJOR_ASSIGNMENT;
 
-    public MajorAssignmentComments() {}
+    public MajorAssignmentComments() {
+        this.notificationType = OtherNotification.COMMENT_MADE_ON_MAJOR_ASSIGNMENT;
+    }
 
     public MajorAssignmentComments(String commentId,
                                    MajorEmployes commenter,

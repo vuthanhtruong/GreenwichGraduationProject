@@ -58,6 +58,7 @@ public class MajorTimetable extends Timetable {
     public String getDetailUrl() {
         return "/major-timetable/detail";
     }
+
     @Override
     public String getAttendanceByStudentId(String id) {
         for (MajorAttendance attendance : attendances) {

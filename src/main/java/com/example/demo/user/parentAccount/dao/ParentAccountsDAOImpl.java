@@ -1,19 +1,16 @@
 package com.example.demo.user.parentAccount.dao;
 
+import com.example.demo.email_service.dto.ParentEmailContext;
+import com.example.demo.email_service.service.EmailServiceForParentService;
 import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
 import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
-import com.example.demo.user.admin.service.AdminsService;
-import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
-import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.majorLecturer.service.MajorLecturersService;
-import com.example.demo.user.minorLecturer.model.MinorLecturers;
-import com.example.demo.user.minorLecturer.service.MinorLecturersService;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.RelationshipToStudent;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
+import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;
@@ -37,6 +34,123 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class ParentAccountsDAOImpl implements ParentAccountsDAO {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final PersonsService personsService;
+    private final StaffsService staffsService;
+    private final StudentsService studentsService;
+    private final AuthenticatorsService authenticatorsService;
+    private final EmailServiceForParentService emailServiceForParentService;
+
+    @Autowired
+    public ParentAccountsDAOImpl(PersonsService personsService,
+                                 StaffsService staffsService,
+                                 StudentsService studentsService,
+                                 AuthenticatorsService authenticatorsService,
+                                 EmailServiceForParentService emailServiceForParentService) {
+        this.personsService = personsService;
+        this.staffsService = staffsService;
+        this.studentsService = studentsService;
+        this.authenticatorsService = authenticatorsService;
+        this.emailServiceForParentService = emailServiceForParentService;
+    }
+
+    // ==================== EMAIL HELPER METHODS ====================
+
+    /**
+     * Tạo ParentEmailContext từ ParentAccounts
+     */
+    private ParentEmailContext createEmailContext(ParentAccounts parent) {
+        return new ParentEmailContext(
+                parent.getId(),
+                parent.getFullName(),
+                parent.getEmail(),
+                parent.getPhoneNumber(),
+                parent.getBirthDate(),
+                parent.getGender() != null ? parent.getGender().toString() : null,
+                parent.getFullAddress(),
+                parent.getCreator() != null ? parent.getCreator().getFullName() : null,
+                parent.getCreatedDate()
+        );
+    }
+
+    /**
+     * Gửi email thông báo tạo tài khoản phụ huynh
+     */
+    private void sendParentCreationEmail(ParentAccounts parent, String password) {
+        try {
+            ParentEmailContext context = createEmailContext(parent);
+            String subject = "Your Parent Account Information";
+            emailServiceForParentService.sendEmailToNotifyLoginInformation(
+                    parent.getEmail(),
+                    subject,
+                    context,
+                    password
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send parent creation email to " + parent.getEmail() + ": " + e.getMessage());
+            // Don't throw exception - email failure shouldn't block account creation
+        }
+    }
+
+    /**
+     * Gửi email thông báo chỉnh sửa thông tin
+     */
+    private void sendParentEditEmail(ParentAccounts parent) {
+        try {
+            ParentEmailContext context = createEmailContext(parent);
+            String subject = "Your Parent Account Information After Editing";
+            emailServiceForParentService.sendEmailToNotifyInformationAfterEditing(
+                    parent.getEmail(),
+                    subject,
+                    context
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send parent edit email to " + parent.getEmail() + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gửi email thông báo liên kết với học sinh
+     */
+    private void sendStudentLinkEmail(ParentAccounts parent, Students student, String relationship) {
+        try {
+            ParentEmailContext context = createEmailContext(parent);
+            String subject = "You've Been Linked to a Student";
+            emailServiceForParentService.sendEmailToNotifyStudentLink(
+                    parent.getEmail(),
+                    subject,
+                    context,
+                    student.getFullName(),
+                    student.getId(),
+                    relationship != null ? relationship : "Not specified"
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send student link email to " + parent.getEmail() + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gửi email thông báo xóa tài khoản
+     */
+    private void sendParentDeletionEmail(ParentAccounts parent) {
+        try {
+            ParentEmailContext context = createEmailContext(parent);
+            String subject = "Parent Account Deletion Notice";
+            emailServiceForParentService.sendEmailToNotifyParentDeletion(
+                    parent.getEmail(),
+                    subject,
+                    context
+            );
+        } catch (Exception e) {
+            System.err.println("Failed to send parent deletion email to " + parent.getEmail() + ": " + e.getMessage());
+        }
+    }
+
+    // ==================== EXISTING METHODS WITH EMAIL INTEGRATION ====================
+
     @Override
     public List<Students> getStudentsByParentId(String parentId) {
         if (parentId == null || parentId.trim().isEmpty()) {
@@ -47,7 +161,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             return entityManager.createQuery(
                             "SELECT spa.student FROM Student_ParentAccounts spa " +
                                     "WHERE spa.parent.id = :parentId " +
-                                    "ORDER BY spa.createdAt DESC",  // con mới thêm lên đầu
+                                    "ORDER BY spa.createdAt DESC",
                             Students.class)
                     .setParameter("parentId", parentId)
                     .getResultList();
@@ -57,6 +171,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             return new ArrayList<>();
         }
     }
+
     @Override
     public ParentAccounts getParent() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -74,7 +189,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         return entityManager.find(ParentAccounts.class, person.getId());
     }
 
-    // Trong ParentAccountsDAOImpl
     @Override
     public Student_ParentAccounts findLinkByStudentAndParent(String studentId, String parentId) {
         try {
@@ -95,25 +209,15 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         Student_ParentAccounts link = findLinkByStudentAndParent(studentId, parentId);
         if (link != null) {
             entityManager.remove(link);
-            // Sau khi xóa link → kiểm tra xem parent còn liên kết với học sinh nào nữa không
             deleteIfUnlinked(link.getParent(), studentId);
         }
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final PersonsService personsService;
-    private final StaffsService staffsService;
-    private final StudentsService studentsService;
-    private final AuthenticatorsService authenticatorsService;
 
     @Override
     public boolean isParentEmailAvailable(String email) {
         if (email == null || email.trim().isEmpty()) return false;
         String normalizedEmail = email.trim().toLowerCase();
 
-        // 1. Nếu đã là phụ huynh → cho phép dùng lại
         Long parentCount = entityManager.createQuery(
                         "SELECT COUNT(p) FROM ParentAccounts p WHERE LOWER(p.email) = :email", Long.class)
                 .setParameter("email", normalizedEmail)
@@ -123,7 +227,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             return true;
         }
 
-        // 2. Kiểm tra các role khác bằng TYPE() – chuẩn JPQL
         Long otherCount = entityManager.createQuery(
                         "SELECT COUNT(p) FROM Persons p " +
                                 "WHERE LOWER(p.email) = :email " +
@@ -134,28 +237,26 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         return otherCount == 0;
     }
 
-    @Autowired
-    public ParentAccountsDAOImpl(PersonsService personsService, StaffsService staffsService,
-                                 StudentsService studentsService, AuthenticatorsService authenticatorsService) {
-        this.personsService = personsService;
-        this.staffsService = staffsService;
-        this.studentsService = studentsService;
-        this.authenticatorsService = authenticatorsService;
-    }
-
     @Override
     public void addParentAccounts(ParentAccounts parent) {
         parent.setCreatedDate(LocalDate.now());
         entityManager.persist(parent);
+        // Note: Email sẽ được gửi ở nơi gọi method này với password
     }
 
     @Override
     public void editParent(ParentAccounts parent) {
-        entityManager.merge(parent);
+        ParentAccounts merged = entityManager.merge(parent);
+
+        // Gửi email thông báo chỉnh sửa
+        sendParentEditEmail(merged);
     }
 
     @Override
     public void deleteParent(ParentAccounts parent) {
+        // Gửi email thông báo xóa trước khi xóa
+        sendParentDeletionEmail(parent);
+
         entityManager.remove(entityManager.contains(parent) ? parent : entityManager.merge(parent));
     }
 
@@ -211,7 +312,16 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         if (studentParent == null || studentParent.getStudent() == null || studentParent.getParent() == null) {
             throw new IllegalArgumentException("Student_ParentAccounts, Student, or Parent cannot be null");
         }
-        return entityManager.merge(studentParent);
+
+        Student_ParentAccounts merged = entityManager.merge(studentParent);
+
+        // Gửi email thông báo liên kết
+        String relationship = merged.getRelationshipToStudent() != null
+                ? merged.getRelationshipToStudent().toString()
+                : null;
+        sendStudentLinkEmail(merged.getParent(), merged.getStudent(), relationship);
+
+        return merged;
     }
 
     @Override
@@ -234,6 +344,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 .setParameter("excludeStudentId", excludeStudentId)
                 .getSingleResult();
     }
+
     @Override
     public Map<String, String> validateParent(ParentAccounts parent, MultipartFile avatarFile) {
         Map<String, String> errors = new HashMap<>();
@@ -243,7 +354,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             return errors;
         }
 
-        // First & Last Name
         if (isNullOrBlank(parent.getFirstName())) {
             errors.put("firstName", "First name is required.");
         } else if (!isValidName(parent.getFirstName())) {
@@ -256,7 +366,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             errors.put("lastName", "Last name contains invalid characters.");
         }
 
-        // Email - bắt buộc và phải unique (trừ chính mình)
         if (isNullOrBlank(parent.getEmail())) {
             errors.put("email", "Email is required.");
         } else if (!isValidEmail(parent.getEmail())) {
@@ -269,19 +378,16 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             }
         }
 
-        // Phone - optional nhưng nếu có thì phải hợp lệ
         if (!isNullOrBlank(parent.getPhoneNumber()) && !isValidPhoneNumber(parent.getPhoneNumber())) {
             errors.put("phoneNumber", "Invalid phone number format (10-15 digits, optional + prefix).");
         }
 
-        // Birth Date
         if (parent.getBirthDate() != null && parent.getBirthDate().isAfter(LocalDate.now())) {
             errors.put("birthDate", "Birth date cannot be in the future.");
         }
 
-        // Avatar validation
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            if (avatarFile.getSize() > 5 * 1024 * 1024) { // 5MB
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
                 errors.put("avatar", "Avatar image must be less than 5MB.");
             }
             String contentType = avatarFile.getContentType();
@@ -300,7 +406,6 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             throw new IllegalArgumentException("Parent not found with ID: " + parent.getId());
         }
 
-        // Cập nhật các field cơ bản
         existing.setFirstName(parent.getFirstName().trim());
         existing.setLastName(parent.getLastName().trim());
         existing.setEmail(parent.getEmail().trim().toLowerCase());
@@ -315,12 +420,14 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         existing.setStreet(parent.getStreet());
         existing.setPostalCode(parent.getPostalCode());
 
-        // Xử lý avatar
         if (avatarFile != null && !avatarFile.isEmpty()) {
             existing.setAvatar(avatarFile.getBytes());
         }
 
-        entityManager.merge(existing);
+        ParentAccounts merged = entityManager.merge(existing);
+
+        // Gửi email thông báo chỉnh sửa
+        sendParentEditEmail(merged);
     }
 
     @Override
@@ -367,31 +474,26 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
         Map<String, String> errors = new HashMap<>();
         String prefix = parentLabel.toLowerCase().replace(" ", "_") + "_";
 
-        // Skip validation if all fields are empty
         if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
             return errors;
         }
 
-        // Email is required if any field is provided
         if (email == null || email.trim().isEmpty()) {
             errors.put(prefix + "email", parentLabel + ": Email is required when other parent fields are provided.");
             return errors;
         }
 
-        // Validate parent email
         ParentAccounts parent = new ParentAccounts();
         parent.setEmail(email);
         Map<String, String> parentErrors = validateParent(parent);
         parentErrors.forEach((key, value) -> errors.put(prefix + key, parentLabel + ": " + value));
 
-        // Validate support phone number
         if (supportPhoneNumber != null && !supportPhoneNumber.trim().isEmpty()) {
             if (!supportPhoneNumber.matches("^\\+?[0-9]{10,15}$")) {
                 errors.put(prefix + "supportPhoneNumber", parentLabel + ": Invalid support phone number format. Must be 10-15 digits, optionally starting with '+'.");
             }
         }
 
-        // Validate relationship
         if (relationship != null && !relationship.trim().isEmpty()) {
             try {
                 RelationshipToStudent.valueOf(relationship.toUpperCase());
@@ -448,26 +550,41 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
 
     @Override
     public void editOrCreateParentLink(String studentId, Student_ParentAccounts existingLink, String email, String supportPhoneNumber, String relationship) {
-        // Skip if no parent fields are provided
         if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
             return;
         }
+
         RelationshipToStudent relationshipEnum = relationship != null && !relationship.trim().isEmpty() ?
                 RelationshipToStudent.valueOf(relationship.toUpperCase()) : null;
+
         ParentAccounts parent = findByEmail(email);
-        if (parent == null) {
+        boolean isNewParent = (parent == null);
+        String parentPassword = null;
+
+        if (isNewParent) {
             parent = new ParentAccounts();
             parent.setEmail(email);
             parent.setId(generateUniqueParentId());
             parent.setCreatedDate(LocalDate.now());
+
+            Staffs currentStaff = staffsService.getStaff();
+            if (currentStaff != null) {
+                parent.setCreator(currentStaff);
+            }
+
             addParentAccounts(parent);
-            String parentPassword = generateRandomPassword(12);
+
+            parentPassword = generateRandomPassword(12);
             Authenticators parentAuth = new Authenticators();
             parentAuth.setPersonId(parent.getId());
             parentAuth.setPerson(personsService.getPersonById(parent.getId()));
             parentAuth.setPassword(parentPassword);
             authenticatorsService.createAuthenticator(parentAuth);
+
+            // Gửi email cho parent mới
+            sendParentCreationEmail(parent, parentPassword);
         }
+
         if (existingLink != null && existingLink.getParent().getEmail().equals(email)) {
             editParentLink(existingLink, relationshipEnum, supportPhoneNumber);
         } else {
@@ -475,6 +592,7 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
                 removeParentLink(existingLink);
                 deleteIfUnlinked(existingLink.getParent(), studentId);
             }
+
             Student_ParentAccounts newLink = new Student_ParentAccounts(
                     studentsService.getStudentById(studentId),
                     parent,
@@ -489,26 +607,41 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
 
     @Override
     public void createParentLink(String studentId, String email, String supportPhoneNumber, String relationship) {
-        // Skip if no parent fields are provided
         if (!isAnyFieldProvided(email, supportPhoneNumber, relationship)) {
             return;
         }
+
         RelationshipToStudent relationshipEnum = relationship != null && !relationship.trim().isEmpty() ?
                 RelationshipToStudent.valueOf(relationship.toUpperCase()) : null;
+
         ParentAccounts parent = findByEmail(email);
-        if (parent == null) {
+        boolean isNewParent = (parent == null);
+        String parentPassword = null;
+
+        if (isNewParent) {
             parent = new ParentAccounts();
             parent.setEmail(email);
             parent.setId(generateUniqueParentId());
             parent.setCreatedDate(LocalDate.now());
+
+            Staffs currentStaff = staffsService.getStaff();
+            if (currentStaff != null) {
+                parent.setCreator(currentStaff);
+            }
+
             addParentAccounts(parent);
-            String parentPassword = generateRandomPassword(12);
+
+            parentPassword = generateRandomPassword(12);
             Authenticators parentAuth = new Authenticators();
             parentAuth.setPersonId(parent.getId());
             parentAuth.setPerson(personsService.getPersonById(parent.getId()));
             parentAuth.setPassword(parentPassword);
             authenticatorsService.createAuthenticator(parentAuth);
+
+            // Gửi email cho parent mới
+            sendParentCreationEmail(parent, parentPassword);
         }
+
         Student_ParentAccounts link = new Student_ParentAccounts(
                 studentsService.getStudentById(studentId),
                 parent,
@@ -528,6 +661,8 @@ public class ParentAccountsDAOImpl implements ParentAccountsDAO {
             deleteParent(parent);
         }
     }
+
+    // ==================== PRIVATE HELPER METHODS ====================
 
     private ParentAccounts findByPhoneNumber(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {

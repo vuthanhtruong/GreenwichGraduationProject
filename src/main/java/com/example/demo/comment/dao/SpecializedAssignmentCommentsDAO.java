@@ -24,4 +24,6 @@ public interface SpecializedAssignmentCommentsDAO {
 
     Map<String, String> validateComment(SpecializedAssignmentComments comment);
 
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
+
 }

@@ -110,7 +110,7 @@
                          class="avatar-img">
 
                     <img th:if="${student.avatar != null && session.avatarStudent == null}"
-                         th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                         th:src="@{'/persons/avatar/' + ${student.id}}"
                          class="avatar-img">
 
                     <img th:if="${student.avatar == null && session.avatarStudent == null}"
@@ -254,7 +254,7 @@
                     <tr th:each="link : ${parentLinks}">
                         <td>
                             <img th:if="${link.parent.avatar != null}"
-                                 th:src="@{'/staff-home/parent/avatar/' + ${link.parent.id}}"
+                                 th:src="@{'/persons/avatar/' + ${link.parent.id}}"
                                  class="parent-avatar">
 
                             <img th:if="${link.parent.avatar == null}"

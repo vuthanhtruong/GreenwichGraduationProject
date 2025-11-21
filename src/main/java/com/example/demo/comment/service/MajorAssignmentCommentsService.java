@@ -24,4 +24,6 @@ public interface MajorAssignmentCommentsService {
 
     Map<String, String> validateComment(MajorAssignmentComments comment);
 
+    List<String> getCommentNotificationsForLecturer(String lecturerId);
+
 }
