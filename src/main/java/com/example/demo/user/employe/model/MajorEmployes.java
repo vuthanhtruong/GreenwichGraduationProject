@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.core.io.ClassPathResource;
 
 import java.time.LocalDate;
 
@@ -40,6 +41,31 @@ public class MajorEmployes extends Persons implements MajorEmployesInterface {
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Boy.png" : "/DefaultAvatar/Staff_Girl.png";
     }
+
+    @Override
+    public byte[] getAvatarBytes() {
+        try {
+            // Nếu avatar được lưu trong DB → trả về
+            if (getAvatar() != null && getAvatar().length > 0) {
+                return getAvatar();
+            }
+
+            // Lấy đường dẫn avatar mặc định
+            String defaultPath = getDefaultAvatarPath();
+            if (defaultPath == null) {
+                return null;
+            }
+
+            // Load ảnh mặc định từ classpath
+            ClassPathResource resource = new ClassPathResource(defaultPath);
+            return resource.getInputStream().readAllBytes();
+
+        } catch (Exception e) {
+            // Nếu có lỗi (file không tồn tại, lỗi IO,...) → tránh crash
+            return null;
+        }
+    }
+
 
     @Override
     public String getEmploymentInfo() {

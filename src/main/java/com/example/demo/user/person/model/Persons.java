@@ -117,6 +117,9 @@ public abstract class Persons implements PersonsInterface {
         return sb.toString();
     }
 
+    public abstract byte[] getAvatarBytes();
+
+
     @Override
     public abstract String getRoleType();
 }

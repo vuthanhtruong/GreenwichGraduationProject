@@ -17,6 +17,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ParentAccounts extends Persons {
+    @Override
+    public byte[] getAvatarBytes() {
+        return new byte[0];
+    }
 
     @Column(name = "CreatedDate", nullable = false, updatable = false)
     private LocalDate createdDate = LocalDate.now();

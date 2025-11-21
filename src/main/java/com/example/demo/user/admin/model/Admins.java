@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.core.io.ClassPathResource;
 
 import java.time.LocalDateTime;
 
@@ -46,4 +47,28 @@ public class Admins extends Persons {
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Admin_Male.png" : "/DefaultAvatar/Admin_Female.png";
     }
+    @Override
+    public byte[] getAvatarBytes() {
+        try {
+            // Avatar lưu trong DB → trả về
+            if (getAvatar() != null && getAvatar().length > 0) {
+                return getAvatar();
+            }
+
+            // Lấy đường dẫn avatar mặc định
+            String defaultPath = getDefaultAvatarPath();
+            if (defaultPath == null) {
+                return null;
+            }
+
+            // Load file avatar mặc định
+            ClassPathResource resource = new ClassPathResource(defaultPath);
+            return resource.getInputStream().readAllBytes();
+
+        } catch (Exception e) {
+            // Không cho hệ thống crash nếu ảnh lỗi hoặc không tồn tại
+            return null;
+        }
+    }
+
 }

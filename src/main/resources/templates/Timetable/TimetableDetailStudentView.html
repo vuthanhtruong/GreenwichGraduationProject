@@ -82,7 +82,7 @@
                 <tr th:each="lec : ${lecturers}">
                     <td>
                         <img class="avatar"
-                             th:src="${lec.avatar} != null ? '/lecturers/avatar/' + ${lec.id} : ${lec.defaultAvatarPath}"
+                             th:src="${lec.avatar} != null ? '/persons/avatar/' + ${lec.id} : ${lec.defaultAvatarPath}"
                              th:alt="${lec.fullName}"
                              onerror="this.src=this.onerror=null; this.src='/images/default-lecturer.png'">
                     </td>
@@ -120,7 +120,7 @@
                     <td th:text="${iter.index + 1}"></td>
                     <td>
                         <img class="student-img avatar"
-                             th:src="${stu.avatar} != null ? '/students/avatar/' + ${stu.id} : ${stu.defaultAvatarPath}"
+                             th:src="${stu.avatar} != null ? '/persons/avatar/' + ${stu.id} : ${stu.defaultAvatarPath}"
                              th:alt="${stu.fullName}"
                              onerror="this.src=this.onerror=null; this.src='/images/default-student.png'">
                     </td>

@@ -60,7 +60,7 @@
                         <!-- Avatar -->
                         <td>
                             <img th:if="${srs.student.avatar != null}"
-                                 th:src="@{'/staff-home/students-list/avatar/' + ${srs.student.id}}"
+                                 th:src="@{'/persons/avatar/' + ${srs.student.id}}"
                                  class="avatar">
                             <img th:if="${srs.student.avatar == null}"
                                  th:src="${srs.student.defaultAvatarPath}"
@@ -117,7 +117,7 @@
                         <!-- Avatar -->
                         <td>
                             <img th:if="${student.avatar != null}"
-                                 th:src="@{'/staff-home/students-list/avatar/' + ${student.id}}"
+                                 th:src="@{'/persons/avatar/' + ${student.id}}"
                                  class="avatar">
 
                             <img th:if="${student.avatar == null}"

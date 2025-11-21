@@ -20,35 +20,17 @@ public class PersonsAvatarController {
     private PersonsService personsService;
 
     @GetMapping("/avatar/{id}")
-    public ResponseEntity<byte[]> getAvatar(@PathVariable String id) throws IOException {
+    @ResponseBody
+    public ResponseEntity<byte[]> getAvatar(@PathVariable String id) {
 
         Persons person = personsService.getPersonById(id);
 
-        if (person == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // 1️⃣ Nếu có avatar thật → trả byte[]
-        if (person.getAvatar() != null && person.getAvatar().length > 0) {
+        if (person != null && person.getAvatar() != null && person.getAvatar().length > 0) {
             return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
+                    .contentType(MediaType.IMAGE_JPEG)  // hoặc IMAGE_PNG tùy bạn lưu dạng nào
                     .body(person.getAvatar());
         }
 
-        // 2️⃣ Nếu không có avatar → trả avatar mặc định theo role
-        String defaultPath = person.getDefaultAvatarPath();  // ví dụ "/DefaultAvatar/student.png"
-
-        ClassPathResource resource = new ClassPathResource(defaultPath);
-
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        InputStream inputStream = resource.getInputStream();
-        byte[] imageBytes = StreamUtils.copyToByteArray(inputStream);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .body(imageBytes);
+        return ResponseEntity.notFound().build();
     }
 }

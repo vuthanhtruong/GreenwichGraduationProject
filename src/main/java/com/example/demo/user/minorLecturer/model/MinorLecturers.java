@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.core.io.ClassPathResource;
 
 @Entity
 @Table(name = "MinorLecturers")
@@ -33,6 +34,31 @@ public class MinorLecturers extends MinorEmployes implements MinorLecturersInter
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Teacher_Boy.png" : "/DefaultAvatar/Teacher_Girl.png";
     }
+
+    @Override
+    public byte[] getAvatarBytes() {
+        try {
+            // Nếu đã có avatar trong DB → trả về luôn
+            if (getAvatar() != null && getAvatar().length > 0) {
+                return getAvatar();
+            }
+
+            // Lấy đường dẫn avatar mặc định
+            String defaultPath = getDefaultAvatarPath();
+            if (defaultPath == null) {
+                return null;
+            }
+
+            // Load ảnh mặc định từ thư mục resources
+            ClassPathResource resource = new ClassPathResource(defaultPath);
+            return resource.getInputStream().readAllBytes();
+
+        } catch (Exception e) {
+            // Nếu xảy ra lỗi đọc file → tránh crash
+            return null;
+        }
+    }
+
 
     @Override
     public String getEmploymentInfo() {

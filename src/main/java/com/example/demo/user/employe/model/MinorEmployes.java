@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.core.io.ClassPathResource;
 
 import java.time.LocalDate;
 
@@ -34,6 +35,30 @@ public class MinorEmployes extends Persons implements MinorEmployesInterface {
         }
         return getGender() == Gender.MALE ? "/DefaultAvatar/Staff_Boy.png" : "/DefaultAvatar/Staff_Girl.png";
     }
+    @Override
+    public byte[] getAvatarBytes() {
+        try {
+            // Nếu avatar đã lưu trong DB → trả về ngay
+            if (getAvatar() != null && getAvatar().length > 0) {
+                return getAvatar();
+            }
+
+            // Lấy avatar mặc định
+            String defaultPath = getDefaultAvatarPath();
+            if (defaultPath == null) {
+                return null;
+            }
+
+            // Load avatar mặc định từ classpath: resources/static/...
+            ClassPathResource resource = new ClassPathResource(defaultPath);
+            return resource.getInputStream().readAllBytes();
+
+        } catch (Exception e) {
+            // Khi xảy ra lỗi (người dùng xóa file, sai path,...) → không crash
+            return null;
+        }
+    }
+
 
     @Override
     public String getEmploymentInfo() {

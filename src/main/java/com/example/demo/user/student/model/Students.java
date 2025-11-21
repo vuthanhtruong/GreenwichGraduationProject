@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.core.io.ClassPathResource;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -71,6 +72,28 @@ public class Students extends Persons implements StudentsInterface {
         sb.append("Created By: ").append(creator != null ? creator.getFullName() : "N/A").append("\n");
         sb.append("Created Date: ").append(createdDate != null ? createdDate.toString() : "N/A");
         return sb.toString();
+    }
+
+    @Override
+    public byte[] getAvatarBytes() {
+        try {
+            // Nếu có avatar trong DB → trả về luôn
+            if (getAvatar() != null && getAvatar().length > 0) {
+                return getAvatar();
+            }
+
+            // Lấy path ảnh mặc định
+            String defaultPath = getDefaultAvatarPath();
+            if (defaultPath == null) {
+                return null;
+            }
+            // Load avatar mặc định từ resources
+            ClassPathResource resource = new ClassPathResource(defaultPath);
+            return resource.getInputStream().readAllBytes();
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

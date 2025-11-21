@@ -30,7 +30,7 @@
                 <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
                 <div class="avatar-container">
                     <img th:if="${admin.avatar != null}"
-                         th:src="@{'/admin-home/personal-page/avatar/' + ${admin.id}}"
+                         th:src="@{'/persons/avatar/' + ${admin.id}}"
                          class="avatar-img" alt="Admin Avatar">
 
                     <img th:if="${admin.avatar == null and admin.gender == 'MALE'}"

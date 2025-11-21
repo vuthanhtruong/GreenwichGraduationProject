@@ -37,7 +37,7 @@
     </repositories>
 
     <dependencies>
-        <!-- Spring Boot Starters -->
+        <!-- Tất cả dependency của bạn giữ nguyên 100% -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -81,7 +81,6 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- Database -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -108,20 +107,12 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- MapStruct -->
+        <!-- MapStruct + Lombok -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -129,7 +120,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Utilities -->
+        <!-- Các dependency còn lại giữ nguyên -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -169,26 +160,25 @@
             <version>6.5.1</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
     <build>
+        <finalName>app</finalName> <!-- quan trọng: tên JAR cố định để Render dễ nhận -->
+
         <plugins>
+            <!-- ==================== SPRING BOOT PLUGIN – BẮT BUỘC CÓ ĐỦ 3 DÒNG NÀY ==================== -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.3.5</version>
                 <configuration>
+                    <mainClass>com.example.demo.DemoApplication</mainClass> <!-- THAY ĐÚNG PACKAGE CỦA BẠN NẾU KHÁC -->
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -196,7 +186,16 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
+
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

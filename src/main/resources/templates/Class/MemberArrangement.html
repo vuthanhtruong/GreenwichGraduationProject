@@ -61,7 +61,7 @@
                         <td><input type="checkbox" name="studentIds" th:value="${s.id}"></td>
                         <td class="center">
                             <img th:if="${s.avatar}"
-                                 th:src="@{'/staff-home/students-list/avatar/' + ${s.id}}" class="avatar">
+                                 th:src="@{'/persons/avatar/' + ${s.id}}" class="avatar">
                             <img th:unless="${s.avatar}"
                                  th:src="${s.defaultAvatarPath}" class="avatar">
                         </td>
@@ -109,7 +109,7 @@
                         <td><input type="checkbox" name="lecturerIds" th:value="${l.id}"></td>
                         <td class="center">
                             <img th:if="${l.avatar}"
-                                 th:src="@{'/staff-home/lecturers-list/avatar/' + ${l.id}}" class="avatar">
+                                 th:src="@{'/persons/avatar/' + ${l.id}}" class="avatar">
                             <img th:unless="${l.avatar}"
                                  th:src="${l.defaultAvatarPath}" class="avatar">
                         </td>

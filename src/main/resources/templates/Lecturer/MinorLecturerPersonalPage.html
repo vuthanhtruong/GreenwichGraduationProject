@@ -29,7 +29,7 @@
             <h2 class="panel-header">Avatar</h2>
             <div class="avatar-container">
                 <img th:if="${lecturer.avatar != null}"
-                     th:src="@{'/minor-lecturer-home/personal-page/avatar/' + ${lecturer.id}}"
+                     th:src="@{'/persons/avatar/' + ${lecturer.id}}"
                      class="avatar-img" alt="Lecturer Avatar">
 
                 <img th:if="${lecturer.avatar == null and lecturer.gender == 'MALE'}"

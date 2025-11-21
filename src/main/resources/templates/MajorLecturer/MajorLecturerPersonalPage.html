@@ -24,7 +24,7 @@
             <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
             <div class="avatar-container">
                 <img th:if="${lecturer.avatar != null}"
-                     th:src="@{'/major-lecturer-home/personal-page/avatar/' + ${lecturer.id}}"
+                     th:src="@{'/persons/avatar/' + ${lecturer.id}}"
                      class="avatar-img" alt="Lecturer Avatar">
 
                 <img th:if="${lecturer.avatar == null and lecturer.gender == 'MALE'}"
