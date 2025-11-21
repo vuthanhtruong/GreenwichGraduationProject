@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Proxy;
 
 @Entity
 @Table(name = "Subjects")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
+@Proxy(lazy = false)
 public abstract class Subjects {
 
     @Id

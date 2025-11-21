@@ -849,7 +849,6 @@ public class DataSeeder implements CommandLineRunner {
             deposit.setCurrentAmount(BigDecimal.valueOf(INITIAL_DEPOSIT_AMOUNT));
             deposit.setCreatedAt(now);
             deposit.setStatus(Status.COMPLETED);
-            deposit.setDescription("Initial deposit of 1000 USD for demo.");
             em.persist(deposit);
 
             created++;
@@ -1257,8 +1256,23 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("[AUTH] Inserted auth for " + personId);
     }
 
+    /**
+     * Helper exists() "an toàn tuyệt đối":
+     * - Nếu clazz là Persons hoặc subclass của Persons (Admins, Students, Staffs, Lecturers, Parents…)
+     *   thì luôn check trên bảng Persons theo ID (tránh trùng PK bất kể discriminator).
+     * - Các entity khác (Campuses, Majors, Subjects, …) giữ nguyên hành vi cũ.
+     */
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
-        String jpql = "SELECT 1 FROM " + clazz.getSimpleName() + " e WHERE e." + idField + " = :id";
+        Class<?> targetClass = clazz;
+        String field = idField;
+
+        // Nếu là People (Persons hoặc subclass) → luôn check trên bảng Persons theo ID
+        if (Persons.class.isAssignableFrom(clazz)) {
+            targetClass = Persons.class;
+            field = "id";
+        }
+
+        String jpql = "SELECT 1 FROM " + targetClass.getSimpleName() + " e WHERE e." + field + " = :id";
         List<Integer> results = em.createQuery(jpql, Integer.class)
                 .setParameter("id", idValue)
                 .setMaxResults(1)

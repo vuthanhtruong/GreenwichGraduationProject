@@ -17,20 +17,24 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "PaymentHistories")
 @PrimaryKeyJoinColumn(name = "HistoryID")
-@Getter
-@Setter
+@Getter @Setter
 public class PaymentHistories extends FinancialHistories {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SubjectID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Subjects subject;
 
     public PaymentHistories() {}
 
-    public PaymentHistories(String historyId, Students student, Subjects subject, AccountBalances accountBalance,
-                             BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
-        super(historyId, student, accountBalance, currentAmount,createdAt, status);
+    public PaymentHistories(String historyId, Students student, Subjects subject,
+                            AccountBalances accountBalance, BigDecimal currentAmount,
+                            LocalDateTime createdAt, Status status) {
+        super(historyId, student, accountBalance, currentAmount, createdAt, status);
         this.subject = subject;
+    }
+
+    @Override
+    public String getDescriptionMessage() {
+        return subject.getSubjectName() + " retake fee payment has been successfully processed.";
     }
 }

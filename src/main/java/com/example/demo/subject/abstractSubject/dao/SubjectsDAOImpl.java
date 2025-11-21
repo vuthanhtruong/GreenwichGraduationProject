@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,9 +62,23 @@ public class SubjectsDAOImpl implements SubjectsDAO {
 
     @Override
     public List<Subjects> getSubjects() {
-        return entityManager.createQuery("SELECT s FROM Subjects s where s.acceptor is not null ", Subjects.class)
-                .getResultList()
-                .stream()
+        List<Subjects> allSubjects = new ArrayList<>();
+
+        // Lấy từng loại môn cụ thể (Hibernate sẽ trả về đúng instance của lớp con)
+        allSubjects.addAll(entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s WHERE s.acceptor IS NOT NULL", Subjects.class)
+                .getResultList());
+
+        allSubjects.addAll(entityManager.createQuery(
+                        "SELECT s FROM MinorSubjects s WHERE s.acceptor IS NOT NULL", Subjects.class)
+                .getResultList());
+
+        allSubjects.addAll(entityManager.createQuery(
+                        "SELECT s FROM SpecializedSubject s WHERE s.acceptor IS NOT NULL", Subjects.class)
+                .getResultList());
+
+        // Giữ nguyên logic sort đẹp đẽ của bạn
+        return allSubjects.stream()
                 .sorted(Comparator.comparing(
                                 this::getMajorName,
                                 Comparator.nullsLast(Comparator.naturalOrder()))
@@ -74,20 +89,35 @@ public class SubjectsDAOImpl implements SubjectsDAO {
 
     @Override
     public List<Subjects> getPaginatedSubjects(int firstResult, int pageSize) {
-        return entityManager.createQuery(
-                        "SELECT s FROM Subjects s LEFT JOIN FETCH s.acceptor",
-                        Subjects.class)
-                .setFirstResult(firstResult)
-                .setMaxResults(pageSize)
-                .getResultList();
+        List<Subjects> result = new ArrayList<>();
+
+        result.addAll(entityManager.createQuery(
+                        "SELECT s FROM MajorSubjects s LEFT JOIN FETCH s.acceptor", Subjects.class)
+                .setFirstResult(firstResult).setMaxResults(pageSize).getResultList());
+
+        // Nếu chưa đủ thì lấy tiếp từ các loại khác (hoặc bạn có thể dùng UNION nếu cần)
+        if (result.size() < pageSize) {
+            int remaining = pageSize - result.size();
+            result.addAll(entityManager.createQuery(
+                            "SELECT s FROM MinorSubjects s LEFT JOIN FETCH s.acceptor", Subjects.class)
+                    .setFirstResult(firstResult).setMaxResults(remaining).getResultList());
+        }
+        if (result.size() < pageSize) {
+            int remaining = pageSize - result.size();
+            result.addAll(entityManager.createQuery(
+                            "SELECT s FROM SpecializedSubject s LEFT JOIN FETCH s.acceptor", Subjects.class)
+                    .setFirstResult(firstResult).setMaxResults(remaining).getResultList());
+        }
+
+        return result;
     }
 
     @Override
     public long numberOfSubjects() {
-        return entityManager.createQuery(
-                        "SELECT COUNT(s) FROM Subjects s",
-                        Long.class)
-                .getSingleResult();
+        Long major = entityManager.createQuery("SELECT COUNT(s) FROM MajorSubjects s", Long.class).getSingleResult();
+        Long minor = entityManager.createQuery("SELECT COUNT(s) FROM MinorSubjects s", Long.class).getSingleResult();
+        Long spec = entityManager.createQuery("SELECT COUNT(s) FROM SpecializedSubject s", Long.class).getSingleResult();
+        return major + minor + spec;
     }
 
     @Override

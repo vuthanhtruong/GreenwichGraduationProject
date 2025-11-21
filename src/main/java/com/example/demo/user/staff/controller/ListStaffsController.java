@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,5 +112,30 @@ public class ListStaffsController {
                     .body(staff.getAvatar());
         }
         return ResponseEntity.notFound().build();
+    }
+    @DeleteMapping("/delete-staff/{id}")
+    public String deleteStaff(
+            @PathVariable String id,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
+        try {
+            Staffs staff = staffsService.getStaffById(id);
+            if (staff == null) {
+                redirectAttributes.addFlashAttribute("error", "Staff not found!");
+            } else {
+                staffsService.deleteStaff(id);
+                redirectAttributes.addFlashAttribute("message",
+                        "Staff '" + staff.getFirstName() + " " + staff.getLastName() + "' (ID: " + id + ") has been deleted successfully!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Cannot delete staff: " + e.getMessage());
+        }
+
+        // Giữ lại page hiện tại + pageSize + search (nếu có)
+        Integer pageSize = (Integer) session.getAttribute("staffPageSize");
+        if (pageSize == null) pageSize = 20;
+
+        return "redirect:/admin-home/staffs-list?pageSize=" + pageSize;
     }
 }

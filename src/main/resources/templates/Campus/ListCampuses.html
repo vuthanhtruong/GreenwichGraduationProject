@@ -22,25 +22,6 @@
             </h2>
         </div>
 
-        <!-- Center: Search -->
-        <form method="post"
-              th:action="@{/admin-home/campuses-list/search-campuses}"
-              class="toolbar-center">
-            <select class="input small" name="searchType">
-                <option value="name">Name</option>
-                <option value="id">ID</option>
-            </select>
-
-            <input class="input search-input"
-                   name="keyword"
-                   placeholder="Search..."
-                   type="text">
-
-            <button class="btn small" type="submit">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
-
         <!-- Right: Add + Total -->
         <div class="toolbar-right">
 

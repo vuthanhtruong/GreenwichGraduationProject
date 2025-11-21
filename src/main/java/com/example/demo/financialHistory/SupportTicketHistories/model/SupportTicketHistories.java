@@ -17,24 +17,24 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "SupportTicketHistories")
 @PrimaryKeyJoinColumn(name = "HistoryID")
-@Getter
-@Setter
+@Getter @Setter
 public class SupportTicketHistories extends FinancialHistories {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SupportTicketID", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private SupportTickets supportTicket;
-
-    @Column(name = "Description", nullable = true, length = 1000)
-    private String description;
 
     public SupportTicketHistories() {}
 
-    public SupportTicketHistories(String historyId, Students student, SupportTickets supportTicket, AccountBalances accountBalance,
-                                  BigDecimal currentAmount, LocalDateTime createdAt, Status status, String description) {
-        super(historyId, student, accountBalance, currentAmount,createdAt, status);
+    public SupportTicketHistories(String historyId, Students student, SupportTickets supportTicket,
+                                  AccountBalances accountBalance, BigDecimal currentAmount,
+                                  LocalDateTime createdAt, Status status) {
+        super(historyId, student, accountBalance, currentAmount, createdAt, status);
         this.supportTicket = supportTicket;
-        this.description = description;
+    }
+
+    @Override
+    public String getDescriptionMessage() {
+        return supportTicket.getTicketName() + " fee support ticket has been successfully processed.";
     }
 }

@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +20,7 @@ import java.time.LocalDateTime;
         @PrimaryKeyJoinColumn(name = "StudentID", referencedColumnName = "StudentID"),
         @PrimaryKeyJoinColumn(name = "ClassID", referencedColumnName = "ClassID")
 })
+
 public class Students_MajorClasses extends Students_Classes {
 
     @ManyToOne(fetch = FetchType.LAZY)

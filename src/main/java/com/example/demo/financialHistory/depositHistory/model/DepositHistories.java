@@ -14,22 +14,22 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "DepositHistory")
 @PrimaryKeyJoinColumn(name = "HistoryID")
-@Getter
-@Setter
+@Getter @Setter
 public class DepositHistories extends FinancialHistories {
 
     @Column(name = "Amount", nullable = false)
     private Double amount;
 
-    @Column(name = "Description", length = 1000)
-    private String description;
-
     public DepositHistories() {}
 
-    public DepositHistories(String historyId, Students student, AccountBalances accountBalance, Double amount,
-                            BigDecimal currentAmount, LocalDateTime createdAt, Status status, String description) {
-        super(historyId, student, accountBalance, currentAmount,createdAt, status);
+    public DepositHistories(String historyId, Students student, AccountBalances accountBalance,
+                            Double amount, BigDecimal currentAmount, LocalDateTime createdAt, Status status) {
+        super(historyId, student, accountBalance, currentAmount, createdAt, status);
         this.amount = amount;
-        this.description = description;
+    }
+
+    @Override
+    public String getDescriptionMessage() {
+        return "An amount of " + String.format("%.2f", amount) + " has been successfully deposited.";
     }
 }

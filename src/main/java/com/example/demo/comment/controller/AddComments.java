@@ -31,8 +31,6 @@ import java.util.Map;
 @RequestMapping("/classroom")
 public class AddComments {
 
-    private final MajorClassPostsService majorClassPostsService;
-    private final MinorClassPostsService minorClassPostsService;
     private final ClassPostsService classPostsService;
 
     private final MajorCommentsService majorCommentsService;
@@ -46,8 +44,6 @@ public class AddComments {
     private final PersonsService personsService;
 
     public AddComments(
-            MajorClassPostsService majorClassPostsService,
-            MinorClassPostsService minorClassPostsService,
             ClassPostsService classPostsService,
             MajorCommentsService majorCommentsService,
             MinorCommentsService minorCommentsService,
@@ -56,8 +52,6 @@ public class AddComments {
             SpecializedAssignmentCommentsService specializedAssignmentCommentsService,
             PersonsService personsService) {
 
-        this.majorClassPostsService = majorClassPostsService;
-        this.minorClassPostsService = minorClassPostsService;
         this.classPostsService = classPostsService;
         this.majorCommentsService = majorCommentsService;
         this.minorCommentsService = minorCommentsService;

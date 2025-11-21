@@ -160,12 +160,6 @@ public class StaffTicketApprovalsController {
                 history.setCreatedAt(LocalDateTime.now());
                 history.setStatus(Status.COMPLETED);
                 history.setSupportTicket(ticket);
-                history.setDescription(
-                        "Refund for cancelled support request: " + ticket.getTicketName() +
-                                " | Amount: " + String.format("%,.0f", cost) + " VNĐ" +
-                                " | Request ID: " + requestId
-                );
-
                 historiesService.createHistory(history);
             }
 

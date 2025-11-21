@@ -18,7 +18,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional
@@ -71,8 +73,7 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
         return entityManager.createQuery(
                         "SELECT t FROM TuitionByYear t " +
                                 "WHERE t.campus.campusId = :campusId " +
-                                "AND t.admissionYear = :admissionYear " +
-                                "ORDER BY t.subject.subjectId", TuitionByYear.class)
+                                "AND t.admissionYear = :admissionYear ", TuitionByYear.class)
                 .setParameter("campusId", campusId)
                 .setParameter("admissionYear", admissionYear)
                 .getResultList();
@@ -260,17 +261,44 @@ public class TuitionByYearDAOImpl implements TuitionByYearDAO {
             throw new IllegalArgumentException("Admission year and campus cannot be null");
         }
 
-        return entityManager.createQuery(
+        List<TuitionByYear> result = new ArrayList<>();
+
+        // Major
+        result.addAll(entityManager.createQuery(
                         "SELECT t FROM TuitionByYear t " +
-                                "JOIN FETCH t.subject " +
-                                "JOIN FETCH t.campus " +
-                                "JOIN FETCH t.creator " +
-                                "WHERE t.id.admissionYear = :admissionYear " +
-                                "AND t.campus = :campus",
-                        TuitionByYear.class)
+                                "JOIN FETCH t.campus JOIN FETCH t.creator " +
+                                "LEFT JOIN FETCH t.subject " +
+                                "WHERE t.id.admissionYear = :admissionYear AND t.campus = :campus " +
+                                "AND TYPE(t.subject) = MajorSubjects", TuitionByYear.class)
                 .setParameter("admissionYear", admissionYear)
                 .setParameter("campus", campus)
-                .getResultList();
+                .getResultList());
+
+        // Minor
+        result.addAll(entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "JOIN FETCH t.campus JOIN FETCH t.creator " +
+                                "LEFT JOIN FETCH t.subject " +
+                                "WHERE t.id.admissionYear = :admissionYear AND t.campus = :campus " +
+                                "AND TYPE(t.subject) = MinorSubjects", TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campus", campus)
+                .getResultList());
+
+        // Specialized
+        result.addAll(entityManager.createQuery(
+                        "SELECT t FROM TuitionByYear t " +
+                                "JOIN FETCH t.campus JOIN FETCH t.creator " +
+                                "LEFT JOIN FETCH t.subject " +
+                                "WHERE t.id.admissionYear = :admissionYear AND t.campus = :campus " +
+                                "AND TYPE(t.subject) = SpecializedSubject", TuitionByYear.class)
+                .setParameter("admissionYear", admissionYear)
+                .setParameter("campus", campus)
+                .getResultList());
+
+        return result.stream()
+                .sorted(Comparator.comparing(t -> t.getId().getSubjectId()))
+                .collect(Collectors.toList());
     }
 
     @Override

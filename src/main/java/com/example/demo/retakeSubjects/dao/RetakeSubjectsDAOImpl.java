@@ -95,7 +95,8 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
         payment.setStudent(student);
         payment.setSubject(subject);
         payment.setAccountBalance(account);
-        payment.setCurrentAmount(BigDecimal.valueOf(-amount));
+        payment.setCurrentAmount(BigDecimal.valueOf(account.getBalance()-amount));
+        payment.setChangedAmount(BigDecimal.valueOf(-amount));
         payment.setCreatedAt(LocalDateTime.now());
         payment.setStatus(Status.COMPLETED);
         paymentHistoriesService.save(payment);

@@ -49,6 +49,7 @@
             <tr>
                 <th><i class="fas fa-calendar-alt"></i> Date</th>
                 <th><i class="fas fa-file-invoice"></i> Description</th>
+                <th><i class="fas fa-exchange-alt"></i> Amount Change</th>
                 <th><i class="fas fa-money-bill-wave"></i> Balance After</th>
                 <th><i class="fas fa-cogs"></i> Status / Action</th>
             </tr>
@@ -59,6 +60,10 @@
                 <td th:text="${#temporals.format(h.createdAt,'dd MMM yyyy HH:mm')}"></td>
 
                 <td th:text="${h.historyType}"></td>
+
+                <td><span th:text="(${h.changedAmount} >= 0 ? '+' : '') +
+                  ${#numbers.formatDecimal(h.changedAmount.abs(), 1, 'COMMA', 2, 'POINT')} + ' USD'"></span></td>
+
 
                 <td th:text="${#numbers.formatDecimal(h.currentAmount,1,'COMMA',2,'POINT')} + ' USD'"></td>
 

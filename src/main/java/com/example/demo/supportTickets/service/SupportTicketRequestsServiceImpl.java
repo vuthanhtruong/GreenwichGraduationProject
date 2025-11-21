@@ -103,11 +103,6 @@ public class SupportTicketRequestsServiceImpl implements SupportTicketRequestsSe
         history.setCreatedAt(LocalDateTime.now());
         history.setStatus(Status.COMPLETED);
         history.setSupportTicket(ticket);
-        history.setDescription(
-                "Support Request: " + ticket.getTicketName() +
-                        " | Cost: " + String.format("%,.0f", cost) + " VNĐ" +
-                        " | Request ID: " + saved.getRequestId()
-        );
 
         historiesService.createHistory(history);
 

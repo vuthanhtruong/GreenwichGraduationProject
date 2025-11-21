@@ -229,12 +229,28 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
+    @Transactional
     public void deleteClass(String id) {
-        MinorClasses c = getClassById(id);
-        if (c == null) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Class ID is required.");
+        }
+
+        MinorClasses minorClass = entityManager.find(MinorClasses.class, id);
+        if (minorClass == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
-        entityManager.remove(c);
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_MinorClasses smc WHERE smc.minorClass.classId = :classId")
+                .setParameter("classId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_Classes sc WHERE sc.classEntity.classId = :classId")
+                .setParameter("classId", id)
+                .executeUpdate();
+
+        entityManager.remove(minorClass);
     }
 
     @Override
@@ -372,7 +388,34 @@ public class MinorClassesDAOImpl implements MinorClassesDAO {
     }
 
     @Override
+    @Transactional
     public void deleteClassBySubject(MinorSubjects subject) {
+        if (subject == null) return;
+
+        // Bước 1: Lấy hết MinorClasses thuộc môn này
+        List<MinorClasses> classes = entityManager
+                .createQuery("SELECT c FROM MinorClasses c WHERE c.minorSubject = :subject", MinorClasses.class)
+                .setParameter("subject", subject)
+                .getResultList();
+
+        // Bước 2: Với từng lớp → xóa sạch dữ liệu con trước
+        for (MinorClasses mc : classes) {
+            String classId = mc.getClassId();
+
+            // Xóa hết sinh viên đăng ký lớp phụ này
+            entityManager.createQuery(
+                            "DELETE FROM Students_MinorClasses smc WHERE smc.minorClass.classId = :classId")
+                    .setParameter("classId", classId)
+                    .executeUpdate();
+
+            // Xóa khỏi students_classes nếu có (trong trường hợp lớp phụ cũng được đăng ký thường)
+            entityManager.createQuery(
+                            "DELETE FROM Students_Classes sc WHERE sc.classEntity.classId = :classId")
+                    .setParameter("classId", classId)
+                    .executeUpdate();
+        }
+
+        // Bước 3: Bây giờ mới xóa MinorClasses
         entityManager.createQuery("DELETE FROM MinorClasses c WHERE c.minorSubject = :subject")
                 .setParameter("subject", subject)
                 .executeUpdate();

@@ -142,12 +142,32 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
     }
 
     @Override
+    @Transactional
     public void deleteClass(String id) {
-        SpecializedClasses c = getClassById(id);
-        if (c == null) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Class ID is required.");
+        }
+
+        SpecializedClasses specClass = getClassById(id);
+        if (specClass == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
-        entityManager.remove(c);
+
+        // Xóa bảng con chuyên sâu (nếu hệ thống bạn có entity Students_SpecializedClasses)
+        entityManager.createQuery(
+                        "DELETE FROM Students_SpecializedClasses ssc WHERE ssc.specializedClass.classId = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        // Xóa khỏi bảng đăng ký lớp chung (nếu lớp chuyên sâu cũng nằm trong students_classes)
+        entityManager.createQuery(
+                        "DELETE FROM Students_Classes sc WHERE sc.classEntity.classId = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        // Cuối cùng xóa lớp chính
+        entityManager.remove(specClass);
+
         log.info("Deleted specialized class ID: {}", id);
     }
 
@@ -247,10 +267,8 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
         String jpql =
                 "SELECT c FROM SpecializedClasses c " +
-                        "JOIN FETCH c.creator cr " +
-                        "JOIN FETCH c.specializedSubject s " +
-                        "WHERE cr.majorManagement = :major " +
-                        "AND cr.campus.campusId = :campusId ";
+                        "WHERE c.specializedSubject.specialization.major = :major " +
+                        "AND c.creator.campus.campusId = :campusId ";
 
         if ("name".equalsIgnoreCase(searchType)) {
             jpql += "AND LOWER(c.nameClass) LIKE LOWER(:keyword) ";
@@ -304,10 +322,8 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
 
         String jpql =
                 "SELECT COUNT(c) FROM SpecializedClasses c " +
-                        "JOIN c.creator cr " +
-                        "JOIN c.specializedSubject s " +
-                        "WHERE cr.majorManagement = :major " +
-                        "AND cr.campus.campusId = :campusId ";
+                        "WHERE c.specializedSubject.specialization.major = :major " +
+                        "AND c.creator.campus.campusId = :campusId ";
 
         if ("name".equalsIgnoreCase(searchType)) {
             jpql += "AND LOWER(c.nameClass) LIKE LOWER(:keyword) ";
@@ -343,7 +359,7 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         try {
             return entityManager.createQuery(
                             "SELECT c FROM SpecializedClasses c " +
-                                    "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                                    "WHERE c.specializedSubject.specialization.major = :major AND c.creator.campus.campusId = :campusId",
                             SpecializedClasses.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)
@@ -363,7 +379,7 @@ public class SpecializedClassesDAOImpl implements SpecializedClassesDAO {
         try {
             Long count = entityManager.createQuery(
                             "SELECT COUNT(c) FROM SpecializedClasses c " +
-                                    "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                                    "WHERE c.specializedSubject.specialization.major = :major AND c.creator.campus.campusId = :campusId",
                             Long.class)
                     .setParameter("major", major)
                     .setParameter("campusId", campusId)

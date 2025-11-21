@@ -184,7 +184,36 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
+    @Transactional  // BẮT BUỘC có @Transactional
     public void deleteClassBySubject(MajorSubjects subject) {
+        if (subject == null) return;
+
+        // BƯỚC 1: Lấy tất cả MajorClasses thuộc subject này
+        List<MajorClasses> classesToDelete = entityManager
+                .createQuery("SELECT c FROM MajorClasses c WHERE c.subject = :subject", MajorClasses.class)
+                .setParameter("subject", subject)
+                .getResultList();
+
+        // BƯỚC 2: Với từng lớp → xóa sạch dữ liệu con TRƯỚC (rất quan trọng!)
+        for (MajorClasses mc : classesToDelete) {
+            String classId = mc.getClassId();
+
+            // Xóa hết sinh viên khỏi lớp chuyên ngành này (bảng con)
+            entityManager.createQuery(
+                            "DELETE FROM Students_MajorClasses smc WHERE smc.majorClass.classId = :classId")
+                    .setParameter("classId", classId)
+                    .executeUpdate();
+
+            // Xóa hết đăng ký lớp thường của sinh viên vào lớp này (nếu có quan hệ)
+            entityManager.createQuery(
+                            "DELETE FROM Students_Classes sc WHERE sc.classEntity.classId = :classId")
+                    .setParameter("classId", classId)
+                    .executeUpdate();
+
+            // (Tùy hệ thống bạn có thể có thêm bảng khác trỏ đến classId → xóa luôn ở đây)
+        }
+
+        // BƯỚC 3: BÂY GIỜ MỚI ĐƯỢC XÓA MajorClasses - lúc này đã sạch sẽ, không còn con nào
         entityManager.createQuery("DELETE FROM MajorClasses c WHERE c.subject = :subject")
                 .setParameter("subject", subject)
                 .executeUpdate();
@@ -261,12 +290,28 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     }
 
     @Override
+    @Transactional
     public void deleteClass(String id) {
-        MajorClasses c = entityManager.find(MajorClasses.class, id);
-        if (c == null) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Class ID is required.");
+        }
+
+        MajorClasses majorClass = entityManager.find(MajorClasses.class, id);
+        if (majorClass == null) {
             throw new IllegalArgumentException("Class with ID " + id + " not found");
         }
-        entityManager.remove(c);
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_MajorClasses smc WHERE smc.majorClass.classId = :classId")
+                .setParameter("classId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_Classes sc WHERE sc.classEntity.classId = :classId")
+                .setParameter("classId", id)
+                .executeUpdate();
+
+        entityManager.remove(majorClass);
     }
 
     @Override
@@ -341,7 +386,7 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
         if (major == null || campusId == null || campusId.isBlank()) return List.of();
 
         String jpql = "SELECT c FROM MajorClasses c " +
-                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId";
+                "WHERE c.subject.major = :major AND c.creator.campus.campusId = :campusId";
 
         if ("name".equals(searchType)) {
             jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
@@ -363,7 +408,7 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
         if (major == null || campusId == null || campusId.isBlank()) return 0;
 
         String jpql = "SELECT COUNT(c) FROM MajorClasses c " +
-                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId";
+                "WHERE c.subject.major = :major AND c.creator.campus.campusId = :campusId";
 
         if ("name".equals(searchType)) {
             jpql += " AND LOWER(c.nameClass) LIKE LOWER(:keyword)";
@@ -382,7 +427,7 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
     public List<MajorClasses> getPaginatedClassesByCampus(int firstResult, int pageSize, Majors major, String campusId) {
         return entityManager.createQuery(
                         "SELECT c FROM MajorClasses c " +
-                                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                                "WHERE c.subject.major = :major AND c.creator.campus.campusId = :campusId",
                         MajorClasses.class)
                 .setParameter("major", major)
                 .setParameter("campusId", campusId)
@@ -397,7 +442,7 @@ public class MajorClassesDAOImpl implements MajorClassesDAO {
 
         return entityManager.createQuery(
                         "SELECT COUNT(c) FROM MajorClasses c " +
-                                "WHERE c.creator.majorManagement = :major AND c.creator.campus.campusId = :campusId",
+                                "WHERE c.subject.major = :major AND c.creator.campus.campusId = :campusId",
                         Long.class)
                 .setParameter("major", major)
                 .setParameter("campusId", campusId)

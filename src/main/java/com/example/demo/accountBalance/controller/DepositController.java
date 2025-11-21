@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Controller
@@ -73,9 +74,10 @@ public class DepositController {
         deposit.setStudent(student);
         deposit.setAccountBalance(account);
         deposit.setAmount(amount);
+        deposit.setChangedAmount(BigDecimal.ZERO);
+        deposit.setCurrentAmount(BigDecimal.valueOf(account.getBalance()));
         deposit.setCreatedAt(LocalDateTime.now());
         deposit.setStatus(Status.PROCESSING);
-        deposit.setDescription("Stripe new deposit initiated for student " + studentId);
         depositHistoryService.createDepositHistory(deposit);
 
         // ✅ Tạo phiên Stripe
@@ -157,31 +159,41 @@ public class DepositController {
         Session session = Session.retrieve(sessionId);
         String studentId = session.getMetadata().get("studentId");
 
-        if ("complete".equalsIgnoreCase(session.getStatus())) {
-            Students student = studentService.findById(studentId);
-            AccountBalances account = accountBalancesService.findByStudentId(studentId);
-            if (account == null) {
-                account = new AccountBalances(student, 0.0, LocalDateTime.now());
-                accountBalancesService.createAccountBalances(account);
-            }
-
-            double amount = session.getAmountTotal() / 100.0;
-            account.setBalance(account.getBalance() + amount);
-            account.setLastUpdated(LocalDateTime.now());
-            accountBalancesService.DepositMoneyIntoAccount(account);
-
-            DepositHistories deposit = depositHistoryService.findByStudentIdAndStatus(studentId, Status.PROCESSING);
-            if (deposit != null) {
-                deposit.setStatus(Status.COMPLETED);
-                deposit.setDescription("Stripe deposit completed for student " + studentId);
-                depositHistoryService.save(deposit);
-            }
-
-            model.addAttribute("message", "Deposit successful!");
-        } else {
-            model.addAttribute("message", "Payment not completed");
+        // Kiểm tra thanh toán đã hoàn tất chưa
+        if (!"paid".equalsIgnoreCase(session.getPaymentStatus())) {
+            model.addAttribute("message", "Payment not completed yet.");
+            return "DepositSuccess";
         }
 
+        Students student = studentService.findById(studentId);
+        AccountBalances account = accountBalancesService.findByStudentId(studentId);
+        if (account == null) {
+            account = new AccountBalances(student, 0.0, LocalDateTime.now());
+            accountBalancesService.createAccountBalances(account);
+        }
+
+        // Số tiền thực tế Stripe thu (có thể có phí, nhưng ở đây là gross)
+        double amountReceived = session.getAmountTotal() / 100.0;
+        BigDecimal amountBigDecimal = BigDecimal.valueOf(amountReceived);
+
+        // Cộng tiền vào tài khoản
+        double oldBalance = account.getBalance();
+        account.setBalance(oldBalance + amountReceived);
+        account.setLastUpdated(LocalDateTime.now());
+        accountBalancesService.DepositMoneyIntoAccount(account); // hoặc save bình thường
+
+        // === PHẦN QUAN TRỌNG: CẬP NHẬT LỊCH SỬ ===
+        DepositHistories deposit = depositHistoryService.findByStudentIdAndStatus(studentId, Status.PROCESSING);
+
+        if (deposit != null) {
+            deposit.setStatus(Status.COMPLETED);
+            deposit.setChangedAmount(amountBigDecimal);                                      // +500000.00
+            deposit.setCurrentAmount(BigDecimal.valueOf(account.getBalance()));              // số dư mới sau nạp
+
+            depositHistoryService.save(deposit); // hoặc update
+        }
+
+        model.addAttribute("message", "Deposit successful! +" + amountReceived + " USD");
         return "DepositSuccess";
     }
 
