@@ -450,11 +450,16 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
     @Override
     @Transactional
     public void deleteLecturer(String id) {
-        MajorLecturers lecturer = entityManager.find(MajorLecturers.class, id);
-        if (lecturer == null) {
-            throw new IllegalArgumentException("Lecturer with ID " + id + " not found");
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Lecturer ID cannot be null or empty");
         }
 
+        MajorLecturers lecturer = entityManager.find(MajorLecturers.class, id);
+        if (lecturer == null) {
+            throw new IllegalArgumentException("MajorLecturer with ID " + id + " not found");
+        }
+
+        // === 1. XÓA CÁC BẢNG LIÊN KẾT NHIỀU-NHIỀU / COMPOSITE KEY ===
         entityManager.createQuery(
                         "DELETE FROM MajorLecturers_MajorClasses mlmc WHERE mlmc.id.lecturerId = :lecturerId")
                 .setParameter("lecturerId", id)
@@ -465,12 +470,22 @@ public class MajorLecturersDAOImpl implements MajorLecturersDAO {
                 .setParameter("lecturerId", id)
                 .executeUpdate();
 
+        // === 2. XÓA BẢNG MajorLecturers_Specializations (bảng bạn vừa gửi) ===
         entityManager.createQuery(
                         "DELETE FROM MajorLecturers_Specializations mls WHERE mls.id.lecturerId = :lecturerId")
                 .setParameter("lecturerId", id)
                 .executeUpdate();
 
+        // === 3. Các bảng khác có thể tồn tại trong tương lai (thêm dần nếu cần) ===
+        // Ví dụ:
+        // entityManager.createQuery("DELETE FROM Lecturer_Attendance la WHERE la.lecturer.id = :id")...
+        // entityManager.createQuery("DELETE FROM Lecturer_Grades lg WHERE lg.lecturer.id = :id")...
+        // entityManager.createQuery("DELETE FROM Notifications n WHERE n.recipient.id = :id AND n.recipientType = 'LECTURER'")...
+
+        // === 4. Cuối cùng mới xóa chính MajorLecturer ===
         entityManager.remove(lecturer);
+
+        logger.warn("FORCE DELETED MajorLecturer ID: {} – All associated classes, specializations, and links removed safely!", id);
     }
 
     @Override

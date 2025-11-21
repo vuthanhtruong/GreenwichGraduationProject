@@ -62,22 +62,32 @@ public class DataSeeder implements CommandLineRunner {
     private static final String DEFAULT_PASSWORD = "123456";
     private static final double INITIAL_DEPOSIT_AMOUNT = 1000.0;
 
-    private static final int TOTAL_STUDENTS = 50;
-    private static final int MAJOR_CLASSES_TOTAL = 10;
-    private static final int MINOR_CLASSES_TOTAL = 5;
-    private static final int SPEC_CLASSES_TOTAL = 5;
-    private static final int REQUIRED_SUBJECTS_LIMIT = 40;
+    // scale to nhiều user hơn
+    private static final int TOTAL_STUDENTS = 200;
+    private static final int MAJOR_CLASSES_TOTAL = 40;
+    private static final int MINOR_CLASSES_TOTAL = 20;
+    private static final int SPEC_CLASSES_TOTAL = 20;
 
-    private static final int TOTAL_PARENTS = 50;
+    private static final int TOTAL_PARENTS = 200;
 
+    // số lượng staff/deputy/lecturer theo campus/major
+    private static final int STAFF_PER_MAJOR_PER_CAMPUS = 2;
+    private static final int DEPUTY_PER_CAMPUS = 3;
+    private static final int MAJOR_LECTURERS_PER_MAJOR_PER_CAMPUS = 2;
+    private static final int MINOR_LECTURERS_PER_CAMPUS = 3;
+
+    // CAMPUS IDs
     private static final String CAMPUS_ID_HANOI = "CAMP01";
     private static final String CAMPUS_ID_HCM = "CAMP02";
     private static final String CAMPUS_ID_DANANG = "CAMP03";
+    private static final String CAMPUS_ID_CANTHO = "CAMP04";
+    private static final String CAMPUS_ID_HAIPHONG = "CAMP05";
 
     private static final String CAMPUS_CODE_HANOI = "hn";
     private static final String CAMPUS_CODE_HCM = "hcm";
     private static final String CAMPUS_CODE_DANANG = "dn";
 
+    // mã campus dùng trong id user (demo, không nhất thiết trùng campus DB)
     private static final String CAMPUS_CODE = CAMPUS_CODE_HANOI;
 
     @Override
@@ -152,6 +162,22 @@ public class DataSeeder implements CommandLineRunner {
                 "Đà Nẵng Campus",
                 LocalDate.of(2018, 9, 1),
                 "Campus tại Đà Nẵng"
+        );
+
+        seedSingleCampus(
+                em,
+                CAMPUS_ID_CANTHO,
+                "Cần Thơ Campus",
+                LocalDate.of(2019, 9, 1),
+                "Campus tại Cần Thơ"
+        );
+
+        seedSingleCampus(
+                em,
+                CAMPUS_ID_HAIPHONG,
+                "Hải Phòng Campus",
+                LocalDate.of(2020, 9, 1),
+                "Campus tại Hải Phòng"
         );
     }
 
@@ -264,13 +290,28 @@ public class DataSeeder implements CommandLineRunner {
 
     private static void seedMajors(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        String[] ids = {"GBH", "GCH", "GDH", "GKH", "GKT"};
+
+        String[] ids = {
+                "GBH", // Quản trị Kinh doanh
+                "GCH", // CNTT
+                "GDH", // Thiết kế đồ hoạ
+                "GKH", // Marketing
+                "GKT", // Kế toán
+                "GLU", // Luật
+                "GQT", // Quản trị Du lịch
+                "GNN", // Ngôn ngữ Anh
+                "GTC"  // Tài chính
+        };
         String[] names = {
                 "Quản trị Kinh doanh",
                 "Công nghệ Thông tin",
                 "Thiết kế Đồ họa",
                 "Marketing",
-                "Kế toán"
+                "Kế toán",
+                "Luật",
+                "Quản trị Du lịch",
+                "Ngôn ngữ Anh",
+                "Tài chính"
         };
 
         for (int i = 0; i < ids.length; i++) {
@@ -295,7 +336,10 @@ public class DataSeeder implements CommandLineRunner {
                 {"SPEC_IT_AI", "Trí tuệ Nhân tạo", "GCH"},
                 {"SPEC_BUS_FIN", "Tài chính Ngân hàng", "GBH"},
                 {"SPEC_DES_UI", "Thiết kế UI/UX", "GDH"},
-                {"SPEC_MKT_DIG", "Marketing Kỹ thuật số", "GKH"}
+                {"SPEC_MKT_DIG", "Marketing Kỹ thuật số", "GKH"},
+                {"SPEC_FIN_CORP", "Tài chính Doanh nghiệp", "GTC"},
+                {"SPEC_ENG_BIZ", "Tiếng Anh Thương mại", "GNN"},
+                {"SPEC_TOUR_MICE", "Quản trị Sự kiện MICE", "GQT"}
         };
 
         for (String[] s : specs) {
@@ -333,130 +377,174 @@ public class DataSeeder implements CommandLineRunner {
 
     private static void seedStaffs(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
 
-        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT"};
-        String[] firstNames = {"Minh", "Lan", "Hùng", "Mai", "Tuấn"};
-        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng"};
+        List<Campuses> campuses = em.createQuery(
+                "SELECT c FROM Campuses c", Campuses.class
+        ).getResultList();
+        List<Majors> majors = em.createQuery(
+                "SELECT m FROM Majors m", Majors.class
+        ).getResultList();
 
-        for (int i = 0; i < majorIds.length; i++) {
-            String id = userId3("staff", i + 1);
-            if (exists(em, Staffs.class, "id", id)) {
-                System.out.println("[STAFF] " + id + " already exists, skip.");
-                continue;
+        if (campuses.isEmpty() || majors.isEmpty()) {
+            System.out.println("[STAFF] No campus or major, skip.");
+            return;
+        }
+
+        String[] firstNames = {"Minh", "Lan", "Hùng", "Mai", "Tuấn", "Phương", "Hảo", "Giang"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đỗ", "Bùi"};
+
+        int idx = 1;
+
+        for (Campuses campus : campuses) {
+            for (Majors major : majors) {
+                for (int k = 0; k < STAFF_PER_MAJOR_PER_CAMPUS; k++) {
+                    String id = userId3("staff", idx++);
+                    if (exists(em, Staffs.class, "id", id)) {
+                        System.out.println("[STAFF] " + id + " already exists, skip.");
+                        continue;
+                    }
+
+                    Staffs s = new Staffs();
+                    s.setId(id);
+                    s.setFirstName(firstNames[(idx + k) % firstNames.length]);
+                    s.setLastName(lastNames[(idx + k) % lastNames.length]);
+                    s.setEmail(id + "@staff.demo.com");
+                    s.setPhoneNumber("+84101" + String.format("%07d", idx));
+                    s.setBirthDate(LocalDate.of(1985 + (idx % 5), 1 + (idx % 12), 1 + (idx % 28)));
+                    s.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+                    s.setCountry("Vietnam");
+
+                    // địa chỉ theo campus
+                    fillAddressByCampus(s, campus, 100 + idx);
+
+                    s.setMajorManagement(major);
+                    s.setCampus(campus);
+                    s.setCreator(creator);
+
+                    em.persist(s);
+                    createAuth(em, id, s);
+                    System.out.println("[STAFF] Inserted " + id + " - major " + major.getMajorId()
+                            + " - campus " + campus.getCampusId());
+                }
             }
-
-            Majors major = find(em, Majors.class, "majorId", majorIds[i]);
-
-            Staffs s = new Staffs();
-            s.setId(id);
-            s.setFirstName(firstNames[i]);
-            s.setLastName(lastNames[i]);
-            s.setEmail(id + "@staff.demo.com");
-            s.setPhoneNumber("+84101" + String.format("%07d", i + 1));
-            s.setBirthDate(LocalDate.of(1985 + i % 3, 1 + i % 12, 1 + i % 28));
-            s.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-            s.setCountry("Vietnam");
-            s.setProvince("Hà Nội");
-            s.setCity("Hà Nội");
-            s.setDistrict("Cầu Giấy");
-            s.setWard("Dịch Vọng");
-            s.setStreet("123 Trần Duy Hưng");
-            s.setPostalCode("100000");
-            s.setMajorManagement(major);
-            s.setCampus(campus);
-            s.setCreator(creator);
-
-            em.persist(s);
-            createAuth(em, id, s);
-            System.out.println("[STAFF] Inserted " + id + " - major " + majorIds[i]);
         }
     }
 
     private static void seedDeputyStaffs(EntityManager em) {
         Admins creator = find(em, Admins.class, "id", mainAdminId());
-        Campuses campus = find(em, Campuses.class, "campusId", CAMPUS_ID_HANOI);
+        List<Campuses> campuses = em.createQuery(
+                "SELECT c FROM Campuses c", Campuses.class
+        ).getResultList();
 
-        String[] firstNames = {"Anh", "Bình", "Cường"};
-        String[] lastNames = {"Trần", "Lê", "Phạm"};
+        if (campuses.isEmpty()) {
+            System.out.println("[DEPUTY] No campus, skip.");
+            return;
+        }
 
-        for (int i = 0; i < firstNames.length; i++) {
-            String id = userId3("deputy", i + 1);
-            if (exists(em, DeputyStaffs.class, "id", id)) {
-                System.out.println("[DEPUTY] " + id + " already exists, skip.");
-                continue;
+        String[] firstNames = {"Anh", "Bình", "Cường", "Dũng", "Hải", "Trang"};
+        String[] lastNames = {"Trần", "Lê", "Phạm", "Hoàng", "Đặng", "Vũ"};
+
+        int idx = 1;
+
+        for (Campuses campus : campuses) {
+            for (int i = 0; i < DEPUTY_PER_CAMPUS; i++) {
+                String id = userId3("deputy", idx++);
+                if (exists(em, DeputyStaffs.class, "id", id)) {
+                    System.out.println("[DEPUTY] " + id + " already exists, skip.");
+                    continue;
+                }
+
+                DeputyStaffs d = new DeputyStaffs();
+                d.setId(id);
+                d.setFirstName(firstNames[(idx + i) % firstNames.length]);
+                d.setLastName(lastNames[(idx + i) % lastNames.length]);
+                d.setEmail(id + "@deputy.demo.com");
+                d.setPhoneNumber("+84102" + String.format("%07d", idx));
+                d.setBirthDate(LocalDate.of(1990 + (idx % 5), 2 + (idx % 10), 5 + (idx % 20)));
+                d.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+                d.setCountry("Vietnam");
+
+                fillAddressByCampus(d, campus, 200 + idx);
+
+                d.setCampus(campus);
+                d.setCreator(creator);
+
+                em.persist(d);
+                createAuth(em, id, d);
+                System.out.println("[DEPUTY] Inserted " + id + " - campus " + campus.getCampusId());
             }
-
-            DeputyStaffs d = new DeputyStaffs();
-            d.setId(id);
-            d.setFirstName(firstNames[i]);
-            d.setLastName(lastNames[i]);
-            d.setEmail(id + "@deputy.demo.com");
-            d.setPhoneNumber("+84102" + String.format("%07d", i + 1));
-            d.setBirthDate(LocalDate.of(1990 + i % 3, 2 + i % 10, 5 + i % 20));
-            d.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-            d.setCountry("Vietnam");
-            d.setProvince("Hà Nội");
-            d.setCity("Hà Nội");
-            d.setDistrict("Ba Đình");
-            d.setWard("Phúc Xá");
-            d.setStreet("45 Lê Duẩn");
-            d.setPostalCode("100000");
-            d.setCampus(campus);
-            d.setCreator(creator);
-
-            em.persist(d);
-            createAuth(em, id, d);
-            System.out.println("[DEPUTY] Inserted " + id);
         }
     }
 
     private static void seedMajorLecturers(EntityManager em) {
-        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT"};
-        String[] firstNames = {"Hải", "Yến", "Phong", "Thư"};
-        String[] lastNames = {"Lê", "Phạm", "Hoàng", "Vũ"};
+        List<Majors> majors = em.createQuery("SELECT m FROM Majors m", Majors.class).getResultList();
+        List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
+
+        if (majors.isEmpty() || staffList.isEmpty() || campuses.isEmpty()) {
+            System.out.println("[LECTURER] No major/staff/campus, skip.");
+            return;
+        }
+
+        // staff theo (majorId + campusId)
+        Map<String, List<Staffs>> staffByMajorAndCampus = staffList.stream()
+                .filter(st -> st.getMajorManagement() != null
+                        && st.getMajorManagement().getMajorId() != null
+                        && st.getCampus() != null
+                        && st.getCampus().getCampusId() != null)
+                .collect(Collectors.groupingBy(st ->
+                        st.getMajorManagement().getMajorId() + "#" + st.getCampus().getCampusId()
+                ));
+
+        String[] firstNames = {"Hải", "Yến", "Phong", "Thư", "Quân", "Chi"};
+        String[] lastNames = {"Lê", "Phạm", "Hoàng", "Vũ", "Đoàn", "Ngô"};
 
         int lecturerIndex = 1;
+        Random random = new Random();
 
-        for (String majorId : majorIds) {
-            Majors major = find(em, Majors.class, "majorId", majorId);
-            if (major == null) continue;
-
-            Staffs creator = findStaffByMajorId(em, majorId);
-            if (creator == null) continue;
-
-            Campuses campus = creator.getCampus();
-
-            for (int i = 0; i < 2; i++) {
-                String id = userId3("lect", lecturerIndex++);
-                if (exists(em, MajorLecturers.class, "id", id)) {
-                    System.out.println("[LECTURER] " + id + " already exists, skip.");
+        for (Campuses campus : campuses) {
+            for (Majors major : majors) {
+                String key = major.getMajorId() + "#" + campus.getCampusId();
+                List<Staffs> staffsForCombo = staffByMajorAndCampus.get(key);
+                if (staffsForCombo == null || staffsForCombo.isEmpty()) {
+                    System.out.println("[LECTURER] No staff for major " + major.getMajorId()
+                            + " campus " + campus.getCampusId() + ", skip lecturers.");
                     continue;
                 }
 
-                MajorLecturers l = new MajorLecturers();
-                l.setId(id);
-                l.setFirstName(firstNames[i % firstNames.length]);
-                l.setLastName(lastNames[i % lastNames.length]);
-                l.setEmail(id + "@lect.demo.com");
-                l.setPhoneNumber("+84103" + String.format("%07d", lecturerIndex));
-                l.setBirthDate(LocalDate.of(1975 + i, 3 + i % 10, 10 + i % 10));
-                l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
-                l.setCountry("Vietnam");
-                l.setProvince("Hà Nội");
-                l.setCity("Hà Nội");
-                l.setDistrict("Đống Đa");
-                l.setWard("Trung Tự");
-                l.setStreet("78 Nguyễn Lương Bằng");
-                l.setPostalCode("100000");
-                l.setMajorManagement(major);
-                l.setCampus(campus);
-                l.setEmploymentTypes(EmploymentTypes.FULL_TIME);
-                l.setCreator(creator);
+                for (int i = 0; i < MAJOR_LECTURERS_PER_MAJOR_PER_CAMPUS; i++) {
+                    String id = userId3("lect", lecturerIndex++);
+                    if (exists(em, MajorLecturers.class, "id", id)) {
+                        System.out.println("[LECTURER] " + id + " already exists, skip.");
+                        continue;
+                    }
 
-                em.persist(l);
-                createAuth(em, id, l);
-                System.out.println("[LECTURER] Inserted " + id + " for major " + majorId);
+                    Staffs creator = staffsForCombo.get(random.nextInt(staffsForCombo.size()));
+
+                    MajorLecturers l = new MajorLecturers();
+                    l.setId(id);
+                    l.setFirstName(firstNames[(lecturerIndex + i) % firstNames.length]);
+                    l.setLastName(lastNames[(lecturerIndex + i) % lastNames.length]);
+                    l.setEmail(id + "@lect.demo.com");
+                    l.setPhoneNumber("+84103" + String.format("%07d", lecturerIndex));
+                    l.setBirthDate(LocalDate.of(1975 + (lecturerIndex % 5),
+                            3 + (lecturerIndex % 10),
+                            10 + (lecturerIndex % 10)));
+                    l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
+                    l.setCountry("Vietnam");
+
+                    fillAddressByCampus(l, campus, 300 + lecturerIndex);
+
+                    l.setMajorManagement(major);
+                    l.setCampus(campus);
+                    l.setEmploymentTypes(EmploymentTypes.FULL_TIME);
+                    l.setCreator(creator);
+
+                    em.persist(l);
+                    createAuth(em, id, l);
+                    System.out.println("[LECTURER] Inserted " + id + " for major "
+                            + major.getMajorId() + " campus " + campus.getCampusId());
+                }
             }
         }
     }
@@ -468,43 +556,59 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        String[] firstNames = {"Hảo", "Giang", "Trang"};
-        String[] lastNames = {"Nguyễn", "Trần", "Lê"};
+        List<Campuses> campuses = em.createQuery("SELECT c FROM Campuses c", Campuses.class).getResultList();
+        if (campuses.isEmpty()) {
+            System.out.println("[MINOR_LECTURER] No campus, skip.");
+            return;
+        }
+
+        Map<String, List<DeputyStaffs>> deputyByCampus = deputies.stream()
+                .filter(d -> d.getCampus() != null && d.getCampus().getCampusId() != null)
+                .collect(Collectors.groupingBy(d -> d.getCampus().getCampusId()));
+
+        String[] firstNames = {"Hảo", "Giang", "Trang", "Vy", "Ngọc", "Thu"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Đinh"};
 
         int idx = 1;
-        for (int i = 0; i < firstNames.length; i++) {
-            String id = userId3("minlect", idx++);
-            if (exists(em, MinorLecturers.class, "id", id)) {
-                System.out.println("[MINOR_LECTURER] " + id + " already exists, skip.");
+        Random random = new Random();
+
+        for (Campuses campus : campuses) {
+            List<DeputyStaffs> campusDeputies = deputyByCampus.get(campus.getCampusId());
+            if (campusDeputies == null || campusDeputies.isEmpty()) {
+                System.out.println("[MINOR_LECTURER] No deputy in campus "
+                        + campus.getCampusId() + ", skip.");
                 continue;
             }
 
-            DeputyStaffs creator = deputies.get(i % deputies.size());
-            Campuses campus = creator.getCampus();
+            for (int i = 0; i < MINOR_LECTURERS_PER_CAMPUS; i++) {
+                String id = userId3("minlect", idx++);
+                if (exists(em, MinorLecturers.class, "id", id)) {
+                    System.out.println("[MINOR_LECTURER] " + id + " already exists, skip.");
+                    continue;
+                }
 
-            MinorLecturers ml = new MinorLecturers();
-            ml.setId(id);
-            ml.setFirstName(firstNames[i]);
-            ml.setLastName(lastNames[i]);
-            ml.setEmail(id + "@minorlec.demo.com");
-            ml.setPhoneNumber("+84104" + String.format("%07d", idx));
-            ml.setBirthDate(LocalDate.of(1985 + i, 4 + i, 12 + i));
-            ml.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
-            ml.setCountry("Vietnam");
-            ml.setProvince(campus != null && CAMPUS_ID_HCM.equals(campus.getCampusId()) ? "TP. Hồ Chí Minh" :
-                    CAMPUS_ID_DANANG.equals(campus.getCampusId()) ? "Đà Nẵng" : "Hà Nội");
-            ml.setCity(ml.getProvince());
-            ml.setDistrict("Hoàn Kiếm");
-            ml.setWard("Hàng Bài");
-            ml.setStreet("Đường Minor Lec " + (i + 1));
-            ml.setPostalCode("100000");
-            ml.setCampus(campus);
-            ml.setEmploymentTypes(i % 2 == 0 ? EmploymentTypes.PART_TIME : EmploymentTypes.FULL_TIME);
-            ml.setCreator(creator);
+                DeputyStaffs creator = campusDeputies.get(random.nextInt(campusDeputies.size()));
 
-            em.persist(ml);
-            createAuth(em, id, ml);
-            System.out.println("[MINOR_LECTURER] Inserted " + id);
+                MinorLecturers ml = new MinorLecturers();
+                ml.setId(id);
+                ml.setFirstName(firstNames[(idx + i) % firstNames.length]);
+                ml.setLastName(lastNames[(idx + i) % lastNames.length]);
+                ml.setEmail(id + "@minorlec.demo.com");
+                ml.setPhoneNumber("+84104" + String.format("%07d", idx));
+                ml.setBirthDate(LocalDate.of(1985 + (idx % 5), 4 + (idx % 12), 12 + (idx % 18)));
+                ml.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
+                ml.setCountry("Vietnam");
+
+                fillAddressByCampus(ml, campus, 400 + idx);
+
+                ml.setCampus(campus);
+                ml.setEmploymentTypes(i % 2 == 0 ? EmploymentTypes.PART_TIME : EmploymentTypes.FULL_TIME);
+                ml.setCreator(creator);
+
+                em.persist(ml);
+                createAuth(em, id, ml);
+                System.out.println("[MINOR_LECTURER] Inserted " + id + " campus " + campus.getCampusId());
+            }
         }
     }
 
@@ -538,8 +642,9 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         Staffs defaultCreator = staffList.get(0);
-        String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi"};
-        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng"};
+        String[] firstNames = {"An", "Bình", "Cường", "Duyên", "Đạt", "Hà", "Khánh", "Linh", "Mạnh", "Nhi",
+                "Oanh", "Phúc", "Quân", "Trang", "Uyên", "Vy"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đỗ", "Bùi"};
 
         int created = 0;
         for (int i = 1; i <= TOTAL_STUDENTS; i++) {
@@ -561,31 +666,7 @@ public class DataSeeder implements CommandLineRunner {
             student.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
             student.setCountry("Vietnam");
 
-            if (CAMPUS_ID_HANOI.equals(campus.getCampusId())) {
-                student.setProvince("Hà Nội");
-                student.setCity("Hà Nội");
-                student.setDistrict("Đống Đa");
-                student.setWard("Láng Hạ");
-                student.setStreet("Số " + (10 + i) + " Đường Demo Hà Nội");
-            } else if (CAMPUS_ID_HCM.equals(campus.getCampusId())) {
-                student.setProvince("TP. Hồ Chí Minh");
-                student.setCity("TP. Hồ Chí Minh");
-                student.setDistrict("Quận 1");
-                student.setWard("Bến Nghé");
-                student.setStreet("Số " + (10 + i) + " Đường Demo Sài Gòn");
-            } else if (CAMPUS_ID_DANANG.equals(campus.getCampusId())) {
-                student.setProvince("Đà Nẵng");
-                student.setCity("Đà Nẵng");
-                student.setDistrict("Hải Châu");
-                student.setWard("Thạch Thang");
-                student.setStreet("Số " + (10 + i) + " Đường Demo Đà Nẵng");
-            } else {
-                student.setProvince("Hà Nội");
-                student.setCity("Hà Nội");
-                student.setDistrict("Đống Đa");
-                student.setWard("Láng Hạ");
-                student.setStreet("Số " + (10 + i) + " Đường Demo");
-            }
+            fillAddressByCampus(student, campus, 10 + i);
 
             student.setPostalCode("100000");
             student.setAdmissionYear(2025);
@@ -623,9 +704,9 @@ public class DataSeeder implements CommandLineRunner {
         Staffs defaultStaffCreator = staffList.isEmpty() ? null : staffList.get(0);
         Random random = new Random();
 
-        String[] fatherFirstNames = {"Hùng", "Nam", "Thắng", "Dũng", "Quang"};
-        String[] motherFirstNames = {"Hoa", "Lan", "Hương", "Trang", "Nhung"};
-        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng"};
+        String[] fatherFirstNames = {"Hùng", "Nam", "Thắng", "Dũng", "Quang", "Sơn", "Tú"};
+        String[] motherFirstNames = {"Hoa", "Lan", "Hương", "Trang", "Nhung", "Thu", "Hà"};
+        String[] lastNames = {"Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đinh"};
 
         int limit = Math.min(TOTAL_PARENTS, students.size());
         int parentCreated = 0;
@@ -701,13 +782,18 @@ public class DataSeeder implements CommandLineRunner {
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", mainAdminId());
 
-        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT"};
+        // mỗi major 1-2 môn demo
+        String[] majorIds = {"GBH", "GCH", "GDH", "GKH", "GKT", "GLU", "GQT", "GNN", "GTC"};
         String[] names = {
                 "Nhập môn Quản trị",
                 "Lập trình Java",
                 "Thiết kế Cơ bản",
                 "Marketing Căn bản",
-                "Kế toán Tài chính"
+                "Kế toán Tài chính",
+                "Luật Đại cương",
+                "Quản trị Du lịch Căn bản",
+                "Tiếng Anh Tổng quát",
+                "Tài chính Doanh nghiệp Căn bản"
         };
 
         for (int i = 0; i < majorIds.length; i++) {
@@ -743,7 +829,8 @@ public class DataSeeder implements CommandLineRunner {
                 "Kỹ năng Mềm",
                 "Tư duy Phản biện",
                 "Quản lý Thời gian",
-                "Làm việc Nhóm"
+                "Làm việc Nhóm",
+                "Kỹ năng Thuyết trình"
         };
 
         for (int i = 0; i < names.length; i++) {
@@ -753,9 +840,14 @@ public class DataSeeder implements CommandLineRunner {
                 continue;
             }
 
-            String deputyId = userId3("deputy", (i % 3) + 1);
-            DeputyStaffs creator = find(em, DeputyStaffs.class, "id", deputyId);
-            if (creator == null) continue;
+            // random 1 deputy làm creator
+            List<DeputyStaffs> deputies = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class)
+                    .getResultList();
+            if (deputies.isEmpty()) {
+                System.out.println("[SUB_MINOR] No deputy, skip all.");
+                return;
+            }
+            DeputyStaffs creator = deputies.get(i % deputies.size());
 
             MinorSubjects s = new MinorSubjects();
             s.setSubjectId(id);
@@ -774,13 +866,25 @@ public class DataSeeder implements CommandLineRunner {
         Curriculum curr = find(em, Curriculum.class, "curriculumId", "CURR01");
         Admins acceptor = find(em, Admins.class, "id", mainAdminId());
 
-        String[] specIds = {"SPEC_IT_SE", "SPEC_IT_AI", "SPEC_BUS_FIN", "SPEC_DES_UI", "SPEC_MKT_DIG"};
+        String[] specIds = {
+                "SPEC_IT_SE",
+                "SPEC_IT_AI",
+                "SPEC_BUS_FIN",
+                "SPEC_DES_UI",
+                "SPEC_MKT_DIG",
+                "SPEC_FIN_CORP",
+                "SPEC_ENG_BIZ",
+                "SPEC_TOUR_MICE"
+        };
         String[] names = {
                 "Phát triển Web",
                 "Machine Learning",
                 "Ngân hàng Số",
                 "Figma Design",
-                "SEO & SEM"
+                "SEO & SEM",
+                "Phân tích Báo cáo Tài chính",
+                "Tiếng Anh Thương mại nâng cao",
+                "Tổ chức Sự kiện MICE"
         };
 
         for (int i = 0; i < specIds.length; i++) {
@@ -793,7 +897,10 @@ public class DataSeeder implements CommandLineRunner {
             Specialization spec = find(em, Specialization.class, "specializationId", specIds[i]);
             if (spec == null) continue;
 
-            Staffs creator = findStaffByMajorId(em, spec.getMajor().getMajorId());
+            Majors major = spec.getMajor();
+            Staffs creator = (major != null)
+                    ? findStaffByMajorId(em, major.getMajorId())
+                    : null;
             if (creator == null) continue;
 
             SpecializedSubject s = new SpecializedSubject();
@@ -1029,12 +1136,18 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        List<MajorSubjects> subjects = em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList();
+        List<MajorSubjects> subjects = em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class)
+                .getResultList();
         List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
         if (subjects.isEmpty() || staffList.isEmpty()) {
             System.out.println("[CLASS_MAJOR] No subject or staff, skip.");
             return;
         }
+
+        // staff theo major
+        Map<String, List<Staffs>> staffByMajor = staffList.stream()
+                .filter(st -> st.getMajorManagement() != null && st.getMajorManagement().getMajorId() != null)
+                .collect(Collectors.groupingBy(st -> st.getMajorManagement().getMajorId()));
 
         Sessions[] sessions = Sessions.values();
         Random random = new Random();
@@ -1045,12 +1158,21 @@ public class DataSeeder implements CommandLineRunner {
         int inserted = 0;
 
         for (MajorSubjects subj : subjects) {
+            Majors major = subj.getMajor();
+            if (major == null) continue;
+
+            List<Staffs> staffForMajor = staffByMajor.get(major.getMajorId());
+            if (staffForMajor == null || staffForMajor.isEmpty()) {
+                System.out.println("[CLASS_MAJOR] No staff for major " + major.getMajorId() + ", skip classes.");
+                continue;
+            }
+
             for (int i = 0; i < perSubject; i++) {
                 if (inserted >= total) break;
                 String classId = "CLM-" + String.format("%03d", index++);
                 if (exists(em, MajorClasses.class, "classId", classId)) continue;
 
-                Staffs creator = staffList.get(random.nextInt(staffList.size()));
+                Staffs creator = staffForMajor.get(random.nextInt(staffForMajor.size()));
 
                 MajorClasses mc = new MajorClasses(
                         classId,
@@ -1078,8 +1200,10 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        List<MinorSubjects> subjects = em.createQuery("SELECT s FROM MinorSubjects s", MinorSubjects.class).getResultList();
-        List<DeputyStaffs> deputyList = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class).getResultList();
+        List<MinorSubjects> subjects = em.createQuery("SELECT s FROM MinorSubjects s", MinorSubjects.class)
+                .getResultList();
+        List<DeputyStaffs> deputyList = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class)
+                .getResultList();
         if (subjects.isEmpty() || deputyList.isEmpty()) {
             System.out.println("[CLASS_MINOR] No subject or deputy, skip.");
             return;
@@ -1127,12 +1251,18 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        List<SpecializedSubject> subjects = em.createQuery("SELECT s FROM SpecializedSubject s", SpecializedSubject.class).getResultList();
+        List<SpecializedSubject> subjects = em.createQuery("SELECT s FROM SpecializedSubject s", SpecializedSubject.class)
+                .getResultList();
         List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
         if (subjects.isEmpty() || staffList.isEmpty()) {
             System.out.println("[CLASS_SPEC] No subject or staff, skip.");
             return;
         }
+
+        // staff theo major
+        Map<String, List<Staffs>> staffByMajor = staffList.stream()
+                .filter(st -> st.getMajorManagement() != null && st.getMajorManagement().getMajorId() != null)
+                .collect(Collectors.groupingBy(st -> st.getMajorManagement().getMajorId()));
 
         Sessions[] sessions = Sessions.values();
         Random random = new Random();
@@ -1143,12 +1273,22 @@ public class DataSeeder implements CommandLineRunner {
         int inserted = 0;
 
         for (SpecializedSubject subj : subjects) {
+            Specialization spec = subj.getSpecialization();
+            Majors major = (spec != null) ? spec.getMajor() : null;
+            if (major == null) continue;
+
+            List<Staffs> staffForMajor = staffByMajor.get(major.getMajorId());
+            if (staffForMajor == null || staffForMajor.isEmpty()) {
+                System.out.println("[CLASS_SPEC] No staff for major " + major.getMajorId() + ", skip classes.");
+                continue;
+            }
+
             for (int i = 0; i < perSubject; i++) {
                 if (inserted >= total) break;
                 String classId = "CLS-" + String.format("%03d", index++);
                 if (exists(em, SpecializedClasses.class, "classId", classId)) continue;
 
-                Staffs creator = staffList.get(random.nextInt(staffList.size()));
+                Staffs creator = staffForMajor.get(random.nextInt(staffForMajor.size()));
 
                 SpecializedClasses sc = new SpecializedClasses(
                         classId,
@@ -1169,24 +1309,50 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("[CLASS_SPEC] Total inserted: " + inserted);
     }
 
+    /**
+     * Logic mới cho REQUIRED SUBJECTS:
+     * - MajorRequired: full tất cả MajorSubjects theo major của student, creator = staff cùng major + campus
+     * - SpecRequired: full tất cả SpecializedSubject theo specialization của student, creator = staff cùng major + campus
+     * - MinorRequired: full tất cả MinorSubjects, creator = deputy cùng campus
+     */
     private static void seedStudentRequiredSubjects(EntityManager em) {
-        Long count = em.createQuery("SELECT COUNT(s) FROM StudentRequiredSubjects s", Long.class).getSingleResult();
-        if (count > 0) {
-            System.out.println("[REQ_SUBJECT] Already has data, skip.");
+        Long countMaj = em.createQuery(
+                "SELECT COUNT(s) FROM StudentRequiredMajorSubjects s", Long.class
+        ).getSingleResult();
+        Long countMin = em.createQuery(
+                "SELECT COUNT(s) FROM StudentRequiredMinorSubjects s", Long.class
+        ).getSingleResult();
+        Long countSpec = em.createQuery(
+                "SELECT COUNT(s) FROM StudentRequiredSpecializedSubjects s", Long.class
+        ).getSingleResult();
+
+        if (countMaj + countMin + countSpec > 0) {
+            System.out.println("[REQ_SUBJECT] Already has data in required tables, skip.");
             return;
         }
 
-        List<Students> students = em.createQuery("SELECT s FROM Students s ORDER BY s.id", Students.class).getResultList();
+        List<Students> students = em.createQuery("SELECT s FROM Students s ORDER BY s.id", Students.class)
+                .getResultList();
         if (students.isEmpty()) {
             System.out.println("[REQ_SUBJECT] No students, skip.");
             return;
         }
 
-        List<MajorSubjects> majorSubjects = em.createQuery("SELECT s FROM MajorSubjects s", MajorSubjects.class).getResultList();
-        List<MinorSubjects> minorSubjects = em.createQuery("SELECT s FROM MinorSubjects s", MinorSubjects.class).getResultList();
-        List<SpecializedSubject> specSubjects = em.createQuery("SELECT s FROM SpecializedSubject s", SpecializedSubject.class).getResultList();
-        List<Staffs> staffList = em.createQuery("SELECT s FROM Staffs s", Staffs.class).getResultList();
-        List<DeputyStaffs> deputyList = em.createQuery("SELECT d FROM DeputyStaffs d", DeputyStaffs.class).getResultList();
+        List<MajorSubjects> majorSubjects = em.createQuery(
+                "SELECT s FROM MajorSubjects s", MajorSubjects.class
+        ).getResultList();
+        List<MinorSubjects> minorSubjects = em.createQuery(
+                "SELECT s FROM MinorSubjects s", MinorSubjects.class
+        ).getResultList();
+        List<SpecializedSubject> specSubjects = em.createQuery(
+                "SELECT s FROM SpecializedSubject s", SpecializedSubject.class
+        ).getResultList();
+        List<Staffs> staffList = em.createQuery(
+                "SELECT s FROM Staffs s", Staffs.class
+        ).getResultList();
+        List<DeputyStaffs> deputyList = em.createQuery(
+                "SELECT d FROM DeputyStaffs d", DeputyStaffs.class
+        ).getResultList();
 
         if (majorSubjects.isEmpty() || minorSubjects.isEmpty() || specSubjects.isEmpty()
                 || staffList.isEmpty() || deputyList.isEmpty()) {
@@ -1194,51 +1360,119 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
+        // MajorSubjects theo majorId
+        Map<String, List<MajorSubjects>> majorSubjectsByMajor = majorSubjects.stream()
+                .filter(ms -> ms.getMajor() != null && ms.getMajor().getMajorId() != null)
+                .collect(Collectors.groupingBy(ms -> ms.getMajor().getMajorId()));
+
+        // SpecializedSubject theo specializationId
+        Map<String, List<SpecializedSubject>> specSubjectsBySpec = specSubjects.stream()
+                .filter(ss -> ss.getSpecialization() != null && ss.getSpecialization().getSpecializationId() != null)
+                .collect(Collectors.groupingBy(ss -> ss.getSpecialization().getSpecializationId()));
+
+        // Staffs theo (majorId + campusId)
+        Map<String, List<Staffs>> staffByMajorAndCampus = staffList.stream()
+                .filter(st -> st.getMajorManagement() != null
+                        && st.getMajorManagement().getMajorId() != null
+                        && st.getCampus() != null
+                        && st.getCampus().getCampusId() != null)
+                .collect(Collectors.groupingBy(st ->
+                        st.getMajorManagement().getMajorId() + "#" + st.getCampus().getCampusId()
+                ));
+
+        // DeputyStaffs theo campusId
+        Map<String, List<DeputyStaffs>> deputyByCampus = deputyList.stream()
+                .filter(d -> d.getCampus() != null && d.getCampus().getCampusId() != null)
+                .collect(Collectors.groupingBy(d -> d.getCampus().getCampusId()));
+
         Random random = new Random();
-        int limit = Math.min(REQUIRED_SUBJECTS_LIMIT, students.size());
         int inserted = 0;
 
-        for (int i = 0; i < limit; i++) {
-            Students stu = students.get(i);
+        for (Students stu : students) {
+            if (stu.getSpecialization() == null
+                    || stu.getSpecialization().getMajor() == null
+                    || stu.getSpecialization().getMajor().getMajorId() == null
+                    || stu.getCampus() == null
+                    || stu.getCampus().getCampusId() == null) {
 
-            MajorSubjects majSub = majorSubjects.get(i % majorSubjects.size());
-            Staffs assignedStaff = staffList.get(random.nextInt(staffList.size()));
-            StudentRequiredMajorSubjects rMaj = new StudentRequiredMajorSubjects(
-                    stu,
-                    majSub,
-                    "Bắt buộc học major subject: " + majSub.getSubjectName(),
-                    assignedStaff
-            );
-            rMaj.setNotificationType(YourNotification.NOTIFICATION_014);
-            em.persist(rMaj);
+                System.out.println("[REQ_SUBJECT] Student " + stu.getId()
+                        + " missing specialization/major/campus, skip.");
+                continue;
+            }
 
-            MinorSubjects minSub = minorSubjects.get(i % minorSubjects.size());
-            DeputyStaffs assignedDeputy = deputyList.get(random.nextInt(deputyList.size()));
-            StudentRequiredMinorSubjects rMin = new StudentRequiredMinorSubjects(
-                    stu,
-                    minSub,
-                    "Bắt buộc học minor subject: " + minSub.getSubjectName(),
-                    assignedDeputy
-            );
-            rMin.setNotificationType(YourNotification.NOTIFICATION_015);
-            em.persist(rMin);
+            String majorId = stu.getSpecialization().getMajor().getMajorId();
+            String specId = stu.getSpecialization().getSpecializationId();
+            String campusId = stu.getCampus().getCampusId();
 
-            SpecializedSubject specSub = specSubjects.get(i % specSubjects.size());
-            Staffs assignedStaff2 = staffList.get(random.nextInt(staffList.size()));
-            StudentRequiredSpecializedSubjects rSpec = new StudentRequiredSpecializedSubjects(
-                    stu,
-                    specSub,
-                    "Bắt buộc học specialized subject: " + specSub.getSubjectName(),
-                    assignedStaff2
-            );
-            rSpec.setNotificationType(YourNotification.NOTIFICATION_016);
-            em.persist(rSpec);
+            String staffKey = majorId + "#" + campusId;
+            List<Staffs> staffsForStudent = staffByMajorAndCampus.get(staffKey);
 
-            inserted += 3;
-            System.out.println("[REQ_SUBJECT] Inserted required subjects for " + stu.getId());
+            // ====== Major + Specialized: đảm bảo staff đúng ngành + đúng campus ======
+            if (staffsForStudent == null || staffsForStudent.isEmpty()) {
+                System.out.println("[REQ_SUBJECT] NO Staff for student " + stu.getId()
+                        + " (major=" + majorId + ", campus=" + campusId
+                        + "), skip major & specialized required.");
+            } else {
+                Staffs assignedStaff = staffsForStudent.get(random.nextInt(staffsForStudent.size()));
+
+                // Major required = full tất cả MajorSubjects của major đó
+                List<MajorSubjects> majorListForStudent =
+                        majorSubjectsByMajor.getOrDefault(majorId, Collections.emptyList());
+                for (MajorSubjects majSub : majorListForStudent) {
+                    StudentRequiredMajorSubjects rMaj = new StudentRequiredMajorSubjects(
+                            stu,
+                            majSub,
+                            "Bắt buộc học major subject: " + majSub.getSubjectName(),
+                            assignedStaff
+                    );
+                    rMaj.setNotificationType(YourNotification.NOTIFICATION_014);
+                    em.persist(rMaj);
+                    inserted++;
+                }
+
+                // Specialized required = full tất cả SpecializedSubject theo specialization của student
+                List<SpecializedSubject> specListForStudent =
+                        specSubjectsBySpec.getOrDefault(specId, Collections.emptyList());
+                for (SpecializedSubject specSub : specListForStudent) {
+                    StudentRequiredSpecializedSubjects rSpec = new StudentRequiredSpecializedSubjects(
+                            stu,
+                            specSub,
+                            "Bắt buộc học specialized subject: " + specSub.getSubjectName(),
+                            assignedStaff
+                    );
+                    rSpec.setNotificationType(YourNotification.NOTIFICATION_016);
+                    em.persist(rSpec);
+                    inserted++;
+                }
+            }
+
+            // ====== Minor: dùng DeputyStaffs cùng campus ======
+            List<DeputyStaffs> deputiesForCampus = deputyByCampus.get(campusId);
+            if (deputiesForCampus == null || deputiesForCampus.isEmpty()) {
+                System.out.println("[REQ_SUBJECT] NO DeputyStaff for campus "
+                        + campusId + " (student " + stu.getId()
+                        + "), skip minor required.");
+            } else {
+                DeputyStaffs assignedDeputy = deputiesForCampus.get(random.nextInt(deputiesForCampus.size()));
+
+                // Minor required = full tất cả MinorSubjects
+                for (MinorSubjects minSub : minorSubjects) {
+                    StudentRequiredMinorSubjects rMin = new StudentRequiredMinorSubjects(
+                            stu,
+                            minSub,
+                            "Bắt buộc học minor subject: " + minSub.getSubjectName(),
+                            assignedDeputy
+                    );
+                    rMin.setNotificationType(YourNotification.NOTIFICATION_015);
+                    em.persist(rMin);
+                    inserted++;
+                }
+            }
+
+            System.out.println("[REQ_SUBJECT] Inserted required subjects for student " + stu.getId());
         }
 
-        System.out.println("[REQ_SUBJECT] Total rows inserted (3 per student): " + inserted);
+        System.out.println("[REQ_SUBJECT] Total required rows inserted: " + inserted);
     }
 
     // ===================== HELPERS =====================
@@ -1257,16 +1491,13 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     /**
-     * Helper exists() "an toàn tuyệt đối":
-     * - Nếu clazz là Persons hoặc subclass của Persons (Admins, Students, Staffs, Lecturers, Parents…)
-     *   thì luôn check trên bảng Persons theo ID (tránh trùng PK bất kể discriminator).
-     * - Các entity khác (Campuses, Majors, Subjects, …) giữ nguyên hành vi cũ.
+     * Helper exists():
+     * - Nếu clazz là Persons hoặc subclass → luôn check trên Persons theo ID.
      */
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
         Class<?> targetClass = clazz;
         String field = idField;
 
-        // Nếu là People (Persons hoặc subclass) → luôn check trên bảng Persons theo ID
         if (Persons.class.isAssignableFrom(clazz)) {
             targetClass = Persons.class;
             field = "id";
@@ -1322,5 +1553,60 @@ public class DataSeeder implements CommandLineRunner {
 
     private static String mainAdminId() {
         return userId3("admin", 1);
+    }
+
+    /**
+     * Điền địa chỉ theo campus cho tất cả entity có field address giống nhau.
+     */
+    private static void fillAddressByCampus(Persons person, Campuses campus, int houseNumber) {
+        if (campus == null || campus.getCampusId() == null) {
+            person.setProvince("Hà Nội");
+            person.setCity("Hà Nội");
+            person.setDistrict("Đống Đa");
+            person.setWard("Láng Hạ");
+            person.setStreet("Số " + houseNumber + " Đường Demo");
+            person.setPostalCode("100000");
+            return;
+        }
+
+        String campusId = campus.getCampusId();
+        switch (campusId) {
+            case CAMPUS_ID_HCM -> {
+                person.setProvince("TP. Hồ Chí Minh");
+                person.setCity("TP. Hồ Chí Minh");
+                person.setDistrict("Quận 1");
+                person.setWard("Bến Nghé");
+                person.setStreet("Số " + houseNumber + " Đường Demo Sài Gòn");
+            }
+            case CAMPUS_ID_DANANG -> {
+                person.setProvince("Đà Nẵng");
+                person.setCity("Đà Nẵng");
+                person.setDistrict("Hải Châu");
+                person.setWard("Thạch Thang");
+                person.setStreet("Số " + houseNumber + " Đường Demo Đà Nẵng");
+            }
+            case CAMPUS_ID_CANTHO -> {
+                person.setProvince("Cần Thơ");
+                person.setCity("Cần Thơ");
+                person.setDistrict("Ninh Kiều");
+                person.setWard("An Lạc");
+                person.setStreet("Số " + houseNumber + " Đường Demo Cần Thơ");
+            }
+            case CAMPUS_ID_HAIPHONG -> {
+                person.setProvince("Hải Phòng");
+                person.setCity("Hải Phòng");
+                person.setDistrict("Ngô Quyền");
+                person.setWard("Máy Tơ");
+                person.setStreet("Số " + houseNumber + " Đường Demo Hải Phòng");
+            }
+            case CAMPUS_ID_HANOI -> {
+                    person.setProvince("Hà Nội");
+                    person.setCity("Hà Nội");
+                    person.setDistrict("Đống Đa");
+                    person.setWard("Láng Hạ");
+                    person.setStreet("Số " + houseNumber + " Đường Demo Hà Nội");
+                }
+        }
+        person.setPostalCode("100000");
     }
 }

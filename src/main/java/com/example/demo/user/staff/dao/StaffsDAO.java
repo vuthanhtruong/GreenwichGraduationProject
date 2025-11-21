@@ -33,6 +33,9 @@ public interface StaffsDAO {
     Campuses getCampusOfStaff();
     List<Staffs> colleagueBycampusId(String campusId);
     List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId);
+    // StaffsDAO.java
+    List<Staffs> getYourManagersPaginated(String campusId, String majorId, int firstResult, int pageSize);
+    long countYourManagers(String campusId, String majorId);
     // ==================== ADMIN DASHBOARD - STAFF STATISTICS ====================
     long totalStaffsAllCampus();
     long newStaffsThisYearAllCampus();

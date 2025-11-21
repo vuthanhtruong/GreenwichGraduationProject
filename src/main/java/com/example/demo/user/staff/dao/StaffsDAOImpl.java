@@ -35,6 +35,50 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class StaffsDAOImpl implements StaffsDAO {
+
+
+
+    // ================== PHÂN TRANG CHO YOUR MANAGERS (MAJOR LECTURER + STUDENT) ==================
+    @Override
+    public List<Staffs> getYourManagersPaginated(String campusId, String majorId, int firstResult, int pageSize) {
+        if (campusId == null || majorId == null || pageSize <= 0 || firstResult < 0) {
+            return List.of();
+        }
+
+        String jpql = """
+            SELECT DISTINCT s FROM Staffs s
+            JOIN FETCH s.campus c
+            JOIN FETCH s.majorManagement m
+            WHERE s.campus.campusId = :campusId
+              AND m.majorId = :majorId
+            ORDER BY s.lastName, s.firstName, s.id
+            """;
+
+        return entityManager.createQuery(jpql, Staffs.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .setFirstResult(firstResult)
+                .setMaxResults(pageSize)
+                .getResultList();
+    }
+
+    @Override
+    public long countYourManagers(String campusId, String majorId) {
+        if (campusId == null || majorId == null) {
+            return 0L;
+        }
+
+        String jpql = """
+            SELECT COUNT(DISTINCT s) FROM Staffs s
+            WHERE s.campus.campusId = :campusId
+              AND s.majorManagement.majorId = :majorId
+            """;
+
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("campusId", campusId)
+                .setParameter("majorId", majorId)
+                .getSingleResult();
+    }
     @Override
     public long totalStaffsAllCampus() {
         return entityManager.createQuery("SELECT COUNT(s) FROM Staffs s", Long.class)

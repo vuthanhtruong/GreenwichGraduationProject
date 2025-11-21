@@ -43,4 +43,7 @@ public interface StaffsService {
     Campuses getCampusOfStaff();
     List<Staffs> colleagueBycampusId(String campusId);
     List<Staffs> yourManagersByCampusIdAndMajor(String campusId, String majorId);
+    // StaffsDAO.java
+    List<Staffs> getYourManagersPaginated(String campusId, String majorId, int firstResult, int pageSize);
+    long countYourManagers(String campusId, String majorId);
 }

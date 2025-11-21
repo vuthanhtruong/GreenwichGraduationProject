@@ -224,6 +224,31 @@ public class SpecializationDAOImpl implements SpecializationDAO {
             throw new IllegalArgumentException("Specialization ID cannot be null");
         }
         try {
+            entityManager.createQuery(
+                            "DELETE FROM StudentRequiredMajorSubjects srms WHERE srms.id.studentId = :studentId")
+                    .setParameter("studentId", id)
+                    .executeUpdate();
+
+            entityManager.createQuery(
+                            "DELETE FROM StudentRequiredMinorSubjects srms WHERE srms.id.studentId = :studentId")
+                    .setParameter("studentId", id)
+                    .executeUpdate();
+
+            entityManager.createQuery(
+                            "DELETE FROM Students_MajorClasses smc WHERE smc.id.studentId = :studentId")
+                    .setParameter("studentId", id)
+                    .executeUpdate();
+
+            entityManager.createQuery(
+                            "DELETE FROM Students_SpecializedClasses smc WHERE smc.id.studentId = :studentId")
+                    .setParameter("studentId", id)
+                    .executeUpdate();
+
+            int deletedStudents = entityManager.createQuery(
+                            "DELETE FROM Students s WHERE s.specialization.specializationId = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+
             Specialization specialization = entityManager.find(Specialization.class, id);
             if (specialization != null) {
                 entityManager.remove(specialization);

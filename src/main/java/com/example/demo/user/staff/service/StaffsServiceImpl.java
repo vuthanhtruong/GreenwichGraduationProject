@@ -18,6 +18,16 @@ import java.util.Map;
 @Service
 public class StaffsServiceImpl implements StaffsService {
     @Override
+    public List<Staffs> getYourManagersPaginated(String campusId, String majorId, int firstResult, int pageSize) {
+        return staffsDAO.getYourManagersPaginated(campusId, majorId, firstResult, pageSize);
+    }
+
+    @Override
+    public long countYourManagers(String campusId, String majorId) {
+        return staffsDAO.countYourManagers(campusId, majorId);
+    }
+
+    @Override
     public long totalStaffsAllCampus() {
         return staffsDAO.totalStaffsAllCampus();
     }

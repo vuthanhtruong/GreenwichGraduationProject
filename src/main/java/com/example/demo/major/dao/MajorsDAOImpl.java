@@ -101,17 +101,65 @@ public class MajorsDAOImpl implements MajorsDAO {
     }
 
     @Override
+    @Transactional
     public void deleteMajor(String majorId) {
+        if (majorId == null || majorId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Major ID cannot be null or empty");
+        }
+
         try {
-            Majors major = entityManager.find(Majors.class, majorId);
-            if (major == null) {
+            // 1. XÓA FinancialHistories của các sinh viên thuộc specialization của major này
+            int deletedFinances = entityManager.createQuery(
+                            """
+                            DELETE FROM FinancialHistories fh
+                            WHERE fh.student IN (
+                                SELECT s FROM Students s 
+                                WHERE s.specialization IN (
+                                    SELECT spec FROM Specialization spec 
+                                    WHERE spec.major.majorId = :majorId
+                                )
+                            )
+                            """)
+                    .setParameter("majorId", majorId)
+                    .executeUpdate();
+
+            // 2. XÓA các Students thuộc specialization của major này
+            int deletedStudents = entityManager.createQuery(
+                            """
+                            DELETE FROM Students s 
+                            WHERE s.specialization IN (
+                                SELECT spec FROM Specialization spec 
+                                WHERE spec.major.majorId = :majorId
+                            )
+                            """)
+                    .setParameter("majorId", majorId)
+                    .executeUpdate();
+
+            // 3. XÓA Specialization thuộc major này
+            int deletedSpecs = entityManager.createQuery(
+                            "DELETE FROM Specialization s WHERE s.major.majorId = :majorId")
+                    .setParameter("majorId", majorId)
+                    .executeUpdate();
+
+            // 4. Cuối cùng mới xóa Major
+            int deletedMajors = entityManager.createQuery(
+                            "DELETE FROM Majors m WHERE m.majorId = :majorId")
+                    .setParameter("majorId", majorId)
+                    .executeUpdate();
+
+            if (deletedMajors == 0) {
                 throw new IllegalArgumentException("Major with ID " + majorId + " not found");
             }
-            entityManager.remove(major);
-            logger.info("Deleted major with ID: {}", majorId);
+
+            logger.info(
+                    "Successfully deleted Major ID: {} | " +
+                            "Specializations: {} | Students: {} | FinancialHistories: {}",
+                    majorId, deletedSpecs, deletedStudents, deletedFinances
+            );
+
         } catch (Exception e) {
-            logger.error("Error deleting major with ID {}: {}", majorId, e.getMessage());
-            throw new RuntimeException("Error deleting major: " + e.getMessage(), e);
+            logger.error("Failed to delete Major ID {}: {}", majorId, e.getMessage(), e);
+            throw new RuntimeException("Cannot delete Major because it is being used by students/financial records", e);
         }
     }
 

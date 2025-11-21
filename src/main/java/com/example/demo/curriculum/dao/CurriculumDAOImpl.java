@@ -3,6 +3,7 @@ package com.example.demo.curriculum.dao;
 import com.example.demo.curriculum.model.Curriculum;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;
+import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -94,15 +95,49 @@ public class CurriculumDAOImpl implements CurriculumDAO {
     }
 
     @Override
+    @Transactional  // Quan trọng: phải có transaction khi xóa
     public void deleteCurriculum(String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Curriculum ID cannot be null");
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("Curriculum ID cannot be null or empty");
         }
-        Curriculum curriculum = entityManager.find(Curriculum.class, id);
-        if (curriculum != null) {
-            entityManager.remove(curriculum);
-            logger.info("Deleted curriculum with ID: {}", id);
+        // 1. Xóa tất cả Students thuộc curriculum này trước (do ràng buộc FK)
+        int deletedStudents = entityManager.createQuery(
+                        "DELETE FROM Students s WHERE s.curriculum.curriculumId = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMajorSubjects srms WHERE srms.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMinorSubjects srms WHERE srms.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_MajorClasses smc WHERE smc.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM Students_SpecializedClasses smc WHERE smc.id.studentId = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        // 2. Xóa Curriculum
+        int deletedCurriculums = entityManager.createQuery(
+                        "DELETE FROM Curriculum c WHERE c.curriculumId = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        if (deletedCurriculums == 0) {
+            throw new IllegalArgumentException("Curriculum with ID " + id + " not found");
         }
+
+        logger.info("Successfully deleted curriculum ID: {} (and {} associated students)",
+                id, deletedStudents);
     }
 
     @Override

@@ -419,6 +419,29 @@ public class StudentDAOImpl implements StudentsDAO {
                 .setParameter("studentId", id)
                 .executeUpdate();
 
+        entityManager.createQuery(
+                        "DELETE FROM FinancialHistories fh WHERE fh.student.id = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMajorSubjects s WHERE s.student.id = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredMinorSubjects s WHERE s.student.id = :studentId")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
+        entityManager.createQuery(
+                        "DELETE FROM StudentRequiredSpecializedSubjects srss " +
+                                "WHERE (srss.id.studentId, srss.id.subjectId) IN " +
+                                "(SELECT srs.id.studentId, srs.id.subjectId FROM StudentRequiredSubjects srs " +
+                                " WHERE srs.id.studentId = :studentId)")
+                .setParameter("studentId", id)
+                .executeUpdate();
+
         entityManager.remove(student);
     }
 
