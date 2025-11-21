@@ -31,6 +31,7 @@ public class SecurityConfig {
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
         this.customOAuth2UserService = customOAuth2UserService;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/classroom/**", "/messages/**","/check-news/**", "/documents/**").hasAnyRole("STUDENT", "LECTURER", "STAFF", "DEPUTY", "MINOR", "ADMIN")
                         .requestMatchers(
                                 "/login",
+                                "/persons/**",
                                 "/resources/**",
                                 "/css/**",
                                 "/js/**",
@@ -54,14 +56,14 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/home",
                                 "/auth/reset-password/**",
-                                "/ws/**",           // ← THÊM
-                                "/sockjs.min.js",   // ← THÊM
-                                "/stomp.umd.min.js" // ← THÊM
+                                "/ws/**",              // WebSocket endpoint
+                                "/app/**",             // STOMP app prefix
+                                "/topic/**"            // STOMP broker prefix
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/ws/**") // ← THÊM
+                        .ignoringRequestMatchers("/ws/**", "/app/**", "/topic/**")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

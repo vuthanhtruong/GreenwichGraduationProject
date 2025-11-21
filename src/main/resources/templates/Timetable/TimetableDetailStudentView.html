@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Detail - Student View</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/MajorTimetableDetail.css}">
+    <style>
+        .avatar, .student-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+<div class="win11-container">
+    <!-- Header -->
+    <div class="win11-title-bar">
+        <div>
+            <h1>Schedule Detail</h1>
+            <h2>View class information, lecturers & classmates</h2>
+        </div>
+        <a th:href="@{/student-home/timetable}" class="btn home-btn">
+            <i class="fas fa-arrow-left"></i> Back to Timetable
+        </a>
+    </div>
+
+    <!-- CLASS INFORMATION -->
+    <section class="win11-panel">
+        <h2 class="panel-header">Class Information</h2>
+        <div class="info-grid">
+            <div class="info-item"><strong>Class:</strong> <span th:text="${className}">N/A</span></div>
+            <div class="info-item"><strong>Slot:</strong> <span th:text="${timetable.slot.getSlotName()}">Unknown</span></div>
+            <div class="info-item"><strong>Day of Week:</strong>
+                <span th:text="${timetable.dayOfWeek != null ? #strings.capitalizeWords(timetable.dayOfWeek.name().toLowerCase()) : 'Unknown'}"></span>
+            </div>
+            <div class="info-item"><strong>Date:</strong>
+                <span th:if="${timetable.createdAt != null}"
+                      th:text="${#temporals.format(timetable.createdAt, 'EEEE, dd/MM/yyyy')}"></span>
+                <span th:unless="${timetable.createdAt != null}" class="text-muted">Not scheduled yet</span>
+            </div>
+            <div class="info-item"><strong>Week / Year:</strong>
+                <span th:text="${timetable.weekOfYear ?: 'N/A'}"></span> /
+                <span th:text="${timetable.year ?: 'N/A'}"></span>
+            </div>
+            <div class="info-item"><strong>Room:</strong>
+                <span th:text="${timetable.room?.roomName ?: 'N/A'}"></span>
+                <a th:if="${timetable.room?.link}" th:href="${timetable.room.link}" target="_blank" class="link ms-2">
+                    <i class="fas fa-external-link-alt"></i> Join Meeting
+                </a>
+            </div>
+            <div class="info-item"><strong>Created by:</strong>
+                <span th:text="${creatorName ?: 'System'}"></span>
+                <small th:if="${timetable.createdAt != null}"
+                       th:text="${#temporals.format(timetable.createdAt,'HH:mm, dd/MM/yyyy')}"></small>
+            </div>
+        </div>
+    </section>
+
+    <!-- LECTURERS -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            Lecturers (<span th:text="${#lists.size(lecturers)}">0</span>)
+        </h2>
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th>Avatar</th>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lec : ${lecturers}">
+                    <td>
+                        <img class="avatar"
+                             th:src="${lec.avatar} != null ? '/lecturers/avatar/' + ${lec.id} : ${lec.defaultAvatarPath}"
+                             th:alt="${lec.fullName}"
+                             onerror="this.src=this.onerror=null; this.src='/images/default-lecturer.png'">
+                    </td>
+                    <td th:text="${lec.id}"></td>
+                    <td th:text="${lec.fullName}"></td>
+                    <td th:text="${lec.email}"></td>
+                    <td th:text="${lec.phoneNumber ?: 'N/A'}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(lecturers)}">
+                    <td colspan="5" class="text-center text-muted">No lecturers assigned</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- CLASSMATES -->
+    <section class="win11-panel">
+        <h2 class="panel-header">
+            Classmates (<span th:text="${#lists.size(students)}">0</span>)
+        </h2>
+        <div class="table-container">
+            <table class="win11-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Photo</th>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="stu, iter : ${students}">
+                    <td th:text="${iter.index + 1}"></td>
+                    <td>
+                        <img class="student-img avatar"
+                             th:src="${stu.avatar} != null ? '/students/avatar/' + ${stu.id} : ${stu.defaultAvatarPath}"
+                             th:alt="${stu.fullName}"
+                             onerror="this.src=this.onerror=null; this.src='/images/default-student.png'">
+                    </td>
+                    <td th:text="${stu.id}"></td>
+                    <td th:text="${stu.fullName}"></td>
+                    <td th:text="${stu.email}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(students)}">
+                    <td colspan="5" class="text-center text-muted">No students in this class</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

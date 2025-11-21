@@ -1,20 +1,20 @@
 package com.example.demo.messages.controller;
 
+import com.example.demo.messages.dto.MessageDTO;
+import com.example.demo.messages.model.Messages;
 import com.example.demo.messages.service.MessagesService;
-import com.example.demo.user.admin.model.Admins;
-import com.example.demo.user.deputyStaff.model.DeputyStaffs;
-import com.example.demo.user.majorLecturer.model.MajorLecturers;
-import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.person.model.Persons;
 import com.example.demo.user.person.service.PersonsService;
-import com.example.demo.user.staff.model.Staffs;
-import com.example.demo.user.student.model.Students;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -23,82 +23,94 @@ public class MessagesController {
 
     private final MessagesService messagesService;
     private final PersonsService personsService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public MessagesController(MessagesService messagesService, PersonsService personsService) {
+    public MessagesController(MessagesService messagesService,
+                              PersonsService personsService,
+                              SimpMessagingTemplate messagingTemplate) {
         this.messagesService = messagesService;
         this.personsService = personsService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping
-    public String showMessages(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size,
-            Model model,
-            HttpSession session) {
+    public String showMessages(Model model, HttpSession session) {
+        Persons currentUser = personsService.getPerson();
+        String currentUserId = currentUser.getId();
 
-        String currentUserId = personsService.getPerson().getId();
+        List<Persons> partners = messagesService.getConversationPartners(currentUserId);
 
-        // === 1. Danh sách người chat ===
-        model.addAttribute("partners", messagesService.getConversationPartners(currentUserId));
+        String selectedPartnerId = (String) session.getAttribute("selectedPartnerId");
+        Persons selectedPartner = null;
+        List<Messages> messages = null;
 
-        // === 2. Home URL ===
-        model.addAttribute("home", getHomeUrl(personsService.getPerson()));
-
-        // === 3. Lấy partner từ session (KHÔNG từ URL) ===
-        String partnerId = (String) session.getAttribute("selectedPartnerId");
-
-        if (partnerId != null && !partnerId.isBlank()) {
-            Persons partnerPerson = messagesService.getPersonById(partnerId);
-            if (partnerPerson != null) {
-                model.addAttribute("selectedPartner", partnerPerson);
-                model.addAttribute("messages", messagesService.getMessagesWith(currentUserId, partnerId, page, size));
-                model.addAttribute("totalMessages", messagesService.countMessagesWith(currentUserId, partnerId));
+        if (selectedPartnerId != null && !selectedPartnerId.isBlank()) {
+            selectedPartner = messagesService.getPersonById(selectedPartnerId);
+            if (selectedPartner != null) {
+                messages = messagesService.getMessagesWith(currentUserId, selectedPartnerId, 0, 100);
             } else {
                 session.removeAttribute("selectedPartnerId");
             }
         }
 
+        // Map default avatar cho realtime (dự phòng)
+        Map<String, String> defaultAvatarMap = new HashMap<>();
+        partners.forEach(p -> defaultAvatarMap.put(p.getId(), p.getDefaultAvatarPath()));
+        if (selectedPartner != null) defaultAvatarMap.put(selectedPartner.getId(), selectedPartner.getDefaultAvatarPath());
+        defaultAvatarMap.put(currentUser.getId(), currentUser.getDefaultAvatarPath());
+
+        model.addAttribute("partners", partners);
+        model.addAttribute("selectedPartner", selectedPartner);
+        model.addAttribute("messages", messages);
         model.addAttribute("currentUserId", currentUserId);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("pageSize", size);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("defaultAvatarMap", defaultAvatarMap);
+        model.addAttribute("home", getHomeUrl(currentUser));
 
         return "MessagesPage";
     }
 
-    // === CHỌN PARTNER → POST → KHÔNG LỘ ID ===
     @PostMapping("/select-partner")
     public String selectPartner(@RequestParam String partnerId, HttpSession session) {
-        Persons partner = messagesService.getPersonById(partnerId);
-        if (partner != null) {
+        if (messagesService.getPersonById(partnerId) != null) {
             session.setAttribute("selectedPartnerId", partnerId);
         }
-        return "redirect:/messages"; // → URL luôn là /messages
+        return "redirect:/messages";
     }
 
-    // === GỬI TIN NHẮN ===
-    @PostMapping("/send")
-    @ResponseBody
-    public Map<String, Object> sendMessage(@RequestParam String recipientId, @RequestParam String text, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        String senderId = personsService.getPerson().getId();
-        if (text != null && !text.trim().isEmpty()) {
-            messagesService.sendMessage(senderId, recipientId, text);
-            session.setAttribute("selectedPartnerId", recipientId);
-            response.put("success", true);
-        } else {
-            response.put("success", false);
-        }
-        return response;
+    @MessageMapping("/chat.send")
+    public void sendMessage(@Payload MessageDTO payload) {
+        Persons sender = personsService.getPerson();
+
+        Messages saved = messagesService.sendMessage(
+                sender.getId(),
+                payload.getRecipientId(),
+                payload.getText()
+        );
+
+        // Tạo DTO đầy đủ với avatar path đúng
+        MessageDTO dto = new MessageDTO(
+                saved.getSender().getId(),
+                saved.getRecipient().getId(),
+                saved.getText(),
+                saved.getDatetime(),
+                saved.getSender().getDefaultAvatarPath()   // <<< Chính là cái này!
+        );
+
+        // Gửi realtime cho cả hai bên
+        messagingTemplate.convertAndSend("/topic/messages." + dto.getRecipientId(), dto);
+        messagingTemplate.convertAndSend("/topic/messages." + dto.getSenderId(), dto);
     }
 
-    // === HOME URL ===
     private String getHomeUrl(Persons person) {
-        if (person instanceof Students) return "/student-home";
-        if (person instanceof Staffs) return "/staff-home";
-        if (person instanceof DeputyStaffs) return "/deputy-staff-home";
-        if (person instanceof Admins) return "/admin-home";
-        if (person instanceof MinorLecturers) return "/minor-lecturer-home";
-        if (person instanceof MajorLecturers) return "/major-lecturer-home";
-        return "/";
+        return switch (person) {
+            case com.example.demo.user.student.model.Students ignored -> "/student-home";
+            case com.example.demo.user.staff.model.Staffs ignored -> "/staff-home";
+            case com.example.demo.user.deputyStaff.model.DeputyStaffs ignored -> "/deputy-staff-home";
+            case com.example.demo.user.admin.model.Admins ignored -> "/admin-home";
+            case com.example.demo.user.minorLecturer.model.MinorLecturers ignored -> "/minor-lecturer-home";
+            case com.example.demo.user.majorLecturer.model.MajorLecturers ignored -> "/major-lecturer-home";
+            default -> "/";
+        };
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.messages.model;
 
+import com.example.demo.messages.dto.MessageDTO;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,13 +17,6 @@ public class Messages {
     @Id
     @Column(name = "MessageID", nullable = false)
     private String messageId;
-
-    // ← CÁC CỘT THÊM
-    @Column(name = "MessageSenderID")
-    private String messageSenderId;
-
-    @Column(name = "MessageRecipientID")
-    private String messageRecipientId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", nullable = false)
@@ -48,9 +42,6 @@ public class Messages {
         this.sender = sender;
         this.recipient = recipient;
         this.datetime = datetime;
-
-        // ← TỰ ĐỘNG GÁN
-        this.messageSenderId = sender.getId();
-        this.messageRecipientId = recipient.getId();
     }
+
 }
