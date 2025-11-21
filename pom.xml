@@ -177,7 +177,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -185,13 +184,9 @@
         </dependency>
 
     </dependencies>
-
     <build>
         <finalName>app</finalName>
-
         <plugins>
-
-            <!-- KHÔNG cấu hình mainClass: Spring Boot tự detect -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -232,8 +227,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
 </project>
