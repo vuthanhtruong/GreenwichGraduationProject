@@ -62,7 +62,7 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
         try {
             List<MajorLecturers> result = entityManager.createQuery(
                             "SELECT l FROM MajorLecturers l " +
-                                    "WHERE l.majorManagement = :major " +
+                                    "WHERE l.campus.campusId=:campusId And l.majorManagement = :major " +
                                     "AND NOT EXISTS (" +
                                     "   SELECT 1 FROM MajorLecturers_Specializations mls " +
                                     "   WHERE mls.majorLecturer = l " +
@@ -71,6 +71,7 @@ public class MajorLecturersSpecializationsDAOImpl implements MajorLecturersSpeci
                             MajorLecturers.class)
                     .setParameter("major", staffsService.getStaffMajor())
                     .setParameter("specializationId", specialization.getSpecializationId())
+                    .setParameter("campusId",staffsService.getCampusOfStaff().getCampusId())
                     .getResultList();
 
             logger.info("Fetched {} unassigned lecturers for specialization {}", result.size(), specialization.getSpecializationId());
