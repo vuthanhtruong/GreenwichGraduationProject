@@ -62,10 +62,6 @@ public class StaffDashboardController {
     @GetMapping("/dashboard")
     public String staffDashboard(Model model) {
         Staffs currentStaff = staffsService.getStaff();
-        if (currentStaff == null || currentStaff.getCampus() == null || currentStaff.getMajorManagement() == null) {
-            model.addAttribute("error", "Không thể tải được thông tin nhân viên. Vui lòng đăng nhập lại.");
-            return "error";
-        }
 
         String campusId = currentStaff.getCampus().getCampusId();
         String campusName = currentStaff.getCampus().getCampusName();

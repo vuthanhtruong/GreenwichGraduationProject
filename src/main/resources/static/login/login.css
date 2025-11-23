@@ -1,216 +1,233 @@
+/* =========================================================
+   WINDOWS 11 STYLE - LOGIN PAGE
+   Matches StudentsList.css UI theme
+   ========================================================= */
+
+/* ===== Variables / Theme ===== */
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+    --danger: #dc2626;
+    --success: #16a34a;
+
+    --bg-light: #f3f3f3;
+    --bg-white: #ffffff;
+
+    --text-dark: #1a1a1a;
+    --text-muted: #6b7280;
+
+    --border: #e5e7eb;
+
+    --radius: 16px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
 /* ===== Base ===== */
 body {
+    margin: 0;
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+    background: var(--bg-light);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    color: #1a1a1a;
+    color: var(--text-dark);
 }
 
 /* ===== Container ===== */
 .win11-login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 20px;
-}
-
-/* ===== Card ===== */
-.win11-login-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 40px 50px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     width: 100%;
     max-width: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    animation: fadeIn 0.3s ease;
+    padding: 20px;
+    animation: fadeIn 0.35s ease;
+}
+
+.win11-login-card {
+    background: var(--bg-white);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
 }
 
 /* ===== Header ===== */
-.login-header {
-    text-align: center;
-    margin-bottom: 28px;
-}
 .login-header .logo {
     font-size: 48px;
-    color: #2563eb;
+    color: var(--primary);
     margin-bottom: 10px;
 }
+
 .login-header h2 {
-    margin: 0;
     font-size: 26px;
-    font-weight: 600;
+    margin: 0;
 }
-.login-header .subtitle {
+
+.subtitle {
+    color: var(--text-muted);
     font-size: 15px;
-    color: #6b7280;
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 /* ===== Alerts ===== */
 .alert {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 10px;
-    margin-bottom: 16px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    background: #e0f2fe;
+    border-left: 5px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-top: 16px;
     font-size: 14px;
-    gap: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-}
-.alert i {
-    font-size: 16px;
+    color: #0c4a6e;
 }
 .alert.success {
     background: #dcfce7;
+    border-left-color: var(--success);
     color: #166534;
-    border-left: 4px solid #22c55e;
 }
 .alert.error {
     background: #fee2e2;
-    color: #b91c1c;
-    border-left: 4px solid #ef4444;
+    border-left-color: var(--danger);
+    color: #7f1d1d;
 }
-.close-btn {
-    background: transparent;
+.alert .close-btn {
+    background: none;
     border: none;
-    color: inherit;
     font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
+    color: inherit;
 }
 
-/* ===== Input Groups ===== */
-.login-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
+/* ===== Floating Input Field ===== */
 .input-group {
     position: relative;
-    display: flex;
-    align-items: center;
+    margin-top: 24px;
 }
+
 .input-group i {
     position: absolute;
     left: 14px;
-    color: #6b7280;
-    font-size: 16px;
-    pointer-events: none;
-}
-.input-group input {
-    width: 100%;
-    padding: 12px 14px 12px 40px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background: #ffffff;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
     font-size: 15px;
-    transition: all 0.2s ease;
 }
-.input-group input:focus {
+
+.input-group input {
+    width: 85%;
+    padding: 14px 14px 14px 40px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-size: 15px;
+    background: #fafafa;
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    transition: 0.2s;
 }
+
+.input-group input:focus {
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Floating Label */
 .input-group label {
     position: absolute;
     left: 40px;
-    top: 12px;
-    color: #6b7280;
-    font-size: 14px;
-    transition: 0.2s ease;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
     pointer-events: none;
-}
-.input-group input:focus + label,
-.input-group input:not(:placeholder-shown) + label {
-    top: -8px;
-    left: 34px;
-    font-size: 12px;
-    background: #fff;
-    padding: 0 6px;
-    color: #2563eb;
+    transition: 0.2s ease;
+    background: transparent;
 }
 
-/* ===== Options (e.g., forgot password) ===== */
-.options {
-    text-align: right;
+/* When typing */
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label {
+    top: -6px;
+    left: 12px;
+    background: var(--bg-white);
+    padding: 0 6px;
+    font-size: 12px;
+    color: var(--primary);
 }
+
+/* ===== Options ===== */
+.options {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
 .btn-text {
-    background: none;
-    border: none;
-    color: #2563eb;
     font-size: 14px;
-    cursor: pointer;
-    transition: color 0.2s;
+    color: var(--primary);
+    text-decoration: none;
 }
 .btn-text:hover {
-    color: #1d4ed8;
     text-decoration: underline;
 }
 
 /* ===== Buttons ===== */
 .btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius);
+    font-size: 15px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: 0.25s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    border-radius: 10px;
-    padding: 12px 18px;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.25s ease;
 }
+
 .btn.primary {
-    background: #2563eb;
-    color: #ffffff;
+    margin: 5px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
 }
 .btn.primary:hover {
-    background: #1d4ed8;
+    background: var(--primary-hover);
 }
+
 .btn.google {
-    background: #ffffff;
-    color: #1a1a1a;
-    border: 1px solid #ddd;
+    width: 95%;
+    background: #fff;
+    border: 1px solid #dadce0;
+    margin-top: 12px;
 }
 .btn.google:hover {
-    background: #f0f6ff;
-    border-color: #2563eb;
-    color: #2563eb;
+    background: #f8faff;
+    border-color: var(--primary);
+    color: var(--primary);
 }
 
 /* ===== Divider ===== */
 .divider {
-    width: 100%;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
     text-align: center;
-    border-top: 1px solid #e5e7eb;
-    margin: 24px 0;
-    position: relative;
 }
 .divider span {
-    background: #ffffff;
-    position: relative;
-    top: -12px;
     padding: 0 10px;
-    color: #6b7280;
-    font-size: 14px;
+    color: var(--text-muted);
+}
+.divider::before,
+.divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: #ddd;
 }
 
-/* ===== Animation ===== */
+/* ===== Animations ===== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -219,9 +236,9 @@ body {
 /* ===== Responsive ===== */
 @media (max-width: 480px) {
     .win11-login-card {
-        padding: 30px 24px;
-        border-radius: 16px;
+        padding: 22px;
     }
-    .login-header h2 { font-size: 22px; }
-    .btn { font-size: 14px; padding: 10px 16px; }
+    .login-header .logo {
+        font-size: 42px;
+    }
 }
