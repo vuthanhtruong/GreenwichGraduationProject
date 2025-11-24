@@ -1,4 +1,4 @@
-package com.example.demo.students_Classes.abstractStudents_Class.controller;
+package com.example.demo.attendance.majorAttendance.controller;
 
 import com.example.demo.user.student.model.Students;
 import com.example.demo.user.student.service.StudentsService;

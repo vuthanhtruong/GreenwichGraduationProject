@@ -76,13 +76,15 @@ public class StudentRequiredMajorSubjectsDAOImpl implements StudentRequiredMajor
 
         var query = entityManager.createQuery(jpql, StudentRequiredMajorSubjects.class)
                 .setParameter("subjects", subject)
-                .setParameter("major", staffsService.getStaffMajor());
+                .setParameter("major", staffsService.getStaffMajor())
+        .setParameter("campus",staffsService.getCampusOfStaff().getCampusId());
 
         if (admissionYear != null) {
             jpql += " AND srs.student.admissionYear = :admissionYear";
             query = entityManager.createQuery(jpql, StudentRequiredMajorSubjects.class)
                     .setParameter("subjects", subject)
                     .setParameter("major", staffsService.getStaffMajor())
+                    .setParameter("campus",staffsService.getCampusOfStaff().getCampusId())
                     .setParameter("admissionYear", admissionYear).setParameter("campus", staffsService.getCampusOfStaff().getCampusId());
         }
 
