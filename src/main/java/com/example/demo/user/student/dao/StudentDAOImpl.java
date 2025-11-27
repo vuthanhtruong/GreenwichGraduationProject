@@ -8,8 +8,8 @@ import com.example.demo.email_service.service.EmailServiceForLecturerService;
 import com.example.demo.email_service.service.EmailServiceForStudentService;
 import com.example.demo.major.model.Majors;
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
-import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.person.service.PersonsService;
@@ -842,7 +842,7 @@ public class StudentDAOImpl implements StudentsDAO {
         String majorId = staff.getMajorManagement().getMajorId();
 
         return entityManager.createQuery(
-                        "SELECT COALESCE(s.gender, 'KHÁC'), COUNT(s) " +
+                        "SELECT COALESCE(s.gender, 'Other'), COUNT(s) " +
                                 "FROM Students s " +
                                 "WHERE s.campus.campusId = :campusId " +
                                 "AND s.specialization.major.majorId = :majorId " +

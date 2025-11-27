@@ -2,8 +2,8 @@ package com.example.demo.user.parentAccount.dao;
 
 import com.example.demo.email_service.dto.ParentEmailContext;
 import com.example.demo.email_service.service.EmailServiceForParentService;
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
-import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.parentAccount.model.Student_ParentAccounts;
 import com.example.demo.authenticator.model.Authenticators;

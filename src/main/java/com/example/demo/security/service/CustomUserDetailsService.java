@@ -1,4 +1,4 @@
-package com.example.demo.specialization.security.service;
+package com.example.demo.security.service;
 
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
@@ -9,7 +9,7 @@ import com.example.demo.authenticator.model.Authenticators;
 import com.example.demo.entity.Enums.AccountStatus;
 import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

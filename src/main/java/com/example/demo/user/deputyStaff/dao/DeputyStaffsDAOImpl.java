@@ -2,8 +2,8 @@ package com.example.demo.user.deputyStaff.dao;
 
 import com.example.demo.campus.model.Campuses;
 import com.example.demo.entity.Enums.Gender;
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
-import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.user.admin.service.AdminsService;

@@ -1,7 +1,7 @@
 package com.example.demo.user.person.dao;
 
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
-import com.example.demo.specialization.security.model.DatabaseUserPrincipal;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.DatabaseUserPrincipal;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

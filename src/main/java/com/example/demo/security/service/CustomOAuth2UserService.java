@@ -1,4 +1,4 @@
-package com.example.demo.specialization.security.service;
+package com.example.demo.security.service;
 
 import com.example.demo.user.admin.model.Admins;
 import com.example.demo.entity.Enums.AccountStatus;
@@ -7,7 +7,7 @@ import com.example.demo.user.majorLecturer.model.MajorLecturers;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.parentAccount.model.ParentAccounts;
 import com.example.demo.user.person.model.Persons;
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;

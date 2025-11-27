@@ -1,7 +1,7 @@
 package com.example.demo.config;
 
-import com.example.demo.specialization.security.model.CustomOidcUserPrincipal;
-import com.example.demo.specialization.security.service.CustomOAuth2UserService;
+import com.example.demo.security.model.CustomOidcUserPrincipal;
+import com.example.demo.security.service.CustomOAuth2UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
