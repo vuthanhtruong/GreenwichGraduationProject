@@ -410,8 +410,8 @@ public class DataSeeder implements CommandLineRunner {
                     s.setPhoneNumber("+84101" + String.format("%07d", idx));
                     s.setBirthDate(LocalDate.of(
                             1985 + (idx % 5),
-                            1 + (idx % 12),       // 1–12
-                            1 + (idx % 28)        // 1–28
+                            1 + (idx % 12),
+                            1 + (idx % 28)
                     ));
                     s.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                     s.setCountry("Vietnam");
@@ -463,8 +463,8 @@ public class DataSeeder implements CommandLineRunner {
                 d.setPhoneNumber("+84102" + String.format("%07d", idx));
                 d.setBirthDate(LocalDate.of(
                         1990 + (idx % 5),
-                        2 + (idx % 10),       // 2–11
-                        5 + (idx % 20)        // 5–24
+                        2 + (idx % 10),
+                        5 + (idx % 20)
                 ));
                 d.setGender(idx % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                 d.setCountry("Vietnam");
@@ -533,8 +533,8 @@ public class DataSeeder implements CommandLineRunner {
                     l.setPhoneNumber("+84103" + String.format("%07d", lecturerIndex));
                     l.setBirthDate(LocalDate.of(
                             1975 + (lecturerIndex % 5),
-                            3 + (lecturerIndex % 10),   // 3–12
-                            10 + (lecturerIndex % 10)   // 10–19
+                            3 + (lecturerIndex % 10),
+                            10 + (lecturerIndex % 10)
                     ));
                     l.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
                     l.setCountry("Vietnam");
@@ -602,10 +602,10 @@ public class DataSeeder implements CommandLineRunner {
                 ml.setEmail(id + "@minorlec.demo.com");
                 ml.setPhoneNumber("+84104" + String.format("%07d", idx));
 
-                // FIX LỖI: luôn đảm bảo month 1–12, day 1–28
+                // luôn đảm bảo month 1–12, day 1–28
                 int year = 1985 + (idx % 5);
-                int month = (4 + idx) % 12 + 1;   // 1–12
-                int day = (12 + idx) % 28 + 1;    // 1–28
+                int month = (4 + idx) % 12 + 1;
+                int day = (12 + idx) % 28 + 1;
                 ml.setBirthDate(LocalDate.of(year, month, day));
 
                 ml.setGender(i % 2 == 0 ? Gender.FEMALE : Gender.MALE);
@@ -676,8 +676,8 @@ public class DataSeeder implements CommandLineRunner {
             student.setPhoneNumber("+84105" + String.format("%07d", i));
             student.setBirthDate(LocalDate.of(
                     2001 + (i % 3),
-                    1 + (i % 12),      // 1–12
-                    5 + (i % 20)       // 5–24
+                    1 + (i % 12),
+                    5 + (i % 20)
             ));
             student.setGender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE);
             student.setCountry("Vietnam");
@@ -753,8 +753,8 @@ public class DataSeeder implements CommandLineRunner {
                 parent.setPhoneNumber("+84106" + String.format("%07d", i + 1));
                 parent.setBirthDate(LocalDate.of(
                         1975 + (i % 5),
-                        1 + (i % 12),      // 1–12
-                        10 + (i % 18)      // 10–27
+                        1 + (i % 12),
+                        10 + (i % 18)
                 ));
                 parent.setCountry("Vietnam");
                 parent.setProvince("Hà Nội");
@@ -817,7 +817,9 @@ public class DataSeeder implements CommandLineRunner {
 
         for (int i = 0; i < majorIds.length; i++) {
             String id = "SUB_MAJ_" + String.format("%03d", i + 1);
-            if (exists(em, MajorSubjects.class, "subjectId", id)) {
+
+            // CHECK TRÊN ROOT Subjects ĐỂ KHÔNG BAO GIỜ TRÙNG subjectId
+            if (exists(em, Subjects.class, "subjectId", id)) {
                 System.out.println("[SUB_MAJOR] " + id + " already exists, skip.");
                 continue;
             }
@@ -861,7 +863,9 @@ public class DataSeeder implements CommandLineRunner {
 
         for (int i = 0; i < names.length; i++) {
             String id = "SUB_MIN_" + String.format("%03d", i + 1);
-            if (exists(em, MinorSubjects.class, "subjectId", id)) {
+
+            // CHECK ROOT Subjects
+            if (exists(em, Subjects.class, "subjectId", id)) {
                 System.out.println("[SUB_MINOR] " + id + " already exists, skip.");
                 continue;
             }
@@ -908,7 +912,9 @@ public class DataSeeder implements CommandLineRunner {
 
         for (int i = 0; i < specIds.length; i++) {
             String id = "SUB_SPEC_" + String.format("%03d", i + 1);
-            if (exists(em, SpecializedSubject.class, "subjectId", id)) {
+
+            // CHECK ROOT Subjects
+            if (exists(em, Subjects.class, "subjectId", id)) {
                 System.out.println("[SUB_SPEC] " + id + " already exists, skip.");
                 continue;
             }
@@ -1502,13 +1508,25 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("[AUTH] Inserted auth for " + personId);
     }
 
+    /**
+     * exists() chuẩn, tránh duplicate:
+     * - Nếu clazz là subclass của Persons → check trên Persons.id
+     * - Nếu clazz là subclass của Subjects → check trên Subjects.subjectId (root)
+     * - Ngược lại → check trên chính clazz với trường idField
+     */
     private static <T> boolean exists(EntityManager em, Class<T> clazz, String idField, String idValue) {
         Class<?> targetClass = clazz;
         String field = idField;
 
+        // Toàn bộ user (Admins, Staffs, Students, ...) đều extend Persons
         if (Persons.class.isAssignableFrom(clazz)) {
             targetClass = Persons.class;
             field = "id";
+        }
+        // Toàn bộ Subject (MajorSubjects, MinorSubjects, SpecializedSubject) đều extend Subjects
+        else if (Subjects.class.isAssignableFrom(clazz)) {
+            targetClass = Subjects.class;
+            field = "subjectId";
         }
 
         String jpql = "SELECT 1 FROM " + targetClass.getSimpleName() + " e WHERE e." + field + " = :id";
@@ -1605,12 +1623,12 @@ public class DataSeeder implements CommandLineRunner {
                 person.setStreet("Số " + houseNumber + " Đường Demo Hải Phòng");
             }
             case CAMPUS_ID_HANOI -> {
-                    person.setProvince("Hà Nội");
-                    person.setCity("Hà Nội");
-                    person.setDistrict("Đống Đa");
-                    person.setWard("Láng Hạ");
-                    person.setStreet("Số " + houseNumber + " Đường Demo Hà Nội");
-                }
+                person.setProvince("Hà Nội");
+                person.setCity("Hà Nội");
+                person.setDistrict("Đống Đa");
+                person.setWard("Láng Hạ");
+                person.setStreet("Số " + houseNumber + " Đường Demo Hà Nội");
+            }
         }
         person.setPostalCode("100000");
     }
