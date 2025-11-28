@@ -65,7 +65,7 @@
                 <th><i class="fas fa-user"></i> Full Name</th>
                 <th><i class="fas fa-envelope"></i> Email</th>
                 <th><i class="fas fa-phone"></i> Phone</th>
-                <th><i class="fas fa-birthday-cake"></i> Birth Date</th>
+                <th><i class="fas fa-calendar-week"></i> Timetable</th>
                 <th><i class="fas fa-venus-mars"></i> Gender</th>
                 <th><i class="fas fa-user-shield"></i> Creator</th>
                 <th><i class="fas fa-cogs"></i> Actions</th>
@@ -83,7 +83,15 @@
                 <td th:text="${minorLecture.firstName + ' ' + minorLecture.lastName}"></td>
                 <td th:text="${minorLecture.email}"></td>
                 <td th:text="${minorLecture.phoneNumber}"></td>
-                <td th:text="${minorLecture.birthDate}"></td>
+                <td>
+                    <form method="post" th:action="@{/deputy-staff-timetable/lecturer}" class="inline-form">
+                        <input type="hidden" name="lecturerId" th:value="${minorLecture.id}" />
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn info small">
+                            <i class="fas fa-calendar-week"></i> View Timetable
+                        </button>
+                    </form>
+                </td>
                 <td th:text="${minorLecture.gender}"></td>
                 <td th:text="${minorLecture.creator?.id}"></td>
                 <td>

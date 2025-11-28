@@ -1,5 +1,5 @@
 // SupportTicketDocumentsController.java
-package com.example.demo.supportTickets.controller;
+package com.example.demo.document.controller;
 
 import com.example.demo.document.model.SupportTicketDocuments;
 import com.example.demo.document.service.SupportTicketDocumentsService;

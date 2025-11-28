@@ -1,0 +1,207 @@
+/* ==========================================================
+   WINDOWS 11 Fluent Style – My Request Detail Page
+   ========================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+    --danger: #dc2626;
+    --success: #22c55e;
+    --bg-light: #f3f3f3;
+    --bg-white: #ffffff;
+    --text-dark: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* Layout */
+body {
+    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+    background: var(--bg-light);
+    margin: 0;
+    color: var(--text-dark);
+}
+
+.win11-container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 32px;
+}
+
+/* Toolbar ------------------------------------------------- */
+.search-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buttons ------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-white);
+    color: var(--text-dark);
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn.small { padding: 6px 12px; font-size: 14px; }
+.btn.success { color: var(--success); border-color: #a7f3d0; }
+
+.btn:hover {
+    background: #eef3ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.home-btn {
+    background: #eef3ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Card ---------------------------------------------------- */
+.card {
+    background: var(--bg-white);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px var(--shadow);
+    margin-top: 16px;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header h3 {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+}
+
+.badge {
+    background: var(--primary);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Card Body */
+.card-body {
+    padding: 20px;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.info-col p {
+    margin: 4px 0 10px 0;
+}
+
+.info-col strong {
+    color: var(--text-dark);
+}
+
+/* Description */
+.preserve-lines {
+    white-space: pre-line;
+    background: #fafafa;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+/* Documents ---------------------------------------------- */
+.documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-white);
+    transition: 0.2s;
+}
+
+.document-item:hover {
+    background: #eef3ff;
+    border-color: var(--primary);
+}
+
+.doc-icon {
+    font-size: 30px;
+    width: 40px;
+    text-align: center;
+}
+
+.doc-info {
+    flex: 1;
+}
+
+.doc-name {
+    font-weight: 600;
+}
+
+.doc-meta {
+    font-size: 14px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 6px;
+}
+
+.doc-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* No Docs */
+.no-docs {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+}
+
+/* Responsive --------------------------------------------- */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar-left {
+        flex-wrap: wrap;
+    }
+}

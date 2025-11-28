@@ -22,23 +22,6 @@
             </h2>
         </div>
 
-        <!-- CENTER: Search -->
-        <form method="get"
-              th:action="@{/student-home/support-tickets/my-requests}"
-              class="toolbar-center">
-            <input type="text" name="search" th:value="${search}"
-                   placeholder="Search by title or description..."
-                   class="input small" />
-            <button type="submit" class="btn small">
-                <i class="fas fa-search"></i> Search
-            </button>
-            <a th:if="${search != null and search != ''}"
-               th:href="@{/student-home/support-tickets/my-requests}"
-               class="btn small danger">
-                <i class="fas fa-times"></i> Clear
-            </a>
-        </form>
-
         <!-- RIGHT: Summary -->
         <div class="toolbar-right" th:if="${totalItems != null}">
             <div class="total">

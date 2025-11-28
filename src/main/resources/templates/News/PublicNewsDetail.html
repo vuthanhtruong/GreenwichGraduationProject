@@ -3,38 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${news.title}">News Detail</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/StudentsList.css}">
-    <style>
-        .detail-container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        .detail-header { margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
-        .detail-title { font-size: 1.9rem; font-weight: 700; color: #1a1a1a; margin: 0; }
-        .detail-meta { font-size: 0.95rem; color: #666; margin: 0.5rem 0; }
-        .detail-content { font-size: 1.1rem; line-height: 1.8; color: #333; margin: 2rem 0; white-space: pre-wrap; }
 
-        .file-list { margin: 2rem 0; background: #f8f9fa; padding: 1rem; border-radius: 8px; }
-        .file-list h3 { margin-top: 0; color: #1a1a1a; }
-        .file-item { display: flex; align-items: center; padding: 0.75rem; background: white; border-radius: 6px; margin-bottom: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .file-item i { margin-right: 0.5rem; color: #007bff; }
+    <!-- Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-        .comments-section { margin: 3rem 0; }
-        .comments-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .comments-header h3 { margin: 0; color: #1a1a1a; }
-        .comment-count { font-size: 0.9rem; color: #666; }
-
-        .comment-form { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
-        .comment-form textarea { width: 100%; min-height: 100px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
-        .comment-form .error { color: #d32f2f; font-size: 0.9rem; margin-top: 0.5rem; }
-
-        .comment-list { }
-        .comment-item { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .comment-meta { display: flex; justify-content: space-between; font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
-        .comment-author { font-weight: 600; color: #1a1a1a; }
-        .comment-content { font-size: 1rem; color: #333; line-height: 1.6; }
-
-        .back-btn { margin: 2rem 0; text-align: center; }
-    </style>
+    <link rel="stylesheet" th:href="@{/NewsDetail.css}">
 </head>
+
 <body>
 <div class="win11-container">
 
@@ -42,9 +18,12 @@
     <div class="search-toolbar unified-bar">
         <div class="toolbar-left">
             <a th:href="@{/check-news}" class="btn home-btn">
-                Back to News
+                <i class="fas fa-arrow-left"></i> Back to News
             </a>
-            <h2 class="page-title">News Detail</h2>
+
+            <h2 class="page-title">
+                <i class="fas fa-newspaper"></i> News Detail
+            </h2>
         </div>
     </div>
 
@@ -53,68 +32,125 @@
         <!-- Header -->
         <div class="detail-header">
             <h1 class="detail-title" th:text="${news.title}">Title</h1>
+
             <div class="detail-meta">
-                <span th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">Staff</span>
-                <span th:text="${#temporals.format(news.createdAt, 'dd MMMM yyyy')}">Date</span>
+                <span class="author"
+                      th:text="${news.creator?.firstName + ' ' + news.creator?.lastName}">
+                    Staff
+                </span>
+
+                <span class="date"
+                      th:text="${#temporals.format(news.createdAt,'dd MMMM yyyy')}">
+                    01 Jan 2024
+                </span>
             </div>
         </div>
 
-        <!-- Content -->
+        <!-- Main Content -->
         <div class="detail-content" th:utext="${news.content}">
-            Content goes here...
+            News content...
         </div>
 
-        <!-- File Attachments -->
-        <div th:if="${news.documents != null and !news.documents.isEmpty()}" class="file-list">
-            <h3>Attached Files</h3>
-            <div th:each="doc : ${news.documents}" class="file-item">
-                <span th:text="${doc.documentTitle}">document.pdf</span>
-                <a th:href="@{'/check-news/download/' + ${doc.documentId}}"
-                   class="btn small primary" style="margin-left: auto;">
-                    Download
-                </a>
+        <!-- Attachments -->
+        <section class="file-section">
+
+            <h3 class="section-title">
+                <i class="fas fa-paperclip"></i> Attachments
+            </h3>
+
+            <div th:if="${news.documents != null and !news.documents.isEmpty()}"
+                 class="file-list">
+
+                <div th:each="doc : ${news.documents}" class="file-item">
+
+                    <div class="file-info">
+                        <i class="fas fa-file-alt file-icon"></i>
+                        <span th:text="${doc.documentTitle}">document.pdf</span>
+                    </div>
+
+                    <a th:href="@{'/check-news/download/' + ${doc.documentId}}"
+                       class="btn small primary">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <!-- No Files -->
-        <div th:unless="${news.documents != null and !news.documents.isEmpty()}" class="file-list">
-            <p style="color:#777; font-style:italic;">No attachments.</p>
-        </div>
+            <div th:unless="${news.documents != null and !news.documents.isEmpty()}"
+                 class="no-data">
+                <p>No attachments.</p>
+            </div>
 
-        <!-- === COMMENTS SECTION === -->
-        <div class="comments-section">
+        </section>
+
+        <!-- Comments Section -->
+        <section class="comments-section">
+
             <div class="comments-header">
-                <h3>Comments</h3>
-                <span class="comment-count" th:text="${#lists.size(news.comments)} + ' comment(s)'">0 comments</span>
+                <h3>
+                    <i class="fas fa-comments"></i> Comments
+                </h3>
+
+                <span class="comment-count"
+                      th:text="${#lists.size(news.comments)} + ' comment(s)'">
+                    0 comment(s)
+                </span>
             </div>
 
-            <!-- Comment Form (POST with hidden postId) -->
-            <form th:action="@{/check-news/comment}" method="post" class="comment-form">
-                <input type="hidden" name="postId" th:value="${news.postId}" />
-                <textarea name="content" placeholder="Write your comment..." required minlength="5" maxlength="1000"></textarea>
+            <!-- Comment Form -->
+            <form class="comment-form"
+                  th:action="@{/check-news/comment}"
+                  method="post">
+
+                <input type="hidden" name="postId" th:value="${news.postId}">
+
+                <textarea name="content"
+                          placeholder="Write your comment..."
+                          minlength="5"
+                          maxlength="1000"
+                          required></textarea>
+
                 <div th:if="${error}" class="error" th:text="${error}">Error</div>
-                <button type="submit" class="btn primary" style="margin-top:0.75rem;">
-                    Post Comment
+
+                <button type="submit" class="btn primary">
+                    <i class="fas fa-paper-plane"></i> Post Comment
                 </button>
             </form>
 
             <!-- Comment List -->
-            <div class="comment-list" th:if="${news.comments != null and !news.comments.isEmpty()}">
+            <div class="comment-list"
+                 th:if="${news.comments != null and !news.comments.isEmpty()}">
+
                 <div th:each="c : ${news.comments}" class="comment-item">
+
                     <div class="comment-meta">
-                        <span class="comment-author" th:text="${c.commenter?.fullName}">Anonymous</span>
-                        <span th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy HH:mm')}">Time</span>
+                        <span class="comment-author"
+                              th:text="${c.commenter?.fullName}">
+                            Anonymous
+                        </span>
+
+                        <span class="comment-date"
+                              th:text="${#temporals.format(c.createdAt,'dd MMM yyyy HH:mm')}">
+                            Time
+                        </span>
                     </div>
-                    <div class="comment-content" th:text="${c.content}">Comment...</div>
+
+                    <div class="comment-content" th:text="${c.content}">
+                        Comment content...
+                    </div>
+
                 </div>
             </div>
 
-            <!-- No Comments -->
-            <div th:unless="${news.comments != null and !news.documents.isEmpty()}" style="text-align:center; color:#777; padding:2rem;">
+            <!-- No comments -->
+            <div th:unless="${news.comments != null and !news.comments.isEmpty()}"
+                 class="no-data">
                 <p>No comments yet. Be the first!</p>
             </div>
-        </div>
+
+        </section>
+
     </div>
 </div>
+
 </body>
 </html>

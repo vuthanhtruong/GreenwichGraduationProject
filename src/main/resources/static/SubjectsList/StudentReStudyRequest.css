@@ -1,0 +1,209 @@
+/* ==========================================================
+   WINDOWS 11 Fluent – Re-study Request Page
+   ========================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --bg-light: #f3f4f6;
+    --bg-white: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow: rgba(0,0,0,0.08);
+}
+
+/* Base Layout */
+body {
+    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+    background: var(--bg-light);
+    margin: 0;
+}
+
+.win11-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 32px;
+}
+
+/* Toolbar */
+.search-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-right .total {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+/* Buttons --------------------------------------------------*/
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-white);
+    text-decoration: none;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn.large {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+.home-btn {
+    background: #eef3ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Alerts ---------------------------------------------------*/
+.win11-alert {
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 15px;
+}
+
+.win11-alert.error {
+    background: #fee2e2;
+    border-left: 5px solid var(--danger);
+    color: var(--danger);
+}
+
+.win11-alert.success {
+    background: #dcfce7;
+    border-left: 5px solid var(--success);
+    color: var(--success);
+}
+
+/* Table Container ------------------------------------------*/
+.table-container {
+    background: var(--bg-white);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px var(--shadow);
+    overflow: hidden;
+}
+
+/* Table */
+.win11-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.win11-table th,
+.win11-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+}
+
+.win11-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+.center { text-align: center; }
+.right { text-align: right; }
+
+.fee-cell {
+    font-weight: 600;
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.badge.danger {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+/* Total Row */
+.total-row {
+    font-size: 1.1em;
+}
+
+.total-label {
+    font-weight: bold;
+}
+
+.total-value {
+    font-size: 1.3em;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Empty Success Box */
+.no-fail {
+    text-align: center;
+    padding: 60px;
+    font-size: 1.3em;
+    color: var(--success);
+}
+
+.no-fail i {
+    font-size: 2.6em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Actions Right */
+.actions-right {
+    padding: 18px;
+    text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toolbar-left {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .total-row td {
+        text-align: left !important;
+    }
+}

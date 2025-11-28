@@ -1,0 +1,217 @@
+/* ==========================================================
+   WINDOWS 11 FLUENT UI — News Detail Page
+   ========================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1e4fd6;
+    --border: #e5e7eb;
+    --bg: #f3f4f6;
+    --white: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Base */
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+}
+
+.win11-container {
+    max-width: 1150px;
+    margin: auto;
+    padding: 32px;
+}
+
+/* Toolbar */
+.search-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+    color: var(--text-dark);
+}
+
+.btn.small {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+}
+
+/* Content Container */
+.detail-container {
+    background: var(--white);
+    padding: 26px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+/* Header */
+.detail-header {
+    margin-bottom: 24px;
+}
+
+.detail-title {
+    margin: 0 0 10px;
+    font-size: 28px;
+}
+
+.detail-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Content */
+.detail-content {
+    margin-bottom: 30px;
+    line-height: 1.6;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+/* =============================
+   Attachments
+   ============================= */
+.file-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-list {
+    margin-top: 12px;
+}
+
+.file-item {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-icon {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.no-data {
+    padding: 16px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* =============================
+   Comments
+   ============================= */
+.comments-section {
+    margin-top: 40px;
+}
+
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 15px;
+    resize: vertical;
+}
+
+.error {
+    color: #dc2626;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.comment-list {
+    margin-top: 24px;
+}
+
+.comment-item {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+}
+
+.comment-content {
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .detail-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .comment-meta {
+        flex-direction: column;
+        gap: 6px;
+    }
+}

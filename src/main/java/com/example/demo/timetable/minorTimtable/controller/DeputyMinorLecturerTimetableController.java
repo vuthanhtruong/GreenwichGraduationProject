@@ -1,18 +1,17 @@
-// src/main/java/com/example/demo/timtable/minorTimtable/controller/MinorLecturerTimetableController.java
+// src/main/java/com/example/demo/timetable/minorTimetable/controller/DeputyMinorLecturerTimetableController.java
+
 package com.example.demo.timetable.minorTimtable.controller;
 
 import com.example.demo.timetable.majorTimetable.model.Slots;
+import com.example.demo.timetable.majorTimetable.service.SlotsService;
 import com.example.demo.timetable.minorTimtable.model.MinorTimetable;
 import com.example.demo.timetable.minorTimtable.service.MinorTimetableService;
 import com.example.demo.user.minorLecturer.model.MinorLecturers;
 import com.example.demo.user.minorLecturer.service.MinorLecturersService;
-import com.example.demo.timetable.majorTimetable.service.SlotsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -22,32 +21,48 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/minor-lecturer-home/minor-timetable")
-public class MinorLecturerTimetableController {
+@RequestMapping("/deputy-staff-timetable")
+public class DeputyMinorLecturerTimetableController {
 
-    private final MinorTimetableService timetableService;
-    private final MinorLecturersService lecturersService;
-    private final SlotsService slotsService;
+    private final MinorTimetableService minorTimetableService;
+    private final MinorLecturersService minorLecturerService;
+    private final SlotsService minorSlotsService;
 
-    public MinorLecturerTimetableController(
-            MinorTimetableService timetableService,
-            MinorLecturersService lecturersService,
-            SlotsService slotsService) {
-        this.timetableService = timetableService;
-        this.lecturersService = lecturersService;
-        this.slotsService = slotsService;
+    public DeputyMinorLecturerTimetableController(
+            MinorTimetableService minorTimetableService,
+            MinorLecturersService minorLecturerService,
+            SlotsService minorSlotsService) {
+        this.minorTimetableService = minorTimetableService;
+        this.minorLecturerService = minorLecturerService;
+        this.minorSlotsService = minorSlotsService;
     }
 
-    @GetMapping
-    public String showLecturerTimetable(
+    // Nhận POST từ nút "View Timetable" trong danh sách Minor Lecturer
+    @PostMapping("/lecturer")
+    public String showMinorLecturerTimetablePost(@RequestParam String lecturerId, HttpSession session) {
+        session.setAttribute("view_minor_lecturerId", lecturerId);
+        return "redirect:/deputy-staff-timetable/lecturer";
+    }
+
+    // Hiển thị thời khóa biểu
+    @GetMapping("/lecturer")
+    public String showMinorLecturerTimetableGet(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer week,
             Model model,
             HttpSession session) {
 
-        MinorLecturers lecturer = lecturersService.getMinorLecturer(); // từ login
+        String lecturerIdObj = session.getAttribute("view_minor_lecturerId").toString();
+        if (lecturerIdObj == null) {
+            model.addAttribute("error", "No minor lecturer selected.");
+            return "redirect:/deputy-staff-home/minor-lecturers-list";
+        }
+
+        String lecturerId = lecturerIdObj;
+        MinorLecturers lecturer = minorLecturerService.getMinorLecturerById(lecturerId);
         if (lecturer == null) {
-            return "redirect:/login";
+            model.addAttribute("error", "Minor lecturer not found.");
+            return "redirect:/deputy-staff-home/minor-lecturers-list";
         }
 
         LocalDate now = LocalDate.now();
@@ -57,22 +72,25 @@ public class MinorLecturerTimetableController {
         int targetYear = (year != null && year > 0) ? year : currentYear;
         int targetWeek = (week != null && week > 0 && week <= 53) ? week : currentWeek;
 
-        List<Slots> allSlots = slotsService.getSlots();
+        List<Slots> allSlots = minorSlotsService.getSlots();
         if (allSlots.isEmpty()) {
-            model.addAttribute("error", "No slot configuration found.");
-            return "MinorLecturerTimetable";
+            model.addAttribute("error", "No slot configuration found for minor lecturers.");
+            return "MinorLecturerTimetable"; // Template chung hoặc riêng đều được
         }
 
-        model.addAttribute("home", "/minor-lecturer-home");
-        model.addAttribute("action", "/minor-lecturer-home/minor-timetable");
-
-        // DÙNG HÀM ĐÃ CÓ
-        List<MinorTimetable> timetables = timetableService.getMinorTimetablesByMinorLecturer(
+        List<MinorTimetable> timetables = minorTimetableService.getMinorTimetablesByMinorLecturer(
                 lecturer.getId(), targetWeek, targetYear);
 
-        prepareView(model, timetables, allSlots, targetYear, targetWeek, currentYear, currentWeek, lecturer);
+        prepareView(model, timetables, allSlots, targetYear, targetWeek,
+                currentYear, currentWeek, lecturer);
 
-        return "MinorLecturerTimetable";
+        // Đánh dấu đây là Deputy Staff đang xem Minor Lecturer
+        model.addAttribute("isDeputyStaffView", true);
+        model.addAttribute("list", "/deputy-staff-home/minor-lecturers-list");
+        model.addAttribute("home", "/deputy-staff-home");
+        model.addAttribute("action", "/deputy-staff-timetable/lecturer");
+
+        return "MinorLecturerTimetable"; // Dùng chung template hoặc tạo riêng cũng được
     }
 
     private void prepareView(Model model, List<MinorTimetable> timetables, List<Slots> slots,
@@ -85,7 +103,7 @@ public class MinorLecturerTimetableController {
 
         MinorTimetable[][] matrix = new MinorTimetable[7][slots.size()];
         for (MinorTimetable t : timetables) {
-            int dayIdx = t.getDayOfWeek().ordinal();
+            int dayIdx = t.getDayOfWeek().ordinal(); // giả sử enum DayOfWeek
             int slotIdx = slots.indexOf(t.getSlot());
             if (dayIdx < 7 && slotIdx >= 0) {
                 matrix[dayIdx][slotIdx] = t;

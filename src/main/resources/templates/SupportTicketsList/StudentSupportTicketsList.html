@@ -25,30 +25,6 @@
             </h2>
         </div>
 
-        <!-- Center: Search -->
-        <form method="get" th:action="@{/student-home/support-tickets}" class="toolbar-center">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <div class="search-group">
-                <label>
-                    <i class="fas fa-filter"></i>
-                    <select name="searchType" class="input small">
-                        <option value="name" th:selected="${searchType == 'name'}">Name</option>
-                        <option value="id" th:selected="${searchType == 'id'}">ID</option>
-                    </select>
-                </label>
-                <label class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input search-input" />
-                </label>
-                <button type="submit" class="btn small">
-                    <i class="fas fa-magnifying-glass"></i> Search
-                </button>
-                <a th:if="${keyword != null and keyword != ''}" th:href="@{/student-home/support-tickets}" class="btn small danger">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-            </div>
-        </form>
-
         <!-- Right: Total -->
         <div class="toolbar-right">
             <div class="total">
