@@ -13,6 +13,11 @@ import java.util.Map;
 @Service
 public class RetakeSubjectsServiceImpl implements RetakeSubjectsService {
     @Override
+    public void update(RetakeSubjects retakeSubjects) {
+        retakeSubjectsDAO.update(retakeSubjects);
+    }
+
+    @Override
     public RetakeSubjects getByStudent(String studentId) {
         return retakeSubjectsDAO.getByStudent(studentId);
     }

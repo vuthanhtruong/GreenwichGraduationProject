@@ -17,4 +17,5 @@ public interface RetakeSubjectsDAO {
     boolean deductAndLogPayment(Students student, String subjectId, Double amount);
     void deleteByStudentAndSubject(String studentId, String subjectId);
     RetakeSubjects getByStudent(String studentId);
+    void update(RetakeSubjects retakeSubjects);
 }

@@ -10,7 +10,7 @@ public interface RetakeSubjectsService {
     void save(RetakeSubjects retakeSubjects);
     boolean existsByStudentAndSubject(String studentId, String subjectId);
     List<RetakeSubjects> getRetakeSubjectsBySubjectId(String subjectId);
-
+    void update(RetakeSubjects retakeSubjects);
     Map<String, Object> validateBalance(Students student, List<String> selectedSubjectIds);
     void processReStudyPayment(Students student, List<String> selectedSubjectIds);
     RetakeSubjects getByStudent(String studentId);

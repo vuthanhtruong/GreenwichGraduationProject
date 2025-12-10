@@ -352,6 +352,7 @@ public class MinorClassesMemberArrangementController {
             if (isInRetake) {
                 RetakeSubjects retakeSubjects = retakeSubjectsService.getByStudent(studentId);
                 retakeSubjects.setAllowedInOtherClasses(false);
+                retakeSubjectsService.update(retakeSubjects);
             }
             if (isInTemporary) {
                 temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);

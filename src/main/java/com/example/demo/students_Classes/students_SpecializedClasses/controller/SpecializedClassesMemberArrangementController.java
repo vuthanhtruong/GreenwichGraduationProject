@@ -350,6 +350,7 @@ public class SpecializedClassesMemberArrangementController {
             if (isInRetake) {
                 RetakeSubjects retakeSubjects = retakeSubjectsService.getByStudent(studentId);
                 retakeSubjects.setAllowedInOtherClasses(false);
+                retakeSubjectsService.update(retakeSubjects);
             }
 
             if (isInTemporary) {

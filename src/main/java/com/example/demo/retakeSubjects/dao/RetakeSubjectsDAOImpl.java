@@ -27,6 +27,10 @@ import java.util.stream.Collectors;
 @Repository
 @Transactional
 public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
+    @Override
+    public void update(RetakeSubjects retakeSubjects) {
+        entityManager.merge(retakeSubjects);
+    }
 
     @Override
     public RetakeSubjects getByStudent(String studentId) {
