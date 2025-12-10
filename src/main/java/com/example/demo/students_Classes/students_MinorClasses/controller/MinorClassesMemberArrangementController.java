@@ -348,6 +348,11 @@ public class MinorClassesMemberArrangementController {
             if (!isInRetake && !isInTemporary && finalFeeToDeduct > 0) {
                 retakeSubjectsService.deductAndLogPayment(student, subjectId, finalFeeToDeduct);
             }
+
+            if (isInRetake) {
+                RetakeSubjects retakeSubjects = retakeSubjectsService.getByStudent(studentId);
+                retakeSubjects.setAllowedInOtherClasses(false);
+            }
             if (isInTemporary) {
                 temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
             }

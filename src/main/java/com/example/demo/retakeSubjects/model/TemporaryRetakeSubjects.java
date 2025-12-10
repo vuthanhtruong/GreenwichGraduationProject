@@ -1,7 +1,6 @@
 package com.example.demo.retakeSubjects.model;
 
 import com.example.demo.user.student.model.Students;
-import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 public class TemporaryRetakeSubjects {
 
     @EmbeddedId
-    private StudentRetakeSubjectsId id;
+    private RetakeSubjectsId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("studentId")
@@ -47,7 +46,7 @@ public class TemporaryRetakeSubjects {
     }
 
     public TemporaryRetakeSubjects(Students student, Subjects subject, String reason) {
-        this.id = new StudentRetakeSubjectsId(student.getId(), subject.getSubjectId());
+        this.id = new RetakeSubjectsId(student.getId(), subject.getSubjectId());
         this.student = student;
         this.subject = subject;
         this.reason = reason;

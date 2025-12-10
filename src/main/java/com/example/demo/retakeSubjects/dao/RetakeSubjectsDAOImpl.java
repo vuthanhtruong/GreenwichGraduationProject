@@ -7,12 +7,13 @@ import com.example.demo.accountBalance.service.AccountBalancesService;
 import com.example.demo.entity.Enums.Status;
 import com.example.demo.financialHistory.paymentHistories.model.PaymentHistories;
 import com.example.demo.financialHistory.paymentHistories.service.PaymentHistoriesService;
-import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
+import com.example.demo.retakeSubjects.model.RetakeSubjectsId;
 import com.example.demo.subject.abstractSubject.model.Subjects;
 import com.example.demo.tuitionByYear.model.TuitionByYear;
 import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.user.student.model.Students;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -27,6 +28,19 @@ import java.util.stream.Collectors;
 @Transactional
 public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
 
+    @Override
+    public RetakeSubjects getByStudent(String studentId) {
+        try {
+            return entityManager.createQuery(
+                            "FROM RetakeSubjects r WHERE r.student.id = :studentId",
+                            RetakeSubjects.class)
+                    .setParameter("studentId", studentId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -36,6 +50,7 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
 
     @Override
     public void save(RetakeSubjects retakeSubjects) {
+        retakeSubjects.setAllowedInOtherClasses(false);
         entityManager.persist(retakeSubjects);
     }
 
@@ -53,9 +68,10 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
     @Override
     public List<RetakeSubjects> getRetakeSubjectsBySubjectId(String subjectId) {
         return entityManager.createQuery(
-                        "FROM RetakeSubjects r WHERE r.subject.subjectId = :subjectId",
+                        "FROM RetakeSubjects r WHERE r.subject.subjectId = :subjectId And r.allowedInOtherClasses=:allowed",
                         RetakeSubjects.class)
                 .setParameter("subjectId", subjectId)
+                .setParameter("allowed", true) // hoặc false tuỳ ý
                 .getResultList();
     }
 
@@ -155,7 +171,7 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
 
                 RetakeSubjects retake = new RetakeSubjects();
                 // dùng key ghép studentId + subjectId
-                retake.setId(new StudentRetakeSubjectsId(student.getId(), subjectId));
+                retake.setId(new RetakeSubjectsId(student.getId(), subjectId));
                 retake.setStudent(student);
                 retake.setSubject(subject);
                 retake.setCreatedAt(LocalDateTime.now());

@@ -1,9 +1,8 @@
 package com.example.demo.retakeSubjects.dao;
 
+import com.example.demo.retakeSubjects.model.RetakeSubjectsId;
 import com.example.demo.retakeSubjects.model.TemporaryRetakeSubjects;
-import com.example.demo.studentRequiredMajorSubjects.model.StudentRetakeSubjectsId;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
@@ -40,7 +39,7 @@ public class TemporaryRetakeSubjectsDAOImpl implements TemporaryRetakeSubjectsDA
     }
 
     @Override
-    public TemporaryRetakeSubjects findById(StudentRetakeSubjectsId id) {
+    public TemporaryRetakeSubjects findById(RetakeSubjectsId id) {
         return em.find(TemporaryRetakeSubjects.class, id);
     }
 

@@ -13,7 +13,7 @@ public interface RetakeSubjectsService {
 
     Map<String, Object> validateBalance(Students student, List<String> selectedSubjectIds);
     void processReStudyPayment(Students student, List<String> selectedSubjectIds);
-
+    RetakeSubjects getByStudent(String studentId);
     List<Students> getStudentsWithSufficientBalance(String subjectId, List<Students> candidates);
     List<Students> getStudentsWithInsufficientBalance(String subjectId, List<Students> candidates);
     boolean deductAndLogPayment(Students student, String subjectId, Double amount);

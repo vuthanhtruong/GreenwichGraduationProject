@@ -347,6 +347,11 @@ public class SpecializedClassesMemberArrangementController {
                 retakeSubjectsService.deductAndLogPayment(student, subjectId, finalFeeToDeduct);
             }
 
+            if (isInRetake) {
+                RetakeSubjects retakeSubjects = retakeSubjectsService.getByStudent(studentId);
+                retakeSubjects.setAllowedInOtherClasses(false);
+            }
+
             if (isInTemporary) {
                 temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
             }

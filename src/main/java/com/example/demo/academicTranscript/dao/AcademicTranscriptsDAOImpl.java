@@ -26,6 +26,10 @@ import java.util.Map;
 @Repository
 @Transactional
 public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
+    @Override
+    public AcademicTranscripts getAcademicTranscriptsById(String id) {
+        return entityManager.find(AcademicTranscripts.class, id);
+    }
 
     private final RetakeSubjectsService retakeSubjectsService;
 
@@ -207,10 +211,8 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
     @Override
     public void saveOrUpdateTranscript(MajorAcademicTranscripts transcript) {
         try {
-            if (transcript.getTranscriptId() == null) {
-                if(transcript.getGrade().equals(Grades.REFER)){
-                    retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getMajorClass().getSubject().getSubjectId());
-                }
+            if (getAcademicTranscriptsById(transcript.getTranscriptId()) == null) {
+                retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getMajorClass().getSubject().getSubjectId());
                 entityManager.persist(transcript);
                 log.debug("Persisted new Major transcript ID: {}", transcript.getTranscriptId());
             } else {
@@ -257,10 +259,10 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
     @Override
     public void saveOrUpdateTranscript(SpecializedAcademicTranscripts transcript) {
         try {
-            if (transcript.getTranscriptId() == null) {
-                if(transcript.getGrade().equals(Grades.REFER)){
-                    retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getSpecializedClass().getSpecializedSubject().getSubjectId());
-                }
+            if (getAcademicTranscriptsById(transcript.getTranscriptId()) == null) {
+
+                retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getSpecializedClass().getSpecializedSubject().getSubjectId());
+
                 entityManager.persist(transcript);
                 log.debug("Persisted new Specialized transcript ID: {}", transcript.getTranscriptId());
             } else {
@@ -307,10 +309,8 @@ public class AcademicTranscriptsDAOImpl implements AcademicTranscriptsDAO {
     @Override
     public void saveOrUpdateTranscript(MinorAcademicTranscripts transcript) {
         try {
-            if (transcript.getTranscriptId() == null) {
-                if(transcript.getGrade().equals(Grades.REFER)){
-                    retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getMinorClass().getMinorSubject().getSubjectId());
-                }
+            if (getAcademicTranscriptsById(transcript.getTranscriptId()) == null) {
+                retakeSubjectsService.deleteByStudentAndSubject(transcript.getStudent().getId(), transcript.getMinorClass().getMinorSubject().getSubjectId());
                 entityManager.persist(transcript);
             } else {
                 entityManager.merge(transcript);

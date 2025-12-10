@@ -40,4 +40,5 @@ public interface AcademicTranscriptsService {
     List<MinorAcademicTranscripts> getFailedNeverPassedMinor(Students student);
     List<SpecializedAcademicTranscripts> getFailedNeverPassedSpecialized(Students student);
     List<MajorAcademicTranscripts> getFailedNeverPassedMajor(Students student);
+    AcademicTranscripts getAcademicTranscriptsById(String id);
 }

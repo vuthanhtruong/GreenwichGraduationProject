@@ -19,6 +19,11 @@ import java.util.List;
 @Service
 public class AcademicTranscriptsServiceImpl implements AcademicTranscriptsService {
     @Override
+    public AcademicTranscripts getAcademicTranscriptsById(String id) {
+        return academicTranscriptsDAO.getAcademicTranscriptsById(id);
+    }
+
+    @Override
     public List<MinorAcademicTranscripts> getFailedNeverPassedMinor(Students student) {
         return academicTranscriptsDAO.getFailedNeverPassedMinor(student);
     }

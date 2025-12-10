@@ -1,4 +1,4 @@
-package com.example.demo.studentRequiredMajorSubjects.model;
+package com.example.demo.retakeSubjects.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.Objects;
 @Embeddable
 @Getter
 @Setter
-public class StudentRetakeSubjectsId implements Serializable {
+public class RetakeSubjectsId implements Serializable {
 
     @Column(name = "StudentID", nullable = false)
     private String studentId;
@@ -18,9 +18,9 @@ public class StudentRetakeSubjectsId implements Serializable {
     @Column(name = "SubjectID", nullable = false)
     private String subjectId;
 
-    public StudentRetakeSubjectsId() {}
+    public RetakeSubjectsId() {}
 
-    public StudentRetakeSubjectsId(String studentId, String subjectId) {
+    public RetakeSubjectsId(String studentId, String subjectId) {
         this.studentId = studentId;
         this.subjectId = subjectId;
     }
@@ -28,8 +28,8 @@ public class StudentRetakeSubjectsId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StudentRetakeSubjectsId)) return false;
-        StudentRetakeSubjectsId that = (StudentRetakeSubjectsId) o;
+        if (!(o instanceof RetakeSubjectsId)) return false;
+        RetakeSubjectsId that = (RetakeSubjectsId) o;
         return Objects.equals(studentId, that.studentId) &&
                 Objects.equals(subjectId, that.subjectId);
     }
