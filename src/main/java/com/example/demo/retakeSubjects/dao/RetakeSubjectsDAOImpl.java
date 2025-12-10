@@ -50,7 +50,7 @@ public class RetakeSubjectsDAOImpl implements RetakeSubjectsDAO {
 
     @Override
     public void save(RetakeSubjects retakeSubjects) {
-        retakeSubjects.setAllowedInOtherClasses(false);
+        retakeSubjects.setAllowedInOtherClasses(true);
         entityManager.persist(retakeSubjects);
     }
 
