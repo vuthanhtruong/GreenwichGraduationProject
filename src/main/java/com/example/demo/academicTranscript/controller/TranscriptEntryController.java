@@ -185,11 +185,6 @@ public class TranscriptEntryController {
             transcript.setScoreComponent2(c2);
             transcript.setScoreComponent3(c3);
             transcript.setGrade(grade);
-
-            if(grade.equals(Grades.REFER)){
-                retakeSubjectsService.deleteByStudentAndSubject(student.getId(), clazz.getSubject().getSubjectId());
-            }
-
             academicTranscriptsService.saveOrUpdateTranscript(transcript);
             saved++;
         }
