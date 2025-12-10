@@ -94,6 +94,7 @@
             <table class="win11-table">
                 <thead>
                 <tr>
+                    <th>#</th>
                     <th><i class="fas fa-image"></i> Avatar</th>
                     <th><i class="fas fa-id-card"></i> ID</th>
                     <th><i class="fas fa-user"></i> Full Name</th>
@@ -103,17 +104,19 @@
                 </thead>
 
                 <tbody>
-                <tr th:each="lec : ${lecturers}">
+                <tr th:each="lec, iter : ${lecturers}">
+                    <td class="text-center" th:text="${iter.index + 1}"></td>
 
                     <!-- Avatar -->
                     <td>
                         <img th:if="${lec.avatar != null}"
                              th:src="@{'/persons/avatar/' + ${lec.id}}"
-                             class="avatar">
-
+                             class="avatar"
+                             alt="Lecturer Avatar">
                         <img th:if="${lec.avatar == null}"
                              th:src="${lec.defaultAvatarPath}"
-                             class="avatar">
+                             class="avatar"
+                             alt="Default Avatar">
                     </td>
 
                     <td th:text="${lec.id}"></td>

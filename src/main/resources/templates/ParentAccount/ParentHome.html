@@ -58,7 +58,7 @@
                 <th><i class="fas fa-envelope"></i> Email</th>
                 <th><i class="fas fa-calendar-week"></i> Timetable</th>
                 <th><i class="fas fa-chart-line"></i> Learning Process</th>
-                <th><i class="fas fa-file-certificate"></i> Academic Transcript</th>
+                <th><i class="fas fa-file-signature"></i> Academic Transcript</th>
                 <th><i class="fas fa-receipt"></i> Payment History</th>
             </tr>
             </thead>
@@ -110,7 +110,7 @@
                     <form method="post" th:action="@{/parent/transcript}">
                         <input type="hidden" name="studentId" th:value="${student.id}"/>
                         <button class="btn info small">
-                            <i class="fas fa-file-certificate"></i> View Transcript
+                            <i class="fas fa-file-signature"></i> View Transcript
                         </button>
                     </form>
                 </td>
