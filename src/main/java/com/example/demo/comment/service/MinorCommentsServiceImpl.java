@@ -11,6 +11,11 @@ import java.util.Map;
 @Service
 public class MinorCommentsServiceImpl implements MinorCommentsService {
     @Override
+    public void deleteComment(String commentId) {
+        minorCommentsDAO.deleteComment(commentId);
+    }
+
+    @Override
     public List<String> getCommentNotificationsForLecturer(String lecturerId) {
         return minorCommentsDAO.getCommentNotificationsForLecturer(lecturerId);
     }

@@ -11,6 +11,11 @@ import java.util.Map;
 @Service
 public class SpecializedClassPostsServiceImpl implements SpecializedClassPostsService {
     @Override
+    public void deleteSpecializedClassPost(String postId) {
+        specializedClassPostsDAO.deleteSpecializedClassPost(postId);
+    }
+
+    @Override
     public List<String> getNotificationsForMemberId(String memberId) {
         return specializedClassPostsDAO.getNotificationsForMemberId(memberId);
     }

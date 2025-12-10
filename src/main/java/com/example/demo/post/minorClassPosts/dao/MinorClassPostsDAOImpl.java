@@ -20,6 +20,22 @@ import java.util.stream.Stream;
 public class MinorClassPostsDAOImpl implements MinorClassPostsDAO {
 
     @Override
+    public void deleteMinorClassPost(String minorClassPostsId) {
+        MinorClassPosts post = entityManager.find(MinorClassPosts.class, minorClassPostsId);
+        if (post != null) {
+            // Xóa comment liên quan trước
+            entityManager.createQuery("DELETE FROM MinorComments c WHERE c.post.postId = :postId")
+                    .setParameter("postId", minorClassPostsId)
+                    .executeUpdate();
+
+            // Xóa post
+            entityManager.remove(post);
+        }
+    }
+
+
+
+    @Override
     public List<String> getNotificationsForMemberId(String memberId) {
         // Query 1: Student in Minor Class
         String jpqlStudent = """

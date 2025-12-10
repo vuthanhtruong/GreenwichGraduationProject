@@ -155,7 +155,22 @@ public class AssignmentSubmitSlotsDAOImpl implements AssignmentSubmitSlotsDAO {
     public void deleteByPostId(String postId) {
         AssignmentSubmitSlots slot = findByPostId(postId);
         if (slot != null) {
+            entityManager.createQuery(
+                            "DELETE FROM SubmissionFeedbacks f WHERE f.id.assignmentSubmitSlotId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+            // Xóa tất cả comment liên quan
+            entityManager.createQuery("DELETE FROM MajorAssignmentComments c WHERE c.post.postId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+
+            entityManager.createQuery("DELETE FROM Submissions s WHERE s.assignmentSubmitSlot.postId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+
+            // Xóa post
             entityManager.remove(slot);
         }
     }
+
 }

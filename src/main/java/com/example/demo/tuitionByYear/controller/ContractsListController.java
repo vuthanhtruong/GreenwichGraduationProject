@@ -1,30 +1,26 @@
 package com.example.demo.tuitionByYear.controller;
 
-import com.example.demo.tuitionByYear.model.TuitionByYear;
-import com.example.demo.tuitionByYear.service.TuitionByYearService;
+import com.example.demo.campus.model.Campuses;
 import com.example.demo.campus.service.CampusesService;
+import com.example.demo.entity.Enums.ActivityStatus;
+import com.example.demo.entity.Enums.ContractStatus;
 import com.example.demo.scholarship.model.Scholarships;
 import com.example.demo.scholarship.service.ScholarshipsService;
 import com.example.demo.scholarshipByYear.model.ScholarshipByYear;
 import com.example.demo.scholarshipByYear.service.ScholarshipByYearService;
+import com.example.demo.tuitionByYear.model.TuitionByYear;
+import com.example.demo.tuitionByYear.service.TuitionByYearService;
 import com.example.demo.user.admin.service.AdminsService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/admin-home/contracts-list")
@@ -32,62 +28,59 @@ import java.util.stream.IntStream;
 public class ContractsListController {
 
     private final TuitionByYearService tuitionService;
-    private final ScholarshipsService scholarshipsService;
     private final ScholarshipByYearService scholarshipByYearService;
-    private final CampusesService campusService;
+    private final ScholarshipsService scholarshipsService;
+    private final CampusesService campusesService;
     private final AdminsService adminsService;
 
     public ContractsListController(TuitionByYearService tuitionService,
-                                   ScholarshipsService scholarshipsService,
                                    ScholarshipByYearService scholarshipByYearService,
-                                   CampusesService campusService, AdminsService adminsService) {
+                                   ScholarshipsService scholarshipsService,
+                                   CampusesService campusesService,
+                                   AdminsService adminsService) {
         this.tuitionService = tuitionService;
-        this.scholarshipsService = scholarshipsService;
         this.scholarshipByYearService = scholarshipByYearService;
-        this.campusService = campusService;
+        this.scholarshipsService = scholarshipsService;
+        this.campusesService = campusesService;
         this.adminsService = adminsService;
     }
 
+    // === Hiển thị trang ===
     @GetMapping
-    public String showContractsList(Model model, HttpSession session) {
-        Integer admissionYear = (Integer) session.getAttribute("admissionYear");
-        return listContracts(model, admissionYear, session);
+    public String showPage(Model model, HttpSession session) {
+        Integer year = (Integer) session.getAttribute("admissionYear");
+        int currentYear = LocalDate.now().getYear();
+        return loadPage(model, year != null ? year : currentYear, session);
     }
 
     @PostMapping
-    public String listContracts(Model model,
-                                @RequestParam(value = "admissionYear", required = false) Integer admissionYear,
-                                HttpSession session) {
-        if (admissionYear != null) {
-            session.setAttribute("admissionYear", admissionYear);
-        }
+    public String changeYear(@RequestParam(value = "admissionYear", required = false) Integer admissionYear,
+                             HttpSession session, Model model) {
+        int year = (admissionYear != null) ? admissionYear : LocalDate.now().getYear();
+        session.setAttribute("admissionYear", year);
+        return loadPage(model, year, session);
+    }
 
-        // Lấy tất cả admission years
-        List<Integer> admissionYearsFromTuition = tuitionService.findAllAdmissionYears(adminsService.getAdminCampus());
-        List<Integer> admissionYearsFromScholarships = scholarshipByYearService.getAllAdmissionYears();
-        List<Integer> admissionYears = admissionYearsFromTuition.stream()
-                .filter(admissionYearsFromScholarships::contains)
-                .collect(Collectors.toList());
+    private String loadPage(Model model, int selectedYear, HttpSession session) {
+        Campuses campus = adminsService.getAdminCampus();
 
-        int currentYear = LocalDate.now().getYear();
-        List<Integer> finalAdmissionYears = admissionYears;
-        List<Integer> futureYears = IntStream.rangeClosed(currentYear, currentYear + 5)
-                .boxed()
-                .filter(year -> !finalAdmissionYears.contains(year))
-                .toList();
-        admissionYears.addAll(futureYears);
-        admissionYears = admissionYears.stream()
+        // Lấy tất cả các năm có dữ liệu (tuition + scholarship)
+        Set<Integer> years = new HashSet<>();
+        years.addAll(tuitionService.findAllAdmissionYears(campus));
+        years.addAll(scholarshipByYearService.getAllAdmissionYears());
+
+        // Thêm 5 năm tương lai để admin có thể tạo trước
+        int current = LocalDate.now().getYear();
+        for (int i = 0; i <= 5; i++) years.add(current + i);
+
+        List<Integer> admissionYears = years.stream()
                 .sorted(Comparator.reverseOrder())
                 .toList();
 
-        Integer selectedYear = admissionYear != null ? admissionYear : currentYear;
+        // Dữ liệu học phí
+        List<TuitionByYear> tuitionsWithFee = tuitionService.getTuitionsWithFeeByYearAndCampus(selectedYear, campus);
 
-        // Lấy danh sách TuitionByYear với tuition > 0
-        List<TuitionByYear> tuitionsWithFee = tuitionService.getTuitionsWithFeeByYearAndCampus(selectedYear,adminsService.getAdminCampus());
-        List<TuitionByYear> tuitionsWithReStudyFee = tuitionService.getTuitionsWithReStudyFeeByYear(selectedYear,adminsService.getAdminCampus());
-        List<TuitionByYear> tuitionsWithoutReStudyFee = tuitionService.getTuitionsWithoutReStudyFeeByYear(selectedYear,adminsService.getAdminCampus());
-
-        // Lấy danh sách học bổng
+        // Dữ liệu học bổng
         List<Scholarships> allScholarships = scholarshipsService.getAllScholarships();
         List<ScholarshipByYear> scholarshipByYears = scholarshipByYearService.getScholarshipsByYear(selectedYear);
 
@@ -95,81 +88,100 @@ public class ContractsListController {
                 .collect(Collectors.toMap(
                         s -> s.getId().getScholarshipId(),
                         s -> s,
-                        (existing, replacement) -> existing
+                        (a, b) -> a
                 ));
 
         model.addAttribute("admissionYears", admissionYears);
         model.addAttribute("selectedYear", selectedYear);
         model.addAttribute("tuitionsWithFee", tuitionsWithFee);
-        model.addAttribute("tuitionsWithReStudyFee", tuitionsWithReStudyFee);
-        model.addAttribute("tuitionsWithoutReStudyFee", tuitionsWithoutReStudyFee);
         model.addAttribute("allScholarships", allScholarships);
         model.addAttribute("scholarshipByYearMap", scholarshipByYearMap);
-        model.addAttribute("Campuses", campusService.getCampuses());
 
-        return "AdminContractsList";
+        return "AdminContractsList"; // tên file HTML
     }
 
-    @PostMapping("/finalize-contracts")
-    public String finalizeContracts(@RequestParam("admissionYear") Integer admissionYear,
-                                    RedirectAttributes redirectAttributes,
-                                    HttpSession session) {
-        try {
-            int currentYear = LocalDate.now().getYear();
-            if (admissionYear == null || admissionYear < currentYear) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Cannot finalize contracts for past years or invalid year.");
-                return "redirect:/admin-home/contracts-list";
-            }
+    // === CHỐT HỢP ĐỒNG TỪNG MỤC ĐÃ CHỌN ===
+    @PostMapping("/finalize")
+    public String finalizeSelectedContracts(
+            @RequestParam("admissionYear") Integer admissionYear,
+            @RequestParam(value = "tuitionIds", required = false) List<String> tuitionIds,
+            @RequestParam(value = "scholarshipIds", required = false) List<String> scholarshipIds,
+            RedirectAttributes ra,
+            HttpSession session) {
 
-            // Kiểm tra dữ liệu học phí
-            List<TuitionByYear> tuitions = tuitionService.getTuitionsWithFeeByYearAndCampus(admissionYear,adminsService.getAdminCampus());
-            if (tuitions.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "No tuition fees found for the selected year.");
-                return "redirect:/admin-home/contracts-list";
-            }
+        if (admissionYear == null) {
+            ra.addFlashAttribute("errorMessage", "Academic year is required.");
+            return "redirect:/admin-home/contracts-list";
+        }
 
-            List<String> tuitionErrors = new ArrayList<>();
-            for (TuitionByYear tuition : tuitions) {
+        Campuses campus = adminsService.getAdminCampus();
+        List<String> errors = new ArrayList<>();
+        int activatedCount = 0;
+
+        // 1. Xử lý học phí
+        if (tuitionIds != null && !tuitionIds.isEmpty()) {
+            for (String subjectId : tuitionIds) {
+                TuitionByYear tuition = tuitionService.getTuitionBySubjectAndYear(subjectId, admissionYear, campus);
+
+                if (tuition == null) {
+                    errors.add("Subject not found: " + subjectId);
+                    continue;
+                }
+                if (ContractStatus.ACTIVE.equals(tuition.getContractStatus())) {
+                    continue; // Đã active rồi, bỏ qua
+                }
                 if (tuition.getTuition() == null || tuition.getTuition() <= 0) {
-                    tuitionErrors.add("Tuition fee for subject " + tuition.getSubject().getSubjectId() + " is missing or invalid.");
+                    errors.add("Tuition fee invalid: " + subjectId);
+                    continue;
                 }
                 if (tuition.getReStudyTuition() == null || tuition.getReStudyTuition() <= 0) {
-                    tuitionErrors.add("Re-study fee for subject " + tuition.getSubject().getSubjectId() + " is missing or invalid.");
+                    errors.add("Re-study fee invalid: " + subjectId);
+                    continue;
                 }
-            }
 
-            // Kiểm tra dữ liệu học bổng
-            List<ScholarshipByYear> scholarshipByYears = scholarshipByYearService.getScholarshipsByYear(admissionYear);
-            List<String> scholarshipErrors = new ArrayList<>();
-            for (ScholarshipByYear scholarship : scholarshipByYears) {
+                tuition.setContractStatus(ContractStatus.ACTIVE);
+                tuitionService.save(tuition);
+                activatedCount++;
+            }
+        }
+
+        // 2. Xử lý học bổng
+        if (scholarshipIds != null && !scholarshipIds.isEmpty()) {
+            for (String sid : scholarshipIds) {
+                ScholarshipByYear scholarship = scholarshipByYearService.getByScholarshipIdAndYear(sid, admissionYear);
+
+                if (scholarship == null) {
+                    errors.add("Scholarship not found: " + sid);
+                    continue;
+                }
+                if (ContractStatus.ACTIVE.equals(scholarship.getStatus())) {
+                    continue;
+                }
                 if (scholarship.getAmount() == null || scholarship.getAmount() <= 0) {
-                    scholarshipErrors.add("Amount for scholarship " + scholarship.getId().getScholarshipId() + " is missing or invalid.");
+                    errors.add("Amount invalid for scholarship: " + sid);
+                    continue;
                 }
                 if (scholarship.getDiscountPercentage() == null || scholarship.getDiscountPercentage() <= 0) {
-                    scholarshipErrors.add("Discount percentage for scholarship " + scholarship.getId().getScholarshipId() + " is missing or invalid.");
+                    errors.add("Discount percentage invalid for scholarship: " + sid);
+                    continue;
                 }
+
+                scholarship.setContractStatus(ContractStatus.ACTIVE);     // Đây là chốt hợp đồng
+                scholarship.setStatus(ActivityStatus.ACTIVATED);          // Kích hoạt học bổng (nếu cần)
+                scholarshipByYearService.save(scholarship);
+                activatedCount++;
             }
-
-            // Kết hợp lỗi và kiểm tra
-            List<String> allErrors = new ArrayList<>();
-            allErrors.addAll(tuitionErrors);
-            allErrors.addAll(scholarshipErrors);
-
-            if (!allErrors.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Cannot finalize contracts. Please ensure all tuition and scholarship records have valid fees: " + String.join("; ", allErrors));
-                return "redirect:/admin-home/contracts-list";
-            }
-
-            // Chốt hợp đồng cho học phí
-            tuitionService.finalizeContracts(admissionYear,adminsService.getAdminCampus());
-
-            // Chốt hợp đồng cho học bổng
-            scholarshipByYearService.finalizeScholarshipContracts(admissionYear);
-
-            redirectAttributes.addFlashAttribute("successMessage", "Contracts finalized successfully for " + admissionYear);
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error finalizing contracts: " + e.getMessage());
         }
+
+        // 3. Trả thông báo
+        if (!errors.isEmpty()) {
+            ra.addFlashAttribute("errorMessage", "Some items could not be activated: " + String.join("; ", errors));
+        } else if (activatedCount > 0) {
+            ra.addFlashAttribute("successMessage", "Successfully activated " + activatedCount + " contract(s)!");
+        } else {
+            ra.addFlashAttribute("infoMessage", "No contracts were activated (already active or no selection).");
+        }
+
         session.setAttribute("admissionYear", admissionYear);
         return "redirect:/admin-home/contracts-list";
     }

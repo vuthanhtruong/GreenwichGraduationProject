@@ -31,9 +31,13 @@
                 <strong>Total Slots:</strong>
                 <span th:text="${totalSlots}"></span>
             </div>
-            <a th:href="@{/staff-home/specialized-classes-list/clear-class}" class="btn small danger">
-                <i class="fas fa-times"></i> Close
-            </a>
+            <form th:action="@{/staff-home/specialized-classes-list/specialized-timetable}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="classId" th:value="${classId}" />
+                <button type="submit" class="btn small danger">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </form>
         </div>
     </div>
 

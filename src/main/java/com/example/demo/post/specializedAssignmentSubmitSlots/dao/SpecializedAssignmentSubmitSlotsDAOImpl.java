@@ -154,7 +154,21 @@ public class SpecializedAssignmentSubmitSlotsDAOImpl implements SpecializedAssig
     public void deleteByPostId(String postId) {
         SpecializedAssignmentSubmitSlots slot = findByPostId(postId);
         if (slot != null) {
+            entityManager.createQuery(
+                            "DELETE FROM SpecializedSubmissionFeedbacks f WHERE f.id.assignmentSubmitSlotId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+            // Xóa tất cả comment liên quan
+            entityManager.createQuery("DELETE FROM SpecializedAssignmentComments c WHERE c.post.postId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+
+            entityManager.createQuery("DELETE FROM SpecializedSubmissions s WHERE s.assignmentSubmitSlot.postId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+            // Xóa post chính
             entityManager.remove(slot);
         }
     }
+
 }

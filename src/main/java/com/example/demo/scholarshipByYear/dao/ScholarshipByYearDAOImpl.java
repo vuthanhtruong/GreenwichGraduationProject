@@ -22,6 +22,23 @@ import java.util.List;
 public class ScholarshipByYearDAOImpl implements ScholarshipByYearDAO {
 
     @Override
+    public ScholarshipByYear getByScholarshipIdAndYear(String scholarshipId, Integer admissionYear) {
+        if (scholarshipId == null || admissionYear == null) {
+            return null;
+        }
+        return getScholarshipByYear(scholarshipId, admissionYear); // tận dụng method đã có
+    }
+
+    @Override
+    public void save(ScholarshipByYear scholarshipByYear) {
+        if (scholarshipByYear == null || scholarshipByYear.getId() == null) {
+            throw new IllegalArgumentException("Cannot save ScholarshipByYear with null entity or ID");
+        }
+        // Dùng lại logic saveOrUpdate đã có sẵn
+        saveOrUpdate(scholarshipByYear);
+    }
+
+    @Override
     public ScholarshipByYear getFinalizedScholarshipByIdAndYear(String scholarshipId, Integer admissionYear) {
         if (scholarshipId == null || admissionYear == null) return null;
 

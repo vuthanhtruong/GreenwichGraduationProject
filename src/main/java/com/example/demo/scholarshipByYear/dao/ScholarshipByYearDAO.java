@@ -19,4 +19,7 @@ public interface ScholarshipByYearDAO {
     void finalizeScholarshipContracts(Integer admissionYear);
     List<ScholarshipByYear> getAllFinalizedScholarshipsByAdmissionYear(Integer admissionYear);
     ScholarshipByYear getFinalizedScholarshipByIdAndYear(String scholarshipId, Integer admissionYear);
+    ScholarshipByYear getByScholarshipIdAndYear(String scholarshipId, Integer admissionYear);
+
+    void save(ScholarshipByYear scholarshipByYear);
 }

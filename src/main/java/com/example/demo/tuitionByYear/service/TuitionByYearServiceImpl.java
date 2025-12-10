@@ -17,6 +17,17 @@ import java.util.List;
 @Service
 public class TuitionByYearServiceImpl implements TuitionByYearService {
     @Override
+    public TuitionByYear getTuitionBySubjectAndYear(String subjectId, Integer admissionYear, Campuses campus) {
+        if (campus == null) return null;
+        return tuitionByYearDAO.findBySubjectIdAndYearAndCampus(subjectId, admissionYear, campus.getCampusId());
+    }
+
+    @Override
+    public void save(TuitionByYear tuition) {
+        tuitionByYearDAO.save(tuition);
+    }
+
+    @Override
     public List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus) {
         return tuitionByYearDAO.tuitionReferenceForStudentsByCampus(admissionYear, campus);
     }

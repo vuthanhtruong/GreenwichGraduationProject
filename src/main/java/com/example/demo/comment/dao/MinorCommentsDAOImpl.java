@@ -1,6 +1,7 @@
 package com.example.demo.comment.dao;
 
 import com.example.demo.comment.model.Comments;
+import com.example.demo.comment.model.MajorComments;
 import com.example.demo.comment.model.MinorComments;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,6 +17,21 @@ import java.util.Map;
 @Repository
 @Transactional
 public class MinorCommentsDAOImpl implements MinorCommentsDAO {
+
+    @Override
+    public void deleteComment(String commentId) {
+        if (commentId == null) {
+            throw new IllegalArgumentException("Comment ID cannot be null");
+        }
+        try {
+            MinorComments comment = getCommentById(commentId);
+            if (comment != null) {
+                entityManager.remove(comment);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting comment: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     public List<String> getCommentNotificationsForLecturer(String lecturerId) {

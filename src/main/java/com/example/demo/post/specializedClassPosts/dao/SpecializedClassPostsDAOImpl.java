@@ -20,6 +20,21 @@ import java.util.stream.Stream;
 public class SpecializedClassPostsDAOImpl implements SpecializedClassPostsDAO {
 
     @Override
+    public void deleteSpecializedClassPost(String postId) {
+        SpecializedClassPosts post = entityManager.find(SpecializedClassPosts.class, postId);
+        if (post != null) {
+            // Xóa tất cả comment liên quan đến post
+            entityManager.createQuery("DELETE FROM SpecializedComments c WHERE c.post.postId = :postId")
+                    .setParameter("postId", postId)
+                    .executeUpdate();
+
+            // Xóa post chính
+            entityManager.remove(post);
+        }
+    }
+
+
+    @Override
     public List<String> getNotificationsForMemberId(String memberId) {
         // Query 1: Student in Specialized Class
         String jpqlStudent = """

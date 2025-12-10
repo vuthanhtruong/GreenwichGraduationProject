@@ -82,9 +82,6 @@ public class AddComments {
 
             Object person = personsService.getPerson();
 
-            // =============================
-            //     ROUTE THE COMMENT
-            // =============================
 
             if (post instanceof MajorClassPosts majorPost && person instanceof MajorEmployes emp) {
                 return handleMajorComment(majorPost, content, emp, classId, session, redirectAttributes);
@@ -116,10 +113,6 @@ public class AddComments {
         }
     }
 
-
-    /* ===========================================================
-                     MAJOR COMMENT
-       =========================================================== */
     private String handleMajorComment(MajorClassPosts post, String content, MajorEmployes commenter,
                                       String classId, HttpSession session, RedirectAttributes ra) {
 
@@ -140,10 +133,6 @@ public class AddComments {
         return redirectSuccess(classId, session, ra);
     }
 
-
-    /* ===========================================================
-                     MINOR COMMENT
-       =========================================================== */
     private String handleMinorComment(MinorClassPosts post, String content, MinorEmployes commenter,
                                       String classId, HttpSession session, RedirectAttributes ra) {
 
@@ -164,10 +153,6 @@ public class AddComments {
         return redirectSuccess(classId, session, ra);
     }
 
-
-    /* ===========================================================
-               NEW — MAJOR ASSIGNMENT COMMENT
-       =========================================================== */
     private String handleMajorAssignmentComment(AssignmentSubmitSlots post, String content, MajorEmployes commenter,
                                                 String classId, HttpSession session, RedirectAttributes ra) {
 
@@ -188,10 +173,6 @@ public class AddComments {
         return redirectSuccess(classId, session, ra);
     }
 
-
-    /* ===========================================================
-           NEW — SPECIALIZED ASSIGNMENT COMMENT
-       =========================================================== */
     private String handleSpecializedAssignmentComment(SpecializedAssignmentSubmitSlots post, String content,
                                                       MajorEmployes commenter, String classId,
                                                       HttpSession session, RedirectAttributes ra) {
@@ -213,10 +194,6 @@ public class AddComments {
         return redirectSuccess(classId, session, ra);
     }
 
-
-    /* ===========================================================
-                    STUDENT COMMENT
-       =========================================================== */
     private String handleStudentComment(ClassPosts post, String content, Students commenter,
                                         String classId, HttpSession session, RedirectAttributes ra) {
 
@@ -237,10 +214,6 @@ public class AddComments {
         return redirectSuccess(classId, session, ra);
     }
 
-
-    /* ===========================================================
-                            HELPERS
-       =========================================================== */
     private boolean isEmpty(String s) {
         return s == null || s.trim().isEmpty();
     }

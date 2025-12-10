@@ -61,6 +61,7 @@ public class ClassroomController {
     @GetMapping
     public String showClassroomGet(HttpSession session, Model model) {
         try {
+            model.addAttribute("Id", personsService.getPerson().getId());
             if (personsService.getPerson() instanceof MajorLecturers) {
                 model.addAttribute("home", "/major-lecturer-home");
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");
@@ -145,6 +146,7 @@ public class ClassroomController {
     @PostMapping
     public String showClassroomPost(@RequestParam("classId") String classId, HttpSession session, Model model) {
         try {
+            model.addAttribute("Id", personsService.getPerson().getId());
             if (personsService.getPerson() instanceof MajorLecturers) {
                 model.addAttribute("home", "/major-lecturer-home");
                 model.addAttribute("listClass", "/major-lecturer-home/classes-list");

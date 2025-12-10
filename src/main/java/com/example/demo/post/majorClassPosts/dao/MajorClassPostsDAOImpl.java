@@ -20,6 +20,22 @@ import java.util.stream.Stream;
 public class MajorClassPostsDAOImpl implements MajorClassPostsDAO {
 
     @Override
+    public void deleteMajorClassPost(String majorClassPostsId) {
+        MajorClassPosts post = entityManager.find(MajorClassPosts.class, majorClassPostsId);
+        if (post != null) {
+            // Xóa các comment liên quan trước
+            entityManager.createQuery("DELETE FROM MajorComments c WHERE c.post.postId = :postId")
+                    .setParameter("postId", majorClassPostsId)
+                    .executeUpdate();
+
+            // Xóa post
+            entityManager.remove(post);
+        }
+    }
+
+
+
+    @Override
     public List<String> getNotificationsForMemberId(String memberId) {
         // Query 1: Sinh viên
         String jpqlStudent = """

@@ -47,4 +47,10 @@ public interface TuitionByYearService {
 
     List<Integer> findAllAdmissionYearsWithMinorTuition(Campuses campus);
     List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus);
+
+    // Thêm 2 method này vào interface TuitionByYearService
+
+    TuitionByYear getTuitionBySubjectAndYear(String subjectId, Integer admissionYear, Campuses campus);
+
+    void save(TuitionByYear tuition);
 }

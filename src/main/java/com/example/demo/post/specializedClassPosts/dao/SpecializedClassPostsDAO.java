@@ -13,4 +13,5 @@ public interface SpecializedClassPostsDAO {
     Map<String, String> validatePost(SpecializedClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
     List<String> getNotificationsForMemberId(String memberId);
+    void deleteSpecializedClassPost(String postId);
 }

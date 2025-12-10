@@ -11,6 +11,11 @@ import java.util.Map;
 @Service
 public class MinorClassPostsServiceImpl implements MinorClassPostsService {
     @Override
+    public void deleteMinorClassPost(String minorClassPostsId) {
+        minorClassPostsDAO.deleteMinorClassPost(minorClassPostsId);
+    }
+
+    @Override
     public List<String> getNotificationsForMemberId(String memberId) {
         return minorClassPostsDAO.getNotificationsForMemberId(memberId);
     }

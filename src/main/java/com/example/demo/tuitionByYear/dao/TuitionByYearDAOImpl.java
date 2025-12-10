@@ -27,6 +27,35 @@ import java.util.stream.Collectors;
 public class TuitionByYearDAOImpl implements TuitionByYearDAO {
 
     @Override
+    public TuitionByYear findBySubjectIdAndYearAndCampus(String subjectId, Integer admissionYear, String campusId) {
+        if (subjectId == null || admissionYear == null || campusId == null) {
+            return null;
+        }
+        try {
+            return entityManager.createQuery(
+                            "SELECT t FROM TuitionByYear t " +
+                                    "WHERE t.id.subjectId = :subjectId " +
+                                    "AND t.id.admissionYear = :admissionYear " +
+                                    "AND t.id.campusId = :campusId",
+                            TuitionByYear.class)
+                    .setParameter("subjectId", subjectId)
+                    .setParameter("admissionYear", admissionYear)
+                    .setParameter("campusId", campusId)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null; // Không tìm thấy hoặc lỗi → trả về null
+        }
+    }
+
+    @Override
+    public void save(TuitionByYear tuition) {
+        if (tuition.getId() == null || tuition.getId().getSubjectId() == null) {
+            throw new IllegalArgumentException("Cannot save TuitionByYear with null ID");
+        }
+        entityManager.merge(tuition);
+    }
+
+    @Override
     public List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus) {
         if (admissionYear == null || campus == null) {
             throw new IllegalArgumentException("Admission year and campus cannot be null");

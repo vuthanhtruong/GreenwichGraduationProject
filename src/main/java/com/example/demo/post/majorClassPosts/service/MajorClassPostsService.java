@@ -13,4 +13,5 @@ public interface MajorClassPostsService {
     Map<String, String> validatePost(MajorClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
     List<String> getNotificationsForMemberId(String memberId);
+    void deleteMajorClassPost(String majorClassPostsId);
 }

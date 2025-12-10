@@ -47,4 +47,8 @@ public interface TuitionByYearDAO {
 
     List<Integer> findAllAdmissionYearsWithMinorTuition(Campuses campus);
     List<TuitionByYear> tuitionReferenceForStudentsByCampus(Integer admissionYear, Campuses campus);
+
+    TuitionByYear findBySubjectIdAndYearAndCampus(String subjectId, Integer admissionYear, String campusId);
+
+    void save(TuitionByYear tuition);
 }

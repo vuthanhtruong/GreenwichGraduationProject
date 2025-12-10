@@ -1,5 +1,6 @@
 /* =========================================================
    WINDOWS 11 - Classroom Dashboard Theme (Professional)
+   Updated: include/adjust styles for .delete-btn placement
    ========================================================= */
 
 /* Root Color Tokens */
@@ -25,6 +26,7 @@
 }
 
 /* Base Structure */
+* { box-sizing: border-box; }
 body {
     margin: 0;
     font-family: 'Segoe UI Variable', 'Segoe UI', sans-serif;
@@ -213,6 +215,27 @@ body {
     background: var(--primary-hover);
 }
 
+/* ===========================
+   FORCE VIEW DETAILS BUTTON TO BOTTOM
+   (keeps consistent with layout in provided template)
+   =========================== */
+.deadline-item {
+    display: flex;
+    flex-direction: column !important;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.deadline-item form {
+    width: 100%;
+}
+
+.btn-view {
+    margin-top: 4px;
+    width: 140px;
+    align-self: flex-start;
+}
+
 /* ------------------- Post Stream ------------------- */
 .post {
     background: var(--bg-white);
@@ -249,6 +272,12 @@ body {
     font-size: 15px;
 }
 
+/* Ensure delete button in header sits to far right */
+.post-header .delete-btn {
+    margin-left: auto;
+    align-self: center;
+}
+
 /* Documents */
 .documents ul {
     margin: 0;
@@ -267,13 +296,13 @@ body {
 .comments ul {
     margin-top: 8px;
     padding-left: 18px;
+    list-style: none;
 }
 
 .comments li {
     padding: 4px 0;
 }
 
-/* Muted text */
 .text-muted {
     color: var(--text-muted);
 }
@@ -282,28 +311,15 @@ body {
     color: var(--primary);
 }
 
-/* ------------------- Responsive ------------------- */
-@media (max-width: 950px) {
-    .class-layout {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    .search-toolbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
 /* ================================
-   1. Avatar chung (post & comment)
+   Avatar chung (post & comment)
    ================================ */
 .post-avatar,
 .comment-avatar {
     width: 48px;
     height: 48px;
-    border-radius: 50%; /* TRÒN 100% */
-    object-fit: cover; /* Crop hình cho cân đối */
+    border-radius: 50%;
+    object-fit: cover;
     border: 2px solid #ffffff;
     box-shadow: 0 0 6px rgba(0,0,0,0.12);
 }
@@ -315,14 +331,8 @@ body {
 }
 
 /* ================================
-   2. Bố cục post header
+   Bố cục post header
    ================================ */
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
 .post-info strong {
     font-size: 15px;
 }
@@ -333,21 +343,31 @@ body {
 }
 
 /* ================================
-   3. Comment layout
+   Comment layout
    ================================ */
 .comment-box {
     display: flex;
     gap: 10px;
     padding: 8px 0;
+    align-items: flex-start;
 }
 
+/* Position the delete form/button to the right inside the comment box */
+.comment-box form {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Comment bubble */
 .comment-body {
     background: #ffffff;
     padding: 8px 12px;
     border-radius: 10px;
     box-shadow: 0 0 4px rgba(0,0,0,0.08);
     width: fit-content;
-    max-width: 85%;
+    max-width: 75%;
+    word-wrap: break-word;
 }
 
 .comment-body strong {
@@ -369,35 +389,8 @@ body {
 }
 
 /* ================================
-   4. Hover effect Win11 style
+   DELETE BUTTON STYLE (global)
    ================================ */
-.post-avatar:hover,
-.comment-avatar:hover {
-    transform: scale(1.05);
-    transition: 0.15s;
-}
-/* ===== FORCE VIEW DETAILS BUTTON TO BOTTOM ===== */
-.deadline-item {
-    display: flex;
-    flex-direction: column !important;   /* Xếp các item theo chiều dọc */
-    align-items: flex-start;             /* Canh trái đẹp mắt */
-    gap: 8px;                            /* Khoảng cách giữa các phần */
-}
-
-/* Container 2 phần: text + button */
-.deadline-item form {
-    width: 100%;
-}
-
-/* Nút luôn full width hoặc vừa phải tùy bạn */
-.btn-view {
-    margin-top: 4px;
-    width: 140px;            /* tùy chỉnh */
-    align-self: flex-start;  /* nút luôn nằm ở dưới bên trái */
-}
-/* ============================
-   DELETE BUTTON STYLE
-   ============================ */
 .delete-btn {
     background: #fde8e8;
     border: 1px solid #f5b5b5;
@@ -408,16 +401,98 @@ body {
     transition: 0.25s ease;
     display: inline-flex;
     align-items: center;
+    gap: 8px;
+    font-size: 14px;
 }
 
+/* Smaller variant for inline comment delete buttons */
+.comment-box .delete-btn {
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+/* Icon style */
 .delete-btn i {
     font-size: 15px;
 }
 
+/* Hover state */
 .delete-btn:hover {
     background: #ffebee;
     border-color: #e11d48;
     color: #b91c1c;
-    box-shadow: 0 0 10px rgba(255,0,0,0.2);
-    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255,0,0,0.12);
+    transform: scale(1.03);
 }
+
+/* Make sure delete button doesn't wrap awkwardly on small screens */
+.comment-box .delete-btn,
+.post-header .delete-btn {
+    white-space: nowrap;
+}
+
+/* Accessibility: focus outline */
+.delete-btn:focus {
+    outline: 3px solid rgba(209, 52, 56, 0.18);
+    outline-offset: 2px;
+}
+
+/* ================================
+   Hover effect Win11 style
+   ================================ */
+.post-avatar:hover,
+.comment-avatar:hover {
+    transform: scale(1.05);
+    transition: 0.15s;
+}
+
+/* ================================
+   Responsive adjustments
+   ================================ */
+@media (max-width: 950px) {
+    .class-layout {
+        grid-template-columns: 1fr;
+    }
+
+    /* Make action buttons wrap and shrink on small screens */
+    .toolbar-right .btn, .toolbar-left .btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* Ensure delete button doesn't dominate mobile width */
+    .post-header .delete-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    .comment-box .delete-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .input { width: 100%; }
+}
+
+@media (max-width: 600px) {
+    .search-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .post-header {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .comment-body { max-width: 65%; }
+}
+
+/* ================================
+   Minor visual tweaks for spacing
+   ================================ */
+.post { word-break: break-word; }
+.post p { white-space: pre-wrap; }
+
+/* End of file */

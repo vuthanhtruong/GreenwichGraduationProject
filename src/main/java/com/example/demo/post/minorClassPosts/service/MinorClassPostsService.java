@@ -13,4 +13,5 @@ public interface MinorClassPostsService {
     Map<String, String> validatePost(MinorClassPosts post);
     String generateUniquePostId(String classId, LocalDate createdDate);
     List<String> getNotificationsForMemberId(String memberId);
+    void deleteMinorClassPost(String minorClassPostsId);
 }
