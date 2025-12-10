@@ -5,7 +5,9 @@ import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.classes.majorClasses.model.MajorClasses;
 import com.example.demo.classes.majorClasses.service.MajorClassesService;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.students_Classes.students_MajorClass.service.StudentsMajorClassesService;
+import com.example.demo.subject.abstractSubject.service.SubjectsService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
 import com.example.demo.user.student.model.Students;
@@ -29,15 +31,19 @@ public class TranscriptEntryController {
     private final AcademicTranscriptsService academicTranscriptsService;
     private final StaffsService staffsService;
     private final StudentsMajorClassesService studentsMajorClassesService;
+    private final RetakeSubjectsService retakeSubjectsService;
+    private final SubjectsService subjectsService;
 
     public TranscriptEntryController(MajorClassesService majorClassesService,
                                      AcademicTranscriptsService academicTranscriptsService,
                                      StaffsService staffsService,
-                                     StudentsMajorClassesService studentsMajorClassesService) {
+                                     StudentsMajorClassesService studentsMajorClassesService, RetakeSubjectsService retakeSubjectsService, SubjectsService subjectsService) {
         this.majorClassesService = majorClassesService;
         this.academicTranscriptsService = academicTranscriptsService;
         this.staffsService = staffsService;
         this.studentsMajorClassesService = studentsMajorClassesService;
+        this.retakeSubjectsService = retakeSubjectsService;
+        this.subjectsService = subjectsService;
     }
 
     @GetMapping("/enter-transcript")
@@ -179,6 +185,10 @@ public class TranscriptEntryController {
             transcript.setScoreComponent2(c2);
             transcript.setScoreComponent3(c3);
             transcript.setGrade(grade);
+
+            if(grade.equals(Grades.REFER)){
+                retakeSubjectsService.deleteByStudentAndSubject(student.getId(), clazz.getSubject().getSubjectId());
+            }
 
             academicTranscriptsService.saveOrUpdateTranscript(transcript);
             saved++;

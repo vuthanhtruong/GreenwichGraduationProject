@@ -348,11 +348,6 @@ public class MinorClassesMemberArrangementController {
             if (!isInRetake && !isInTemporary && finalFeeToDeduct > 0) {
                 retakeSubjectsService.deductAndLogPayment(student, subjectId, finalFeeToDeduct);
             }
-
-            // Đã vào lớp → xóa record Retake / Temporary
-            if (isInRetake) {
-                retakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
-            }
             if (isInTemporary) {
                 temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
             }

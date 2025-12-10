@@ -347,10 +347,6 @@ public class SpecializedClassesMemberArrangementController {
                 retakeSubjectsService.deductAndLogPayment(student, subjectId, finalFeeToDeduct);
             }
 
-            // CLEAN-UP: đã vào lớp rồi → xóa Retake / Temporary
-            if (isInRetake) {
-                retakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
-            }
             if (isInTemporary) {
                 temporaryRetakeSubjectsService.deleteByStudentAndSubject(studentId, subjectId);
             }

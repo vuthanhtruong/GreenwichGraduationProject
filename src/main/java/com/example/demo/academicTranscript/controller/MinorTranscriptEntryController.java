@@ -5,6 +5,7 @@ import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.classes.minorClasses.model.MinorClasses;
 import com.example.demo.classes.minorClasses.service.MinorClassesService;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.students_Classes.students_MinorClasses.service.StudentsMinorClassesService;
 import com.example.demo.user.deputyStaff.model.DeputyStaffs;
 import com.example.demo.user.deputyStaff.service.DeputyStaffsService;
@@ -29,16 +30,18 @@ public class MinorTranscriptEntryController {
     private final StudentsMinorClassesService studentsMinorClassesService;
     private final AcademicTranscriptsService transcriptsService;
     private final DeputyStaffsService deputyStaffsService;
+    private final RetakeSubjectsService retakeSubjectsService;
 
     public MinorTranscriptEntryController(
             MinorClassesService minorClassesService,
             StudentsMinorClassesService studentsMinorClassesService,
             AcademicTranscriptsService transcriptsService,
-            DeputyStaffsService deputyStaffsService) {
+            DeputyStaffsService deputyStaffsService, RetakeSubjectsService retakeSubjectsService) {
         this.minorClassesService = minorClassesService;
         this.studentsMinorClassesService = studentsMinorClassesService;
         this.transcriptsService = transcriptsService;
         this.deputyStaffsService = deputyStaffsService;
+        this.retakeSubjectsService = retakeSubjectsService;
     }
 
     // === LOAD TRANG ===
@@ -182,6 +185,9 @@ public class MinorTranscriptEntryController {
             transcript.setScoreComponent2(c2);
             transcript.setScoreComponent3(c3);
             transcript.setGrade(grade);
+            if(grade.equals(Grades.REFER)){
+                retakeSubjectsService.deleteByStudentAndSubject(student.getId(), clazz.getMinorSubject().getSubjectId());
+            }
 
             transcriptsService.saveOrUpdateTranscript(transcript);
             saved++;

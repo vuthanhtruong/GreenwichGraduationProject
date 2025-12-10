@@ -5,6 +5,7 @@ import com.example.demo.academicTranscript.service.AcademicTranscriptsService;
 import com.example.demo.classes.specializedClasses.model.SpecializedClasses;
 import com.example.demo.classes.specializedClasses.service.SpecializedClassesService;
 import com.example.demo.entity.Enums.Grades;
+import com.example.demo.retakeSubjects.service.RetakeSubjectsService;
 import com.example.demo.students_Classes.students_SpecializedClasses.service.StudentsSpecializedClassesService;
 import com.example.demo.user.staff.model.Staffs;
 import com.example.demo.user.staff.service.StaffsService;
@@ -29,16 +30,18 @@ public class SpecializedTranscriptEntryController {
     private final StudentsSpecializedClassesService studentsSpecializedService;
     private final AcademicTranscriptsService transcriptsService;
     private final StaffsService staffsService;
+    private final RetakeSubjectsService retakeSubjectsService;
 
     public SpecializedTranscriptEntryController(
             SpecializedClassesService specializedClassesService,
             StudentsSpecializedClassesService studentsSpecializedService,
             AcademicTranscriptsService transcriptsService,
-            StaffsService staffsService) {
+            StaffsService staffsService, RetakeSubjectsService retakeSubjectsService) {
         this.specializedClassesService = specializedClassesService;
         this.studentsSpecializedService = studentsSpecializedService;
         this.transcriptsService = transcriptsService;
         this.staffsService = staffsService;
+        this.retakeSubjectsService = retakeSubjectsService;
     }
 
     @GetMapping("/enter-transcript")
@@ -180,6 +183,9 @@ public class SpecializedTranscriptEntryController {
             transcript.setScoreComponent2(c2);
             transcript.setScoreComponent3(c3);
             transcript.setGrade(grade);
+            if(grade.equals(Grades.REFER)){
+                retakeSubjectsService.deleteByStudentAndSubject(student.getId(), clazz.getSpecializedSubject().getSubjectId());
+            }
 
             transcriptsService.saveOrUpdateTranscript(transcript);
             saved++;
