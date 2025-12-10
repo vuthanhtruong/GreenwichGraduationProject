@@ -50,38 +50,47 @@ public class AdminsDAOImpl implements AdminsDAO {
     public Map<String, String> validateAdmin(Admins admin, MultipartFile avatarFile) {
         Map<String, String> errors = new HashMap<>();
 
+        // Tên
         if (admin.getFirstName() == null || !isValidName(admin.getFirstName())) {
-            errors.put("firstName", "First name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("firstName", "First name is invalid.");
         }
         if (admin.getLastName() == null || !isValidName(admin.getLastName())) {
-            errors.put("lastName", "Last name is not valid. Only letters, spaces, and standard punctuation are allowed.");
+            errors.put("lastName", "Last name is invalid.");
         }
+
+        // Email
         if (admin.getEmail() == null || !isValidEmail(admin.getEmail())) {
-            errors.put("email", "Email is required and must be in a valid format.");
+            errors.put("email", "Valid email is required.");
+        } else if (personsService.existsByEmailExcludingId(admin.getEmail(), admin.getId() != null ? admin.getId() : "")) {
+            errors.put("email", "Email already in use.");
         }
-        if (admin.getPhoneNumber() != null && !isValidPhoneNumber(admin.getPhoneNumber())) {
-            errors.put("phoneNumber", "Phone number must be 10-15 digits, optionally starting with '+'.");
+
+        // SỐ ĐIỆN THOẠI BẮT BUỘC
+        if (admin.getPhoneNumber() == null || admin.getPhoneNumber().trim().isEmpty()) {
+            errors.put("phoneNumber", "Phone number is required.");
+        } else if (!isValidPhoneNumber(admin.getPhoneNumber())) {
+            errors.put("phoneNumber", "Invalid phone number format. Use 8–15 digits, optionally starting with '+'.");
+        } else if (personsService.existsByPhoneNumberExcludingId(admin.getPhoneNumber().trim(), admin.getId() != null ? admin.getId() : "")) {
+            errors.put("phoneNumber", "This phone number is already in use.");
         }
+
+        // Các field khác
         if (admin.getBirthDate() != null && admin.getBirthDate().isAfter(LocalDate.now())) {
             errors.put("birthDate", "Birth date must be in the past.");
         }
-        if (admin.getEmail() != null && personsService.existsByEmailExcludingId(admin.getEmail(), admin.getId())) {
-            errors.put("email", "The email address is already associated with another account.");
-        }
-        if (admin.getPhoneNumber() != null && personsService.existsByPhoneNumberExcludingId(admin.getPhoneNumber(), admin.getId())) {
-            errors.put("phoneNumber", "The phone number is already associated with another account.");
-        }
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            String contentType = avatarFile.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                errors.put("avatarFile", "Avatar must be an image file.");
-            }
-            if (avatarFile.getSize() > 5 * 1024 * 1024) {
-                errors.put("avatarFile", "Avatar file size must not exceed 5MB.");
-            }
-        }
         if (admin.getGender() == null) {
             errors.put("gender", "Gender is required.");
+        }
+        if (admin.getCampus() == null) {
+            errors.put("campusId", "Please select a valid campus.");
+        }
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            if (!Objects.requireNonNull(avatarFile.getContentType()).startsWith("image/")) {
+                errors.put("avatarFile", "Avatar must be an image.");
+            }
+            if (avatarFile.getSize() > 5 * 1024 * 1024) {
+                errors.put("avatarFile", "Avatar must not exceed 5MB.");
+            }
         }
 
         return errors;

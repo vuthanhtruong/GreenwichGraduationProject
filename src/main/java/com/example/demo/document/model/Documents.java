@@ -1,5 +1,5 @@
 package com.example.demo.document.model;
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.Blog.model.PublicPosts;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

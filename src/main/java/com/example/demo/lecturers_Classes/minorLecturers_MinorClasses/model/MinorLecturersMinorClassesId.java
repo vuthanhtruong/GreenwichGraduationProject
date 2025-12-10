@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.example.demo.lecturers_Classes.minorLecturers_MinorClasses.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

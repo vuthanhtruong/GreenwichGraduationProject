@@ -2,7 +2,7 @@ package com.example.demo.document.service;
 
 import com.example.demo.document.dao.DocumentsDAO;
 import com.example.demo.document.model.Documents;
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.Blog.model.PublicPosts;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

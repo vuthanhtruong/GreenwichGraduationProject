@@ -3,61 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Colleagues</title>
+    <title>Your Colleagues List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" th:href="@{/StudentsList.css}">
 </head>
 <body>
 <div class="win11-container">
 
-    <!-- Unified Toolbar -->
+    <!-- Toolbar -->
     <div class="search-toolbar unified-bar">
-        <!-- Left: Home -->
         <div class="toolbar-left">
             <a th:href="@{/admin-home}" class="btn home-btn">
                 <i class="fas fa-home"></i> Home
             </a>
+            <h2 class="page-title"><i class="fas fa-user-tie"></i> Your Colleagues List</h2>
         </div>
 
-        <!-- Center: Search Bar -->
         <form method="post" th:action="@{/admin-home/colleagues-list/search-colleagues}" class="toolbar-center">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <select name="searchType" class="input">
+            <select name="searchType" class="input small">
                 <option value="name" th:selected="${searchType == 'name'}">Name</option>
                 <option value="id" th:selected="${searchType == 'id'}">ID</option>
             </select>
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input" />
-            <button type="submit" class="btn small">
-                <i class="fas fa-search"></i> Search
-            </button>
-            <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin-home/colleagues-list}" class="btn small danger">
-                <i class="fas fa-times"></i> Clear
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search..." class="input search-input" />
+            <button type="submit" class="btn small"><i class="fas fa-search"></i></button>
+            <a th:if="${keyword}" th:href="@{/admin-home/colleagues-list}" class="btn small danger">
+                <i class="fas fa-times"></i>
             </a>
         </form>
 
-        <!-- Right: Controls -->
         <div class="toolbar-right">
-            <form method="post" th:action="@{/admin-home/colleagues-list}" class="inline-form">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <label for="pageSizeInput"><i class="fas fa-list-ol"></i> Show:</label>
-                <input type="number" id="pageSizeInput" name="pageSize" min="1" max="100"
-                       th:value="${pageSize}" class="input small" />
-                <button type="submit" class="btn small">
-                    <i class="fas fa-check"></i> Apply
-                </button>
+            <form method="get" th:action="@{/admin-home/colleagues-list}" class="page-size-form">
+                <label>Show:</label>
+                <input type="number" name="pageSize" min="1" max="100" th:value="${pageSize}" class="input small" />
+                <button type="submit" class="btn small">Apply</button>
             </form>
-
             <div class="total">
-                <i class="fas fa-users"></i>
-                <strong>Total:</strong> <span th:text="${totalColleagues}"></span>
+                <i class="fas fa-users"></i> <strong>Total Colleagues:</strong> <span th:text="${totalColleagues}"></span>
             </div>
-
-            <button type="button" class="btn primary" onclick="openOverlay()">
+            <button type="button" class="btn primary small" onclick="openOverlay()">
                 <i class="fas fa-user-plus"></i> Add Colleague
             </button>
         </div>
     </div>
-
 
     <!-- Table -->
     <div class="table-container">
@@ -76,182 +64,198 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="colleague : ${colleagues}">
-                <td th:text="${colleague.id}"></td>
+            <tr th:each="c : ${colleagues}">
+                <td th:text="${c.id}"></td>
                 <td>
-                    <img th:if="${colleague.avatar != null}"
-                         th:src="@{'/admin-home/colleagues-list/avatar/' + ${colleague.id}}"
-                         class="avatar" />
-                    <img th:if="${colleague.avatar == null}"
-                         th:src="@{${colleague.getDefaultAvatarPath()}}"
-                         class="avatar" />
+                    <img th:if="${c.avatar != null}"
+                         th:src="@{'/admin-home/colleagues-list/avatar/' + ${c.id}}"
+                         class="avatar" alt="avatar"/>
+                    <img th:if="${c.avatar == null}"
+                         th:src="${c.defaultAvatarPath}"
+                         class="avatar" alt="default"/>
                 </td>
-                <td th:text="${colleague.firstName + ' ' + colleague.lastName}"></td>
-                <td th:text="${colleague.email}"></td>
-                <td th:text="${colleague.phoneNumber}"></td>
-                <td th:text="${#temporals.format(colleague.birthDate, 'dd/MM/yyyy')}"></td>
-                <td th:text="${colleague.gender}"></td>
-                <td th:text="${colleague.campus?.campusName} ?: 'N/A'"></td>
+                <td th:text="${c.firstName + ' ' + c.lastName}"></td>
+                <td th:text="${c.email}"></td>
+                <td th:text="${c.phoneNumber}"></td>
+                <td th:text="${#temporals.format(c.birthDate, 'dd/MM/yyyy')}"></td>
+                <td th:text="${c.gender}"></td>
+                <td th:text="${c.campus?.campusName} ?: 'N/A'"></td>
                 <td>
                     <div class="actions">
-                        <!-- Nhắn tin -->
                         <form th:action="@{/messages/select-partner}" method="post" class="inline-form">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <input type="hidden" name="partnerId" th:value="${colleague.id}" />
-                            <button type="submit" class="btn small primary">
-                                <i class="fas fa-comment"></i> Message
-                            </button>
-                        </form>
-
-                        <!-- Xóa -->
-                        <form method="post" th:action="@{/admin-home/colleagues-list/delete-colleague}" class="inline-form">
-                            <input type="hidden" name="_method" value="delete" />
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                            <input type="hidden" name="partnerId" th:value="${colleague.id}" />
-                            <button type="submit" class="btn small danger"
-                                    onclick="return confirm('Are you sure you want to delete this colleague?');">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="partnerId" th:value="${c.id}"/>
+                            <button type="submit" class="btn small primary"><i class="fas fa-comment"></i> Message</button>
                         </form>
                     </div>
                 </td>
+            </tr>
+
+            <!-- Khi không có dữ liệu -->
+            <tr th:if="${#lists.isEmpty(colleagues)}">
+                <td colspan="9" class="text-center text-muted">No colleagues found.</td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-        <a th:href="@{/admin-home/colleagues-list(page=1, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">First</a>
-        <a th:href="@{/admin-home/colleagues-list(page=${currentPage - 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == 1} ? 'disabled'" class="page-btn">Prev</a>
+    <div class="pagination" th:if="${totalPages > 1}">
+        <!-- First -->
+        <a th:href="@{/admin-home/colleagues-list(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           th:classappend="${currentPage == 1 ? ' disabled' : ''}" class="page-btn">First</a>
 
-        <span th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 3}"
-               th:href="@{/admin-home/colleagues-list(page=1, pageSize=${pageSize})}"
-               class="page-btn number">1</a>
-            <span th:if="${currentPage > 4}" class="page-btn">...</span>
+        <!-- Prev -->
+        <a th:href="@{/admin-home/colleagues-list(page=${currentPage > 1 ? currentPage - 1 : 1}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           th:classappend="${currentPage == 1 ? ' disabled' : ''}" class="page-btn">Prev</a>
 
-            <a th:each="i : ${#numbers.sequence(
-                (currentPage - 2 > 1 ? currentPage - 2 : 1),
-                (currentPage + 2 < totalPages ? currentPage + 2 : totalPages)
-            )}"
-               th:if="${i >= 1 and i <= totalPages}"
-               th:href="@{/admin-home/colleagues-list(page=${i}, pageSize=${pageSize})}"
-               th:classappend="${i == currentPage} ? 'active'"
-               class="page-btn number"
-               th:text="${i}"></a>
+        <!-- Page numbers -->
+        <span>
+        <!-- Show first page and leading ellipsis if currentPage is far from 1 -->
+        <a th:if="${currentPage > 3}"
+           th:href="@{/admin-home/colleagues-list(page=1, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           class="page-btn number">1</a>
 
-            <span th:if="${currentPage < totalPages - 3}" class="page-btn">...</span>
-            <a th:if="${currentPage < totalPages - 2}"
-               th:href="@{/admin-home/colleagues-list(page=${totalPages}, pageSize=${pageSize})}"
-               class="page-btn number" th:text="${totalPages}"></a>
-        </span>
+        <span th:if="${currentPage > 4}" class="page-btn">...</span>
 
-        <a th:href="@{/admin-home/colleagues-list(page=${currentPage + 1}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Next</a>
-        <a th:href="@{/admin-home/colleagues-list(page=${totalPages}, pageSize=${pageSize})}"
-           th:classappend="${currentPage == totalPages} ? 'disabled'" class="page-btn">Last</a>
+            <!-- Sequence: from max(1, currentPage-2) to min(totalPages, currentPage+2) -->
+        <a th:each="i : ${#numbers.sequence((currentPage - 2 > 1 ? currentPage - 2 : 1), (currentPage + 2 < totalPages ? currentPage + 2 : totalPages))}"
+           th:href="@{/admin-home/colleagues-list(page=${i}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           th:classappend="${i == currentPage ? ' active' : ''}"
+           th:attr="aria-current=${i == currentPage ? 'page' : null}"
+           class="page-btn number"
+           th:text="${i}">1</a>
 
-        <form method="get" th:action="@{/admin-home/colleagues-list}" class="page-select-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <label for="pageSelect">Go to page:</label>
-            <select id="pageSelect" name="page" class="input small" onchange="this.form.submit()">
-                <option th:each="i : ${#numbers.sequence(1, totalPages)}"
-                        th:value="${i}" th:text="${i}" th:selected="${i == currentPage}"></option>
-            </select>
-            <input type="hidden" name="pageSize" th:value="${pageSize}" />
-        </form>
+        <span th:if="${currentPage lt totalPages - 3}" class="page-btn">...</span>
+
+            <!-- Show last page if currentPage is far from last -->
+        <a th:if="${currentPage lt totalPages - 2}"
+           th:href="@{/admin-home/colleagues-list(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           class="page-btn number" th:text="${totalPages}">Last</a>
+    </span>
+
+        <!-- Next -->
+        <a th:href="@{/admin-home/colleagues-list(page=${currentPage < totalPages ? currentPage + 1 : totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           th:classappend="${currentPage == totalPages ? ' disabled' : ''}" class="page-btn">Next</a>
+
+        <!-- Last -->
+        <a th:href="@{/admin-home/colleagues-list(page=${totalPages}, pageSize=${pageSize}, searchType=${searchType}, keyword=${keyword})}"
+           th:classappend="${currentPage == totalPages ? ' disabled' : ''}" class="page-btn">Last</a>
     </div>
 
-    <!-- Overlay: Add Colleague -->
-    <div id="addOverlay" class="overlay">
+    <!-- ADD OVERLAY – ĐÃ CHUẨN MAP ERRORS 100% NHƯ STAFF -->
+    <div id="addOverlay" class="overlay" th:classappend="${openAddOverlay == true} ? 'active' : ''">
         <div class="overlay-content">
-            <h2>Add New Colleague</h2>
-            <form method="post" th:action="@{/admin-home/colleagues-list/add-colleague}" th:object="${colleague}" enctype="multipart/form-data">
+            <h2><i class="fas fa-user-plus"></i> Add New Colleague</h2>
+
+            <form method="post"
+                  th:action="@{/admin-home/colleagues-list/add-colleague}"
+                  th:object="${colleague}"
+                  enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                 <!-- Avatar -->
                 <section class="win11-panel">
-                    <h2 class="panel-header">Avatar</h2>
+                    <h2 class="panel-header"><i class="fas fa-image"></i> Avatar</h2>
                     <div class="form-row">
-                        <label for="avatarFile">Select Avatar:</label>
-                        <input id="avatarFile" type="file" name="avatarFile" accept="image/*" class="input">
+                        <label><i class="fas fa-upload"></i> Select Avatar:</label>
+                        <input type="file" name="avatarFile" accept="image/*" class="input"/>
+                        <div th:if="${errors?.containsKey('avatarFile')}" class="text-danger" th:text="${errors.get('avatarFile')}"></div>
+                        <div th:if="${session.tempAvatarName}" class="form-text">
+                            <i class="fas fa-clock"></i> Selected: <strong th:text="${session.tempAvatarName}"></strong>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Personal Info -->
                 <section class="win11-panel">
-                    <h2 class="panel-header">Colleague Information</h2>
+                    <h2 class="panel-header"><i class="fas fa-user"></i> Personal Information</h2>
                     <div class="form-group grid-2">
                         <div class="form-row">
-                            <label for="firstName">First Name:</label>
-                            <input id="firstName" th:field="*{firstName}" required type="text" class="input">
+                            <label>First Name *</label>
+                            <input th:field="*{firstName}" required class="input"/>
+                            <div th:if="${errors?.containsKey('firstName')}" class="text-danger" th:text="${errors.get('firstName')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="lastName">Last Name:</label>
-                            <input id="lastName" th:field="*{lastName}" required type="text" class="input">
+                            <label>Last Name *</label>
+                            <input th:field="*{lastName}" required class="input"/>
+                            <div th:if="${errors?.containsKey('lastName')}" class="text-danger" th:text="${errors.get('lastName')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="email">Email:</label>
-                            <input id="email" th:field="*{email}" required type="email" class="input">
-                            <small class="form-text">Account details will be emailed.</small>
+                            <label>Email *</label>
+                            <input th:field="*{email}" type="email" required class="input"/>
+                            <div th:if="${errors?.containsKey('email')}" class="text-danger" th:text="${errors.get('email')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="phoneNumber">Phone Number:</label>
-                            <input id="phoneNumber" th:field="*{phoneNumber}" required type="text" class="input">
+                            <label>Phone</label>
+                            <input th:field="*{phoneNumber}" class="input"/>
+                            <div th:if="${errors?.containsKey('phoneNumber')}" class="text-danger" th:text="${errors.get('phoneNumber')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="birthDate">Birth Date:</label>
-                            <input id="birthDate" th:field="*{birthDate}" type="date" class="input">
+                            <label>Birth Date</label>
+                            <input th:field="*{birthDate}" type="date" class="input"/>
+                            <div th:if="${errors?.containsKey('birthDate')}" class="text-danger" th:text="${errors.get('birthDate')}"></div>
                         </div>
                         <div class="form-row">
-                            <label for="gender">Gender:</label>
-                            <select id="gender" th:field="*{gender}" class="input">
+                            <label>Gender *</label>
+                            <select th:field="*{gender}" required class="input">
                                 <option value="">Select gender</option>
                                 <option th:each="g : ${T(com.example.demo.entity.Enums.Gender).values()}"
                                         th:value="${g}" th:text="${g}"></option>
                             </select>
+                            <div th:if="${errors?.containsKey('gender')}" class="text-danger" th:text="${errors.get('gender')}"></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Address -->
+                <!-- Campus -->
                 <section class="win11-panel">
-                    <h2 class="panel-header">Address Information</h2>
-                    <div class="form-group grid-2">
-                        <div class="form-row"><label for="country">Country:</label><input id="country" th:field="*{country}" class="input"></div>
-                        <div class="form-row"><label for="province">Province:</label><input id="province" th:field="*{province}" class="input"></div>
-                        <div class="form-row"><label for="city">City:</label><input id="city" th:field="*{city}" class="input"></div>
-                        <div class="form-row"><label for="district">District:</label><input id="district" th:field="*{district}" class="input"></div>
-                        <div class="form-row"><label for="ward">Ward:</label><input id="ward" th:field="*{ward}" class="input"></div>
-                        <div class="form-row"><label for="street">Street/House:</label><input id="street" th:field="*{street}" class="input"></div>
-                        <div class="form-row"><label for="postalCode">Postal Code:</label><input id="postalCode" th:field="*{postalCode}" class="input"></div>
+                    <h2 class="panel-header"><i class="fas fa-building"></i> Workplace</h2>
+                    <div class="form-row">
+                        <label>Campus *</label>
+                        <select name="campusId" required class="input">
+                            <option value="">-- Select Campus --</option>
+                            <option th:each="c : ${campuses}"
+                                    th:value="${c.campusId}"
+                                    th:text="${c.campusName}"
+                                    th:selected="${campusId != null and campusId.equals(c.campusId)}"></option>
+                        </select>
+                        <div th:if="${errors?.containsKey('campusId')}" class="text-danger" th:text="${errors.get('campusId')}"></div>
                     </div>
                 </section>
 
-                <!-- Actions -->
+                <!-- Address (Optional) -->
+                <section class="win11-panel">
+                    <h2 class="panel-header"><i class="fas fa-map-marker-alt"></i> Address (Optional)</h2>
+                    <div class="form-group grid-2">
+                        <div class="form-row"><label>Country</label><input th:field="*{country}" class="input"></div>
+                        <div class="form-row"><label>Province</label><input th:field="*{province}" class="input"></div>
+                        <div class="form-row"><label>City</label><input th:field="*{city}" class="input"></div>
+                        <div class="form-row"><label>District</label><input th:field="*{district}" class="input"></div>
+                        <div class="form-row"><label>Ward</label><input th:field="*{ward}" class="input"></div>
+                        <div class="form-row"><label>Street/House</label><input th:field="*{street}" class="input"></div>
+                        <div class="form-row"><label>Postal Code</label><input th:field="*{postalCode}" class="input"></div>
+                    </div>
+                </section>
+
                 <div class="form-actions">
-                    <button type="submit" class="btn primary">Save Colleague</button>
-                    <button type="button" class="btn danger" onclick="closeOverlay()">Cancel</button>
+                    <button type="submit" class="btn primary"><i class="fas fa-save"></i> Save Colleague</button>
+                    <button type="button" class="btn danger" onclick="closeOverlay()"><i class="fas fa-times"></i> Cancel</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        function openOverlay() {
+            document.getElementById('addOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeOverlay() {
+            document.getElementById('addOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        if (document.querySelector('.overlay.active')) openOverlay();
+    </script>
 </div>
-
-<script>
-    function openOverlay() {
-        document.getElementById('addOverlay').classList.add('active');
-    }
-    function closeOverlay() {
-        document.getElementById('addOverlay').classList.remove('active');
-    }
-</script>
-
-<script th:if="${openAddOverlay}">
-    document.addEventListener("DOMContentLoaded", openOverlay);
-</script>
 </body>
 </html>

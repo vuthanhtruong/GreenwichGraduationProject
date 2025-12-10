@@ -130,8 +130,15 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <img class="submission-avatar"
-                                     th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}" />
+                                     th:if="${sub.submittedBy.avatar != null}"
+                                     th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}"
+                                     th:alt="${sub.submittedBy.getFullName()}"
+                                     onerror="this.src='${person.getDefaultAvatarPath()}'"/>
 
+                                <img class="submission-avatar"
+                                     th:unless="${sub.submittedBy.avatar != null}"
+                                     th:src="${sub.submittedBy.getDefaultAvatarPath()}"
+                                     th:alt="${sub.submittedBy.getFullName()}">
                                 <div>
                                     <strong th:text="${sub.submittedBy.firstName + ' ' + sub.submittedBy.lastName}"></strong><br>
                                     <small class="text-muted">ID: <span th:text="${sub.submittedBy.id}"></span></small>
@@ -239,7 +246,15 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <img class="submission-avatar"
-                                     th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}" />
+                                     th:if="${sub.submittedBy.avatar != null}"
+                                     th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}"
+                                     th:alt="${sub.submittedBy.getFullName()}"
+                                     onerror="this.src='${person.getDefaultAvatarPath()}'"/>
+
+                                <img class="submission-avatar"
+                                     th:unless="${sub.submittedBy.avatar != null}"
+                                     th:src="${sub.submittedBy.getDefaultAvatarPath()}"
+                                     th:alt="${sub.submittedBy.getFullName()}"/>
 
                                 <div>
                                     <strong th:text="${sub.submittedBy.firstName + ' ' + sub.submittedBy.lastName}"></strong><br>

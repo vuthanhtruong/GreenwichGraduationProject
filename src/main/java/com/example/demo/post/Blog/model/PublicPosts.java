@@ -1,4 +1,4 @@
-package com.example.demo.entity.AbstractClasses;
+package com.example.demo.post.Blog.model;
 
 import com.example.demo.comment.model.PublicComments;
 import jakarta.persistence.*;

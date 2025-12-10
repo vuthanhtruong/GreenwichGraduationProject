@@ -1,7 +1,7 @@
 package com.example.demo.document.dao;
 
 import com.example.demo.document.model.Documents;
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.Blog.model.PublicPosts;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

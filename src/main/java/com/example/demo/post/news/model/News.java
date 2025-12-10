@@ -1,7 +1,7 @@
 package com.example.demo.post.news.model;
 
 import com.example.demo.document.model.Documents;
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.Blog.model.PublicPosts;
 import com.example.demo.user.staff.model.Staffs;
 import jakarta.persistence.*;
 import lombok.Getter;

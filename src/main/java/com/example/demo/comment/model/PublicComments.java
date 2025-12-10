@@ -1,6 +1,6 @@
 package com.example.demo.comment.model;
 
-import com.example.demo.entity.AbstractClasses.PublicPosts;
+import com.example.demo.post.Blog.model.PublicPosts;
 import com.example.demo.user.person.model.Persons;
 import jakarta.persistence.*;
 import lombok.Getter;

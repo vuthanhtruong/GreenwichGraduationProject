@@ -101,7 +101,15 @@
                     <div class="d-flex align-center gap-12">
 
                         <img class="submission-avatar"
-                             th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}">
+                             th:if="${sub.submittedBy.avatar != null}"
+                             th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}"
+                             th:alt="${sub.submittedBy.getFullName()}"
+                             onerror="this.src='${person.getDefaultAvatarPath()}'"/>
+
+                        <img class="submission-avatar"
+                             th:unless="${sub.submittedBy.avatar != null}"
+                             th:src="${sub.submittedBy.getDefaultAvatarPath()}"
+                             th:alt="${sub.submittedBy.getFullName()}"/>
 
                         <div>
                             <strong th:text="${sub.submittedBy.firstName + ' ' + sub.submittedBy.lastName}"></strong>
@@ -211,7 +219,15 @@
 
                     <div class="d-flex align-center gap-12">
                         <img class="submission-avatar"
-                             th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}">
+                             th:if="${sub.submittedBy.avatar != null}"
+                             th:src="@{'/persons/avatar/' + ${sub.submittedBy.id}}"
+                             th:alt="${sub.submittedBy.getFullName()}"
+                             onerror="this.src='${person.getDefaultAvatarPath()}'"/>
+
+                        <img class="submission-avatar"
+                             th:unless="${sub.submittedBy.avatar != null}"
+                             th:src="${sub.submittedBy.getDefaultAvatarPath()}"
+                             th:alt="${sub.submittedBy.getFullName()}"/>
 
                         <div>
                             <strong th:text="${sub.submittedBy.firstName + ' ' + sub.submittedBy.lastName}"></strong>
