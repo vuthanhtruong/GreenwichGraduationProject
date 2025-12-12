@@ -61,10 +61,12 @@
                 <td th:text="${syllabus.fileType != null ? syllabus.fileType : 'N/A'}"></td>
                 <td th:text="${syllabus.status != null ? syllabus.status : 'N/A'}"></td>
                 <td>
-                    <a th:if="${syllabus.filePath != null}" th:href="@{${syllabus.filePath}}" class="btn primary small" target="_blank">
+                    <a th:if="${syllabus.filePath != null}"
+                       th:href="@{${syllabus.filePath}}"
+                       class="btn primary small" target="_blank">
                         <i class="fas fa-eye"></i> View
                     </a>
-                    <span th:if="${syllabus.filePath == null}" class="text-muted">No file</span>
+                    <span th:if="${syllabus.filePath == null}" class="text-muted">No file attached</span>
                 </td>
             </tr>
             <tr th:if="${Syllabuses == null or Syllabuses.isEmpty()}">
