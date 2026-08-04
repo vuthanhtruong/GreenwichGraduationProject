@@ -1,0 +1,118 @@
+# =============================================================
+# Ha tang + 4 microservice.
+# Chay tat ca:      docker compose up --build -d
+# Xem log consumer: docker compose logs -f email-service notification-service audit-service
+# =============================================================
+services:
+
+  # ---------- Kafka Broker (KRaft mode - khong can Zookeeper) ----------
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    ports:
+      - "9092:9092"          # EXTERNAL listener cho app chay tren máy host (localhost:9092)
+    environment:
+      KAFKA_NODE_ID: 1
+      # Tu Kafka 3.x: broker kiem luon vai tro controller (KRaft), bo Zookeeper
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      # 2 listener: INTERNAL cho cac container trong mang docker (kafka:29092),
+      # EXTERNAL cho app chay ngoai docker (localhost:9092).
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      # 1 broker nen replication factor cua cac topic noi bo = 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # Tat auto-create de topic luon duoc tao chu dong (NewTopic bean) - thoi quen tot
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  # ---------- Kafka UI: nhin topic/partition/offset/consumer group bang mat ----------
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8085:8080"          # http://localhost:8085
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ---------- Database cho payment-service ----------
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: paymentdb
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d paymentdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------- PRODUCER ----------
+  payment-service:
+    build:
+      context: .                                  # context = kafka-demo de copy duoc common-event
+      dockerfile: payment-service/Dockerfile
+    container_name: payment-service
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092        # trong mang docker dung listener INTERNAL
+      DB_URL: jdbc:postgresql://postgres:5432/paymentdb
+      DB_USER: demo
+      DB_PASSWORD: demo
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # ---------- CONSUMERS (khong expose port nao - khong co REST API) ----------
+  email-service:
+    build:
+      context: .
+      dockerfile: email-service/Dockerfile
+    container_name: email-service
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  audit-service:
+    build:
+      context: .
+      dockerfile: audit-service/Dockerfile
+    container_name: audit-service
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
